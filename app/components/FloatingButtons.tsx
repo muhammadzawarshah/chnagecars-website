@@ -32,7 +32,7 @@ export default function FloatingButtons() {
         <>
             <a
                 onClick={scrollToTop}
-                className={`fixed right-8.25 bottom-61.25 z-79 size-11.25 cursor-pointer rounded-[10px] border-2 border-[#957e4e] bg-ink bg-[url(/img/back-to-top-btn.svg)] bg-size-[100%] bg-center bg-no-repeat transition-all duration-500 hover:scale-[1.03] hover:border-gold hover:opacity-70 hover:duration-200 max-[537px]:bottom-41.25 ${showTop ? "block" : "hidden"}`}
+                className={`fixed right-8.25 bottom-61.25 z-79 size-11.25 cursor-pointer rounded-[10px] border-2 border-[#957e4e] bg-ink bg-[url(/img/back-to-top-btn.svg)] bg-size-[100%] bg-center bg-no-repeat transition-all duration-500 ease-[ease] hover:scale-[1.03] min-[1024px]:hover:opacity-70 max-[537px]:bottom-41.25 ${showTop ? "block" : "hidden"}`}
             ></a>
             <div
                 onClick={() => open("help")}
