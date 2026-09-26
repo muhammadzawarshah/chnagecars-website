@@ -1,7 +1,9 @@
 "use client"
 
+import AdBanner from "../../../components/AdBanner"
 import Carousel from "../../../components/Carousel"
 import SectionTitle from "../../../components/SectionTitle"
+import { dealersAd } from "../Data/ads"
 import { dealers } from "../Data/dealers"
 import DealerCard from "./DealerCard"
 
@@ -21,6 +23,7 @@ export default function FeaturedDealers() {
                         renderItem={(dealer) => <DealerCard dealer={dealer} />}
                     />
                 </div>
+                <AdBanner ad={dealersAd} className="mx-auto mt-20 mb-7.5 block w-full max-w-199 max-[901px]:mt-13.75 max-[901px]:mb-0" />
             </section>
         </>
     )

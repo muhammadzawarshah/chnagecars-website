@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import AdBanner from "../../../../components/AdBanner"
+import { heroAd } from "../../Data/ads"
 import { makes } from "../../Data/makes"
 import { CountOption, drivenWheels, fuelTypes, maxPrices, mileages, minPrices, totalCars, transmissions, years } from "../../Data/search"
 import SelectField from "./SelectField"
@@ -167,6 +169,8 @@ export default function SideSearch() {
                     </a>
                     <a onClick={() => { setFilters(emptyFilters); setExtraFilters({}); }} className="block cursor-pointer text-center text-sm text-white hover:underline">Clear Search</a>
                 </div>
+
+                <AdBanner ad={heroAd} className="mx-auto mt-7.5 mb-12.5 hidden w-full max-w-199 clear-both max-[601px]:block" />
 
                 {showMore && (
                     <AdditionalFiltersModal

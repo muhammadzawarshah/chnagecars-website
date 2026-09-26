@@ -7,6 +7,7 @@ import Specials from "./Section/Specials"
 import FeaturedDealers from "./Section/FeaturedDealers"
 import CallToActions from "./Section/CallToActions"
 import PopularBrands from "./Section/PopularBrands"
+import BottomAd from "./Section/BottomAd"
 
 export default function Home() {
     return (
@@ -22,7 +23,8 @@ export default function Home() {
                 <FeaturedDealers />
                 <CallToActions />
                 <PopularBrands />
-                <div className="relative top-px -mt-0.5 h-px"></div>
+                <BottomAd />
+                <div className="relative top-px -mt-px h-px"></div>
             </main>
         </>
     )

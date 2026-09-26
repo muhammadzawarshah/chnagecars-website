@@ -24,6 +24,8 @@
   --text-3xl--line-height: 1.15;
   --text-4xl--line-height: 1.15;
   --animate-logo-pop: logoPop 5s infinite 2s;
+  --animate-wheel: wheel 4s infinite;
+  --animate-wheel-smoke: wheel_smoke 4s infinite;
 }
 
 html {
@@ -39,11 +41,14 @@ body {
 }
 
 @keyframes wheel {
-  from {
-    transform: rotate(0deg);
+  0% {
+    transform: rotate(0);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: rotate(-1800deg);
+  }
+  100% {
+    transform: rotate(-1800deg);
   }
 }
 
