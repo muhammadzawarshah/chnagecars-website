@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-gold: #957e4d;
+  --color-ink: #1a1a1a;
+  --color-charcoal: #48484a;
+  --color-slate: #4e4e4f;
+  --color-coal: #161616;
+  --color-cloud: #efefef;
+  --color-menu: #3c3c3c;
+  --color-menu-hover: #606060;
+  --color-panel: #dddcdc;
+  --color-muted: #777676;
+  --color-text-dark: #212121;
+  --color-snow: #fcfcfc;
+  --font-sans: var(--font-lato);
+  --font-inter: var(--font-inter);
+  --text-xs--line-height: 1.15;
+  --text-sm--line-height: 1.15;
+  --text-base--line-height: 1.15;
+  --text-lg--line-height: 1.15;
+  --text-xl--line-height: 1.15;
+  --text-2xl--line-height: 1.15;
+  --text-3xl--line-height: 1.15;
+  --text-4xl--line-height: 1.15;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #48484a;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  font-family: var(--font-lato), sans-serif;
+}
+
+@keyframes wheel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wheel_smoke {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.5;
+  }
+  10% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tilt-shaking {
+  0%,
+  10%,
+  20%,
+  100% {
+    transform: rotate(90deg);
+  }
+  5% {
+    transform: rotate(95deg);
+  }
+  15% {
+    transform: rotate(85deg);
+  }
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}

@@ -1,0 +1,18 @@
+import { carBrands, exoticBrands, motorbikeBrands } from "../Data/brands"
+import BrandCarousel from "./BrandCarousel"
+import PopularAreas from "./PopularAreas"
+
+export default function PopularBrands() {
+    return (
+        <>
+            <section className="-mt-px bg-white px-8.75">
+                <div className="mx-auto max-w-350 pb-15 max-[901px]:pb-2.5">
+                    <BrandCarousel title={<>Popular Car Brands and <strong>Models</strong></>} brands={carBrands} />
+                    <BrandCarousel title={<>Popular Motorbike Brands and <strong>Models</strong></>} brands={motorbikeBrands} />
+                    <BrandCarousel title={<>Popular Exotic Car Brands and <strong>Models</strong></>} brands={exoticBrands} />
+                    <PopularAreas />
+                </div>
+            </section>
+        </>
+    )
+}
