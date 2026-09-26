@@ -33,7 +33,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${lato.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${lato.variable} ${inter.variable}`}>
       <body className="max-[981px]:mt-15">
         <ViewportScript />
         <PopupProvider>

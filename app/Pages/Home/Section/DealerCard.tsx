@@ -14,7 +14,7 @@ export default function DealerCard({ dealer }: { dealer: Dealer }) {
                     <img src="/img/dealer-popup-close.svg" alt="Close" className="size-full" />
                 </span>
                 <img src="/img/five-star-mark-of-excellence-black.png" alt="Five star rating" className="h-auto w-22.75" />
-                <h3 className="my-5.5 max-h-6.25 overflow-hidden px-2.5 text-center text-2xl leading-6 font-bold text-gold">{dealer.name}</h3>
+                <h3 className="my-5.5 max-h-6.25 overflow-hidden px-2.5 text-center text-2xl leading-6 font-bold text-gold uppercase">{dealer.name}</h3>
                 <p className="mt-0 mb-3.75 px-5 text-center text-base leading-[19.2px] font-bold text-[#4f4f4f]">
                     This Dealership is Five star rated by <b>CHANGECARS!</b> They offer exceptional service and products.
                 </p>
