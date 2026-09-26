@@ -8,6 +8,8 @@ import { CountOption, drivenWheels, fuelTypes, maxPrices, mileages, minPrices, t
 import SelectField from "./SelectField"
 import MakeModelSelect from "./MakeModelSelect"
 import PriceSelect from "./PriceSelect"
+import CustomPriceInputs from "./CustomPriceInputs"
+import { formatMoney, monthlyToPrice, priceToMonthly } from "./price"
 import ListSelect from "./ListSelect"
 import BodyTypeSelect from "./BodyTypeSelect"
 import AdditionalFiltersModal from "./AdditionalFiltersModal"
@@ -50,8 +52,10 @@ function countMap(options: CountOption[]) {
     return Object.fromEntries(options.map((option) => [option.name, option.count]));
 }
 
+const emptyCustomMax = { price: "", monthly: "" };
+
 function formatPrice(value: number | null, fallback: string) {
-    return value === null ? fallback : `R${value.toLocaleString("en-ZA").replace(/,/g, " ")}`;
+    return value === null ? fallback : `R${formatMoney(value)}`;
 }
 
 function formatList(values: string[], fallback: string) {
@@ -66,7 +70,13 @@ export default function SideSearch() {
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
+    const [customMax, setCustomMax] = useState(emptyCustomMax);
+    const [maxLabelSmall, setMaxLabelSmall] = useState(false);
     const asideRef = useRef<HTMLElement>(null);
+    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const customValue = Number(customMax.price.replace(/\D/g, ""));
+    const customOption = customMax.price ? { value: customValue, price: `R${formatMoney(customValue)}`, monthly: `R${formatMoney(priceToMonthly(customValue))} p/m` } : null;
 
     useEffect(() => {
         function handleClick(e: MouseEvent) {
@@ -79,7 +89,47 @@ export default function SideSearch() {
     }, []);
 
     function toggle(name: string) {
+        if (closeTimer.current) clearTimeout(closeTimer.current);
         setOpen(open === name ? null : name);
+    }
+
+    function selectPrice(key: "minPrice" | "maxPrice", value: number, custom: boolean) {
+        const next = { ...filters, [key]: value };
+        if (key === "maxPrice" && next.minPrice !== null && value < next.minPrice && minPrices.some((option) => option.value === value)) next.minPrice = value;
+        if (key === "minPrice" && next.maxPrice !== null && value > next.maxPrice && maxPrices.some((option) => option.value === value)) next.maxPrice = value;
+        if ((key === "maxPrice" && !custom) || next.maxPrice !== filters.maxPrice) setCustomMax(emptyCustomMax);
+        setFilters(next);
+        setOpen(null);
+    }
+
+    function enforceMinNotAboveMax() {
+        setFilters((current) => {
+            const max = current.maxPrice;
+            if (current.minPrice === null || max === null || current.minPrice <= max) return current;
+            const candidate = minPrices.filter((option) => option.value <= max).pop();
+            return { ...current, minPrice: candidate ? candidate.value : null };
+        });
+    }
+
+    function applyCustomMax(price: number | null, autoClose: boolean) {
+        setFilters((current) => ({ ...current, maxPrice: price }));
+        if (price !== null && `R${formatMoney(price)}`.length > 9) setMaxLabelSmall(true);
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        if (autoClose) closeTimer.current = setTimeout(() => { setOpen(null); enforceMinNotAboveMax(); }, 2000);
+    }
+
+    function changeCustomPrice(value: string) {
+        const raw = value.replace(/\D/g, "").slice(0, 11);
+        const price = raw ? Number(raw) : null;
+        setCustomMax(price === null ? emptyCustomMax : { price: `R${formatMoney(price)}`, monthly: `R${formatMoney(priceToMonthly(price))}` });
+        applyCustomMax(price, raw.length > 4);
+    }
+
+    function changeCustomMonthly(value: string) {
+        const raw = value.replace(/\D/g, "").slice(0, 11);
+        const price = raw ? monthlyToPrice(Number(raw)) : null;
+        setCustomMax(price === null ? emptyCustomMax : { price: `R${formatMoney(price)}`, monthly: `R${formatMoney(Number(raw))}` });
+        applyCustomMax(price, raw.length > 3);
     }
 
     function update<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -119,10 +169,12 @@ export default function SideSearch() {
                     </SelectField>
 
                     <SelectField label={formatPrice(filters.minPrice, "Min Price")} open={open === "minPrice"} onToggle={() => toggle("minPrice")} className="w-[48%]">
-                        <PriceSelect options={minPrices} selected={filters.minPrice} onSelect={(value) => update("minPrice", value)} />
+                        <PriceSelect options={minPrices} selected={filters.minPrice} onSelect={(value, custom) => selectPrice("minPrice", value, custom)} />
                     </SelectField>
-                    <SelectField label={formatPrice(filters.maxPrice, "Max Price")} open={open === "maxPrice"} onToggle={() => toggle("maxPrice")} className="w-[48%]">
-                        <PriceSelect options={maxPrices} selected={filters.maxPrice} alignRight onSelect={(value) => update("maxPrice", value)} />
+                    <SelectField label={formatPrice(filters.maxPrice, "Max Price")} open={open === "maxPrice"} onToggle={() => toggle("maxPrice")} small={maxLabelSmall} className="w-[48%]">
+                        <PriceSelect options={maxPrices} selected={filters.maxPrice} customOption={customOption} alignRight onSelect={(value, custom) => selectPrice("maxPrice", value, custom)}>
+                            <CustomPriceInputs price={customMax.price} monthly={customMax.monthly} onPriceChange={changeCustomPrice} onMonthlyChange={changeCustomMonthly} onCommit={enforceMinNotAboveMax} />
+                        </PriceSelect>
                     </SelectField>
 
                     <SelectField label={filters.minYear ?? "Min Year"} open={open === "minYear"} onToggle={() => toggle("minYear")} className="w-[48%]">
@@ -167,7 +219,7 @@ export default function SideSearch() {
                         <span className="mr-2.75 -mb-0.5 inline-block size-3.5 bg-[url(/img/magnifying-glass-white.svg)] bg-contain bg-no-repeat"></span>
                         Search Vehicles
                     </a>
-                    <a onClick={() => { setFilters(emptyFilters); setExtraFilters({}); }} className="block cursor-pointer text-center text-sm text-white hover:underline">Clear Search</a>
+                    <a onClick={() => { setFilters(emptyFilters); setExtraFilters({}); setCustomMax(emptyCustomMax); setMaxLabelSmall(false); }} className="block cursor-pointer text-center text-sm text-white hover:underline">Clear Search</a>
                 </div>
 
                 <AdBanner ad={heroAd} className="mx-auto mt-7.5 mb-12.5 hidden w-full max-w-199 clear-both max-[601px]:block" />
