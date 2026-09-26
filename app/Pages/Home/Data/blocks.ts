@@ -48,10 +48,10 @@ export const quickBlocks: ImageBlock[] = [
 ];
 
 export const articles: Article[] = [
-    { title: "Ultra Range Rover lands", date: "May 04, 2026", image: "/images/blogs/260504/RR_SV_Ultra_27MY_Exterior_02_290426.jpg", href: `${site}/blogs/ultra-range-rover-lands` },
-    { title: "Road Review - Geely EX5", date: "April 29, 2026", image: "/images/blogs/260429/Geely-EX5-Ultra-Rainforest-Green-2.jpg", href: `${site}/blogs/road-review-geely-ex5` },
-    { title: "Extreme economy testing", date: "April 29, 2026", image: "/images/blogs/260429/LCL_0706__11947288.jpg", href: `${site}/blogs/extreme-economy-testing` },
-    { title: "Renault backs model idea", date: "April 29, 2026", image: "/images/blogs/260429/23535-lego-t3e-maison-renault-2.jpg", href: `${site}/blogs/renault-backs-model-idea` },
+    { title: "Continental expands tyre choice", date: "September 25, 2026", image: "/images/blogs/260925/3843SportContact7.jpeg", href: `${site}/blogs/continental-expands-tyre-choice` },
+    { title: "Time for a JAC Black", date: "September 25, 2026", image: "/images/blogs/260925/960T9BlackEditionLead.jpg", href: `${site}/blogs/time-for-a-jac-black` },
+    { title: "Road Review - Omoda C5 Lux X", date: "September 24, 2026", image: "/images/blogs/260924/Screenshot-2026-09-24-094107.png", href: `${site}/blogs/road-review-omoda-c5-lux-x` },
+    { title: "Citroen heads for the Outdoor", date: "September 23, 2026", image: "/images/blogs/260923/009.jpg", href: `${site}/blogs/citroen-heads-for-the-outdoor` },
 ];
 
 export const carTypes: CarType[] = [
@@ -74,18 +74,18 @@ export const carTypes: CarType[] = [
 ];
 
 export const specials: ImageBlock[] = [
-    { title: "OMODA Style X", image: "https://www.changecars.co.za/images/specials/260212/style-x.png", href: `${site}/specials/single/style-x` },
-    { title: "GWM P300 LS", image: "https://www.changecars.co.za/images/specials/260203/gwm-p300-ls.png", href: `${site}/specials/single/p300-ls` },
-    { title: "F-Series SBR 500 Special Edition", image: "/images/specials/260130/isuzu-2026.png", href: `${site}/specials/single/f-series-sbr-500-special-edition` },
-    { title: "Tiggo 4 Cross ME", image: "https://www.changecars.co.za/images/specials/260212/tiggo-4.png", href: `${site}/specials/single/4-cross-me` },
-    { title: "Alfa Romeo Junior Elettrica", image: "https://www.changecars.co.za/images/specials/260203/afla-2026.png", href: `${site}/specials/single/junior-elettrica` },
-    { title: "Ford New Territory", image: "/images/specials/260130/Ford-new-terrioty.png", href: `${site}/specials/single/new-territory` },
-    { title: "Haval Jolion City 1.5T", image: "/images/specials/260217/haval.png", href: `${site}/specials/single/haval-jolion-city-15t` },
-    { title: "Jeep Gladiator", image: "/images/specials/260203/jeep-westvaal.png", href: `${site}/specials/single/gladiator` },
-    { title: "Foton Tunland G7", image: "https://www.changecars.co.za/images/specials/260217/foton.png", href: `${site}/specials/single/foton-tunland-g7` },
-    { title: "Omoda C5 Street", image: "/images/specials/260316/street-plus.png", href: `${site}/specials/single/omoda-c5-street` },
-    { title: "Audi Q5 40 TDI quattro S", image: "https://www.changecars.co.za/images/specials/260212/Q5.png", href: `${site}/specials/single/q5-40-tdi-quattro-s-tronic-advanced` },
-    { title: "Suzuki Fronx 1.5 GL 5MT", image: "/images/specials/260203/fronx.png", href: `${site}/specials/single/fronx-15-gl-5mt` },
+    { title: "Truck Month", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-1-42648-1.jpg", href: `${site}/specials/single/truck-month` },
+    { title: "Ranger XL 2.0 SIT Single/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-2-42648-1.jpg", href: `${site}/specials/single/the-ranger-xl-20-sit-singlec-x4-at` },
+    { title: "Ranger Sport 3.0 V6 D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-8-42648-1.jpg", href: `${site}/specials/single/ranger-sport-30-v6-dc-4x4-at` },
+    { title: "Ranger XL 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-6-42648-1.jpg", href: `${site}/specials/single/ranger-xl-20-sit-dc-4x4-at` },
+    { title: "Suzuki S-Presso GL+ MT", image: "/images/specials/260909/suzuki-gl.png", href: `${site}/specials/single/suzuki-s-presso-gl-mt` },
+    { title: "Omoda C7 Luxury", image: "/images/specials/260910/c7.png", href: `${site}/specials/single/omoda-c7-luxury` },
+    { title: "Ranger Sport 3.0 V6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-4-42648-1.jpg", href: `${site}/specials/single/ranger-sport-30-v6-supc-4x4-at` },
+    { title: "Geely E2 Aspire", image: "/images/specials/260917/geely-e2.png", href: `${site}/specials/single/geely-e2-aspire` },
+    { title: "Ranger Wildtrak 3.0 v6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-5-42648-1.jpg", href: `${site}/specials/single/ranger-wildtrak-30-v6-supc-4x4-at` },
+    { title: "All new Mazda CX-5 Individual 2.5L AT", image: "/images/specials/260910/mazda-cx5.png", href: `${site}/specials/single/all-new-mazda-cx-5-individual-25l-at` },
+    { title: "Ranger XL 2.0 SIT SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-3-42648-1.jpg", href: `${site}/specials/single/ranger-xl-20-sit-supc-4x4-at` },
+    { title: "Ranger XLT 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-7-42648-1.jpg", href: `${site}/specials/single/ranger-xlt-20-sit-dc-4x4-at` },
 ];
 
 export const ctas: Cta[] = [

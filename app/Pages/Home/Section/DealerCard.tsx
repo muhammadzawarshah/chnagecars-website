@@ -13,8 +13,8 @@ export default function DealerCard({ dealer }: { dealer: Dealer }) {
                 <span onClick={() => setShowRating(false)} className="absolute top-2.5 right-2.5 size-5.5 cursor-pointer">
                     <img src="/img/dealer-popup-close.svg" alt="Close" className="size-full" />
                 </span>
-                <img src="/img/dealer-five-star-rating.svg" alt="Five star rating" className="h-auto w-22.75" />
-                <h3 className="mt-8.25 mb-5.5 max-h-6.25 overflow-hidden px-2.5 text-center text-2xl leading-6 font-bold text-gold">{dealer.name}</h3>
+                <img src="/img/five-star-mark-of-excellence-black.png" alt="Five star rating" className="h-auto w-22.75" />
+                <h3 className="my-5.5 max-h-6.25 overflow-hidden px-2.5 text-center text-2xl leading-6 font-bold text-gold">{dealer.name}</h3>
                 <p className="mt-0 mb-3.75 px-5 text-center text-base leading-[19.2px] font-bold text-[#4f4f4f]">
                     This Dealership is Five star rated by <b>CHANGECARS!</b> They offer exceptional service and products.
                 </p>
@@ -26,7 +26,7 @@ export default function DealerCard({ dealer }: { dealer: Dealer }) {
                 <span className="mx-auto mt-6.25 block h-20 w-50 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${dealer.logo})` }}></span>
                 <h3 className="mt-5 mb-3.75 max-h-6.25 overflow-hidden px-5 text-center text-xl leading-6 font-bold text-slate uppercase">{dealer.name}</h3>
                 <p className="mt-3.5 mb-7.5 line-clamp-3 h-19.5 overflow-hidden px-5 text-sm leading-6.5 font-normal text-slate">{dealer.description}</p>
-                <h4 className="m-0 rounded-b-[10px] border border-gold bg-gold py-2 text-center font-inter text-[13px] leading-4.75 font-bold text-white uppercase no-underline">View Dealer</h4>
+                <h4 className="m-0 h-8.75 overflow-hidden rounded-b-[10px] border border-gold bg-gold px-2.5 py-2 text-center font-inter text-[13px] leading-4.75 font-bold whitespace-nowrap text-white uppercase no-underline">View Dealer</h4>
             </a>
         </>
     )

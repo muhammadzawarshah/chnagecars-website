@@ -2,19 +2,10 @@
 
 import Carousel from "../../../components/Carousel"
 import SectionTitle from "../../../components/SectionTitle"
-import useWindowWidth from "../../../components/useWindowWidth"
 import { carTypes } from "../Data/blocks"
 import CarTypeCard from "./CarTypeCard"
 
-function isDark(index: number, columns: number) {
-    return (Math.floor(index / columns) + (index % columns)) % 2 === 0;
-}
-
 export default function CarTypes() {
-
-    const width = useWindowWidth();
-    const columns = width >= 1469 ? 4 : width >= 1108 ? 3 : 2;
-
     return (
         <>
             <section className="-mt-px flex min-h-screen flex-col items-center justify-center bg-white px-8.75 pt-25 pb-17.5 max-[901px]:pt-11.25 max-[901px]:pb-13.75 max-[747px]:min-h-0">
@@ -25,10 +16,10 @@ export default function CarTypes() {
                     </p>
                 </div>
 
-                <ul className="mx-auto mt-17.5 mb-17.5 flex w-full max-w-350 list-none flex-wrap items-center justify-center gap-x-11.25 gap-y-13.75 p-0 max-[901px]:mt-10 max-[747px]:hidden">
-                    {carTypes.map((carType, index) => (
+                <ul className="car-type-grid mx-auto mt-17.5 mb-17.5 flex w-full max-w-350 list-none flex-wrap items-center justify-center gap-x-11.25 gap-y-13.75 p-0 max-[901px]:mt-10 max-[747px]:hidden">
+                    {carTypes.map((carType) => (
                         <li key={carType.title} className="w-full max-w-79 rounded-[10px] shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]">
-                            <CarTypeCard carType={carType} dark={isDark(index, columns)} />
+                            <CarTypeCard carType={carType} />
                         </li>
                     ))}
                 </ul>
@@ -44,8 +35,8 @@ export default function CarTypes() {
                         listClass="min-h-100 pt-2.5"
                         itemClass="relative left-2.5 text-center"
                         renderItem={(carType, index, visible) => (
-                            <div className={visible ? "rounded-[10px] shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}>
-                                <CarTypeCard carType={carType} dark={index % 2 === 0} />
+                            <div className={`${index % 2 === 0 ? "car-type-dark" : ""} ${visible ? "rounded-[10px] shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}`}>
+                                <CarTypeCard carType={carType} />
                             </div>
                         )}
                     />

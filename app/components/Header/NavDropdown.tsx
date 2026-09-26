@@ -46,23 +46,10 @@ export default function NavDropdown({ menu }: { menu: NavMenu }) {
                 </a>
                 <ul className={`absolute top-[calc(100%+5px)] z-5 m-0 w-fit list-none rounded-b-[9px] bg-menu p-0 shadow-[3px_3px_12px_rgba(0,0,0,0.2)] transition-[max-height] duration-100 -translate-x-1/2 ${isLogin ? "left-0" : "left-1/2"} ${open ? "max-h-125" : "max-h-0 overflow-hidden"}`}>
                     {menu.items?.map((item) => (
-                        <li key={item.label} className="group/item relative cursor-pointer whitespace-nowrap text-white transition-colors duration-500 last:hover:rounded-b-[10px] hover:bg-menu-hover">
-                            {item.children ? (
-                                <>
-                                    <a className="block px-5 py-2.5 text-white">{item.label}</a>
-                                    <ul className="absolute top-0 left-[calc(100%+85px)] m-0 -translate-x-1/2 max-h-0 list-none overflow-hidden rounded-b-[9px] bg-[#c3212a] p-0 shadow-[3px_3px_12px_rgba(0,0,0,0.2)] group-hover/item:max-h-125">
-                                        {item.children.map((child) => (
-                                            <li key={child.label} className="hover:bg-[rgba(93,16,20,0.3)]">
-                                                <a href={child.href} className="block px-5 py-2.5 text-white no-underline">{child.label}</a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </>
-                            ) : (
-                                <a href={item.href} onClick={(e) => handleItem(e, item)} target={item.external ? "_blank" : undefined} className="block h-full w-full px-5 py-2.5 text-white no-underline">
-                                    {item.label}
-                                </a>
-                            )}
+                        <li key={item.label} className="relative cursor-pointer whitespace-nowrap text-white transition-colors duration-500 last:hover:rounded-b-[10px] hover:bg-menu-hover">
+                            <a href={item.href} onClick={(e) => handleItem(e, item)} target={item.external ? "_blank" : undefined} className="block h-full w-full px-5 py-2.5 text-white no-underline">
+                                {item.label}
+                            </a>
                         </li>
                     ))}
                 </ul>

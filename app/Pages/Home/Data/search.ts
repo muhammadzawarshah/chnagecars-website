@@ -21,35 +21,35 @@ export type Colour = {
     hex: string
 }
 
-export const totalCars = "39 028";
+export const totalCars = "36 533";
 
 export const drivenWheels: CountOption[] = [
-    { name: "4X2", count: 28440 },
-    { name: "4X4", count: 8793 },
+    { name: "4X2", count: 27948 },
+    { name: "4X4", count: 8327 },
 ];
 
 export const transmissions: CountOption[] = [
-    { name: "Manual", count: 13143 },
-    { name: "Automatic", count: 25023 },
+    { name: "Manual", count: 11525 },
+    { name: "Automatic", count: 25831 },
 ];
 
 export const fuelTypes: CountOption[] = [
-    { name: "Petrol", count: 24467 },
-    { name: "Diesel", count: 12153 },
-    { name: "Hybrid", count: 207 },
-    { name: "Electric", count: 1339 },
+    { name: "Petrol", count: 23850 },
+    { name: "Diesel", count: 11579 },
+    { name: "Hybrid", count: 1455 },
+    { name: "Electric", count: 395 },
 ];
 
 export const searchProvinces: CountOption[] = [
-    { name: "Eastern Cape", count: 1239 },
-    { name: "Free State", count: 708 },
-    { name: "Gauteng", count: 22016 },
-    { name: "KwaZulu-Natal", count: 4669 },
-    { name: "Limpopo", count: 758 },
-    { name: "Mpumalanga", count: 1901 },
-    { name: "Northern Cape", count: 313 },
-    { name: "North West", count: 1781 },
-    { name: "Western Cape", count: 5643 },
+    { name: "Eastern Cape", count: 968 },
+    { name: "Free State", count: 842 },
+    { name: "Gauteng", count: 22158 },
+    { name: "KwaZulu-Natal", count: 4049 },
+    { name: "Limpopo", count: 1049 },
+    { name: "Mpumalanga", count: 1881 },
+    { name: "Northern Cape", count: 433 },
+    { name: "North West", count: 1737 },
+    { name: "Western Cape", count: 4640 },
 ];
 
 export const colours: Colour[] = [
@@ -112,19 +112,19 @@ export const mileages: string[] = [
 ];
 
 export const bodyTypes: BodyType[] = [
-    { name: "Boat", label: "Boat", icon: "/img/body-types/boat.png", count: 2 },
+    { name: "Boat", label: "Boat", icon: "/img/body-types/boat.png", count: 1 },
     { name: "Caravan", label: "Caravan", icon: "/img/body-types/caravan.png", count: 87 },
-    { name: "Convertible", label: "Convertible", icon: "/img/body-types/convertible.png", count: 161 },
-    { name: "Coupé", label: "Coupé", icon: "/img/body-types/coupe.png", count: 694 },
-    { name: "Double Cab Bakkie", label: "Double Cab -\nBakkie", icon: "/img/body-types/double-cab.png", count: 4748 },
-    { name: "Extended Cab", label: "Extended Cab", icon: "/img/body-types/bakkie.png", count: 192 },
-    { name: "Hatchback", label: "Hatchback", icon: "/img/body-types/hatchback.png", count: 8455 },
-    { name: "Minibus", label: "Minibus", icon: "/img/body-types/minivan.png", count: 564 },
-    { name: "Motorbike", label: "Motorbike", icon: "/img/body-types/motorbike.png", count: 1373 },
-    { name: "MPV", label: "MPV", icon: "/img/body-types/panel-van.png", count: 547 },
-    { name: "Panel Van", label: "Panel Van", icon: "/img/body-types/panel-van.png", count: 513 },
-    { name: "Sedan", label: "Sedan", icon: "/img/body-types/sedan.png", count: 2096 },
-    { name: "Single Cab Bakkie", label: "Single Cab Bakkie", icon: "/img/body-types/bakkie.png", count: 2234 },
-    { name: "Station Wagon", label: "Station Wagon", icon: "/img/body-types/stationwagon.png", count: 152 },
-    { name: "SUV", label: "SUV", icon: "/img/body-types/suv.png", count: 16998 },
+    { name: "Convertible", label: "Convertible", icon: "/img/body-types/convertible.png", count: 91 },
+    { name: "Coupé", label: "Coupé", icon: "/img/body-types/coupe.png", count: 452 },
+    { name: "Double Cab Bakkie", label: "Double Cab -\nBakkie", icon: "/img/body-types/double-cab.png", count: 4812 },
+    { name: "Extended Cab", label: "Extended Cab", icon: "/img/body-types/bakkie.png", count: 146 },
+    { name: "Hatchback", label: "Hatchback", icon: "/img/body-types/hatchback.png", count: 7393 },
+    { name: "Minibus", label: "Minibus", icon: "/img/body-types/minivan.png", count: 528 },
+    { name: "Motorbike", label: "Motorbike", icon: "/img/body-types/motorbike.png", count: 353 },
+    { name: "MPV", label: "MPV", icon: "/img/body-types/panel-van.png", count: 665 },
+    { name: "Panel Van", label: "Panel Van", icon: "/img/body-types/panel-van.png", count: 303 },
+    { name: "Sedan", label: "Sedan", icon: "/img/body-types/sedan.png", count: 1821 },
+    { name: "Single Cab Bakkie", label: "Single Cab Bakkie", icon: "/img/body-types/bakkie.png", count: 2048 },
+    { name: "Station Wagon", label: "Station Wagon", icon: "/img/body-types/stationwagon.png", count: 98 },
+    { name: "SUV", label: "SUV", icon: "/img/body-types/suv.png", count: 16945 },
 ];

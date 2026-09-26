@@ -7,6 +7,6 @@ export default function Checkbox({ checked, partial = false }: { checked: boolea
             : "border-[#7c7c7c]";
 
     return (
-        <span className={`float-left mt-1.75 mr-5.25 block size-4.25 rounded-[3px] border bg-size-[73%] bg-center bg-no-repeat group-hover/row:border-white ${state}`}></span>
+        <span className={`float-left mt-1.75 mr-5.25 block size-4.25 max-[676px]:mt-3.75 rounded-[3px] border bg-size-[73%] bg-center bg-no-repeat group-hover/row:border-white ${state}`}></span>
     )
 }

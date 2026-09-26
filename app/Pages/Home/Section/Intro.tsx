@@ -10,20 +10,20 @@ export default function Intro() {
 
                 <div className="flex w-full items-center justify-center gap-5 max-[981px]:mb-0 max-[981px]:flex-col max-[981px]:gap-3.75">
                     <h2 className="m-0 shrink-0 pb-0 text-center text-xl leading-6.75 font-normal text-snow max-[1046px]:text-base max-[981px]:text-[15px]">
-                        <a href="https://www.changecars.co.za/insurance/car-and-warranty-solutions" className="text-white no-underline">
-                            Let CHANGECARS get you <strong>10</strong> insurance quotes in <strong>10</strong> minutes
+                        <a href="https://www.changecars.co.za/concierge-service" className="text-white no-underline">
+                            Buying Brand New! Concierge is here for you
                         </a>
                     </h2>
                 </div>
 
                 <div className="relative mt-2.5 mb-5.25 max-[992px]:w-[94%] max-[981px]:hidden">
-                    <video width="100%" playsInline preload="auto" muted autoPlay loop className="block">
-                        <source src="https://player.vimeo.com/progressive_redirect/playback/1083297206/rendition/1080p/file.mp4%20(1080p).mp4?loc=external&log_user=0&signature=2fe93e3ac1e889eea46c89380a99b4f48b13640056e17ffc4a652df802b10e2e" type="video/mp4" />
+                    <video width="100%" playsInline preload="auto" muted autoPlay loop poster="/img/video-fallback2.png" className="block">
+                        <source src="https://player.vimeo.com/progressive_redirect/playback/1227493179/rendition/1080p/file.mp4%20(1080p).mp4?loc=external&log_user=0&signature=311829cfd2c741355fd403c3d8268076c568331eba6a93b5bad5ad0f75975bbc" type="video/mp4" />
                     </video>
                 </div>
 
-                <a href="https://www.changecars.co.za/insurance/car-and-warranty-solutions" className="absolute top-25.75 left-1/2 z-3 inline-block -translate-x-1/2 rounded-[5px] bg-gold px-6.25 py-3 font-medium text-white no-underline transition-colors duration-300 max-[981px]:static max-[981px]:mx-auto max-[981px]:my-5 max-[981px]:block max-[981px]:translate-x-0 max-[601px]:px-3.75 max-[601px]:py-2.5 max-[601px]:hover:opacity-80">
-                    Get Insured with VAPSSA
+                <a href="https://www.changecars.co.za/concierge-service" className="absolute top-25.75 left-1/2 z-3 inline-block -translate-x-1/2 rounded-[5px] bg-gold px-6.25 py-3 font-medium text-white no-underline transition-colors duration-300 max-[981px]:static max-[981px]:mx-auto max-[981px]:my-5 max-[981px]:block max-[981px]:translate-x-0 max-[601px]:px-3.75 max-[601px]:py-2.5 max-[601px]:hover:opacity-80">
+                    Request Concierge Service
                 </a>
             </section>
         </>

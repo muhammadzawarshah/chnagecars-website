@@ -22,16 +22,16 @@ export default function Header() {
 
                     <div className="float-left flex w-full max-w-100 items-center gap-2.5 max-[1281px]:max-w-87.5 max-[1171px]:max-w-75 max-[1111px]:relative max-[1111px]:-top-1.5 max-[1111px]:float-none max-[1111px]:mx-auto max-[1111px]:max-w-87.5 max-[1111px]:justify-center">
                         <Link href="/" className="block w-full max-w-50 max-[1111px]:w-[34%]">
-                            <img src="/img/site_logo.svg" alt="CHANGECARS logo" className="block w-full" />
+                            <img src="/img/site_logo.svg" alt="CHANGECARS logo" className="block h-[56.75px] w-full" />
                         </Link>
                         <span className="block h-11.25 w-0.5 shrink-0 bg-gold"></span>
-                        <a href="https://www.changecars.co.za/insurance/car-and-warranty-solutions" className="block w-full max-w-47.5 max-[1111px]:w-[34%]">
-                            <img src="/img/logo.svg" alt="Concierge Service logo" className="block w-full" />
+                        <a href="https://www.changecars.co.za/insurance/car-and-warranty-solutions" className="block w-full max-w-47.5 animate-logo-pop max-[1111px]:w-[34%]">
+                            <img src="/img/logo.svg" alt="Concierge Service logo" className="block h-9.25 w-full object-contain" />
                         </a>
                     </div>
 
-                    <nav className="float-right max-w-205.5 max-[1201px]:max-w-188.75 max-[1111px]:hidden">
-                        <div className="flex flex-row-reverse gap-2">
+                    <nav className="float-right max-w-205.5 max-[1201px]:max-w-190 max-[1111px]:hidden">
+                        <div className="flex flex-row-reverse flex-wrap gap-x-2">
                             {mainMenus.map((menu) => (
                                 <NavDropdown key={menu.label} menu={menu} />
                             ))}
@@ -57,10 +57,9 @@ export default function Header() {
                             ))}
                         </div>
                     </nav>
-
-                    <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
                 </div>
             </header>
+            <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         </>
     )
 }

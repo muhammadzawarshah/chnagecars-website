@@ -14,7 +14,7 @@ export default function Footer() {
                 <div className="relative z-5 mx-auto w-full max-w-350 overflow-hidden px-5 pt-12.5 pb-7.5 max-[526px]:pt-6.25">
                     <div className="float-left mr-10 pt-5 pb-7.5 max-[526px]:float-none max-[526px]:mx-auto max-[526px]:block max-[526px]:w-91 max-[526px]:p-0">
                         <div className="flex w-full max-w-90.5 items-center">
-                            <Link href="/" className="block w-[45%]">
+                            <Link href="/" className="block w-[45%] max-[981px]:pt-2.5 max-[981px]:pb-5 max-[526px]:p-0">
                                 <img src="/img/footer-2-logo.png" alt="Home" className="block h-auto w-full" />
                             </Link>
                             <span className="mx-2.5 block h-12.75 w-0.5 shrink-0 bg-gold"></span>
@@ -26,7 +26,7 @@ export default function Footer() {
                             <ul className="m-0 p-0">
                                 <li className="mb-5 flow-root text-[13px] max-[526px]:flex max-[526px]:flex-wrap max-[526px]:justify-center max-[526px]:gap-3.75">
                                     {socialLinks.map((social) => (
-                                        <a key={social.label} href={social.href} title={social.label} target="_blank" className="float-left mr-3.75 mb-2.5 block text-white max-[526px]:m-0! max-[526px]:w-fit">
+                                        <a key={social.label} href={social.href} title={social.label} target="_blank" className="float-left mr-3.75 mb-2.5 block text-white max-[676px]:text-[15px] max-[526px]:m-0! max-[526px]:w-fit">
                                             <img src={social.icon} alt={social.label} style={{ width: social.width }} className="inline-block h-auto align-middle transition duration-200 hover:scale-110" />
                                         </a>
                                     ))}

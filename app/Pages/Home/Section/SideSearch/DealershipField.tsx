@@ -40,7 +40,7 @@ export default function DealershipField({ selected, open, onToggle, onChange }: 
                                 autoFocus
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Quick Search"
+                                placeholder="Quick Search E.G. Fortuner/GTI"
                                 className="float-left mr-2.5 h-6.25 w-[95%] border-0 bg-transparent text-sm text-white outline-none placeholder:text-white"
                             />
                         </div>

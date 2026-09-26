@@ -120,7 +120,7 @@ export default function SideSearch() {
                         <PriceSelect options={minPrices} selected={filters.minPrice} onSelect={(value) => update("minPrice", value)} />
                     </SelectField>
                     <SelectField label={formatPrice(filters.maxPrice, "Max Price")} open={open === "maxPrice"} onToggle={() => toggle("maxPrice")} className="w-[48%]">
-                        <PriceSelect options={maxPrices} selected={filters.maxPrice} onSelect={(value) => update("maxPrice", value)} />
+                        <PriceSelect options={maxPrices} selected={filters.maxPrice} alignRight onSelect={(value) => update("maxPrice", value)} />
                     </SelectField>
 
                     <SelectField label={filters.minYear ?? "Min Year"} open={open === "minYear"} onToggle={() => toggle("minYear")} className="w-[48%]">
@@ -145,10 +145,10 @@ export default function SideSearch() {
                     </SelectField>
 
                     <SelectField label={filters.transmission ?? "Manual/Auto"} open={open === "transmission"} onToggle={() => toggle("transmission")} className="w-[48%]">
-                        <ListSelect options={transmissions.map((item) => item.name)} counts={countMap(transmissions)} selected={filters.transmission} onSelect={(value) => update("transmission", value)} />
+                        <ListSelect options={transmissions.map((item) => item.name)} counts={countMap(transmissions)} scroll={false} selected={filters.transmission} onSelect={(value) => update("transmission", value)} />
                     </SelectField>
                     <SelectField label={filters.fuelType ?? "Fuel Type"} open={open === "fuelType"} onToggle={() => toggle("fuelType")} className="w-[48%]">
-                        <ListSelect options={fuelTypes.map((item) => item.name)} counts={countMap(fuelTypes)} selected={filters.fuelType} onSelect={(value) => update("fuelType", value)} />
+                        <ListSelect options={fuelTypes.map((item) => item.name)} counts={countMap(fuelTypes)} scroll={false} selected={filters.fuelType} onSelect={(value) => update("fuelType", value)} />
                     </SelectField>
 
                     <SelectField label={filters.province ?? "Province"} open={open === "province"} onToggle={() => toggle("province")} className="w-[48%]">
@@ -187,7 +187,7 @@ export default function SideSearch() {
                 <div className="relative -left-10 hidden w-[calc(100%+80px)] bg-[#e8e4e4] px-7.5 pt-10 pb-12.5 text-center max-[601px]:block">
                     <h2 className="mx-auto mb-3.75 text-[32px] leading-9.75 font-extralight text-gold uppercase">SELL YOUR <strong className="font-black">VEHICLE</strong></h2>
                     <p className="mt-3.5 mb-7.5 text-sm leading-5 text-coal">
-                        Do you have a vehicle with a mileage of less than <span className="whitespace-nowrap">15 000km</span> a year? For example 2021 with <span className="whitespace-nowrap">75 000km</span> or less. If so we would love to do business and we have created the perfect platform to do so!
+                        <strong>CHANGECARS</strong> makes it easy to sell your vehicle with confidence. Our trusted dealer network connects you to serious buyers, giving your vehicle maximum exposure and increasing your chances of receiving competitive offers. We’ve streamlined the entire process to be simple, transparent, and hassle-free, so you can move forward with clarity and peace of mind from start to finish
                     </p>
                     <a href="https://www.changecars.co.za/sell-your-vehicle" className="relative mx-auto block h-10 w-fit cursor-pointer rounded-[5px] bg-gold pr-2.5 pl-10 text-center text-base leading-9.75 whitespace-nowrap text-white no-underline before:absolute before:top-0.5 before:left-2.5 before:block before:h-3.75 before:w-5 before:content-[url(/img/private-sellers/key-in-hand.svg)]">
                         Sell Your Vehicle
