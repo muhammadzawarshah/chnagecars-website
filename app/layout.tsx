@@ -24,18 +24,19 @@ export const metadata: Metadata = {
   description: "Find new and used cars for sale in South Africa. CHANGECARS is the most trusted buying platform in South Africa. Franchised approved dealers only.",
 };
 
+// Fallback only; ViewportScript overrides this on phones narrower than 465px.
 export const viewport: Viewport = {
-  width: 465,
+  width: "device-width",
   initialScale: 1,
-  minimumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${lato.variable} ${inter.variable}`}>
-      <body className="max-[981px]:mt-15">
+      <head>
         <ViewportScript />
+      </head>
+      <body className="max-[981px]:mt-15">
         <PopupProvider>
           <Header />
           {children}
