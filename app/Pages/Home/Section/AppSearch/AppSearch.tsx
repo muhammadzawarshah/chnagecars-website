@@ -4,15 +4,20 @@ import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { makes } from "../../Data/makes"
 import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
-import AdditionalFiltersModal from "../SideSearch/AdditionalFiltersModal"
+import { additionalFilters } from "../../Data/additionalFilters"
 import HeroAd from "../HeroAd"
 import PaymentToggle from "./PaymentToggle"
 import AppField from "./AppField"
 import OptionSheet from "./OptionSheet"
 import BodyTypeSheet from "./BodyTypeSheet"
 import MakesSheet from "./MakesSheet"
+import ChoiceSheet from "./ChoiceSheet"
+import FiltersPage from "./FiltersPage"
+import FilterField from "./FilterField"
 
 type RangeKey = "minPrice" | "maxPrice" | "minYear" | "maxYear" | "minMileage" | "maxMileage"
+
+type ChoiceKey = "transmission" | "fuelType" | "drive" | "colour"
 
 type AppValues = Record<RangeKey, number | null> & {
     bodyTypes: string[]
@@ -35,7 +40,7 @@ export default function AppSearch() {
     const { t } = useLanguage();
     const [monthly, setMonthly] = useState(false);
     const [values, setValues] = useState<AppValues>(emptyValues);
-    const [sheet, setSheet] = useState<RangeKey | "bodyTypes" | "makes" | null>(null);
+    const [sheet, setSheet] = useState<RangeKey | ChoiceKey | "bodyTypes" | "makes" | null>(null);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
 
@@ -65,6 +70,20 @@ export default function AppSearch() {
         return values.makes.map((item) => item.split("|").join(" ")).join(", ");
     }
 
+    function choiceFilter(key: ChoiceKey) {
+        return additionalFilters.find((filter) => filter.key === key)!;
+    }
+
+    function choiceLabel(key: ChoiceKey) {
+        const selected = extraFilters[key] ?? [];
+        return selected.length ? selected.join(", ") : choiceFilter(key).label;
+    }
+
+    function resetFilters() {
+        setValues(emptyValues);
+        setExtraFilters({});
+    }
+
     function searchUrl() {
         const [makeName, modelName] = (values.makes[0] ?? "").split("|");
         const make = makes.find((item) => item.name === makeName);
@@ -81,8 +100,7 @@ export default function AppSearch() {
 
     function clearSearch() {
         setMonthly(false);
-        setValues(emptyValues);
-        setExtraFilters({});
+        resetFilters();
     }
 
     const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
@@ -123,7 +141,31 @@ export default function AppSearch() {
 
             <HeroAd className="max-[601px]:block" />
 
-            {sheet && sheet !== "bodyTypes" && sheet !== "makes" && (
+            {showMore && (
+                <FiltersPage onBack={() => setShowMore(false)} onApply={() => setShowMore(false)} onReset={resetFilters}>
+                    {rangeKeys.map((key) => (
+                        <FilterField key={key} label={rangeLabel(key)} active={values[key] !== null} onClick={() => setSheet(key)} />
+                    ))}
+                    {(["transmission", "fuelType"] as ChoiceKey[]).map((key) => (
+                        <FilterField key={key} label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => setSheet(key)} />
+                    ))}
+                    <FilterField wide label={values.bodyTypes.length ? values.bodyTypes.join(", ") : t.bodyTypes} active={values.bodyTypes.length > 0} onClick={() => setSheet("bodyTypes")} />
+                    <FilterField wide label={makesLabel()} active={values.makes.length > 0} onClick={() => setSheet("makes")} />
+                    {(["drive", "colour"] as ChoiceKey[]).map((key) => (
+                        <FilterField key={key} wide label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => setSheet(key)} />
+                    ))}
+                </FiltersPage>
+            )}
+            {(sheet === "transmission" || sheet === "fuelType" || sheet === "drive" || sheet === "colour") && (
+                <ChoiceSheet
+                    title={choiceFilter(sheet).label}
+                    options={choiceFilter(sheet).options}
+                    selected={extraFilters[sheet] ?? []}
+                    onApply={(selected) => { setExtraFilters({ ...extraFilters, [sheet]: selected }); setSheet(null); }}
+                    onClose={() => setSheet(null)}
+                />
+            )}
+            {sheet && sheet !== "bodyTypes" && sheet !== "makes" && sheet !== "transmission" && sheet !== "fuelType" && sheet !== "drive" && sheet !== "colour" && (
                 <OptionSheet
                     title={ranges[sheet].title}
                     options={ranges[sheet].options}
@@ -138,14 +180,6 @@ export default function AppSearch() {
             )}
             {sheet === "makes" && (
                 <MakesSheet selected={values.makes} onApply={(selected) => { setValues({ ...values, makes: selected }); setSheet(null); }} onClose={() => setSheet(null)} />
-            )}
-            {showMore && (
-                <AdditionalFiltersModal
-                    values={extraFilters}
-                    onChange={setExtraFilters}
-                    onClose={() => setShowMore(false)}
-                    onSearch={() => { window.location.href = searchUrl(); }}
-                />
             )}
         </>
     )
