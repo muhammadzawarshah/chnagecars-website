@@ -32,7 +32,7 @@ export default function AdditionalFiltersModal({ onClose, onApply, onReset, chil
                             {t.taglineStart.toLowerCase()} <span className="text-[#957e4e]">{t.taglineHighlight.toLowerCase()}</span>
                         </p>
                         <AdBanner ad={heroAd} className="mt-3.25 block w-full" />
-                        <h2 className="mx-0 mt-3.5 mb-7.5 text-center text-[26px] leading-[1.2] font-normal text-black">Filters</h2>
+                        <h2 className="mx-0 mt-3.5 mb-7.5 text-center text-[20px] leading-[1.2] font-normal text-black">Filters</h2>
                         <div className="grid grid-cols-2 gap-x-2.5 gap-y-5">
                             {children}
                         </div>
