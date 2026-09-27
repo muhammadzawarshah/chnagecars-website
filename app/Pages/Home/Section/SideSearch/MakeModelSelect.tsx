@@ -52,19 +52,20 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
 
     return (
         <>
-            <div className="absolute top-0 right-0 z-50 min-h-90 w-full overflow-hidden rounded bg-panel">
-                <a onClick={onClose} className="absolute top-0 right-4.25 z-1 block h-9.75 w-10 cursor-pointer transition duration-200 after:absolute after:top-4.5 after:right-3.5 after:block after:border-x-6 after:border-t-7 after:border-x-transparent after:border-t-white after:content-[''] hover:scale-110"></a>
+            <div className="absolute top-full right-0 z-46 mt-px min-h-90 w-full overflow-hidden rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+                <div className="border-b border-[#e5e1d8] px-3.75 py-2.5 text-[15px] font-bold text-[#171717]">{t.makesTitle}</div>
+                <a onClick={onClose} className="absolute top-0 right-4.25 z-1 block h-9.75 w-10 cursor-pointer transition duration-200 after:absolute after:top-4.5 after:right-3.5 after:block after:border-x-6 after:border-t-7 after:border-x-transparent after:border-t-[#777] after:content-[''] hover:scale-110"></a>
                 <a onClick={() => { onChange([]); setQuery(""); setOpenKeys([]); }} className="absolute top-0 right-13.75 z-1 block h-9.75 w-7.5 cursor-pointer bg-[url(/img/refresh.svg)] bg-size-[20px_20px] bg-center bg-no-repeat transition duration-200 hover:scale-110"></a>
-                <div className="overflow-hidden border-b border-muted bg-muted bg-[url(/img/magnifying-glass-white.svg)] bg-size-[15px] bg-position-[left_22px_top_15px] bg-no-repeat pt-2 pr-8.75 pb-1.75 pl-11.75">
+                <div className="overflow-hidden border-b border-[#e5e1d8] bg-white pt-2 pr-8.75 pb-1.75 pl-5">
                     <input
                         autoFocus
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Quick Search E.G. Fortuner/GTI"
-                        className="float-left mr-2.5 h-6 w-[95%] border-0 bg-transparent text-sm text-white outline-none placeholder:text-white"
+                        className="float-left mr-2.5 h-6 w-[95%] border-0 bg-transparent text-sm text-[#171717] outline-none placeholder:text-[#777]"
                     />
                 </div>
-                <div className="max-h-80 overflow-y-scroll">
+                <div className="max-h-62.5 overflow-y-auto [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
                     <ul className="m-0 block list-none px-0 pt-1.25 pb-0">
                         {!search && (
                             <li>

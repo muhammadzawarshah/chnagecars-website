@@ -1,15 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { makes } from "../../Data/makes"
-import { totalCars } from "../../Data/search"
+import { bodyTypes, totalCars } from "../../Data/search"
 import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import PaymentToggle from "../AppSearch/PaymentToggle"
-import OptionSheet from "../AppSearch/OptionSheet"
-import BodyTypeSheet from "../AppSearch/BodyTypeSheet"
-import MakesSheet from "../AppSearch/MakesSheet"
 import SelectField from "./SelectField"
+import MakeModelSelect from "./MakeModelSelect"
 import AdditionalFiltersModal from "./AdditionalFiltersModal"
 
 type Filters = {
@@ -46,6 +44,7 @@ export default function SideSearch() {
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
+    const asideRef = useRef<HTMLElement>(null);
     const priceOptions: AppOption[] = cashPrices.map((price, index) => ({
         value: price,
         label: monthly
@@ -65,6 +64,14 @@ export default function SideSearch() {
         minMileage: { title: t.mileageMinTitle, placeholder: t.minMileage, options: mileageOptions, fallback: appMileages[0] },
         maxMileage: { title: t.mileageMaxTitle, placeholder: t.maxMileage, options: mileageOptions, fallback: appMileages[appMileages.length - 1] },
     };
+
+    useEffect(() => {
+        function handleClick(event: MouseEvent) {
+            if (asideRef.current && !asideRef.current.contains(event.target as Node)) setOpen(null);
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
 
     function listLabel(values: string[], fallback: string) {
         return values.length ? values.map((item) => item.split("|").join(" ")).join(", ") : fallback;
@@ -89,7 +96,7 @@ export default function SideSearch() {
 
     function update<K extends keyof Filters>(key: K, value: Filters[K]) {
         setFilters({ ...filters, [key]: value });
-        setOpen(null);
+        if (!Array.isArray(value)) setOpen(null);
     }
 
     function clearSearch() {
@@ -116,7 +123,7 @@ export default function SideSearch() {
 
     return (
         <>
-            <aside className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
+            <aside ref={asideRef} className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
                 <div className="max-[981px]:hidden">
                     <p className="m-0 text-center text-[15.2px] leading-[1.15] text-white uppercase">
                         {t.taglineStart} <span className="text-[#957e4e]">{t.taglineHighlight}</span>
@@ -130,22 +137,47 @@ export default function SideSearch() {
                         {rangeKeys.map((key) => (
                             <SelectField key={key} label={rangeLabel(key)} open={open === key} onToggle={() => toggle(key)}>
                                 {open === key && (
-                                    <OptionSheet
-                                        title={ranges[key].title}
-                                        options={ranges[key].options}
-                                        selected={filters[key]}
-                                        fallback={ranges[key].fallback}
-                                        onSelect={(value) => key === "minPrice" || key === "maxPrice" ? selectPrice(key, value) : update(key, value)}
-                                        onClose={() => setOpen(null)}
-                                    />
+                                    <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
+                                        <div className="sticky top-0 z-1 border-b border-[#e5e1d8] bg-white px-3.75 py-2.5 text-[15px] font-bold text-[#171717]">{ranges[key].title}</div>
+                                        <ul className="m-0 list-none p-1.5">
+                                            {ranges[key].options.map((option) => {
+                                                const selected = filters[key] === option.value;
+                                                return (
+                                                    <li
+                                                        key={option.value}
+                                                        onClick={() => key === "minPrice" || key === "maxPrice" ? selectPrice(key, option.value) : update(key, option.value)}
+                                                        className={`flex h-7.5 cursor-pointer items-center justify-between rounded px-2.5 text-[13px] ${selected ? "bg-[#eee8dc] font-semibold text-[#957e4d]" : "text-[#171717] hover:bg-[#f5f2ed]"}`}
+                                                    >
+                                                        <span>{option.label}</span>
+                                                        {selected && <svg width="13" height="10" viewBox="0 0 18 14" fill="none" stroke="#9d885c" strokeWidth="2"><path d="M1 7l5 5L17 1" /></svg>}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
                                 )}
                             </SelectField>
                         ))}
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
-                            {open === "bodyType" && <BodyTypeSheet selected={filters.bodyTypes} onApply={(value) => update("bodyTypes", value)} onClose={() => setOpen(null)} />}
+                            {open === "bodyType" && (
+                                <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+                                    <div className="sticky top-0 z-1 border-b border-[#e5e1d8] bg-white px-3.75 py-2.5 text-[15px] font-bold text-[#171717]">{t.bodyTypesTitle}</div>
+                                    <ul className="m-0 list-none p-1.5">
+                                        {bodyTypes.map((type) => {
+                                            const selected = filters.bodyTypes.includes(type.name);
+                                            return (
+                                                <li key={type.name} onClick={() => update("bodyTypes", selected ? filters.bodyTypes.filter((item) => item !== type.name) : [...filters.bodyTypes, type.name])} className={`flex h-7.5 cursor-pointer items-center justify-between rounded px-2.5 text-[13px] ${selected ? "bg-[#eee8dc] font-semibold text-[#957e4d]" : "text-[#171717] hover:bg-[#f5f2ed]"}`}>
+                                                    <span>{type.name}</span>
+                                                    {selected && <svg width="13" height="10" viewBox="0 0 18 14" fill="none" stroke="#9d885c" strokeWidth="2"><path d="M1 7l5 5L17 1" /></svg>}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            )}
                         </SelectField>
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
-                            {open === "make" && <MakesSheet selected={filters.makes} onApply={(value) => update("makes", value)} onClose={() => setOpen(null)} />}
+                            {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />}
                         </SelectField>
                     </div>
 
