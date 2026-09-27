@@ -125,15 +125,6 @@ export default function SideSearch() {
         return <OptionMenu items={choiceItems(key)} info={filter.info} searchPlaceholder={filter.searchable ? `Search ${filter.label}` : undefined} />;
     }
 
-    function formChoice(key: string, wide: boolean) {
-        const filter = findFilter(key);
-        return (
-            <SelectField key={key} wide={wide} label={listLabel(extraFilters[key] ?? [], filter.formLabel ?? filter.label)} open={open === key} onToggle={() => toggle(key)}>
-                {menuFor(key)}
-            </SelectField>
-        );
-    }
-
     function choiceField(key: string, wide: boolean) {
         const filter = findFilter(key);
         return (
@@ -202,8 +193,6 @@ export default function SideSearch() {
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
                             <OptionMenu items={bodyTypeItems()} />
                         </SelectField>
-                        {filterRows.form.map((key) => formChoice(key, false))}
-                        {filterRows.formWide.map((key) => formChoice(key, true))}
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
                             {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />}
                         </SelectField>

@@ -4,7 +4,6 @@ import { searchProvinces } from "./search"
 export type AdditionalFilter = {
     key: string
     label: string
-    formLabel?: string
     options: string[]
     info?: string
     multiple?: boolean
@@ -16,10 +15,10 @@ function range(start: number, end: number, step: number, unit: string) {
 }
 
 export const additionalFilters: AdditionalFilter[] = [
-    { key: "transmission", label: "Transmission", formLabel: "Manual/Auto", options: ["Manual", "Automatic"] },
-    { key: "fuelType", label: "Fuel Type(s)", formLabel: "Fuel Type", options: ["Petrol", "Diesel", "Hybrid", "Electric"], multiple: true },
-    { key: "drive", label: "Drive", formLabel: "4X2/4X4", options: ["4X2", "4X4"] },
-    { key: "colour", label: "Colour(s)", formLabel: "Colour", options: ["Beige", "Black", "Blue", "Brown", "Gold", "Green", "Grey", "Orange", "Pink", "Purple", "Red", "Silver", "White", "Yellow"], multiple: true },
+    { key: "transmission", label: "Transmission", options: ["Manual", "Automatic"] },
+    { key: "fuelType", label: "Fuel Type(s)", options: ["Petrol", "Diesel", "Hybrid", "Electric"], multiple: true },
+    { key: "drive", label: "Drive", options: ["4X2", "4X4"] },
+    { key: "colour", label: "Colour(s)", options: ["Beige", "Black", "Blue", "Brown", "Gold", "Green", "Grey", "Orange", "Pink", "Purple", "Red", "Silver", "White", "Yellow"], multiple: true },
     { key: "vehicleGroup", label: "Vehicle Category", options: ["New", "Almost new", "Used", "Classic"], info: "By default all options are shown", multiple: true },
     { key: "specials", label: "Specials", options: ["Not on special", "On special"] },
     { key: "minEngine", label: "Min Engine Size", options: ["50 cc", "125 cc", "150 cc", ...range(500, 6500, 500, "cc")] },
@@ -33,10 +32,8 @@ export const additionalFilters: AdditionalFilter[] = [
 ];
 
 export const filterRows = {
-    form: ["drive", "transmission", "fuelType", "province"],
-    formWide: ["colour"],
-    popup: ["vehicleGroup", "specials", "minEngine", "maxEngine", "minKw", "maxKw", "seats", "cylinders"],
-    popupWide: ["dealership"],
+    popup: ["transmission", "fuelType", "drive", "colour", "vehicleGroup", "specials", "minEngine", "maxEngine", "minKw", "maxKw", "seats", "cylinders"],
+    popupWide: ["province", "dealership"],
 };
 
 export function findFilter(key: string) {
