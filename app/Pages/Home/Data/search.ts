@@ -11,8 +11,70 @@ export type BodyType = {
     count: number
 }
 
+<<<<<<< HEAD
 export const totalCars = "36 533";
 
+=======
+export type CountOption = {
+    name: string
+    count: number
+}
+
+export type Colour = {
+    name: string
+    hex: string
+}
+
+export const totalCars = "36 533";
+
+export const drivenWheels: CountOption[] = [
+    { name: "4X2", count: 27948 },
+    { name: "4X4", count: 8327 },
+];
+
+export const transmissions: CountOption[] = [
+    { name: "Manual", count: 11525 },
+    { name: "Automatic", count: 25831 },
+];
+
+export const fuelTypes: CountOption[] = [
+    { name: "Petrol", count: 23850 },
+    { name: "Diesel", count: 11579 },
+    { name: "Hybrid", count: 1455 },
+    { name: "Electric", count: 395 },
+];
+
+export const searchProvinces: CountOption[] = [
+    { name: "Eastern Cape", count: 968 },
+    { name: "Free State", count: 842 },
+    { name: "Gauteng", count: 22158 },
+    { name: "KwaZulu-Natal", count: 4049 },
+    { name: "Limpopo", count: 1049 },
+    { name: "Mpumalanga", count: 1881 },
+    { name: "Northern Cape", count: 433 },
+    { name: "North West", count: 1737 },
+    { name: "Western Cape", count: 4640 },
+];
+
+export const colours: Colour[] = [
+    { name: "Beige", hex: "#C9B89A" },
+    { name: "Black", hex: "#000000" },
+    { name: "Blue", hex: "#2A6FDB" },
+    { name: "Brown", hex: "#7A4E2E" },
+    { name: "Gold", hex: "#D6A743" },
+    { name: "Green", hex: "#2F8D4E" },
+    { name: "Grey", hex: "#8A8A8A" },
+    { name: "Orange", hex: "#E6782F" },
+    { name: "Pink", hex: "#D86197" },
+    { name: "Purple", hex: "#8257C7" },
+    { name: "Red", hex: "#C9433D" },
+    { name: "Silver", hex: "#A9A9A9" },
+    { name: "Unknown", hex: "transparent" },
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Yellow", hex: "#DCC73A" },
+];
+
+>>>>>>> origin/main
 export const minPrices: PriceOption[] = [
     { value: 5000, price: "R5 000", monthly: "R101 p/m" },
     { value: 50000, price: "R50 000", monthly: "R1 010 p/m" },
@@ -48,6 +110,15 @@ export const maxPrices: PriceOption[] = minPrices.slice(1);
 
 export const years: string[] = Array.from({ length: 2026 - 1980 + 1 }, (_, i) => String(2026 - i));
 
+<<<<<<< HEAD
+=======
+export const mileages: string[] = [
+    "10 000 km", "20 000 km", "30 000 km", "40 000 km", "50 000 km", "75 000 km",
+    "100 000 km", "125 000 km", "150 000 km", "200 000 km", "250 000 km", "300 000 km",
+    "350 000 km", "400 000 km", "450 000 km", "500 000 km",
+];
+
+>>>>>>> origin/main
 export const bodyTypes: BodyType[] = [
     { name: "Boat", label: "Boat", icon: "/img/body-types/boat.png", count: 1 },
     { name: "Caravan", label: "Caravan", icon: "/img/body-types/caravan.png", count: 87 },

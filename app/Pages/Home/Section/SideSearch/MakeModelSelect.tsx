@@ -3,7 +3,10 @@
 import { useState } from "react"
 import { makes } from "../../Data/makes"
 import TreeRow from "./TreeRow"
+<<<<<<< HEAD
 import { useLanguage } from "../../../../components/Language/LanguageContext"
+=======
+>>>>>>> origin/main
 
 type MakeModelSelectProps = {
     selected: string[]
@@ -13,7 +16,10 @@ type MakeModelSelectProps = {
 
 export default function MakeModelSelect({ selected, onChange, onClose }: MakeModelSelectProps) {
 
+<<<<<<< HEAD
     const { t } = useLanguage();
+=======
+>>>>>>> origin/main
     const [query, setQuery] = useState("");
     const [openKeys, setOpenKeys] = useState<string[]>([]);
 
@@ -68,7 +74,11 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                     <ul className="m-0 block list-none px-0 pt-1.25 pb-0">
                         {!search && (
                             <li>
+<<<<<<< HEAD
                                 <TreeRow label={t.any} checked={selected.length === 0} indent="pl-2.5" rowClass="cursor-pointer" onSelect={() => onChange([])} />
+=======
+                                <TreeRow label="Any" checked={selected.length === 0} indent="pl-2.5" rowClass="cursor-pointer" onSelect={() => onChange([])} />
+>>>>>>> origin/main
                             </li>
                         )}
                         {filtered.map((make) => {
@@ -80,7 +90,11 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                                         label={`${make.name} (${make.count})`}
                                         checked={selected.includes(makeKey)}
                                         partial={hasChild(makeKey)}
+<<<<<<< HEAD
                                         toggleLabel={t.models}
+=======
+                                        toggleLabel="Models"
+>>>>>>> origin/main
                                         open={makeOpen}
                                         indent="pl-2.5"
                                         rowClass=""
@@ -98,7 +112,11 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                                                             label={`${model.name} (${model.count})`}
                                                             checked={selected.includes(modelKey) || selected.includes(makeKey)}
                                                             partial={hasChild(modelKey)}
+<<<<<<< HEAD
                                                             toggleLabel={t.variants}
+=======
+                                                            toggleLabel="Variants"
+>>>>>>> origin/main
                                                             open={modelOpen}
                                                             indent="pl-3"
                                                             rowClass="bg-[#d5d5d5]"

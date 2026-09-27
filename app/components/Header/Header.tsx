@@ -5,8 +5,11 @@ import { useState } from "react"
 import { mainMenus, subNavLinks } from "../Data/navigation"
 import NavDropdown from "./NavDropdown"
 import MobileMenu from "./MobileMenu"
+<<<<<<< HEAD
 import AppBar from "./AppBar"
 import LanguagePill from "./LanguagePill"
+=======
+>>>>>>> origin/main
 
 export default function Header() {
 
@@ -14,7 +17,11 @@ export default function Header() {
 
     return (
         <>
+<<<<<<< HEAD
             <header className="relative z-80 max-[1111px]:fixed max-[1111px]:top-0 max-[1111px]:left-0 max-[1111px]:h-15 max-[1111px]:w-full max-[1111px]:bg-ink max-[1111px]:shadow-[0_0_5px_rgba(0,0,0,0.6)] max-[981px]:hidden">
+=======
+            <header className="relative z-80 max-[1111px]:fixed max-[1111px]:top-0 max-[1111px]:left-0 max-[1111px]:h-15 max-[1111px]:w-full max-[1111px]:bg-ink max-[1111px]:shadow-[0_0_5px_rgba(0,0,0,0.6)]">
+>>>>>>> origin/main
                 <div className="mx-auto flow-root w-full max-w-350 py-5 pr-5 max-[1111px]:h-15 max-[1111px]:px-5 max-[1111px]:pt-2 max-[1111px]:pb-0">
                     <span onClick={() => setMenuOpen(!menuOpen)} className="absolute top-0 left-0 z-1 hidden h-15 w-17.5 cursor-pointer pt-3.5 max-[1111px]:block">
                         <span className="mx-auto my-1.5 block h-0.5 w-6.25 bg-white"></span>
@@ -57,6 +64,7 @@ export default function Header() {
                                     </a>
                                 )
                             ))}
+<<<<<<< HEAD
                             <LanguagePill />
                         </div>
                     </nav>
@@ -65,6 +73,12 @@ export default function Header() {
                 </div>
             </header>
             <AppBar onMenu={() => setMenuOpen(true)} />
+=======
+                        </div>
+                    </nav>
+                </div>
+            </header>
+>>>>>>> origin/main
             <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         </>
     )

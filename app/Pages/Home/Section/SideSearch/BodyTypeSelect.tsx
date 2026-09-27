@@ -13,7 +13,11 @@ export default function BodyTypeSelect({ selected, onChange }: BodyTypeSelectPro
 
     return (
         <>
+<<<<<<< HEAD
             <div className="absolute z-46 h-58.5 w-full overflow-y-scroll rounded-b bg-panel p-0">
+=======
+            <div className="absolute z-46 h-58.5 w-[208.5%] overflow-y-scroll rounded-b bg-panel p-0">
+>>>>>>> origin/main
                 <ul className="m-0 flex list-none flex-wrap p-0.5">
                     {bodyTypes.map((type) => (
                         <li

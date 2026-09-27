@@ -4,7 +4,11 @@ import { heroAd } from "../Data/ads"
 export default function Intro() {
     return (
         <>
+<<<<<<< HEAD
             <section className="relative float-right flex h-full w-[60%] flex-col items-start justify-center pl-5 max-[1653px]:w-[65%] max-[1168px]:w-[calc(63%-27px)] max-[1111px]:mt-25 max-[1040px]:w-[59%] max-[981px]:float-none max-[981px]:m-0 max-[981px]:h-auto max-[981px]:w-full max-[981px]:pt-3.25 max-[981px]:pb-6.25 max-[981px]:pl-0 max-[875px]:pb-1.25 max-[981px]:hidden">
+=======
+            <section className="relative float-right flex h-full w-[60%] flex-col items-start justify-center pl-5 max-[1653px]:w-[65%] max-[1168px]:w-[calc(63%-27px)] max-[1111px]:mt-25 max-[1040px]:w-[59%] max-[981px]:float-none max-[981px]:m-0 max-[981px]:h-auto max-[981px]:w-full max-[981px]:pt-3.25 max-[981px]:pb-6.25 max-[981px]:pl-0 max-[875px]:pb-1.25">
+>>>>>>> origin/main
                 <div className="w-full">
                     <h1 className="m-0 mb-3.75 w-full text-center text-[41px] leading-9.5 font-light text-snow max-[1441px]:mb-2.25 max-[1441px]:text-[40px] max-[1441px]:leading-11.25 max-[1046px]:mb-2.75 max-[1046px]:text-4xl max-[1046px]:leading-12 max-[981px]:mb-5 max-[981px]:text-[43px] max-[981px]:leading-13.25 max-[501px]:text-[40px] max-[501px]:leading-12.5">
                         New & Used Cars <span><span className="font-bold whitespace-pre text-gold">For Sale</span></span>
