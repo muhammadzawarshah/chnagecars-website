@@ -11,47 +11,7 @@ export type BodyType = {
     count: number
 }
 
-export type CountOption = {
-    name: string
-    count: number
-}
-
-export type Colour = {
-    name: string
-    hex: string
-}
-
 export const totalCars = "36 533";
-
-export const searchProvinces: CountOption[] = [
-    { name: "Eastern Cape", count: 968 },
-    { name: "Free State", count: 842 },
-    { name: "Gauteng", count: 22158 },
-    { name: "KwaZulu-Natal", count: 4049 },
-    { name: "Limpopo", count: 1049 },
-    { name: "Mpumalanga", count: 1881 },
-    { name: "Northern Cape", count: 433 },
-    { name: "North West", count: 1737 },
-    { name: "Western Cape", count: 4640 },
-];
-
-export const colours: Colour[] = [
-    { name: "Beige", hex: "#C9B89A" },
-    { name: "Black", hex: "#000000" },
-    { name: "Blue", hex: "#2A6FDB" },
-    { name: "Brown", hex: "#7A4E2E" },
-    { name: "Gold", hex: "#D6A743" },
-    { name: "Green", hex: "#2F8D4E" },
-    { name: "Grey", hex: "#8A8A8A" },
-    { name: "Orange", hex: "#E6782F" },
-    { name: "Pink", hex: "#D86197" },
-    { name: "Purple", hex: "#8257C7" },
-    { name: "Red", hex: "#C9433D" },
-    { name: "Silver", hex: "#A9A9A9" },
-    { name: "Unknown", hex: "transparent" },
-    { name: "White", hex: "#FFFFFF" },
-    { name: "Yellow", hex: "#DCC73A" },
-];
 
 export const minPrices: PriceOption[] = [
     { value: 5000, price: "R5 000", monthly: "R101 p/m" },

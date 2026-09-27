@@ -1,28 +1,25 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { makes } from "../../Data/makes"
-import { maxPrices, minPrices, totalCars, years } from "../../Data/search"
-import { appMileages, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
+import { totalCars } from "../../Data/search"
+import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import PaymentToggle from "../AppSearch/PaymentToggle"
+import OptionSheet from "../AppSearch/OptionSheet"
+import BodyTypeSheet from "../AppSearch/BodyTypeSheet"
+import MakesSheet from "../AppSearch/MakesSheet"
 import SelectField from "./SelectField"
-import MakeModelSelect from "./MakeModelSelect"
-import PriceSelect from "./PriceSelect"
-import CustomPriceInputs from "./CustomPriceInputs"
-import { monthlyToPrice, priceToMonthly } from "./price"
-import ListSelect from "./ListSelect"
-import BodyTypeSelect from "./BodyTypeSelect"
 import AdditionalFiltersModal from "./AdditionalFiltersModal"
 
 type Filters = {
     makes: string[]
     minPrice: number | null
     maxPrice: number | null
-    minYear: string | null
-    maxYear: string | null
-    minMileage: string | null
-    maxMileage: string | null
+    minYear: number | null
+    maxYear: number | null
+    minMileage: number | null
+    maxMileage: number | null
     bodyTypes: string[]
 }
 
@@ -37,112 +34,68 @@ const emptyFilters: Filters = {
     bodyTypes: [],
 }
 
-const emptyCustomMax = { price: "", monthly: "" };
+type RangeKey = "minPrice" | "maxPrice" | "minYear" | "maxYear" | "minMileage" | "maxMileage"
 
-const mileageOptions = appMileages.map((mileage, index) => `${formatNumber(mileage)}${index === appMileages.length - 1 ? "+" : ""} km`);
+const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
 
 export default function SideSearch() {
 
     const { t } = useLanguage();
-    const [open, setOpen] = useState<string | null>(null);
+    const [open, setOpen] = useState<RangeKey | "bodyType" | "make" | null>(null);
     const [monthly, setMonthly] = useState(false);
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
-    const [customMax, setCustomMax] = useState(emptyCustomMax);
-    const asideRef = useRef<HTMLElement>(null);
-    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        function handleClick(e: MouseEvent) {
-            if (asideRef.current && !asideRef.current.contains(e.target as Node)) {
-                setOpen(null);
-            }
-        }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
-
-    function cashLabel(value: number) {
-        const index = cashPrices.indexOf(value);
-        return `R ${formatNumber(value)}${index === cashPrices.length - 1 ? "+" : ""}`;
-    }
-
-    function monthlyLabel(value: number) {
-        const index = cashPrices.indexOf(value);
-        const amount = index >= 0 ? monthlyPrices[index] : priceToMonthly(value);
-        return `R ${formatNumber(amount)}${t.perMonth}${index === cashPrices.length - 1 ? "+" : ""}`;
-    }
-
-    function priceRow(value: number) {
-        return { value, price: monthly ? monthlyLabel(value) : cashLabel(value), monthly: monthly ? cashLabel(value) : monthlyLabel(value) };
-    }
-
-    function priceLabel(value: number | null, fallback: string) {
-        if (value === null) return fallback;
-        return monthly ? monthlyLabel(value) : cashLabel(value);
-    }
+    const priceOptions: AppOption[] = cashPrices.map((price, index) => ({
+        value: price,
+        label: monthly
+            ? `R ${formatNumber(monthlyPrices[index])}${t.perMonth}${index === cashPrices.length - 1 ? "+" : ""}`
+            : `R ${formatNumber(price)}${index === cashPrices.length - 1 ? "+" : ""}`,
+    }));
+    const yearOptions: AppOption[] = appYears.map((year) => ({ value: year, label: String(year) }));
+    const mileageOptions: AppOption[] = appMileages.map((mileage, index) => ({
+        value: mileage,
+        label: `${formatNumber(mileage)}${index === appMileages.length - 1 ? "+" : ""} km`,
+    }));
+    const ranges: Record<RangeKey, { title: string, placeholder: string, options: AppOption[], fallback: number }> = {
+        minPrice: { title: t.priceMinTitle, placeholder: t.minPrice, options: priceOptions, fallback: cashPrices[0] },
+        maxPrice: { title: t.priceMaxTitle, placeholder: t.maxPrice, options: priceOptions.slice(1), fallback: cashPrices[cashPrices.length - 1] },
+        minYear: { title: t.yearMinTitle, placeholder: t.minYear, options: yearOptions, fallback: appYears[appYears.length - 1] },
+        maxYear: { title: t.yearMaxTitle, placeholder: t.maxYear, options: yearOptions, fallback: appYears[0] },
+        minMileage: { title: t.mileageMinTitle, placeholder: t.minMileage, options: mileageOptions, fallback: appMileages[0] },
+        maxMileage: { title: t.mileageMaxTitle, placeholder: t.maxMileage, options: mileageOptions, fallback: appMileages[appMileages.length - 1] },
+    };
 
     function listLabel(values: string[], fallback: string) {
         return values.length ? values.map((item) => item.split("|").join(" ")).join(", ") : fallback;
     }
 
-    const customValue = Number(customMax.price.replace(/\D/g, ""));
-    const customOption = customMax.price ? priceRow(customValue) : null;
+    function rangeLabel(key: RangeKey) {
+        const value = filters[key];
+        return ranges[key].options.find((option) => option.value === value)?.label ?? ranges[key].placeholder;
+    }
 
-    function toggle(name: string) {
-        if (closeTimer.current) clearTimeout(closeTimer.current);
+    function toggle(name: RangeKey | "bodyType" | "make") {
         setOpen(open === name ? null : name);
     }
 
-    function selectPrice(key: "minPrice" | "maxPrice", value: number, custom: boolean) {
+    function selectPrice(key: "minPrice" | "maxPrice", value: number) {
         const next = { ...filters, [key]: value };
-        if (key === "maxPrice" && next.minPrice !== null && value < next.minPrice && minPrices.some((option) => option.value === value)) next.minPrice = value;
-        if (key === "minPrice" && next.maxPrice !== null && value > next.maxPrice && maxPrices.some((option) => option.value === value)) next.maxPrice = value;
-        if ((key === "maxPrice" && !custom) || next.maxPrice !== filters.maxPrice) setCustomMax(emptyCustomMax);
+        if (key === "maxPrice" && next.minPrice !== null && value < next.minPrice) next.minPrice = value;
+        if (key === "minPrice" && next.maxPrice !== null && value > next.maxPrice) next.maxPrice = value;
         setFilters(next);
         setOpen(null);
     }
 
-    function enforceMinNotAboveMax() {
-        setFilters((current) => {
-            const max = current.maxPrice;
-            if (current.minPrice === null || max === null || current.minPrice <= max) return current;
-            const candidate = minPrices.filter((option) => option.value <= max).pop();
-            return { ...current, minPrice: candidate ? candidate.value : null };
-        });
-    }
-
-    function applyCustomMax(price: number | null, autoClose: boolean) {
-        setFilters((current) => ({ ...current, maxPrice: price }));
-        if (closeTimer.current) clearTimeout(closeTimer.current);
-        if (autoClose) closeTimer.current = setTimeout(() => { setOpen(null); enforceMinNotAboveMax(); }, 2000);
-    }
-
-    function changeCustomPrice(value: string) {
-        const raw = value.replace(/\D/g, "").slice(0, 11);
-        const price = raw ? Number(raw) : null;
-        setCustomMax(price === null ? emptyCustomMax : { price: `R ${formatNumber(price)}`, monthly: `R ${formatNumber(priceToMonthly(price))}` });
-        applyCustomMax(price, raw.length > 4);
-    }
-
-    function changeCustomMonthly(value: string) {
-        const raw = value.replace(/\D/g, "").slice(0, 11);
-        const price = raw ? monthlyToPrice(Number(raw)) : null;
-        setCustomMax(price === null ? emptyCustomMax : { price: `R ${formatNumber(price)}`, monthly: `R ${formatNumber(Number(raw))}` });
-        applyCustomMax(price, raw.length > 3);
-    }
-
     function update<K extends keyof Filters>(key: K, value: Filters[K]) {
         setFilters({ ...filters, [key]: value });
-        if (!Array.isArray(value)) setOpen(null);
+        setOpen(null);
     }
 
     function clearSearch() {
         setMonthly(false);
         setFilters(emptyFilters);
         setExtraFilters({});
-        setCustomMax(emptyCustomMax);
     }
 
     function searchUrl() {
@@ -153,8 +106,8 @@ export default function SideSearch() {
         const params = new URLSearchParams();
         if (filters.minPrice) params.set("minprice", String(filters.minPrice));
         if (filters.maxPrice && filters.maxPrice !== cashPrices[cashPrices.length - 1]) params.set("maxprice", String(filters.maxPrice));
-        if (filters.minYear) params.set("minyear", filters.minYear);
-        if (filters.maxYear) params.set("maxyear", filters.maxYear);
+        if (filters.minYear) params.set("minyear", String(filters.minYear));
+        if (filters.maxYear) params.set("maxyear", String(filters.maxYear));
         if (extraFilters.transmission?.[0]) params.set("transmission", extraFilters.transmission[0].toLowerCase());
         if (extraFilters.fuelType?.[0]) params.set("fueltype", extraFilters.fuelType[0].toLowerCase());
         const query = params.toString();
@@ -163,7 +116,7 @@ export default function SideSearch() {
 
     return (
         <>
-            <aside ref={asideRef} className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
+            <aside className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
                 <div className="max-[981px]:hidden">
                     <p className="m-0 text-center text-[15.2px] leading-[1.15] text-white uppercase">
                         {t.taglineStart} <span className="text-[#957e4e]">{t.taglineHighlight}</span>
@@ -174,34 +127,25 @@ export default function SideSearch() {
                     </div>
 
                     <div className="mt-5 grid grid-cols-2 gap-x-2.5 gap-y-5">
-                        <SelectField label={priceLabel(filters.minPrice, t.minPrice)} open={open === "minPrice"} onToggle={() => toggle("minPrice")}>
-                            <PriceSelect options={minPrices.map((option) => priceRow(option.value))} selected={filters.minPrice} onSelect={(value, custom) => selectPrice("minPrice", value, custom)} />
-                        </SelectField>
-                        <SelectField label={priceLabel(filters.maxPrice, t.maxPrice)} open={open === "maxPrice"} onToggle={() => toggle("maxPrice")}>
-                            <PriceSelect options={maxPrices.map((option) => priceRow(option.value))} selected={filters.maxPrice} customOption={customOption} alignRight onSelect={(value, custom) => selectPrice("maxPrice", value, custom)}>
-                                {!monthly && <CustomPriceInputs price={customMax.price} monthly={customMax.monthly} onPriceChange={changeCustomPrice} onMonthlyChange={changeCustomMonthly} onCommit={enforceMinNotAboveMax} />}
-                            </PriceSelect>
-                        </SelectField>
-
-                        <SelectField label={filters.minYear ?? t.minYear} open={open === "minYear"} onToggle={() => toggle("minYear")}>
-                            <ListSelect options={years} selected={filters.minYear} onSelect={(value) => update("minYear", value)} />
-                        </SelectField>
-                        <SelectField label={filters.maxYear ?? t.maxYear} open={open === "maxYear"} onToggle={() => toggle("maxYear")}>
-                            <ListSelect options={years} selected={filters.maxYear} onSelect={(value) => update("maxYear", value)} />
-                        </SelectField>
-
-                        <SelectField label={filters.minMileage ?? t.minMileage} open={open === "minMileage"} onToggle={() => toggle("minMileage")}>
-                            <ListSelect options={mileageOptions} selected={filters.minMileage} onSelect={(value) => update("minMileage", value)} />
-                        </SelectField>
-                        <SelectField label={filters.maxMileage ?? t.maxMileage} open={open === "maxMileage"} onToggle={() => toggle("maxMileage")}>
-                            <ListSelect options={mileageOptions} selected={filters.maxMileage} onSelect={(value) => update("maxMileage", value)} />
-                        </SelectField>
-
+                        {rangeKeys.map((key) => (
+                            <SelectField key={key} label={rangeLabel(key)} open={open === key} onToggle={() => toggle(key)}>
+                                {open === key && (
+                                    <OptionSheet
+                                        title={ranges[key].title}
+                                        options={ranges[key].options}
+                                        selected={filters[key]}
+                                        fallback={ranges[key].fallback}
+                                        onSelect={(value) => key === "minPrice" || key === "maxPrice" ? selectPrice(key, value) : update(key, value)}
+                                        onClose={() => setOpen(null)}
+                                    />
+                                )}
+                            </SelectField>
+                        ))}
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
-                            <BodyTypeSelect selected={filters.bodyTypes} onChange={(value) => update("bodyTypes", value)} />
+                            {open === "bodyType" && <BodyTypeSheet selected={filters.bodyTypes} onApply={(value) => update("bodyTypes", value)} onClose={() => setOpen(null)} />}
                         </SelectField>
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
-                            <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />
+                            {open === "make" && <MakesSheet selected={filters.makes} onApply={(value) => update("makes", value)} onClose={() => setOpen(null)} />}
                         </SelectField>
                     </div>
 
