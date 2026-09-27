@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { makes } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import MakeRow from "./MakeRow"
+import CircleCheck from "../AppSearch/CircleCheck"
+import ExpandLink from "../AppSearch/ExpandLink"
 
 type MakeModelSelectProps = {
     selected: string[]
@@ -29,41 +30,49 @@ export default function MakeModelSelect({ selected, onChange }: MakeModelSelectP
 
     return (
         <div className="absolute top-full right-0 z-46 mt-px max-h-90 w-full overflow-hidden rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+            <div className="relative flex h-8 items-center justify-end gap-2 border-b border-[#e5e1d8] px-2">
+                <button onClick={() => { onChange([]); setOpenKeys([]); }} aria-label={t.clear} className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
+                    <img src="/img/refresh.svg" alt="" className="size-4" />
+                </button>
+            </div>
             <div className="max-h-62.5 overflow-y-auto [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
-                <ul className="m-0 list-none p-1.5">
+                <ul className="m-0 list-none p-0">
                     {makes.map((make) => {
                         const makeKey = make.name;
                         const makeOpen = openKeys.includes(makeKey);
                         return (
                             <li key={make.slug + make.count}>
-                                <MakeRow label={make.name} count={make.count} selected={selected.includes(makeKey)} indent="pl-2.5" toggleLabel={t.models} open={makeOpen} onSelect={() => toggleSelect(makeKey)} onToggle={() => toggleOpen(makeKey)} />
+                                <div onClick={() => toggleSelect(makeKey)} className="flex h-12 cursor-pointer items-center pl-5">
+                                    <CircleCheck checked={selected.includes(makeKey)} />
+                                    <span className="ml-3 text-[13px] text-black">{make.name}</span>
+                                    <span className="ml-2.25 text-[13px] text-[#757575]">({make.count})</span>
+                                    <ExpandLink textClass="text-[13px]" label={t.models} open={makeOpen} onToggle={() => toggleOpen(makeKey)} />
+                                </div>
                                 {makeOpen && (
                                     <ul className="m-0 list-none p-0">
-                                        <li>
-                                            <MakeRow label={t.all} selected={selected.includes(makeKey)} indent="pl-6" onSelect={() => toggleSelect(makeKey)} />
+                                        <li onClick={() => toggleSelect(makeKey)} className="flex h-10 cursor-pointer items-center pl-13">
+                                            <CircleCheck checked={selected.includes(makeKey)} />
+                                            <span className="ml-3 text-[13px] text-black">{t.all}</span>
                                         </li>
                                         {make.models.map((model) => {
                                             const modelKey = `${makeKey}|${model.name}`;
                                             const modelOpen = openKeys.includes(modelKey);
                                             return (
                                                 <li key={model.slug + model.count}>
-                                                    <MakeRow
-                                                        label={model.name}
-                                                        count={model.count}
-                                                        selected={selected.includes(modelKey) || selected.includes(makeKey)}
-                                                        indent="pl-6"
-                                                        toggleLabel={t.variants}
-                                                        open={modelOpen}
-                                                        onSelect={() => toggleSelect(modelKey)}
-                                                        onToggle={model.variants.length > 0 ? () => toggleOpen(modelKey) : undefined}
-                                                    />
+                                                    <div onClick={() => toggleSelect(modelKey)} className="flex h-10 cursor-pointer items-center pl-13">
+                                                        <CircleCheck checked={selected.includes(modelKey) || selected.includes(makeKey)} />
+                                                        <span className="ml-3 text-[13px] text-black">{model.name}</span>
+                                                        <span className="ml-2.25 text-[13px] text-[#757575]">({model.count})</span>
+                                                        {model.variants.length > 0 && <ExpandLink textClass="text-[13px]" label={t.variants} open={modelOpen} onToggle={() => toggleOpen(modelKey)} />}
+                                                    </div>
                                                     {modelOpen && (
                                                         <ul className="m-0 list-none p-0">
                                                             {model.variants.map((variant) => {
                                                                 const variantKey = `${modelKey}|${variant}`;
                                                                 return (
-                                                                    <li key={variant}>
-                                                                        <MakeRow label={variant} selected={selected.includes(variantKey) || selected.includes(modelKey) || selected.includes(makeKey)} indent="pl-9.5" onSelect={() => toggleSelect(variantKey)} />
+                                                                    <li key={variant} onClick={() => toggleSelect(variantKey)} className="flex h-10 cursor-pointer items-center pl-21">
+                                                                        <CircleCheck checked={selected.includes(variantKey) || selected.includes(modelKey) || selected.includes(makeKey)} />
+                                                                        <span className="ml-3 text-[13px] text-black">{variant}</span>
                                                                     </li>
                                                                 )
                                                             })}

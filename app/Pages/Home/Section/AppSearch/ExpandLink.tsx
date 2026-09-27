@@ -1,15 +1,16 @@
 type ExpandLinkProps = {
     label: string
     open: boolean
+    textClass?: string
     onToggle: () => void
 }
 
-export default function ExpandLink({ label, open, onToggle }: ExpandLinkProps) {
+export default function ExpandLink({ label, open, textClass = "text-[16.6px]", onToggle }: ExpandLinkProps) {
     return (
         <>
             <button
                 onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                className={`ml-auto flex h-full cursor-pointer items-center border-0 bg-transparent pr-[25px] pl-3 text-[16.6px] ${open ? "text-[#957e4e]" : "text-black"}`}
+                className={`ml-auto flex h-full cursor-pointer items-center border-0 bg-transparent pr-[25px] pl-3 ${textClass} ${open ? "text-[#957e4e]" : "text-black"}`}
             >
                 {label}
                 {open ? (
