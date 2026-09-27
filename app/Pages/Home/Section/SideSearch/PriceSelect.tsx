@@ -16,11 +16,7 @@ export default function PriceSelect({ options, selected, customOption = null, al
 
     return (
         <>
-<<<<<<< HEAD
             <div className={`absolute z-46 w-[calc(200%+10px)] overflow-hidden rounded-b bg-panel p-0 ${alignRight ? "right-0" : ""}`}>
-=======
-            <div className={`absolute z-46 w-[208.5%] overflow-hidden rounded-b bg-panel p-0 ${alignRight ? "right-0" : ""}`}>
->>>>>>> origin/main
                 <div className="group/info relative">
                     <span className="absolute top-1.25 right-5 z-1 block size-5 cursor-pointer bg-[url(/img/info-icon.svg)] bg-contain bg-no-repeat max-[1039px]:size-7.5"></span>
                     <div className="absolute top-8.75 right-1.25 z-5 hidden w-1/2 rounded-[5px] bg-white p-2.5 group-hover/info:block before:absolute before:-top-2 before:right-3.75 before:block before:h-2.5 before:w-5 before:bg-white before:content-[''] before:[clip-path:polygon(0%_100%,50%_0%,100%_100%)] max-[1039px]:top-11.75 max-[1039px]:before:right-5">

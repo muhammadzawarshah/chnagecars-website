@@ -41,11 +41,7 @@ export default function AdditionalFiltersModal({ values, onChange, onClose, onSe
                                     filter={filter}
                                     selected={values[filter.key] ?? []}
                                     open={openField === filter.key}
-<<<<<<< HEAD
                                     multiple={filter.key === "vehicleGroup" || filter.key === "fuelType" || filter.key === "colour"}
-=======
-                                    multiple={filter.key === "vehicleGroup"}
->>>>>>> origin/main
                                     onToggle={() => toggle(filter.key)}
                                     onChange={(selected) => onChange({ ...values, [filter.key]: selected })}
                                 />
