@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-gold: #957e4d;
+  --color-ink: #1a1a1a;
+  --color-charcoal: #48484a;
+  --color-slate: #4e4e4f;
+  --color-coal: #161616;
+  --color-cloud: #efefef;
+  --color-menu: #3c3c3c;
+  --color-menu-hover: #606060;
+  --color-panel: #dddcdc;
+  --color-muted: #777676;
+  --color-text-dark: #212121;
+  --color-snow: #fcfcfc;
+  --font-sans: var(--font-lato);
+  --font-inter: var(--font-inter);
+  --font-roboto: var(--font-roboto);
+  --text-xs--line-height: 1.15;
+  --text-sm--line-height: 1.15;
+  --text-base--line-height: 1.15;
+  --text-lg--line-height: 1.15;
+  --text-xl--line-height: 1.15;
+  --text-2xl--line-height: 1.15;
+  --text-3xl--line-height: 1.15;
+  --text-4xl--line-height: 1.15;
+  --animate-logo-pop: logoPop 5s infinite 2s;
+  --animate-wheel: wheel 4s infinite;
+  --animate-wheel-smoke: wheel_smoke 4s infinite;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #48484a;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  font-family: var(--font-lato), sans-serif;
+}
+
+@keyframes wheel {
+  0% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-1800deg);
+  }
+  100% {
+    transform: rotate(-1800deg);
+  }
+}
+
+@keyframes wheel_smoke {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.5;
+  }
+  10% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes logoPop {
+  0% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.05);
+  }
+  20% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tilt-shaking {
+  0%,
+  10%,
+  20%,
+  100% {
+    transform: rotate(90deg);
+  }
+  5% {
+    transform: rotate(95deg);
+  }
+  15% {
+    transform: rotate(85deg);
+  }
+}
+
+.car-type-dark {
+  --card-bg: #4e4e4f;
+  --card-text: #fff;
+  --card-hover-bg: #fff;
+  --card-hover-text: #4e4e4f;
+}
+
+@media (min-width: 1469px) {
+  .car-type-grid > li:is(:nth-child(8n + 1), :nth-child(8n + 3), :nth-child(8n + 6), :nth-child(8n + 8)) {
+    --card-bg: #4e4e4f;
+    --card-text: #fff;
+    --card-hover-bg: #fff;
+    --card-hover-text: #4e4e4f;
+  }
+}
+
+@media (min-width: 1108px) and (max-width: 1469px) {
+  .car-type-grid > li:is(:nth-child(6n + 1), :nth-child(6n + 3), :nth-child(6n + 5)) {
+    --card-bg: #4e4e4f;
+    --card-text: #fff;
+    --card-hover-bg: #fff;
+    --card-hover-text: #4e4e4f;
+  }
+}
+
+@media (min-width: 747px) and (max-width: 1107px) {
+  .car-type-grid > li:is(:nth-child(4n + 1), :nth-child(4n)) {
+    --card-bg: #4e4e4f;
+    --card-text: #fff;
+    --card-hover-bg: #fff;
+    --card-hover-text: #4e4e4f;
+  }
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
