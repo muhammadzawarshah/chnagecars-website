@@ -2,6 +2,9 @@
 
 import { ReactNode } from "react"
 import { createPortal } from "react-dom"
+import { useLanguage } from "../../../../components/Language/LanguageContext"
+import AdBanner from "../../../../components/AdBanner"
+import { heroAd } from "../../Data/ads"
 
 type AdditionalFiltersModalProps = {
     onClose: () => void
@@ -11,6 +14,9 @@ type AdditionalFiltersModalProps = {
 }
 
 export default function AdditionalFiltersModal({ onClose, onApply, onReset, children }: AdditionalFiltersModalProps) {
+
+    const { t } = useLanguage();
+
     return createPortal(
         <div data-filters-modal className="fixed inset-0 z-400011">
             <div onClick={onClose} className="flex h-full w-full items-center justify-center overflow-y-auto bg-black/50 p-5">
@@ -20,8 +26,13 @@ export default function AdditionalFiltersModal({ onClose, onApply, onReset, chil
                             <path d="M1 1L13 13M13 1L1 13" stroke="#000" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                     </button>
-                    <h2 className="mx-0 mt-0 mb-7.5 text-center text-[26px] leading-[1.2] font-normal text-black">Filters</h2>
                     <div className="mx-auto w-full max-w-121.5">
+                        <img src="/img/site_logo_dark.svg" alt="CHANGECARS logo" className="mx-auto block h-auto w-[158.6px]" />
+                        <p className="mt-3.25 mb-0 text-center text-[13.5px] leading-[1.2] text-black capitalize">
+                            {t.taglineStart.toLowerCase()} <span className="text-[#957e4e]">{t.taglineHighlight.toLowerCase()}</span>
+                        </p>
+                        <AdBanner ad={heroAd} className="mt-3.25 block w-full" />
+                        <h2 className="mx-0 mt-3.5 mb-7.5 text-center text-[26px] leading-[1.2] font-normal text-black">Filters</h2>
                         <div className="grid grid-cols-2 gap-x-2.5 gap-y-5">
                             {children}
                         </div>
