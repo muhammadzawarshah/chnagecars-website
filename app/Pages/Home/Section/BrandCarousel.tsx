@@ -20,7 +20,7 @@ export default function BrandCarousel({ title, brands }: { title: ReactNode, bra
                     innerClass="pl-2.5 max-[1201px]:pr-2.5"
                     listClass="min-h-75 pt-2.5 pb-5 max-[681px]:pt-3.75"
                     renderItem={(brand, _index, visible) => (
-                        <div className={`mb-3.75 rounded-[10px] px-6.25 pt-12.5 pb-7 text-center ${visible ? "shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}`}>
+                        <div className={`mb-3.75 rounded-[10px] px-6.25 pt-12.5 pb-7 text-center max-[301px]:px-3.75 ${visible ? "shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}`}>
                             <BrandCard brand={brand} />
                         </div>
                     )}

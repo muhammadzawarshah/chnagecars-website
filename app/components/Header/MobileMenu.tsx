@@ -38,15 +38,15 @@ export default function MobileMenu({ open, onClose }: { open: boolean, onClose: 
                 className={`fixed top-0 left-0 z-999 flex h-dvh w-[78%] max-w-117 flex-col overflow-hidden rounded-r-2xl bg-white transition-transform duration-250 ease-out min-[1112px]:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
             >
                 <div className="relative h-[105.33px] shrink-0 border-b border-[#cac4d0]">
-                    <Link href="/" onClick={onClose} className="absolute top-[32.67px] left-1/2 block w-42 -translate-x-1/2">
+                    <Link href="/" onClick={onClose} className="absolute top-[32.67px] left-1/2 block w-42 max-w-[75%] -translate-x-1/2">
                         <img src="/img/site_logo_dark.svg" alt="CHANGECARS logo" className="block w-full" />
                     </Link>
                 </div>
 
                 <div className="flex-1 overflow-y-auto pt-[9.33px]">
-                    <a href={drawerSearch.href} className="flex h-[62px] items-center pl-7 no-underline">
+                    <a href={drawerSearch.href} className="flex min-h-[62px] items-center pr-3 pl-7 no-underline max-[301px]:pl-3.5">
                         <MenuIcon icon={drawerSearch.icon} />
-                        <span className="ml-[14.5px] text-[14.4px] text-[#222]">{t.menuSearch}</span>
+                        <span className="ml-[14.5px] min-w-0 text-[14.4px] text-[#222] wrap-anywhere max-[301px]:ml-2.5">{t.menuSearch}</span>
                     </a>
                     {drawerSections.map((section, index) => (
                         <MobileMenuSection

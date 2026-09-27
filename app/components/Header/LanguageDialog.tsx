@@ -11,7 +11,7 @@ export default function LanguageDialog({ onClose }: { onClose: () => void }) {
     return createPortal(
         <>
             <div onClick={onClose} className="fixed inset-0 z-900 flex items-center justify-center bg-black/54">
-                <div onClick={(e) => e.stopPropagation()} className="w-[calc(100%-80px)] max-w-130 rounded-[20px] bg-white px-6 pt-[18.5px] pb-[40.7px]">
+                <div onClick={(e) => e.stopPropagation()} className="w-[calc(100%-80px)] max-w-130 rounded-[20px] bg-white px-6 max-[401px]:w-[calc(100%-24px)] max-[401px]:px-3 pt-[18.5px] pb-[40.7px]">
                     {languages.map((item) => (
                         <button
                             key={item.code}
@@ -25,7 +25,7 @@ export default function LanguageDialog({ onClose }: { onClose: () => void }) {
                             ) : (
                                 <span className="size-[25.33px] shrink-0 rounded-full bg-white shadow-[0_0_2px_rgba(0,0,0,0.2)]"></span>
                             )}
-                            <span className="ml-[14.67px] font-roboto text-[18.9px] text-black">{item.name}</span>
+                            <span className="ml-[14.67px] min-w-0 font-roboto text-[18.9px] text-black wrap-anywhere max-[301px]:ml-2 max-[301px]:text-[15px]">{item.name}</span>
                         </button>
                     ))}
                 </div>

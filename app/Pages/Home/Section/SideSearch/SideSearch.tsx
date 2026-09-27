@@ -56,13 +56,13 @@ export default function SideSearch() {
         value: mileage,
         label: `${formatNumber(mileage)}${index === appMileages.length - 1 ? "+" : ""} km`,
     }));
-    const ranges: Record<RangeKey, { title: string, placeholder: string, options: AppOption[], fallback: number }> = {
-        minPrice: { title: t.priceMinTitle, placeholder: t.minPrice, options: priceOptions, fallback: cashPrices[0] },
-        maxPrice: { title: t.priceMaxTitle, placeholder: t.maxPrice, options: priceOptions.slice(1), fallback: cashPrices[cashPrices.length - 1] },
-        minYear: { title: t.yearMinTitle, placeholder: t.minYear, options: yearOptions, fallback: appYears[appYears.length - 1] },
-        maxYear: { title: t.yearMaxTitle, placeholder: t.maxYear, options: yearOptions, fallback: appYears[0] },
-        minMileage: { title: t.mileageMinTitle, placeholder: t.minMileage, options: mileageOptions, fallback: appMileages[0] },
-        maxMileage: { title: t.mileageMaxTitle, placeholder: t.maxMileage, options: mileageOptions, fallback: appMileages[appMileages.length - 1] },
+    const ranges: Record<RangeKey, { placeholder: string, options: AppOption[] }> = {
+        minPrice: { placeholder: t.minPrice, options: priceOptions },
+        maxPrice: { placeholder: t.maxPrice, options: priceOptions.slice(1) },
+        minYear: { placeholder: t.minYear, options: yearOptions },
+        maxYear: { placeholder: t.maxYear, options: yearOptions },
+        minMileage: { placeholder: t.minMileage, options: mileageOptions },
+        maxMileage: { placeholder: t.maxMileage, options: mileageOptions },
     };
 
     useEffect(() => {
@@ -138,7 +138,6 @@ export default function SideSearch() {
                             <SelectField key={key} label={rangeLabel(key)} open={open === key} onToggle={() => toggle(key)}>
                                 {open === key && (
                                     <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
-                                        <div className="sticky top-0 z-1 border-b border-[#e5e1d8] bg-white px-3.75 py-2.5 text-[15px] font-bold text-[#171717]">{ranges[key].title}</div>
                                         <ul className="m-0 list-none p-1.5">
                                             {ranges[key].options.map((option) => {
                                                 const selected = filters[key] === option.value;
@@ -161,7 +160,6 @@ export default function SideSearch() {
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
                             {open === "bodyType" && (
                                 <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
-                                    <div className="sticky top-0 z-1 border-b border-[#e5e1d8] bg-white px-3.75 py-2.5 text-[15px] font-bold text-[#171717]">{t.bodyTypesTitle}</div>
                                     <ul className="m-0 list-none p-1.5">
                                         {bodyTypes.map((type) => {
                                             const selected = filters.bodyTypes.includes(type.name);
@@ -210,12 +208,12 @@ export default function SideSearch() {
                     </a>
                 </div>
 
-                <div className="relative -left-10 hidden w-[calc(100%+80px)] bg-[#e8e4e4] px-7.5 pt-10 pb-12.5 text-center max-[601px]:block">
-                    <h2 className="mx-auto mb-3.75 text-[32px] leading-9.75 font-extralight text-gold uppercase">SELL YOUR <strong className="font-black">VEHICLE</strong></h2>
+                <div className="relative -left-10 hidden w-[calc(100%+80px)] bg-[#e8e4e4] px-7.5 pt-10 pb-12.5 text-center max-[301px]:px-3.75 max-[601px]:block">
+                    <h2 className="mx-auto mb-3.75 text-[32px] leading-9.75 font-extralight text-gold uppercase wrap-anywhere max-[401px]:text-[26px] max-[401px]:leading-8 max-[301px]:text-[21px] max-[301px]:leading-6.5">SELL YOUR <strong className="font-black">VEHICLE</strong></h2>
                     <p className="mt-3.5 mb-7.5 text-sm leading-5 text-coal">
                         <strong>CHANGECARS</strong> makes it easy to sell your vehicle with confidence. Our trusted dealer network connects you to serious buyers, giving your vehicle maximum exposure and increasing your chances of receiving competitive offers. We’ve streamlined the entire process to be simple, transparent, and hassle-free, so you can move forward with clarity and peace of mind from start to finish
                     </p>
-                    <a href="https://www.changecars.co.za/sell-your-vehicle" className="relative mx-auto block h-10 w-fit cursor-pointer rounded-[5px] bg-gold pr-2.5 pl-10 text-center text-base leading-9.75 whitespace-nowrap text-white no-underline before:absolute before:top-0.5 before:left-2.5 before:block before:h-3.75 before:w-5 before:content-[url(/img/private-sellers/key-in-hand.svg)]">
+                    <a href="https://www.changecars.co.za/sell-your-vehicle" className="relative mx-auto block h-10 w-fit max-w-full cursor-pointer rounded-[5px] bg-gold pr-2.5 pl-10 text-center text-base leading-9.75 whitespace-nowrap max-[251px]:h-auto max-[251px]:py-2 max-[251px]:leading-5 max-[251px]:whitespace-normal text-white no-underline before:absolute before:top-0.5 before:left-2.5 before:block before:h-3.75 before:w-5 before:content-[url(/img/private-sellers/key-in-hand.svg)]">
                         Sell Your Vehicle
                     </a>
                 </div>

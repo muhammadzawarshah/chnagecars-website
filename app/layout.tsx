@@ -6,7 +6,6 @@ import Footer from "./components/Footer/Footer";
 import FloatingButtons from "./components/FloatingButtons";
 import PopupProvider from "./components/Popups/PopupContext";
 import Popups from "./components/Popups/Popups";
-import ViewportScript from "./components/ViewportScript";
 import LanguageProvider from "./components/Language/LanguageContext";
 
 const lato = Lato({
@@ -32,17 +31,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 465,
+  width: "device-width",
   initialScale: 1,
-  minimumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${lato.variable} ${inter.variable} ${roboto.variable}`}>
       <body className="max-[981px]:mt-14">
-        <ViewportScript />
         <LanguageProvider>
           <PopupProvider>
             <Header />

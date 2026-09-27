@@ -10,9 +10,9 @@ export default function BrandCard({ brand }: { brand: Brand }) {
     return (
         <>
             <div className="flex w-full justify-center">
-                <img src={brand.logo} alt={brand.name} className="mx-auto h-20" />
+                <img src={brand.logo} alt={brand.name} className="mx-auto h-20 max-w-full object-contain" />
             </div>
-            <p className="my-5 text-center text-xl">
+            <p className="my-5 text-center text-xl wrap-anywhere">
                 <a href={brand.href} className="font-normal text-gold no-underline hover:opacity-70">{brand.name}</a>
             </p>
             <span onClick={() => setOpen(!open)} className={`relative flex cursor-pointer justify-center pb-2.5 transition duration-500 after:absolute after:top-2 after:left-[calc(50%+35px)] after:block after:border-x-5 after:border-t-6 after:border-x-transparent after:border-t-gold after:transition after:duration-500 after:content-[''] ${open ? "after:rotate-180" : ""}`}>

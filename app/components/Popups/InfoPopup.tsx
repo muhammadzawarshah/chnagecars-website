@@ -16,7 +16,7 @@ export default function InfoPopup() {
                 CHECK THIS OUT
             </span>
             <div onClick={close} className={`fixed top-0 left-0 flex h-full w-full justify-center overflow-y-auto bg-black/64 p-5 ${isOpen ? "z-1100 items-center opacity-100" : "pointer-events-none -z-1 opacity-0"}`}>
-                <div onClick={(e) => e.stopPropagation()} className={`relative mx-auto w-full max-w-150 rounded-[10px] bg-[rgba(26,26,26,0.75)] px-11.25 py-7.5 shadow-[7px_7px_20px_rgba(0,0,0,0.4)] transition-all duration-300 after:absolute after:bottom-0 after:left-0 after:block after:h-2.5 after:w-84.5 after:bg-gold after:content-[''] max-[921px]:px-5 max-[921px]:py-12.5 ${isOpen ? "top-auto max-h-[80vh]" : "-top-[200%]"}`}>
+                <div onClick={(e) => e.stopPropagation()} className={`relative mx-auto w-full max-w-150 rounded-[10px] bg-[rgba(26,26,26,0.75)] px-11.25 py-7.5 shadow-[7px_7px_20px_rgba(0,0,0,0.4)] transition-all duration-300 after:absolute after:bottom-0 after:left-0 after:block after:h-2.5 after:w-84.5 after:max-w-full after:bg-gold after:content-[''] max-[921px]:px-5 max-[921px]:py-12.5 ${isOpen ? "top-auto max-h-[80vh]" : "-top-[200%]"}`}>
                     <div onClick={close} className="absolute top-5 right-5 z-550 size-3.75 cursor-pointer bg-[url(/img/close.svg)] bg-size-[15px] bg-center bg-no-repeat max-[601px]:scale-160"></div>
                     <div className="max-h-[50vh] overflow-auto text-white">
                         <div className="relative mx-auto mr-3">
@@ -28,7 +28,7 @@ export default function InfoPopup() {
                                 Get started today – selling your car has never been easier
                             </div>
                             <div className="mb-5 flex h-10 flex-row justify-center">
-                                <a href="https://www.changecars.co.za/sell-your-vehicle" target="_blank" className="relative mx-2.5 h-10 cursor-pointer rounded-[5px] bg-gold px-5 text-center text-sm leading-10 font-normal whitespace-nowrap text-snow no-underline transition duration-100 hover:opacity-90">
+                                <a href="https://www.changecars.co.za/sell-your-vehicle" target="_blank" className="relative mx-2.5 h-10 cursor-pointer rounded-[5px] bg-gold px-5 text-center text-sm leading-10 font-normal whitespace-nowrap text-snow no-underline transition duration-100 hover:opacity-90 max-[301px]:px-3">
                                     Sell Your Vehicle
                                 </a>
                             </div>

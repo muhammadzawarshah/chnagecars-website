@@ -23,7 +23,7 @@ export default function DealerCard({ dealer }: { dealer: Dealer }) {
                 5 <img src="/img/dealer-rating-star.svg" alt="" className="inline" />
             </div>
             <a href={dealer.href} className="block cursor-pointer no-underline">
-                <span className="mx-auto mt-6.25 block h-20 w-50 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${dealer.logo})` }}></span>
+                <span className="mx-auto mt-6.25 block h-20 w-50 max-w-[calc(100%-20px)] bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${dealer.logo})` }}></span>
                 <h3 className="mt-5 mb-3.75 max-h-6.25 overflow-hidden px-5 text-center text-xl leading-6 font-bold text-slate uppercase">{dealer.name}</h3>
                 <p className="mt-3.5 mb-7.5 line-clamp-3 h-19.5 overflow-hidden px-5 text-sm leading-6.5 font-normal text-slate">{dealer.description}</p>
                 <h4 className="m-0 h-8.75 overflow-hidden rounded-b-[10px] border border-gold bg-gold px-2.5 py-2 text-center font-inter text-[13px] leading-4.75 font-bold whitespace-nowrap text-white uppercase no-underline">View Dealer</h4>

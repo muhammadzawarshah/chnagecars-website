@@ -26,13 +26,13 @@ export default function AdditionalFiltersModal({ values, onChange, onClose, onSe
     return createPortal(
         <div className="fixed inset-0 z-400011">
             <div onClick={onClose} className="flex h-full w-full items-center justify-center overflow-y-auto bg-black/50 p-5">
-                <div onClick={(e) => e.stopPropagation()} className="relative my-auto w-full max-w-170.5 rounded-2xl bg-gold px-7.5 py-16.25 max-[1201px]:px-5 max-[1201px]:py-12.5">
+                <div onClick={(e) => e.stopPropagation()} className="relative my-auto w-full max-w-170.5 rounded-2xl bg-gold px-7.5 py-16.25 max-[1201px]:px-5 max-[1201px]:py-12.5 max-[401px]:px-3.75">
                     <a onClick={onClose} className="absolute top-5.25 right-18.75 flex size-7.5 cursor-pointer items-center justify-center max-[621px]:right-5">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 1L13 13M13 1L1 13" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
                         </svg>
                     </a>
-                    <h2 className="mx-0 mt-0 mb-13.75 text-center text-[32px] font-bold text-white max-[1201px]:mb-7.5 max-[621px]:text-[28px]">Set Additional Filters</h2>
+                    <h2 className="mx-0 mt-0 mb-13.75 text-center text-[32px] font-bold text-white wrap-anywhere max-[1201px]:mb-7.5 max-[621px]:text-[28px] max-[401px]:text-2xl">Set Additional Filters</h2>
                     <div className="mx-auto w-full max-w-121.5">
                         <div className="mb-7 flex flex-wrap gap-x-5 gap-y-8">
                             {additionalFilters.map((filter) => (

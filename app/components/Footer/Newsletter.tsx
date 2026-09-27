@@ -26,7 +26,7 @@ export default function Newsletter() {
     return (
         <>
             <div id="newsletter" className="float-left w-full border-t-2 border-white/10 pt-15 pb-25 max-[899px]:pb-15 max-[866px]:pt-12.5 max-[866px]:pb-5">
-                <h3 className="mx-auto mb-7.5 w-[64%] text-3xl font-bold text-white max-[899px]:text-center">Sign up to our Newsletter</h3>
+                <h3 className="mx-auto mb-7.5 w-[64%] text-3xl font-bold text-white max-[899px]:text-center max-[401px]:w-full max-[401px]:text-2xl max-[301px]:text-xl">Sign up to our Newsletter</h3>
                 {success ? (
                     <p className="w-full text-center text-[19pt] text-gold">Thank you for signing up! We will be in touch soon!</p>
                 ) : (
@@ -46,7 +46,7 @@ export default function Newsletter() {
                                     </div>
                                 ))}
                             </div>
-                            <a onClick={handleSubmit} className="mt-6 block h-10 cursor-pointer rounded-[5px] bg-gold px-15 text-center text-sm leading-10 font-normal text-snow no-underline transition min-[1085px]:hover:opacity-80 max-[866px]:m-0">
+                            <a onClick={handleSubmit} className="mt-6 block h-10 cursor-pointer rounded-[5px] bg-gold px-15 text-center max-[301px]:px-8 text-sm leading-10 font-normal text-snow no-underline transition min-[1085px]:hover:opacity-80 max-[866px]:m-0">
                                 Submit
                             </a>
                         </div>

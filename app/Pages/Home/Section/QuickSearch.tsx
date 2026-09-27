@@ -36,7 +36,7 @@ export default function QuickSearch() {
 
     return (
         <>
-            <section className="m-0 -mt-px overflow-hidden bg-white px-8.75 pt-25 max-[901px]:pt-11.25">
+            <section className="m-0 -mt-px overflow-hidden bg-white px-8.75 max-[401px]:px-3.75 max-[251px]:px-2.5 pt-25 max-[901px]:pt-11.25">
                 <SectionTitle className="mb-12.5 max-[1000px]:mb-6.25">Quick <strong>Search</strong></SectionTitle>
 
                 <div onMouseEnter={() => { pausedRef.current = true; }} onMouseLeave={() => { pausedRef.current = false; }} className="relative -mt-px bg-white pb-25">
