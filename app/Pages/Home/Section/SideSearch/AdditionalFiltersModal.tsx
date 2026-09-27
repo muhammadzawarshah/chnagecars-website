@@ -36,9 +36,9 @@ export default function AdditionalFiltersModal({ onClose, onApply, onReset, chil
                         <div className="grid grid-cols-2 gap-x-2.5 gap-y-5">
                             {children}
                         </div>
-                        <div className="mt-8.75 flex h-[45.5px] overflow-hidden rounded-[5px] border border-[#e8e8e8]">
-                            <button onClick={onApply} className="w-1/2 cursor-pointer border-0 bg-[#957e4e] text-[15px] text-white transition duration-200 hover:opacity-85">Apply</button>
-                            <button onClick={onReset} className="w-1/2 cursor-pointer border-0 bg-white text-[15.2px] text-black transition duration-200 hover:bg-[#f5f5f5]">Reset</button>
+                        <div className="mt-8.75 flex h-[45.5px] gap-2.5">
+                            <button onClick={onApply} className="flex-1 cursor-pointer rounded-[5px] border-0 bg-[#957e4e] text-[15px] text-white transition duration-200 hover:opacity-85">Apply</button>
+                            <button onClick={onReset} className="flex-1 cursor-pointer rounded-[5px] border border-[#bdbdbd] bg-white text-[15.2px] text-black transition duration-200 hover:bg-[#f5f5f5]">Reset</button>
                         </div>
                     </div>
                 </div>
