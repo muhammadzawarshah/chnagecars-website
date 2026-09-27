@@ -30,11 +30,6 @@ export default function MakeModelSelect({ selected, onChange }: MakeModelSelectP
 
     return (
         <div className="absolute top-full right-0 z-46 mt-px max-h-90 w-full overflow-hidden rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
-            <div className="relative flex h-8 items-center justify-end gap-2 border-b border-[#e5e1d8] px-2">
-                <button onClick={() => { onChange([]); setOpenKeys([]); }} aria-label={t.clear} className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
-                    <img src="/img/refresh.svg" alt="" className="size-4" />
-                </button>
-            </div>
             <div className="max-h-62.5 overflow-y-auto [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
                 <ul className="m-0 list-none p-0">
                     {makes.map((make) => {
