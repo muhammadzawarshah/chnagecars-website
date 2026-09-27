@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { makes } from "../../Data/makes"
-import { totalCars } from "../../Data/search"
-import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
+import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import AdditionalFiltersModal from "../SideSearch/AdditionalFiltersModal"
 import HeroAd from "../HeroAd"
 import PaymentToggle from "./PaymentToggle"
@@ -116,7 +115,7 @@ export default function AppSearch() {
                         <span className="ml-[9.33px]">{t.moreFilters}</span>
                     </button>
                     <a href={searchUrl()} className="flex h-10 min-w-[min(31vw,190px)] items-center justify-center rounded bg-[#957e4e] px-2.5 text-sm whitespace-nowrap text-white no-underline max-[251px]:h-auto max-[251px]:min-h-10 max-[251px]:py-2 max-[251px]:text-center max-[251px]:whitespace-normal">
-                        {t.searchCars.replace("{count}", totalCars)}
+                        {t.searchCars.replace("{count}", appTotalCars)}
                     </a>
                     <button onClick={clearSearch} className="cursor-pointer border-0 bg-transparent p-0 pl-[9.34px] text-[13.8px] text-white">{t.clearSearch}</button>
                 </div>
