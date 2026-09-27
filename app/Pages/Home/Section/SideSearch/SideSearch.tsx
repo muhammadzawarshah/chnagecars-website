@@ -48,7 +48,7 @@ const multipleChoices: ChoiceKey[] = ["fuelType", "colour"];
 export default function SideSearch() {
 
     const { t } = useLanguage();
-    const [open, setOpen] = useState<OpenKey | null>(null);
+    const [open, setOpen] = useState<OpenKey | `more-${OpenKey}` | null>(null);
     const [monthly, setMonthly] = useState(false);
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
@@ -90,7 +90,7 @@ export default function SideSearch() {
         return ranges[key].options.find((option) => option.value === value)?.label ?? ranges[key].placeholder;
     }
 
-    function toggle(name: OpenKey) {
+    function toggle(name: OpenKey | `more-${OpenKey}`) {
         setOpen(open === name ? null : name);
     }
 
@@ -223,23 +223,23 @@ export default function SideSearch() {
                 {showMore && (
                     <AdditionalFiltersModal onClose={closeMore} onApply={closeMore} onReset={resetFilters}>
                         {rangeKeys.map((key) => (
-                            <FilterSelect key={key} label={rangeLabel(key)} active={filters[key] !== null} open={open === key} onToggle={() => toggle(key)}>
+                            <FilterSelect key={key} label={rangeLabel(key)} active={filters[key] !== null} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
                                 <OptionMenu items={rangeItems(key)} />
                             </FilterSelect>
                         ))}
                         {(["transmission", "fuelType"] as ChoiceKey[]).map((key) => (
-                            <FilterSelect key={key} label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === key} onToggle={() => toggle(key)}>
+                            <FilterSelect key={key} label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
                                 <OptionMenu items={choiceItems(key)} />
                             </FilterSelect>
                         ))}
-                        <FilterSelect wide label={listLabel(filters.bodyTypes, t.bodyTypes)} active={filters.bodyTypes.length > 0} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
+                        <FilterSelect wide label={listLabel(filters.bodyTypes, t.bodyTypes)} active={filters.bodyTypes.length > 0} open={open === "more-bodyType"} onToggle={() => toggle("more-bodyType")}>
                             <OptionMenu items={bodyTypeItems()} />
                         </FilterSelect>
-                        <FilterSelect wide label={listLabel(filters.makes, t.makesModels)} active={filters.makes.length > 0} open={open === "make"} onToggle={() => toggle("make")}>
+                        <FilterSelect wide label={listLabel(filters.makes, t.makesModels)} active={filters.makes.length > 0} open={open === "more-make"} onToggle={() => toggle("more-make")}>
                             <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />
                         </FilterSelect>
                         {(["drive", "colour"] as ChoiceKey[]).map((key) => (
-                            <FilterSelect key={key} wide label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === key} onToggle={() => toggle(key)}>
+                            <FilterSelect key={key} wide label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
                                 <OptionMenu items={choiceItems(key)} />
                             </FilterSelect>
                         ))}
