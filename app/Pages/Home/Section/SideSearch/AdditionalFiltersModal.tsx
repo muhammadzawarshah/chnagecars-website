@@ -1,65 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { ReactNode } from "react"
 import { createPortal } from "react-dom"
-import { additionalFilters } from "../../Data/additionalFilters"
-import AdditionalFilterField from "./AdditionalFilterField"
-import DealershipField from "./DealershipField"
 
 type AdditionalFiltersModalProps = {
-    values: Record<string, string[]>
-    onChange: (values: Record<string, string[]>) => void
     onClose: () => void
-    onSearch: () => void
+    onApply: () => void
+    onReset: () => void
+    children: ReactNode
 }
 
-export default function AdditionalFiltersModal({ values, onChange, onClose, onSearch }: AdditionalFiltersModalProps) {
-
-    const [openField, setOpenField] = useState<string | null>(null);
-
-    function toggle(key: string) {
-        setOpenField(openField === key ? null : key);
-    }
-
-    const button = "inline-flex h-13.75 cursor-pointer items-center gap-4 rounded-md px-10.5 text-sm no-underline transition duration-300 max-[621px]:h-10 max-[621px]:gap-2.5 max-[621px]:px-2.5 min-[1024px]:hover:opacity-80";
-
+export default function AdditionalFiltersModal({ onClose, onApply, onReset, children }: AdditionalFiltersModalProps) {
     return createPortal(
-        <div className="fixed inset-0 z-400011">
+        <div data-filters-modal className="fixed inset-0 z-400011">
             <div onClick={onClose} className="flex h-full w-full items-center justify-center overflow-y-auto bg-black/50 p-5">
-                <div onClick={(e) => e.stopPropagation()} className="relative my-auto w-full max-w-170.5 rounded-2xl bg-white px-7.5 py-16.25 max-[1201px]:px-5 max-[1201px]:py-12.5 max-[401px]:px-3.75">
-                    <a onClick={onClose} className="absolute top-5.25 right-18.75 flex size-7.5 cursor-pointer items-center justify-center max-[621px]:right-5">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L13 13M13 1L1 13" stroke="#000" strokeWidth="2.2" strokeLinecap="round" />
+                <div onClick={(e) => e.stopPropagation()} className="relative my-auto w-full max-w-170.5 rounded-2xl bg-white px-7.5 pt-12.5 pb-10 max-[621px]:px-5">
+                    <button onClick={onClose} aria-label="Close" className="absolute top-5.25 right-6 flex size-7.5 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M1 1L13 13M13 1L1 13" stroke="#000" strokeWidth="2" strokeLinecap="round" />
                         </svg>
-                    </a>
-                    <h2 className="mx-0 mt-0 mb-13.75 text-center text-[32px] font-bold text-black wrap-anywhere max-[1201px]:mb-7.5 max-[621px]:text-[28px] max-[401px]:text-2xl">Set Additional Filters</h2>
+                    </button>
+                    <h2 className="mx-0 mt-0 mb-7.5 text-center text-[26px] leading-[1.2] font-normal text-black">Filters</h2>
                     <div className="mx-auto w-full max-w-121.5">
-                        <div className="mb-7 flex flex-wrap gap-x-5 gap-y-8">
-                            {additionalFilters.map((filter) => (
-                                <AdditionalFilterField
-                                    key={filter.key}
-                                    filter={filter}
-                                    selected={values[filter.key] ?? []}
-                                    open={openField === filter.key}
-                                    multiple={filter.key === "vehicleGroup" || filter.key === "fuelType" || filter.key === "colour"}
-                                    onToggle={() => toggle(filter.key)}
-                                    onChange={(selected) => onChange({ ...values, [filter.key]: selected })}
-                                />
-                            ))}
-                            <DealershipField
-                                selected={values.dealership ?? []}
-                                open={openField === "dealership"}
-                                onToggle={() => toggle("dealership")}
-                                onChange={(selected) => onChange({ ...values, dealership: selected })}
-                            />
+                        <div className="grid grid-cols-2 gap-x-2.5 gap-y-5">
+                            {children}
                         </div>
-                        <div className="flex flex-wrap items-center justify-between gap-5">
-                            <a onClick={onClose} className={`${button} border border-[#e8e8e8] bg-white text-black shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>Save & Close</a>
-                            <a onClick={onSearch} className={`${button} bg-[#957e4e] text-white`}>
-                                <img src="/img/magnifying-glass-white.svg" alt="" className="w-5 max-[621px]:w-3.75" />
-                                Save & Search
-                            </a>
-                            <a onClick={() => onChange({})} className="cursor-pointer text-xs font-normal text-black max-[676px]:text-sm min-[1024px]:hover:underline">Clear Search</a>
+                        <div className="mt-8.75 flex h-[45.5px] overflow-hidden rounded-[5px] border border-[#e8e8e8]">
+                            <button onClick={onApply} className="w-1/2 cursor-pointer border-0 bg-[#957e4e] text-[15px] text-white transition duration-200 hover:opacity-85">Apply</button>
+                            <button onClick={onReset} className="w-1/2 cursor-pointer border-0 bg-white text-[15.2px] text-black transition duration-200 hover:bg-[#f5f5f5]">Reset</button>
                         </div>
                     </div>
                 </div>

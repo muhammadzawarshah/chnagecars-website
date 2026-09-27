@@ -1,12 +1,15 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { makes } from "../../Data/makes"
 import { bodyTypes, totalCars } from "../../Data/search"
+import { additionalFilters } from "../../Data/additionalFilters"
 import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import PaymentToggle from "../AppSearch/PaymentToggle"
 import SelectField from "./SelectField"
+import FilterSelect from "./FilterSelect"
+import OptionMenu, { MenuItem } from "./OptionMenu"
 import MakeModelSelect from "./MakeModelSelect"
 import AdditionalFiltersModal from "./AdditionalFiltersModal"
 
@@ -34,17 +37,22 @@ const emptyFilters: Filters = {
 
 type RangeKey = "minPrice" | "maxPrice" | "minYear" | "maxYear" | "minMileage" | "maxMileage"
 
+type ChoiceKey = "transmission" | "fuelType" | "drive" | "colour"
+
+type OpenKey = RangeKey | ChoiceKey | "bodyType" | "make"
+
 const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
+
+const multipleChoices: ChoiceKey[] = ["fuelType", "colour"];
 
 export default function SideSearch() {
 
     const { t } = useLanguage();
-    const [open, setOpen] = useState<RangeKey | "bodyType" | "make" | null>(null);
+    const [open, setOpen] = useState<OpenKey | null>(null);
     const [monthly, setMonthly] = useState(false);
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
-    const asideRef = useRef<HTMLElement>(null);
     const priceOptions: AppOption[] = cashPrices.map((price, index) => ({
         value: price,
         label: monthly
@@ -67,7 +75,7 @@ export default function SideSearch() {
 
     useEffect(() => {
         function handleClick(event: MouseEvent) {
-            if (asideRef.current && !asideRef.current.contains(event.target as Node)) setOpen(null);
+            if (!(event.target as Element).closest("[data-select]")) setOpen(null);
         }
         document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
@@ -82,8 +90,60 @@ export default function SideSearch() {
         return ranges[key].options.find((option) => option.value === value)?.label ?? ranges[key].placeholder;
     }
 
-    function toggle(name: RangeKey | "bodyType" | "make") {
+    function toggle(name: OpenKey) {
         setOpen(open === name ? null : name);
+    }
+
+    function rangeItems(key: RangeKey): MenuItem[] {
+        return ranges[key].options.map((option) => ({
+            id: String(option.value),
+            label: option.label,
+            selected: filters[key] === option.value,
+            onSelect: () => key === "minPrice" || key === "maxPrice" ? selectPrice(key, option.value) : update(key, option.value),
+        }));
+    }
+
+    function bodyTypeItems(): MenuItem[] {
+        return bodyTypes.map((type) => {
+            const selected = filters.bodyTypes.includes(type.name);
+            return {
+                id: type.name,
+                label: type.name,
+                selected,
+                onSelect: () => update("bodyTypes", selected ? filters.bodyTypes.filter((item) => item !== type.name) : [...filters.bodyTypes, type.name]),
+            };
+        });
+    }
+
+    function choiceFilter(key: ChoiceKey) {
+        return additionalFilters.find((filter) => filter.key === key)!;
+    }
+
+    function choiceItems(key: ChoiceKey): MenuItem[] {
+        const current = extraFilters[key] ?? [];
+        const multiple = multipleChoices.includes(key);
+        const anyItem: MenuItem = { id: "any", label: t.any, selected: current.length === 0, onSelect: () => selectChoice(key, [], true) };
+        return [anyItem, ...choiceFilter(key).options.map((option) => {
+            const selected = current.includes(option);
+            const next = multiple ? (selected ? current.filter((item) => item !== option) : [...current, option]) : (selected ? [] : [option]);
+            return { id: option, label: option, selected, onSelect: () => selectChoice(key, next, !multiple) };
+        })];
+    }
+
+    function selectChoice(key: ChoiceKey, value: string[], close: boolean) {
+        setExtraFilters({ ...extraFilters, [key]: value });
+        if (close) setOpen(null);
+    }
+
+    function closeMore() {
+        setShowMore(false);
+        setOpen(null);
+    }
+
+    function resetFilters() {
+        setFilters(emptyFilters);
+        setExtraFilters({});
+        setOpen(null);
     }
 
     function selectPrice(key: "minPrice" | "maxPrice", value: number) {
@@ -101,8 +161,7 @@ export default function SideSearch() {
 
     function clearSearch() {
         setMonthly(false);
-        setFilters(emptyFilters);
-        setExtraFilters({});
+        resetFilters();
     }
 
     function searchUrl() {
@@ -123,7 +182,7 @@ export default function SideSearch() {
 
     return (
         <>
-            <aside ref={asideRef} className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
+            <aside className="sticky top-2.5 z-2 float-left w-95 rounded-xl pt-0 pr-6.25 pb-6.25 pl-0 max-[1441px]:pt-1.25 max-[1111px]:top-8.75 max-[1111px]:pt-26.25 max-[1111px]:pb-1.25 max-[981px]:float-none max-[981px]:mx-auto max-[981px]:-mt-5.75 max-[981px]:block max-[981px]:w-[80%] max-[981px]:px-5 max-[981px]:pt-6.25 max-[981px]:pb-5 max-[874px]:mt-0 max-[841px]:pt-2.5 max-[681px]:w-auto max-[601px]:pt-0 max-[601px]:pb-0">
                 <div className="max-[981px]:hidden">
                     <p className="m-0 text-center text-[15.2px] leading-[1.15] text-white uppercase">
                         {t.taglineStart} <span className="text-[#957e4e]">{t.taglineHighlight}</span>
@@ -136,43 +195,11 @@ export default function SideSearch() {
                     <div className="mt-5 grid grid-cols-2 gap-x-2.5 gap-y-5">
                         {rangeKeys.map((key) => (
                             <SelectField key={key} label={rangeLabel(key)} open={open === key} onToggle={() => toggle(key)}>
-                                {open === key && (
-                                    <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
-                                        <ul className="m-0 list-none p-1.5">
-                                            {ranges[key].options.map((option) => {
-                                                const selected = filters[key] === option.value;
-                                                return (
-                                                    <li
-                                                        key={option.value}
-                                                        onClick={() => key === "minPrice" || key === "maxPrice" ? selectPrice(key, option.value) : update(key, option.value)}
-                                                        className={`flex h-7.5 cursor-pointer items-center justify-between rounded px-2.5 text-[13px] ${selected ? "bg-[#eee8dc] font-semibold text-[#957e4d]" : "text-[#171717] hover:bg-[#f5f2ed]"}`}
-                                                    >
-                                                        <span>{option.label}</span>
-                                                        {selected && <svg width="13" height="10" viewBox="0 0 18 14" fill="none" stroke="#9d885c" strokeWidth="2"><path d="M1 7l5 5L17 1" /></svg>}
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                )}
+                                <OptionMenu items={rangeItems(key)} />
                             </SelectField>
                         ))}
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
-                            {open === "bodyType" && (
-                                <div className="absolute top-full z-46 mt-px max-h-62.5 w-full overflow-y-auto rounded-b bg-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
-                                    <ul className="m-0 list-none p-1.5">
-                                        {bodyTypes.map((type) => {
-                                            const selected = filters.bodyTypes.includes(type.name);
-                                            return (
-                                                <li key={type.name} onClick={() => update("bodyTypes", selected ? filters.bodyTypes.filter((item) => item !== type.name) : [...filters.bodyTypes, type.name])} className={`flex h-7.5 cursor-pointer items-center justify-between rounded px-2.5 text-[13px] ${selected ? "bg-[#eee8dc] font-semibold text-[#957e4d]" : "text-[#171717] hover:bg-[#f5f2ed]"}`}>
-                                                    <span>{type.name}</span>
-                                                    {selected && <svg width="13" height="10" viewBox="0 0 18 14" fill="none" stroke="#9d885c" strokeWidth="2"><path d="M1 7l5 5L17 1" /></svg>}
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
-                            )}
+                            <OptionMenu items={bodyTypeItems()} />
                         </SelectField>
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
                             {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />}
@@ -194,12 +221,29 @@ export default function SideSearch() {
                 </div>
 
                 {showMore && (
-                    <AdditionalFiltersModal
-                        values={extraFilters}
-                        onChange={setExtraFilters}
-                        onClose={() => setShowMore(false)}
-                        onSearch={() => { window.location.href = searchUrl(); }}
-                    />
+                    <AdditionalFiltersModal onClose={closeMore} onApply={closeMore} onReset={resetFilters}>
+                        {rangeKeys.map((key) => (
+                            <FilterSelect key={key} label={rangeLabel(key)} active={filters[key] !== null} open={open === key} onToggle={() => toggle(key)}>
+                                <OptionMenu items={rangeItems(key)} />
+                            </FilterSelect>
+                        ))}
+                        {(["transmission", "fuelType"] as ChoiceKey[]).map((key) => (
+                            <FilterSelect key={key} label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === key} onToggle={() => toggle(key)}>
+                                <OptionMenu items={choiceItems(key)} />
+                            </FilterSelect>
+                        ))}
+                        <FilterSelect wide label={listLabel(filters.bodyTypes, t.bodyTypes)} active={filters.bodyTypes.length > 0} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
+                            <OptionMenu items={bodyTypeItems()} />
+                        </FilterSelect>
+                        <FilterSelect wide label={listLabel(filters.makes, t.makesModels)} active={filters.makes.length > 0} open={open === "make"} onToggle={() => toggle("make")}>
+                            <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />
+                        </FilterSelect>
+                        {(["drive", "colour"] as ChoiceKey[]).map((key) => (
+                            <FilterSelect key={key} wide label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === key} onToggle={() => toggle(key)}>
+                                <OptionMenu items={choiceItems(key)} />
+                            </FilterSelect>
+                        ))}
+                    </AdditionalFiltersModal>
                 )}
 
                 <div className="mt-12.5 inline-block w-full max-[981px]:mt-5 max-[981px]:-mb-2.5 max-[601px]:hidden">
