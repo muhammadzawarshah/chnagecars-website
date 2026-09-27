@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import { makes } from "../../Data/makes"
 import { bodyTypes, totalCars } from "../../Data/search"
-import { additionalFilters } from "../../Data/additionalFilters"
+import { filterRows, findFilter } from "../../Data/additionalFilters"
+import { buildSearchUrl } from "../../Data/searchUrl"
 import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import PaymentToggle from "../AppSearch/PaymentToggle"
 import SelectField from "./SelectField"
@@ -37,18 +37,12 @@ const emptyFilters: Filters = {
 
 type RangeKey = "minPrice" | "maxPrice" | "minYear" | "maxYear" | "minMileage" | "maxMileage"
 
-type ChoiceKey = "transmission" | "fuelType" | "drive" | "colour"
-
-type OpenKey = RangeKey | ChoiceKey | "bodyType" | "make"
-
 const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
-
-const multipleChoices: ChoiceKey[] = ["fuelType", "colour"];
 
 export default function SideSearch() {
 
     const { t } = useLanguage();
-    const [open, setOpen] = useState<OpenKey | `more-${OpenKey}` | null>(null);
+    const [open, setOpen] = useState<string | null>(null);
     const [monthly, setMonthly] = useState(false);
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
@@ -90,7 +84,7 @@ export default function SideSearch() {
         return ranges[key].options.find((option) => option.value === value)?.label ?? ranges[key].placeholder;
     }
 
-    function toggle(name: OpenKey | `more-${OpenKey}`) {
+    function toggle(name: string) {
         setOpen(open === name ? null : name);
     }
 
@@ -115,22 +109,41 @@ export default function SideSearch() {
         });
     }
 
-    function choiceFilter(key: ChoiceKey) {
-        return additionalFilters.find((filter) => filter.key === key)!;
-    }
-
-    function choiceItems(key: ChoiceKey): MenuItem[] {
+    function choiceItems(key: string): MenuItem[] {
         const current = extraFilters[key] ?? [];
-        const multiple = multipleChoices.includes(key);
+        const multiple = !!findFilter(key).multiple;
         const anyItem: MenuItem = { id: "any", label: t.any, selected: current.length === 0, onSelect: () => selectChoice(key, [], true) };
-        return [anyItem, ...choiceFilter(key).options.map((option) => {
+        return [anyItem, ...findFilter(key).options.map((option) => {
             const selected = current.includes(option);
             const next = multiple ? (selected ? current.filter((item) => item !== option) : [...current, option]) : (selected ? [] : [option]);
             return { id: option, label: option, selected, onSelect: () => selectChoice(key, next, !multiple) };
         })];
     }
 
-    function selectChoice(key: ChoiceKey, value: string[], close: boolean) {
+    function menuFor(key: string) {
+        const filter = findFilter(key);
+        return <OptionMenu items={choiceItems(key)} info={filter.info} searchPlaceholder={filter.searchable ? `Search ${filter.label}` : undefined} />;
+    }
+
+    function formChoice(key: string, wide: boolean) {
+        const filter = findFilter(key);
+        return (
+            <SelectField key={key} wide={wide} label={listLabel(extraFilters[key] ?? [], filter.formLabel ?? filter.label)} open={open === key} onToggle={() => toggle(key)}>
+                {menuFor(key)}
+            </SelectField>
+        );
+    }
+
+    function choiceField(key: string, wide: boolean) {
+        const filter = findFilter(key);
+        return (
+            <FilterSelect key={key} wide={wide} label={listLabel(extraFilters[key] ?? [], filter.label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
+                {menuFor(key)}
+            </FilterSelect>
+        );
+    }
+
+    function selectChoice(key: string, value: string[], close: boolean) {
         setExtraFilters({ ...extraFilters, [key]: value });
         if (close) setOpen(null);
     }
@@ -165,19 +178,7 @@ export default function SideSearch() {
     }
 
     function searchUrl() {
-        const [makeName, modelName] = (filters.makes[0] ?? "").split("|");
-        const make = makes.find((item) => item.name === makeName);
-        const model = make?.models.find((item) => item.name === modelName);
-        const path = make ? `${make.slug}${model ? `/${model.slug}` : ""}` : "";
-        const params = new URLSearchParams();
-        if (filters.minPrice) params.set("minprice", String(filters.minPrice));
-        if (filters.maxPrice && filters.maxPrice !== cashPrices[cashPrices.length - 1]) params.set("maxprice", String(filters.maxPrice));
-        if (filters.minYear) params.set("minyear", String(filters.minYear));
-        if (filters.maxYear) params.set("maxyear", String(filters.maxYear));
-        if (extraFilters.transmission?.[0]) params.set("transmission", extraFilters.transmission[0].toLowerCase());
-        if (extraFilters.fuelType?.[0]) params.set("fueltype", extraFilters.fuelType[0].toLowerCase());
-        const query = params.toString();
-        return `https://www.changecars.co.za/new-or-used-cars-for-sale/${path}${query ? `?${query}` : ""}`;
+        return buildSearchUrl(filters, extraFilters);
     }
 
     return (
@@ -201,6 +202,8 @@ export default function SideSearch() {
                         <SelectField wide label={listLabel(filters.bodyTypes, t.bodyTypes)} open={open === "bodyType"} onToggle={() => toggle("bodyType")}>
                             <OptionMenu items={bodyTypeItems()} />
                         </SelectField>
+                        {filterRows.form.map((key) => formChoice(key, false))}
+                        {filterRows.formWide.map((key) => formChoice(key, true))}
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
                             {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />}
                         </SelectField>
@@ -222,27 +225,8 @@ export default function SideSearch() {
 
                 {showMore && (
                     <AdditionalFiltersModal onClose={closeMore} onApply={closeMore} onReset={resetFilters}>
-                        {rangeKeys.map((key) => (
-                            <FilterSelect key={key} label={rangeLabel(key)} active={filters[key] !== null} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
-                                <OptionMenu items={rangeItems(key)} />
-                            </FilterSelect>
-                        ))}
-                        {(["transmission", "fuelType"] as ChoiceKey[]).map((key) => (
-                            <FilterSelect key={key} label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
-                                <OptionMenu items={choiceItems(key)} />
-                            </FilterSelect>
-                        ))}
-                        <FilterSelect wide label={listLabel(filters.bodyTypes, t.bodyTypes)} active={filters.bodyTypes.length > 0} open={open === "more-bodyType"} onToggle={() => toggle("more-bodyType")}>
-                            <OptionMenu items={bodyTypeItems()} />
-                        </FilterSelect>
-                        <FilterSelect wide label={listLabel(filters.makes, t.makesModels)} active={filters.makes.length > 0} open={open === "more-make"} onToggle={() => toggle("more-make")}>
-                            <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />
-                        </FilterSelect>
-                        {(["drive", "colour"] as ChoiceKey[]).map((key) => (
-                            <FilterSelect key={key} wide label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
-                                <OptionMenu items={choiceItems(key)} />
-                            </FilterSelect>
-                        ))}
+                        {filterRows.popup.map((key) => choiceField(key, false))}
+                        {filterRows.popupWide.map((key) => choiceField(key, true))}
                     </AdditionalFiltersModal>
                 )}
 

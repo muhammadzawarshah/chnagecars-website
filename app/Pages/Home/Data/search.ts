@@ -11,7 +11,24 @@ export type BodyType = {
     count: number
 }
 
+export type Province = {
+    name: string
+    count: number
+}
+
 export const totalCars = "36 533";
+
+export const searchProvinces: Province[] = [
+    { name: "Eastern Cape", count: 1239 },
+    { name: "Free State", count: 708 },
+    { name: "Gauteng", count: 22016 },
+    { name: "KwaZulu-Natal", count: 4669 },
+    { name: "Limpopo", count: 758 },
+    { name: "Mpumalanga", count: 1901 },
+    { name: "Northern Cape", count: 313 },
+    { name: "North West", count: 1781 },
+    { name: "Western Cape", count: 5643 },
+];
 
 export const minPrices: PriceOption[] = [
     { value: 5000, price: "R5 000", monthly: "R101 p/m" },

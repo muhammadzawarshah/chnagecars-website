@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import { makes } from "../../Data/makes"
 import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
-import { additionalFilters } from "../../Data/additionalFilters"
+import { additionalFilters, filterRows, findFilter } from "../../Data/additionalFilters"
+import { buildSearchUrl } from "../../Data/searchUrl"
 import HeroAd from "../HeroAd"
 import PaymentToggle from "./PaymentToggle"
 import AppField from "./AppField"
@@ -16,8 +16,6 @@ import FiltersPage from "./FiltersPage"
 import FilterField from "./FilterField"
 
 type RangeKey = "minPrice" | "maxPrice" | "minYear" | "maxYear" | "minMileage" | "maxMileage"
-
-type ChoiceKey = "transmission" | "fuelType" | "drive" | "colour"
 
 type AppValues = Record<RangeKey, number | null> & {
     bodyTypes: string[]
@@ -35,12 +33,18 @@ const emptyValues: AppValues = {
     makes: [],
 };
 
+const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
+
+function isRange(key: string): key is RangeKey {
+    return rangeKeys.includes(key as RangeKey);
+}
+
 export default function AppSearch() {
 
     const { t } = useLanguage();
     const [monthly, setMonthly] = useState(false);
     const [values, setValues] = useState<AppValues>(emptyValues);
-    const [sheet, setSheet] = useState<RangeKey | ChoiceKey | "bodyTypes" | "makes" | null>(null);
+    const [sheet, setSheet] = useState<string | null>(null);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
 
@@ -70,13 +74,13 @@ export default function AppSearch() {
         return values.makes.map((item) => item.split("|").join(" ")).join(", ");
     }
 
-    function choiceFilter(key: ChoiceKey) {
-        return additionalFilters.find((filter) => filter.key === key)!;
+    function choiceLabel(key: string) {
+        const selected = extraFilters[key] ?? [];
+        return selected.length ? selected.join(", ") : findFilter(key).label;
     }
 
-    function choiceLabel(key: ChoiceKey) {
-        const selected = extraFilters[key] ?? [];
-        return selected.length ? selected.join(", ") : choiceFilter(key).label;
+    function choiceField(key: string, wide: boolean) {
+        return <FilterField key={key} wide={wide} label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => setSheet(key)} />;
     }
 
     function resetFilters() {
@@ -85,25 +89,13 @@ export default function AppSearch() {
     }
 
     function searchUrl() {
-        const [makeName, modelName] = (values.makes[0] ?? "").split("|");
-        const make = makes.find((item) => item.name === makeName);
-        const model = make?.models.find((item) => item.name === modelName);
-        const path = make ? `${make.slug}${model ? `/${model.slug}` : ""}` : "";
-        const params = new URLSearchParams();
-        if (values.minPrice) params.set("minprice", String(values.minPrice));
-        if (values.maxPrice && values.maxPrice !== cashPrices[cashPrices.length - 1]) params.set("maxprice", String(values.maxPrice));
-        if (values.minYear) params.set("minyear", String(values.minYear));
-        if (values.maxYear) params.set("maxyear", String(values.maxYear));
-        const query = params.toString();
-        return `https://www.changecars.co.za/new-or-used-cars-for-sale/${path}${query ? `?${query}` : ""}`;
+        return buildSearchUrl(values, extraFilters);
     }
 
     function clearSearch() {
         setMonthly(false);
         resetFilters();
     }
-
-    const rangeKeys: RangeKey[] = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage"];
 
     return (
         <>
@@ -146,26 +138,27 @@ export default function AppSearch() {
                     {rangeKeys.map((key) => (
                         <FilterField key={key} label={rangeLabel(key)} active={values[key] !== null} onClick={() => setSheet(key)} />
                     ))}
-                    {(["transmission", "fuelType"] as ChoiceKey[]).map((key) => (
-                        <FilterField key={key} label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => setSheet(key)} />
-                    ))}
                     <FilterField wide label={values.bodyTypes.length ? values.bodyTypes.join(", ") : t.bodyTypes} active={values.bodyTypes.length > 0} onClick={() => setSheet("bodyTypes")} />
                     <FilterField wide label={makesLabel()} active={values.makes.length > 0} onClick={() => setSheet("makes")} />
-                    {(["drive", "colour"] as ChoiceKey[]).map((key) => (
-                        <FilterField key={key} wide label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => setSheet(key)} />
-                    ))}
+                    {filterRows.form.map((key) => choiceField(key, false))}
+                    {filterRows.formWide.map((key) => choiceField(key, true))}
+                    {filterRows.popup.map((key) => choiceField(key, false))}
+                    {filterRows.popupWide.map((key) => choiceField(key, true))}
                 </FiltersPage>
             )}
-            {(sheet === "transmission" || sheet === "fuelType" || sheet === "drive" || sheet === "colour") && (
+            {sheet && additionalFilters.some((filter) => filter.key === sheet) && (
                 <ChoiceSheet
-                    title={choiceFilter(sheet).label}
-                    options={choiceFilter(sheet).options}
+                    title={findFilter(sheet).label}
+                    options={findFilter(sheet).options}
                     selected={extraFilters[sheet] ?? []}
+                    multiple={findFilter(sheet).multiple}
+                    info={findFilter(sheet).info}
+                    searchable={findFilter(sheet).searchable}
                     onApply={(selected) => { setExtraFilters({ ...extraFilters, [sheet]: selected }); setSheet(null); }}
                     onClose={() => setSheet(null)}
                 />
             )}
-            {sheet && sheet !== "bodyTypes" && sheet !== "makes" && sheet !== "transmission" && sheet !== "fuelType" && sheet !== "drive" && sheet !== "colour" && (
+            {sheet && isRange(sheet) && (
                 <OptionSheet
                     title={ranges[sheet].title}
                     options={ranges[sheet].options}
