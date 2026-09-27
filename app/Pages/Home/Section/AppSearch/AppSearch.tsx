@@ -115,7 +115,7 @@ export default function AppSearch() {
                         </svg>
                         <span className="ml-[9.33px]">{t.moreFilters}</span>
                     </button>
-                    <a href={searchUrl()} className="flex h-10 items-center rounded bg-[#957e4e] px-[clamp(8px,calc(16.34vw-49.7px),48.33px)] text-sm whitespace-nowrap text-white no-underline max-[251px]:h-auto max-[251px]:min-h-10 max-[251px]:py-2 max-[251px]:text-center max-[251px]:whitespace-normal">
+                    <a href={searchUrl()} className="flex h-10 min-w-[min(31vw,190px)] items-center justify-center rounded bg-[#957e4e] px-2.5 text-sm whitespace-nowrap text-white no-underline max-[251px]:h-auto max-[251px]:min-h-10 max-[251px]:py-2 max-[251px]:text-center max-[251px]:whitespace-normal">
                         {t.searchCars.replace("{count}", totalCars)}
                     </a>
                     <button onClick={clearSearch} className="cursor-pointer border-0 bg-transparent p-0 pl-[9.34px] text-[13.8px] text-white">{t.clearSearch}</button>
