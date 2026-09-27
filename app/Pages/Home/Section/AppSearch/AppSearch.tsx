@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
-import { additionalFilters, filterRows, findFilter } from "../../Data/additionalFilters"
+import { additionalFilters, findFilter } from "../../Data/additionalFilters"
 import { buildSearchUrl } from "../../Data/searchUrl"
 import HeroAd from "../HeroAd"
 import PaymentToggle from "./PaymentToggle"
@@ -138,12 +138,12 @@ export default function AppSearch() {
                     {rangeKeys.map((key) => (
                         <FilterField key={key} label={rangeLabel(key)} active={values[key] !== null} onClick={() => setSheet(key)} />
                     ))}
+                    {choiceField("transmission", false)}
+                    {choiceField("fuelType", false)}
                     <FilterField wide label={values.bodyTypes.length ? values.bodyTypes.join(", ") : t.bodyTypes} active={values.bodyTypes.length > 0} onClick={() => setSheet("bodyTypes")} />
                     <FilterField wide label={makesLabel()} active={values.makes.length > 0} onClick={() => setSheet("makes")} />
-                    {filterRows.form.map((key) => choiceField(key, false))}
-                    {filterRows.formWide.map((key) => choiceField(key, true))}
-                    {filterRows.popup.map((key) => choiceField(key, false))}
-                    {filterRows.popupWide.map((key) => choiceField(key, true))}
+                    {choiceField("drive", true)}
+                    {choiceField("colour", true)}
                 </FiltersPage>
             )}
             {sheet && additionalFilters.some((filter) => filter.key === sheet) && (
