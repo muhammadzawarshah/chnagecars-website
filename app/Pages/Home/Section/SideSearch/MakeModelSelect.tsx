@@ -9,10 +9,9 @@ import ExpandLink from "../AppSearch/ExpandLink"
 type MakeModelSelectProps = {
     selected: string[]
     onChange: (selected: string[]) => void
-    onClose: () => void
 }
 
-export default function MakeModelSelect({ selected, onChange, onClose }: MakeModelSelectProps) {
+export default function MakeModelSelect({ selected, onChange }: MakeModelSelectProps) {
 
     const { t } = useLanguage();
     const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -35,9 +34,6 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                 <button onClick={() => { onChange([]); setOpenKeys([]); }} aria-label={t.clear} className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
                     <img src="/img/refresh.svg" alt="" className="size-4" />
                 </button>
-                <button onClick={onClose} aria-label="Close" className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
-                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#777" strokeWidth="1.5"><path d="M1 1l10 10M11 1L1 11" /></svg>
-                </button>
             </div>
             <div className="max-h-62.5 overflow-y-auto [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
                 <ul className="m-0 list-none p-0">
@@ -48,7 +44,7 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                             <li key={make.slug + make.count}>
                                 <div onClick={() => toggleSelect(makeKey)} className="flex h-12 cursor-pointer items-center pl-5">
                                     <CircleCheck checked={selected.includes(makeKey)} />
-                                    <span className="ml-3 text-[16.6px] font-bold text-black">{make.name}</span>
+                                    <span className="ml-3 text-[16.6px] text-black">{make.name}</span>
                                     <span className="ml-2.25 text-[16.6px] text-[#757575]">({make.count})</span>
                                     <ExpandLink label={t.models} open={makeOpen} onToggle={() => toggleOpen(makeKey)} />
                                 </div>
@@ -56,7 +52,7 @@ export default function MakeModelSelect({ selected, onChange, onClose }: MakeMod
                                     <ul className="m-0 list-none p-0">
                                         <li onClick={() => toggleSelect(makeKey)} className="flex h-10 cursor-pointer items-center pl-13">
                                             <CircleCheck checked={selected.includes(makeKey)} />
-                                            <span className="ml-3 text-[16.6px] font-bold text-black">{t.all}</span>
+                                            <span className="ml-3 text-[16.6px] text-black">{t.all}</span>
                                         </li>
                                         {make.models.map((model) => {
                                             const modelKey = `${makeKey}|${model.name}`;

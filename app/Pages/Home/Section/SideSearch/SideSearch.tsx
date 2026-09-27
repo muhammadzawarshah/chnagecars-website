@@ -202,7 +202,7 @@ export default function SideSearch() {
                             <OptionMenu items={bodyTypeItems()} />
                         </SelectField>
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
-                            {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />}
+                            {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />}
                         </SelectField>
                     </div>
 
@@ -236,7 +236,7 @@ export default function SideSearch() {
                             <OptionMenu items={bodyTypeItems()} />
                         </FilterSelect>
                         <FilterSelect wide label={listLabel(filters.makes, t.makesModels)} active={filters.makes.length > 0} open={open === "more-make"} onToggle={() => toggle("more-make")}>
-                            <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} onClose={() => setOpen(null)} />
+                            <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />
                         </FilterSelect>
                         {(["drive", "colour"] as ChoiceKey[]).map((key) => (
                             <FilterSelect key={key} wide label={listLabel(extraFilters[key] ?? [], choiceFilter(key).label)} active={!!extraFilters[key]?.length} open={open === `more-${key}`} onToggle={() => toggle(`more-${key}`)}>
