@@ -6,11 +6,16 @@ import SectionTitle from "../../../components/SectionTitle"
 import { Brand } from "../Data/brands"
 import BrandCard from "./BrandCard"
 
-export default function BrandCarousel({ title, brands }: { title: ReactNode, brands: Brand[] }) {
+export default function BrandCarousel({ title, brands, banner }: { title: ReactNode, brands: Brand[], banner?: string }) {
     return (
         <>
             <div className="mb-12.5">
-                <SectionTitle className="max-[951px]:mb-13.75">{title}</SectionTitle>
+                <SectionTitle className={banner ? "max-[951px]:mb-3" : "max-[951px]:mb-13.75"}>{title}</SectionTitle>
+                {banner && (
+                    <div className="mb-12 max-[601px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
+                        <img src={banner} alt="" className="mx-auto block w-full max-w-250 max-[601px]:max-w-none" />
+                    </div>
+                )}
                 <Carousel
                     items={brands}
                     breakpoints={[{ max: 1200, perView: 2, gap: 19 }, { max: 746, perView: 1, gap: 10 }]}
