@@ -1,6 +1,7 @@
 ﻿import Hero from "./Section/Hero"
 import AppExtras from "./Section/AppExtras"
 import Testimonials from "./Section/Testimonials"
+import FeaturedCars from "./Section/FeaturedCars"
 import QuickSearch from "./Section/QuickSearch"
 import LatestArticles from "./Section/LatestArticles"
 import CarTypes from "./Section/CarTypes"
@@ -18,6 +19,7 @@ export default function Home() {
                 <Hero />
                 <AppExtras />
                 <Testimonials />
+                <FeaturedCars />
                 <QuickSearch />
                 <LatestArticles />
                 <CarTypes />
