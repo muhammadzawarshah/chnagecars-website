@@ -15,6 +15,7 @@ export default function Specials() {
                 <div className="mx-auto max-w-350">
                     <Carousel
                         items={specials}
+                        arrows={false}
                         renderItem={(item) => (
                             <a href={item.href} className="block cursor-pointer no-underline">
                                 <div className="aspect-[342.5/337] h-auto w-full rounded-t-[10px] bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${item.image})` }}></div>

@@ -18,6 +18,7 @@ export default function FeaturedDealers() {
                 <div className="mx-auto max-w-350">
                     <Carousel
                         items={dealers}
+                        arrows={false}
                         dots
                         innerClass="h-91 max-[901px]:h-82"
                         itemClass="relative mt-5 rounded-[10px] bg-cloud"
