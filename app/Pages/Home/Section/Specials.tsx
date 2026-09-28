@@ -16,6 +16,7 @@ export default function Specials() {
                     <Carousel
                         items={specials}
                         arrows={false}
+                        dots
                         renderItem={(item) => (
                             <a href={item.href} className="block cursor-pointer no-underline">
                                 <div className="aspect-[342.5/337] h-auto w-full rounded-t-[10px] bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${item.image})` }}></div>
@@ -23,6 +24,7 @@ export default function Specials() {
                             </a>
                         )}
                     />
+                    <a href="https://www.changecars.co.za/specials" className="mx-auto mt-7.5 flex h-10 w-fit items-center rounded-[5px] bg-[#957e4e] px-6 text-base font-semibold text-white no-underline max-[601px]:mt-5 max-[601px]:h-7 max-[601px]:px-3.5 max-[601px]:text-[13px]">View All</a>
                 </div>
             </section>
         </>
