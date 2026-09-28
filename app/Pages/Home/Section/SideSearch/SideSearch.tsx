@@ -224,16 +224,6 @@ export default function SideSearch() {
                         <img src="/img/banners/cc-sell-your-vehicle.gif" alt="Sell Your Vehicle" className="block" />
                     </a>
                 </div>
-
-                <div className="relative -left-10 hidden w-[calc(100%+80px)] bg-[#e8e4e4] px-7.5 pt-10 pb-12.5 text-center max-[301px]:px-3.75 max-[601px]:block">
-                    <h2 className="mx-auto mb-3.75 text-[32px] leading-9.75 font-extralight text-gold uppercase wrap-anywhere max-[401px]:text-[26px] max-[401px]:leading-8 max-[301px]:text-[21px] max-[301px]:leading-6.5">SELL YOUR <strong className="font-black">VEHICLE</strong></h2>
-                    <p className="mt-3.5 mb-7.5 text-sm leading-5 text-coal">
-                        <strong>CHANGECARS</strong> makes it easy to sell your vehicle with confidence. Our trusted dealer network connects you to serious buyers, giving your vehicle maximum exposure and increasing your chances of receiving competitive offers. We’ve streamlined the entire process to be simple, transparent, and hassle-free, so you can move forward with clarity and peace of mind from start to finish
-                    </p>
-                    <a href="https://www.changecars.co.za/sell-your-vehicle" className="relative mx-auto block h-10 w-fit max-w-full cursor-pointer rounded-[5px] bg-gold pr-2.5 pl-10 text-center text-base leading-9.75 whitespace-nowrap max-[251px]:h-auto max-[251px]:py-2 max-[251px]:leading-5 max-[251px]:whitespace-normal text-white no-underline before:absolute before:top-0.5 before:left-2.5 before:block before:h-3.75 before:w-5 before:content-[url(/img/private-sellers/key-in-hand.svg)]">
-                        Sell Your Vehicle
-                    </a>
-                </div>
             </aside>
         </>
     )

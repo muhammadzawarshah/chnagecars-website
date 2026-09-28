@@ -30,6 +30,7 @@ export default function Testimonials() {
                         )}
                     />
                 </div>
+                <a href="https://www.changecars.co.za/testimonials" className="mx-auto mt-5 hidden h-7 w-fit items-center rounded-[5px] bg-[#957e4e] px-3.5 text-[13px] font-semibold text-white no-underline max-[601px]:flex">View All</a>
             </section>
         </>
     )
