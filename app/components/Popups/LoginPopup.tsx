@@ -21,11 +21,12 @@ export default function LoginPopup() {
     }
 
     return (
-        <AuthPopup open={active === "login"}>
+        <AuthPopup open={active === "login"} light>
             <AuthForm
                 title="User"
                 highlight="Log IN"
                 primaryLabel="Sign in"
+                light
                 onPrimary={submit}
                 onClose={close}
                 links={[
@@ -33,8 +34,8 @@ export default function LoginPopup() {
                     { label: "Dont have an account?", strong: "Register", onClick: () => open("register") },
                 ]}
             >
-                <AuthField label="Email" type="email" value={email} error={errors.email} onChange={setEmail} />
-                <AuthField label="Password" type="password" value={password} error={errors.password} onChange={setPassword} />
+                <AuthField light label="Email" type="email" value={email} error={errors.email} onChange={setEmail} />
+                <AuthField light label="Password" type="password" value={password} error={errors.password} onChange={setPassword} />
             </AuthForm>
         </AuthPopup>
     )
