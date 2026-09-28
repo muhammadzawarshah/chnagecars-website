@@ -1,7 +1,7 @@
 export default function SellVehicleCard() {
     return (
         <>
-            <div className="mx-4.75 rounded-[10px] bg-[#e8e4e2] px-4.75 pt-4.25 pb-5 text-center shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
+            <div className="rounded-[10px] bg-[#e8e4e2] px-4.75 pt-4.25 pb-5 text-center shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
                 <h2 className="m-0 text-base leading-[1.2] font-normal text-[#957e4e] uppercase">
                     Sell your <strong className="font-bold">Vehicle</strong>
                 </h2>
