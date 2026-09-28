@@ -9,6 +9,7 @@ export type ImageBlock = {
 export type Article = {
     title: string
     date: string
+    excerpt?: string
     image: string
     href: string
 }
