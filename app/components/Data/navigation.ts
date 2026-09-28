@@ -152,7 +152,7 @@ export const drawerSections: DrawerSection[] = [
             { href: `${site}/our-car-brands` },
             { href: `${site}/dealer-listing` },
             { action: "register" },
-            { action: "login" },
+            { href: "/login" },
         ],
     },
     {
