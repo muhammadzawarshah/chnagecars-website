@@ -16,8 +16,7 @@ export default function Testimonials() {
                     <Carousel
                         items={testimonials}
                         dots
-                        prevClass="-top-6.5 right-12.5"
-                        nextClass="-top-6.5 right-0"
+                        arrows={false}
                         innerClass="h-91 max-[901px]:h-82"
                         itemClass="mt-5 h-81.75 rounded-[10px] bg-cloud px-5 max-[301px]:px-3 shadow-[5px_5px_5px_0px_rgba(0,0,0,0.149)] max-[901px]:h-73.75"
                         renderItem={(item) => (
