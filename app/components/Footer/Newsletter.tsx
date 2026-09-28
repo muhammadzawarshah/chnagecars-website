@@ -26,7 +26,7 @@ export default function Newsletter() {
     return (
         <>
             <div id="newsletter" className="float-left w-full border-t-2 border-white/10 pt-15 pb-25 max-[899px]:pb-15 max-[866px]:pt-12.5 max-[866px]:pb-5">
-                <h3 className="mx-auto mb-2 w-[64%] text-3xl font-bold text-white max-[981px]:mb-1.5 max-[981px]:w-full max-[981px]:text-center max-[981px]:text-[16.5px] max-[981px]:leading-6 max-[981px]:font-normal max-[981px]:text-[#957e4e] max-[981px]:uppercase">Sign up to our <strong className="font-bold">Newsletter</strong></h3>
+                <h3 className="mx-auto mb-2 w-[64%] text-3xl font-bold text-[#957e4e] max-[981px]:mb-1.5 max-[981px]:w-full max-[981px]:text-center max-[981px]:text-[16.5px] max-[981px]:leading-6 max-[981px]:font-normal max-[981px]:uppercase">Sign up to our <strong className="font-bold">Newsletter</strong></h3>
                 <p className="mx-auto mt-0 mb-7.5 w-[64%] text-base leading-6 text-[#cfcfcf] max-[981px]:mb-6.5 max-[981px]:w-auto max-[981px]:max-w-50 max-[981px]:text-center max-[981px]:text-[12.5px] max-[981px]:leading-4.5">Get motoring news, reviews and advice in your inbox</p>
                 {success ? (
                     <p className="w-full text-center text-[19pt] text-gold">Thank you for signing up! We will be in touch soon!</p>
