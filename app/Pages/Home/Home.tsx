@@ -1,7 +1,8 @@
 ﻿import Hero from "./Section/Hero"
 import AppExtras from "./Section/AppExtras"
 import Testimonials from "./Section/Testimonials"
-import FeaturedCars from "./Section/FeaturedCars"
+import CarSection from "./Section/CarSection"
+import { featuredCars, recentCars } from "./Data/cars"
 import QuickSearch from "./Section/QuickSearch"
 import LatestArticles from "./Section/LatestArticles"
 import CarTypes from "./Section/CarTypes"
@@ -19,7 +20,8 @@ export default function Home() {
                 <Hero />
                 <AppExtras />
                 <Testimonials />
-                <FeaturedCars />
+                <CarSection title={<>Featured <strong>Cars</strong></>} cars={featuredCars} />
+                <CarSection title={<>Recently Added <strong>Cars</strong></>} cars={recentCars} />
                 <QuickSearch />
                 <LatestArticles />
                 <CarTypes />

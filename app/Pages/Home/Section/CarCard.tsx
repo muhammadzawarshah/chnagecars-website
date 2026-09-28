@@ -1,6 +1,6 @@
-import { FeaturedCar } from "../Data/featuredCars"
+import { ListedCar } from "../Data/cars"
 
-export default function FeaturedCarCard({ car }: { car: FeaturedCar }) {
+export default function CarCard({ car }: { car: ListedCar }) {
     return (
         <>
             <a href="https://www.changecars.co.za/new-or-used-cars-for-sale/" className="block h-full overflow-hidden rounded-[10px] bg-white font-roboto no-underline shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
