@@ -20,17 +20,16 @@ export default function BrandCarousel({ title, brands, banner, dots = false, vie
             <div className="mb-12.5">
                 <SectionTitle className={banner ? "max-[951px]:mb-3" : "max-[951px]:mb-13.75"}>{title}</SectionTitle>
                 {banner && (
-                    <div className="mx-2.5 mb-12 max-[601px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
+                    <div className="mx-2.5 mb-5 max-[601px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
                         <img src={banner} alt="" className="block aspect-12/5 w-full object-cover object-[50%_60%] max-[601px]:aspect-auto" />
                     </div>
                 )}
                 <Carousel
                     items={brands}
                     dots={dots}
+                    arrows={false}
                     breakpoints={[{ max: 1200, perView: 2, gap: 19 }, { max: 746, perView: 2, gap: 10 }]}
                     gap={17.5}
-                    prevClass="-top-9 right-15"
-                    nextClass="-top-9 right-2.5"
                     innerClass="pl-2.5 max-[1201px]:pr-2.5"
                     listClass="min-h-75 pt-2.5 pb-5 max-[681px]:pt-3.75 max-[601px]:min-h-0"
                     renderItem={(brand, _index, visible) => (

@@ -22,6 +22,7 @@ type CarouselProps<T> = {
     prevClass?: string
     nextClass?: string
     dots?: boolean
+    arrows?: boolean
 }
 
 export const blockBreakpoints: Breakpoint[] = [
@@ -42,6 +43,7 @@ export default function Carousel<T>({
     prevClass = "-top-11.5 right-12.5",
     nextClass = "-top-11.5 right-0",
     dots = false,
+    arrows = true,
 }: CarouselProps<T>) {
 
     const width = useWindowWidth();
@@ -71,8 +73,12 @@ export default function Carousel<T>({
     return (
         <>
             <div className="relative">
-                <a onClick={prev} className={`${arrow} ${prevClass} bg-[url(/img/prev-icon.svg)]`}></a>
-                <a onClick={next} className={`${arrow} ${nextClass} bg-[url(/img/next-icon.svg)]`}></a>
+                {arrows && (
+                    <>
+                        <a onClick={prev} className={`${arrow} ${prevClass} bg-[url(/img/prev-icon.svg)]`}></a>
+                        <a onClick={next} className={`${arrow} ${nextClass} bg-[url(/img/next-icon.svg)]`}></a>
+                    </>
+                )}
                 <div className={`relative w-[calc(100%+10px)] overflow-hidden ${innerClass}`}>
                     <ul
                         className={`m-0 flex list-none items-start p-0 transition-transform duration-500 ${listClass}`}
