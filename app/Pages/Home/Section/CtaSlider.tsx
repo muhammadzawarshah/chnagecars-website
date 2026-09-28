@@ -21,7 +21,7 @@ export default function CtaSlider() {
 
     return (
         <>
-            <div className="mt-7.5 hidden max-[601px]:block">
+            <div className="mt-7.5 hidden max-[948px]:block">
                 <div ref={trackRef} onScroll={handleScroll} className="scrollbar-none flex snap-x snap-mandatory items-start overflow-x-auto">
                     {ctas.map((cta) => (
                         <div key={cta.title} className="w-full shrink-0 snap-start px-2.5 pt-2.5 pb-5">

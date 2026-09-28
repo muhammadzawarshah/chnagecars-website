@@ -11,7 +11,7 @@ export default function CallToActions() {
                     <div className="text-center">
                         <SectionTitle>Let us make it simple for <strong>you!</strong></SectionTitle>
                     </div>
-                    <div className="mt-12.5 flow-root max-[601px]:hidden">
+                    <div className="mt-12.5 flow-root max-[948px]:hidden">
                         {ctas.map((cta) => (
                             <CtaCard key={cta.title} cta={cta} />
                         ))}
