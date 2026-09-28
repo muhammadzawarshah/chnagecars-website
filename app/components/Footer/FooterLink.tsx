@@ -27,7 +27,7 @@ export default function FooterLink({ link }: { link: NavLink }) {
     return (
         <a
             href={link.href}
-            onClick={(e) => { if (link.action) { e.preventDefault(); runAction(link.action); } }}
+            onClick={(e) => { if (link.action && (!link.href || window.innerWidth > 980)) { e.preventDefault(); runAction(link.action); } }}
             target={link.external ? "_blank" : undefined}
             className={linkClass}
         >

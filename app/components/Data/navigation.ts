@@ -205,7 +205,7 @@ export const footerInfoLinks: NavLink[] = [
     { label: "Our Brands", href: `${site}/our-car-brands` },
     { label: "Privacy Policy", href: `${site}/privacy_policy` },
     { label: "FAQ", href: `${site}/faqs` },
-    { label: "Login", action: "login" },
+    { label: "Login", href: "/login", action: "login" },
 ];
 
 export const footerColumns: NavLink[][] = [
