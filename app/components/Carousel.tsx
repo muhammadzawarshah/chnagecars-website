@@ -20,6 +20,7 @@ type CarouselProps<T> = {
     listClass?: string
     prevClass?: string
     nextClass?: string
+    dots?: boolean
 }
 
 export const blockBreakpoints: Breakpoint[] = [
@@ -39,6 +40,7 @@ export default function Carousel<T>({
     listClass = "",
     prevClass = "-top-11.5 right-12.5",
     nextClass = "-top-11.5 right-0",
+    dots = false,
 }: CarouselProps<T>) {
 
     const width = useWindowWidth();
@@ -59,6 +61,9 @@ export default function Carousel<T>({
     function prev() {
         setIndex(current <= 0 ? lastIndex : current - 1);
     }
+
+    const dotCount = Math.min(lastIndex + 1, 9);
+    const dotStart = Math.min(Math.max(current - Math.floor(dotCount / 2), 0), lastIndex + 1 - dotCount);
 
     const arrow = "absolute z-5 h-7.5 w-10 cursor-pointer rounded-[5px] bg-black bg-center bg-no-repeat hover:opacity-90";
 
@@ -83,6 +88,18 @@ export default function Carousel<T>({
                         ))}
                     </ul>
                 </div>
+                {dots && (
+                    <div className="mt-6.25 flex justify-center gap-2 max-[601px]:mt-5 max-[601px]:gap-1.5">
+                        {Array.from({ length: dotCount }, (_, i) => dotStart + i).map((position) => (
+                            <button
+                                key={position}
+                                onClick={() => setIndex(position)}
+                                aria-label={`Go to slide ${position + 1}`}
+                                className={`h-2 cursor-pointer rounded-full border-0 p-0 transition-all duration-300 max-[601px]:h-1.25 ${position === current ? "w-6 bg-[#957e4e] max-[601px]:w-3" : "w-2 bg-[#dcdcdc] max-[601px]:w-1.25"}`}
+                            ></button>
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     )

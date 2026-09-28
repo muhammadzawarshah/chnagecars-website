@@ -15,6 +15,7 @@ export default function Testimonials() {
                 <div className="mx-auto max-w-350">
                     <Carousel
                         items={testimonials}
+                        dots
                         prevClass="-top-6.5 right-12.5"
                         nextClass="-top-6.5 right-0"
                         innerClass="h-91 max-[901px]:h-82"
