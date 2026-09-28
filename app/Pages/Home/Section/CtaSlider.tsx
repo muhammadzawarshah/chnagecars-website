@@ -8,7 +8,7 @@ export default function CtaSlider() {
     return (
         <>
             <div className="mt-7.5 hidden max-[948px]:block">
-                <SwipeSlider items={ctas} itemKey={(cta) => cta.title} slideClass="w-1/2 max-[601px]:px-1.5" renderItem={(cta) => <CtaSlideCard cta={cta} />} />
+                <SwipeSlider items={ctas} itemKey={(cta) => cta.title} slideClass="w-1/2 max-[601px]:w-full" renderItem={(cta) => <CtaSlideCard cta={cta} />} />
             </div>
         </>
     )
