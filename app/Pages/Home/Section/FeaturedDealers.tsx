@@ -18,10 +18,12 @@ export default function FeaturedDealers() {
                 <div className="mx-auto max-w-350">
                     <Carousel
                         items={dealers}
+                        dots
                         innerClass="h-91 max-[901px]:h-82"
                         itemClass="relative mt-5 rounded-[10px] bg-cloud"
                         renderItem={(dealer) => <DealerCard dealer={dealer} />}
                     />
+                    <a href="https://www.changecars.co.za/dealer-listing" className="mx-auto mt-7.5 flex h-10 w-fit items-center rounded-[5px] bg-[#957e4e] px-6 text-base font-semibold text-white no-underline max-[601px]:mt-5 max-[601px]:h-7 max-[601px]:px-3.5 max-[601px]:text-[13px]">View All</a>
                 </div>
                 <AdBanner ad={dealersAd} className="mx-auto mt-20 mb-7.5 block w-full max-w-199 max-[901px]:mt-13.75 max-[901px]:mb-0" />
             </section>
