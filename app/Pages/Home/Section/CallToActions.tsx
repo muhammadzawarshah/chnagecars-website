@@ -1,7 +1,7 @@
 import SectionTitle from "../../../components/SectionTitle"
 import { ctas } from "../Data/blocks"
 import CtaCard from "./CtaCard"
-import CtaMobileGrid from "./CtaMobileGrid"
+import CtaSlider from "./CtaSlider"
 
 export default function CallToActions() {
     return (
@@ -16,7 +16,7 @@ export default function CallToActions() {
                             <CtaCard key={cta.title} cta={cta} />
                         ))}
                     </div>
-                    <CtaMobileGrid />
+                    <CtaSlider />
                 </div>
             </section>
         </>
