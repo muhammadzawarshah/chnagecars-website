@@ -27,14 +27,14 @@ export default function BrandCarousel({ title, brands, banner, dots = false, vie
                 <Carousel
                     items={brands}
                     dots={dots}
-                    breakpoints={[{ max: 1200, perView: 2, gap: 19 }, { max: 746, perView: 1, gap: 10 }]}
+                    breakpoints={[{ max: 1200, perView: 2, gap: 19 }, { max: 746, perView: 2, gap: 10 }]}
                     gap={17.5}
                     prevClass="-top-9 right-15"
                     nextClass="-top-9 right-2.5"
                     innerClass="pl-2.5 max-[1201px]:pr-2.5"
-                    listClass="min-h-75 pt-2.5 pb-5 max-[681px]:pt-3.75"
+                    listClass="min-h-75 pt-2.5 pb-5 max-[681px]:pt-3.75 max-[601px]:min-h-0"
                     renderItem={(brand, _index, visible) => (
-                        <div className={`mb-3.75 rounded-[10px] px-6.25 pt-12.5 pb-7 text-center max-[301px]:px-3.75 ${visible ? "shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}`}>
+                        <div className={`mb-3.75 rounded-[10px] px-6.25 pt-12.5 pb-7 text-center max-[601px]:px-2.5 max-[601px]:pt-6 max-[601px]:pb-4 ${visible ? "shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)]" : ""}`}>
                             <BrandCard brand={brand} />
                         </div>
                     )}
