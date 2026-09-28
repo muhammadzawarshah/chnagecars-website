@@ -2,13 +2,13 @@
 
 import SwipeSlider from "../../../components/SwipeSlider"
 import { ctas } from "../Data/blocks"
-import CtaCard from "./CtaCard"
+import CtaSlideCard from "./CtaSlideCard"
 
 export default function CtaSlider() {
     return (
         <>
             <div className="mt-7.5 hidden max-[948px]:block">
-                <SwipeSlider items={ctas} itemKey={(cta) => cta.title} renderItem={(cta) => <CtaCard cta={cta} slide />} />
+                <SwipeSlider items={ctas} itemKey={(cta) => cta.title} renderItem={(cta) => <CtaSlideCard cta={cta} />} />
             </div>
         </>
     )

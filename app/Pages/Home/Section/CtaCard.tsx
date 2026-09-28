@@ -1,12 +1,12 @@
 import { Cta } from "../Data/blocks"
 
-export default function CtaCard({ cta, slide = false }: { cta: Cta, slide?: boolean }) {
+export default function CtaCard({ cta }: { cta: Cta }) {
     return (
         <>
             <a
                 href={cta.href}
                 target={cta.external ? "_blank" : undefined}
-                className={`group relative block min-h-86.25 cursor-pointer rounded-[10px] px-6.25 py-12.5 no-underline shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)] hover:bg-cloud max-[1401px]:h-115 max-[947px]:h-auto max-[751px]:hover:bg-white max-[401px]:px-5 max-[401px]:py-10 ${slide ? "w-full" : "float-left mr-2.5 mb-7.5 w-[calc(50%-10px)] max-[947px]:clear-both max-[947px]:w-full"}`}
+                className="group relative block min-h-86.25 cursor-pointer rounded-[10px] px-6.25 py-12.5 no-underline shadow-[5px_5px_15px_0px_rgba(0,0,0,0.149)] hover:bg-cloud max-[1401px]:h-115 max-[947px]:h-auto max-[751px]:hover:bg-white max-[401px]:px-5 max-[401px]:py-10 float-left mr-2.5 mb-7.5 w-[calc(50%-10px)] max-[947px]:clear-both max-[947px]:w-full"
             >
                 <h3 className="mx-auto mt-0 mb-7 text-3xl leading-9.75 font-extralight text-gold uppercase wrap-anywhere max-[1401px]:mt-42.5 max-[947px]:mt-0 max-[751px]:mt-40 max-[401px]:text-2xl max-[401px]:leading-8 max-[301px]:mt-28 max-[301px]:text-xl max-[301px]:leading-7">
                     {cta.title} <strong className="font-black">{cta.highlight}</strong>
