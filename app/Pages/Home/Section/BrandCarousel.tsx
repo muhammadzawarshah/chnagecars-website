@@ -6,7 +6,15 @@ import SectionTitle from "../../../components/SectionTitle"
 import { Brand } from "../Data/brands"
 import BrandCard from "./BrandCard"
 
-export default function BrandCarousel({ title, brands, banner }: { title: ReactNode, brands: Brand[], banner?: string }) {
+type BrandCarouselProps = {
+    title: ReactNode
+    brands: Brand[]
+    banner?: string
+    dots?: boolean
+    viewAll?: string
+}
+
+export default function BrandCarousel({ title, brands, banner, dots = false, viewAll }: BrandCarouselProps) {
     return (
         <>
             <div className="mb-12.5">
@@ -18,6 +26,7 @@ export default function BrandCarousel({ title, brands, banner }: { title: ReactN
                 )}
                 <Carousel
                     items={brands}
+                    dots={dots}
                     breakpoints={[{ max: 1200, perView: 2, gap: 19 }, { max: 746, perView: 1, gap: 10 }]}
                     gap={17.5}
                     prevClass="-top-9 right-15"
@@ -30,6 +39,9 @@ export default function BrandCarousel({ title, brands, banner }: { title: ReactN
                         </div>
                     )}
                 />
+                {viewAll && (
+                    <a href={viewAll} className="mx-auto mt-7.5 flex h-10 w-fit items-center rounded-[5px] bg-[#957e4e] px-6 text-base font-semibold text-white no-underline max-[601px]:mt-5 max-[601px]:h-7 max-[601px]:px-3.5 max-[601px]:text-[13px]">View All</a>
+                )}
             </div>
         </>
     )

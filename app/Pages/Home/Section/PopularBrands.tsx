@@ -9,7 +9,7 @@ export default function PopularBrands() {
                 <div className="mx-auto max-w-350 pb-15 max-[901px]:pb-2.5">
                     <BrandCarousel title={<>Popular Car Brands and <strong>Models</strong></>} brands={carBrands} />
                     <BrandCarousel title={<>Popular Motorbike Brands and <strong>Models</strong></>} brands={motorbikeBrands} banner="/img/popular/motorbikes.png" />
-                    <BrandCarousel title={<>Popular Exotic Car Brands and <strong>Models</strong></>} brands={exoticBrands} />
+                    <BrandCarousel title={<>Popular Exotic Car Brands and <strong>Models</strong></>} brands={exoticBrands} banner="/img/popular/exotic.png" dots viewAll="https://www.changecars.co.za/exotics" />
                     <PopularAreas />
                 </div>
             </section>
