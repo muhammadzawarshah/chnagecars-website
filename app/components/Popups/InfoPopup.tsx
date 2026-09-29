@@ -1,17 +1,19 @@
 "use client"
 
 import { usePopup } from "./PopupContext"
+import useAppScreen from "../useAppScreen"
 
 export default function InfoPopup() {
 
     const { active, open, close } = usePopup();
     const isOpen = active === "info";
+    const appScreen = useAppScreen();
 
     return (
         <>
             <span
                 onClick={() => open("info")}
-                className="fixed top-50 right-0 z-200 block h-10 max-w-80 min-w-40 translate-x-[calc(50%-25px)] transform-[rotate(90deg)] animate-[tilt-shaking_5s_infinite] cursor-pointer border-2 border-gold bg-black px-2.5 text-center leading-9.5 tracking-[1px] whitespace-nowrap text-white transition duration-100 hover:opacity-90"
+                className={`fixed top-50 right-0 z-200 block ${appScreen ? "max-[981px]:hidden" : ""} h-10 max-w-80 min-w-40 translate-x-[calc(50%-25px)] transform-[rotate(90deg)] animate-[tilt-shaking_5s_infinite] cursor-pointer border-2 border-gold bg-black px-2.5 text-center leading-9.5 tracking-[1px] whitespace-nowrap text-white transition duration-100 hover:opacity-90`}
             >
                 CHECK THIS OUT
             </span>

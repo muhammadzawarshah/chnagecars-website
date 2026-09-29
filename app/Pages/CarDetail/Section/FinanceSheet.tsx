@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
-import { formatRand, monthlyPayment } from "../../Home/Data/cars"
+import { formatRand, monthlyPayment } from "@/app/lib/cars/format"
 import FinanceSlider from "./FinanceSlider"
 
 export default function FinanceSheet({ price, onClose }: { price: number, onClose: () => void }) {

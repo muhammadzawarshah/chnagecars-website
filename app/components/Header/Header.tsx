@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { mainMenus, subNavLinks } from "../Data/navigation"
 import NavDropdown from "./NavDropdown"
@@ -11,6 +12,10 @@ import LanguagePill from "./LanguagePill"
 export default function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
+    // These pages paint a light column behind the right side of the header, so sub-nav links turn gold there.
+    const pathname = usePathname();
+    const onListing = pathname === "/cars" || pathname.startsWith("/blogs/");
+    const subLink = onListing ? "text-gold hover:text-ink" : "text-white hover:text-gold";
 
     return (
         <>
@@ -42,7 +47,7 @@ export default function Header() {
                             {subNavLinks.map((link) => (
                                 link.children ? (
                                     <div key={link.label} className="group relative">
-                                        <a className="cursor-pointer text-sm leading-5 font-normal whitespace-nowrap text-white hover:text-gold">{link.label}</a>
+                                        <a className={`cursor-pointer text-sm leading-5 font-normal whitespace-nowrap ${subLink}`}>{link.label}</a>
                                         <ul className="absolute top-[calc(100%+5px)] left-1/2 z-5 m-0 max-h-0 w-fit -translate-x-1/2 list-none overflow-hidden rounded-b-[9px] bg-menu p-0 shadow-[3px_3px_12px_rgba(0,0,0,0.2)] transition-[max-height] duration-100 group-hover:max-h-125">
                                             {link.children.map((child) => (
                                                 <li key={child.label} className="cursor-pointer whitespace-nowrap transition-colors duration-500 hover:bg-menu-hover">
@@ -52,12 +57,12 @@ export default function Header() {
                                         </ul>
                                     </div>
                                 ) : (
-                                    <a key={link.label} href={link.href} className="text-sm leading-5 font-normal whitespace-nowrap text-white no-underline hover:text-gold">
+                                    <a key={link.label} href={link.href} className={`text-sm leading-5 font-normal whitespace-nowrap no-underline ${subLink}`}>
                                         {link.label}
                                     </a>
                                 )
                             ))}
-                            <LanguagePill />
+                            <LanguagePill className={onListing ? "text-gold! hover:text-ink!" : ""} />
                         </div>
                     </nav>
 

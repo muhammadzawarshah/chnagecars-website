@@ -1,6 +1,7 @@
 "use client"
 
 import { usePopup } from "./PopupContext"
+import { carSearchHref } from "@/app/lib/cars/search"
 
 const site = "https://www.changecars.co.za";
 
@@ -11,7 +12,7 @@ const helpLinks = [
     { label: "Looking for quote comparisons", href: `${site}/beat-my-quote` },
     { label: "Looking for advice", href: `${site}/keep-it-or-changecars` },
     { label: "Help me find", href: `${site}/help-me-find` },
-    { label: "I just want to search for vehicles", href: `${site}/new-or-used-cars-for-sale` },
+    { label: "I just want to search for vehicles", href: carSearchHref({}) },
 ];
 
 export default function HelpPopup() {

@@ -1,14 +1,31 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { notFound, permanentRedirect } from "next/navigation";
 import CarDetail from "../../Pages/CarDetail/CarDetail";
-import { allCars, carSlug, findCar } from "../../Pages/Home/Data/cars";
+import { getAllCars, getCar, getDealerCars, getSimilarCars } from "../../lib/cars/api";
+import { carHref, carSlug, formatRand, idFromSlug } from "../../lib/cars/format";
 
-export function generateStaticParams() {
-  return allCars.map((car) => ({ slug: carSlug(car) }));
+export async function generateStaticParams() {
+  const cars = await getAllCars();
+  return cars.map((car) => ({ slug: carSlug(car) }));
+}
+
+export async function generateMetadata({ params }: PageProps<"/car/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const car = await getCar(idFromSlug(slug));
+  if (!car) return {};
+  return {
+    title: `${car.title} for Sale | ${formatRand(car.price)} | CHANGECARS`,
+    description: `${car.title} for sale in ${car.location} at ${car.dealer.name}.`,
+  };
 }
 
 export default async function Page({ params }: PageProps<"/car/[slug]">) {
   const { slug } = await params;
-  const car = findCar(slug);
+  const car = await getCar(idFromSlug(slug));
   if (!car) notFound();
-  return <CarDetail car={car} />;
+  // Old or edited titles in the URL still work, but land on the one correct address.
+  if (slug !== carSlug(car)) permanentRedirect(carHref(car));
+
+  const [dealerCars, similarCars] = await Promise.all([getDealerCars(car), getSimilarCars(car)]);
+  return <CarDetail car={car} dealerCars={dealerCars} similarCars={similarCars} />;
 }

@@ -1,11 +1,12 @@
 "use client"
 
+import Link from "next/link"
 import { ReactNode } from "react"
 import SwipeSlider from "../../../components/SwipeSlider"
-import { carSlug, ListedCar } from "../../Home/Data/cars"
+import { Car } from "@/app/lib/cars/types"
 import CarCard from "../../Home/Section/CarCard"
 
-export default function RelatedCars({ title, cars }: { title: ReactNode, cars: ListedCar[] }) {
+export default function RelatedCars({ title, cars }: { title: ReactNode, cars: Car[] }) {
     return (
         <>
             <section className="border-t border-dashed border-[#cfcfcf] pt-7 pb-6 min-[981px]:pt-12 min-[981px]:pb-10">
@@ -13,12 +14,12 @@ export default function RelatedCars({ title, cars }: { title: ReactNode, cars: L
                 <div className="max-[601px]:-mr-3">
                     <SwipeSlider
                         items={cars}
-                        itemKey={carSlug}
+                        itemKey={(car) => car.id}
                         slideClass="w-1/4 max-[1241px]:w-1/3 max-[901px]:w-1/2 max-[601px]:w-[80%] max-[601px]:px-1.5"
                         renderItem={(car) => <CarCard car={car} />}
                     />
                 </div>
-                <a href="https://www.changecars.co.za/new-or-used-cars-for-sale/" className="mx-auto mt-5 flex h-7 w-fit items-center rounded-[5px] bg-gold px-3.5 text-[13px] font-semibold text-white no-underline min-[981px]:mt-7.5 min-[981px]:h-10 min-[981px]:px-6 min-[981px]:text-base">View All</a>
+                <Link href="/cars" className="mx-auto mt-5 flex h-7 w-fit items-center rounded-[5px] bg-gold px-3.5 text-[13px] font-semibold text-white no-underline min-[981px]:mt-7.5 min-[981px]:h-10 min-[981px]:px-6 min-[981px]:text-base">View All</Link>
             </section>
         </>
     )

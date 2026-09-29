@@ -1,12 +1,14 @@
-import { Article } from "../Data/blocks"
+import Link from "next/link"
+import { Article } from "@/app/lib/articles/types"
+import { articleHref, formatArticleDate } from "@/app/lib/articles/format"
 
 export default function ArticleCard({ article }: { article: Article }) {
     return (
         <>
-            <a href={article.href} className="group flex h-full flex-col overflow-hidden rounded-[14px] bg-white no-underline shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <Link href={articleHref(article)} className="group flex h-full flex-col overflow-hidden rounded-[14px] bg-white no-underline shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                 <div className="aspect-[2.27] w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${article.image})` }}></div>
                 <div className="flex flex-1 flex-col px-4.5 pt-4 pb-4.5 max-[601px]:px-3.5 max-[601px]:pt-3.5 max-[601px]:pb-3.5">
-                    <p className="m-0 text-[13px] leading-4 font-bold text-[#957e4e] max-[601px]:text-[12.5px]">{article.date}</p>
+                    <p className="m-0 text-[13px] leading-4 font-bold text-[#957e4e] max-[601px]:text-[12.5px]">{formatArticleDate(article.publishedAt)}</p>
                     <h3 className="mt-2 mb-0 line-clamp-2 text-lg leading-6 font-bold text-black wrap-anywhere max-[601px]:text-[15px] max-[601px]:leading-5">{article.title}</h3>
                     {article.excerpt && (
                         <p className="mt-2 mb-0 line-clamp-3 text-sm leading-5 text-[#555] max-[601px]:text-[12.5px] max-[601px]:leading-4.5">{article.excerpt}</p>
@@ -20,7 +22,7 @@ export default function ArticleCard({ article }: { article: Article }) {
                         </span>
                     </div>
                 </div>
-            </a>
+            </Link>
         </>
     )
 }

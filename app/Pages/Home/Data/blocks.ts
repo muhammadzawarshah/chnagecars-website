@@ -1,15 +1,9 @@
+import { carSearchHref } from "@/app/lib/cars/search"
+
 const site = "https://www.changecars.co.za";
 
 export type ImageBlock = {
     title: string
-    image: string
-    href: string
-}
-
-export type Article = {
-    title: string
-    date: string
-    excerpt?: string
     image: string
     href: string
 }
@@ -31,47 +25,40 @@ export type Cta = {
 }
 
 export const quickBlocks: ImageBlock[] = [
-    { title: "ALMOST NEW", image: "/images/500/home_blocks/230914/audi.png", href: `${site}/new-or-used-cars-for-sale?mileage=30000` },
-    { title: "BUDGET CARS UNDER R150 000", image: "/images/500/home_blocks/230909/small.jpg", href: `${site}/new-or-used-cars-for-sale?maxprice=150000` },
-    { title: "CONVERTIBLES UNDER R400 000", image: "/images/500/home_blocks/230920/cc-c-class-cabriolet.jpeg", href: `${site}/new-or-used-cars-for-sale/convertible?maxprice=400000` },
-    { title: "DOUBLE CABS UNDER R400 000", image: "/images/500/home_blocks/230908/volkswagen_laun.31f4e130108.original.jpg", href: `${site}/new-or-used-cars-for-sale/double-cab-bakkie?maxprice=400000` },
-    { title: "EXOTICS UNDER R1 000 000", image: "/images/500/home_blocks/230909/exotic.jpg", href: `${site}/exotics` },
-    { title: "HATCHBACKS UNDER R300 000", image: "/images/500/home_blocks/230914/yaris_1.jpg", href: `${site}/new-or-used-cars-for-sale/hatchback?maxprice=300000` },
-    { title: "KIA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/kia_1.jpg", href: `${site}/new-or-used-cars-for-sale/kia?mileage=60000` },
-    { title: "MAZDA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/mazda.jpg", href: `${site}/new-or-used-cars-for-sale/mazda?mileage=60000` },
-    { title: "MOTORBIKES UNDER R150 000", image: "/images/500/home_blocks/230908/motorbike2.jpg", href: `${site}/motorbikes` },
-    { title: "NISSAN UNDER 60 000KMS", image: "/images/500/home_blocks/230914/NISSAN.jpg", href: `${site}/new-or-used-cars-for-sale/nissan?mileage=60000` },
-    { title: "SEDANS UNDER R200 000", image: "/images/500/home_blocks/230909/bmw8.jpg", href: `${site}/new-or-used-cars-for-sale/sedan?maxprice=200000` },
-    { title: "SINGLE CABS UNDER R300 000", image: "/images/500/home_blocks/230909/single-cab5_1.jpeg", href: `${site}/new-or-used-cars-for-sale/single-cab-bakkie?maxprice=300000` },
-    { title: "SUVS UNDER R500 000", image: "/images/500/home_blocks/230909/suv8.jpg", href: `${site}/new-or-used-cars-for-sale/suv?maxprice=500000` },
-    { title: "TOYOTA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/GR.jpg", href: `${site}/new-or-used-cars-for-sale/toyota?mileage=60000` },
-    { title: "VOLKSWAGEN UNDER 80 000KMS", image: "/images/500/home_blocks/230914/vw1.jpg", href: `${site}/new-or-used-cars-for-sale/volkswagen?mileage=80000` },
-];
-
-export const articles: Article[] = [
-    { title: "Continental expands tyre choice", date: "September 25, 2026", image: "/images/blogs/260925/3843SportContact7.jpeg", href: `${site}/blogs/continental-expands-tyre-choice` },
-    { title: "Time for a JAC Black", date: "September 25, 2026", image: "/images/blogs/260925/960T9BlackEditionLead.jpg", href: `${site}/blogs/time-for-a-jac-black` },
-    { title: "Road Review - Omoda C5 Lux X", date: "September 24, 2026", image: "/images/blogs/260924/Screenshot-2026-09-24-094107.png", href: `${site}/blogs/road-review-omoda-c5-lux-x` },
-    { title: "Citroen heads for the Outdoor", date: "September 23, 2026", image: "/images/blogs/260923/009.jpg", href: `${site}/blogs/citroen-heads-for-the-outdoor` },
+    { title: "ALMOST NEW", image: "/images/500/home_blocks/230914/audi.png", href: carSearchHref({ maxMileage: 30000 }) },
+    { title: "BUDGET CARS UNDER R150 000", image: "/images/500/home_blocks/230909/small.jpg", href: carSearchHref({ maxPrice: 150000 }) },
+    { title: "CONVERTIBLES UNDER R400 000", image: "/images/500/home_blocks/230920/cc-c-class-cabriolet.jpeg", href: carSearchHref({ bodyType: "Convertible", maxPrice: 400000 }) },
+    { title: "DOUBLE CABS UNDER R400 000", image: "/images/500/home_blocks/230908/volkswagen_laun.31f4e130108.original.jpg", href: carSearchHref({ bodyType: "Double Cab Bakkie", maxPrice: 400000 }) },
+    { title: "EXOTICS UNDER R1 000 000", image: "/images/500/home_blocks/230909/exotic.jpg", href: carSearchHref({ collection: "exotics", maxPrice: 1000000 }) },
+    { title: "HATCHBACKS UNDER R300 000", image: "/images/500/home_blocks/230914/yaris_1.jpg", href: carSearchHref({ bodyType: "Hatchback", maxPrice: 300000 }) },
+    { title: "KIA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/kia_1.jpg", href: carSearchHref({ make: "kia", maxMileage: 60000 }) },
+    { title: "MAZDA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/mazda.jpg", href: carSearchHref({ make: "mazda", maxMileage: 60000 }) },
+    { title: "MOTORBIKES UNDER R150 000", image: "/images/500/home_blocks/230908/motorbike2.jpg", href: carSearchHref({ bodyType: "Motorbike", maxPrice: 150000 }) },
+    { title: "NISSAN UNDER 60 000KMS", image: "/images/500/home_blocks/230914/NISSAN.jpg", href: carSearchHref({ make: "nissan", maxMileage: 60000 }) },
+    { title: "SEDANS UNDER R200 000", image: "/images/500/home_blocks/230909/bmw8.jpg", href: carSearchHref({ bodyType: "Sedan", maxPrice: 200000 }) },
+    { title: "SINGLE CABS UNDER R300 000", image: "/images/500/home_blocks/230909/single-cab5_1.jpeg", href: carSearchHref({ bodyType: "Single Cab Bakkie", maxPrice: 300000 }) },
+    { title: "SUVS UNDER R500 000", image: "/images/500/home_blocks/230909/suv8.jpg", href: carSearchHref({ bodyType: "SUV", maxPrice: 500000 }) },
+    { title: "TOYOTA UNDER 60 000KMS", image: "/images/500/home_blocks/230914/GR.jpg", href: carSearchHref({ make: "toyota", maxMileage: 60000 }) },
+    { title: "VOLKSWAGEN UNDER 80 000KMS", image: "/images/500/home_blocks/230914/vw1.jpg", href: carSearchHref({ make: "volkswagen", maxMileage: 80000 }) },
 ];
 
 export const carTypes: CarType[] = [
-    { title: "Super Cab", description: "Super cab bakkie", image: "/img/type-cars/super-cab.png", href: `${site}/new-or-used-cars-for-sale/extended-cab` },
-    { title: "Hatchback", description: "Four door saloon with a tailgate", image: "/img/type-cars/hatchback.png", href: `${site}/new-or-used-cars-for-sale/hatchback` },
-    { title: "Crossover", description: "Hatchback / SUV type vehicle with increased height", image: "/img/type-cars/crossover.png", href: `${site}/new-or-used-cars-for-sale/suv` },
-    { title: "SUV", description: "Sport utility vehicle with four-wheel drive", image: "/img/type-cars/suv.png", href: `${site}/new-or-used-cars-for-sale/suv` },
-    { title: "Coupé", description: "Two doors and stylish", image: "/img/type-cars/coupe.png", href: `${site}/new-or-used-cars-for-sale/coupe` },
-    { title: "King Cab", description: "King cab bakkie", image: "/img/type-cars/toyota-xcab.png", href: `${site}/new-or-used-cars-for-sale/extended-cab` },
-    { title: "Convertible", description: "Coupe style vehicle with retractable roof", image: "/img/type-cars/convertible.png", href: `${site}/new-or-used-cars-for-sale/convertible` },
-    { title: "Half Ton", description: "Single cab bakkie with a 800kg load rating", image: "/img/type-cars/half-ton.png", href: `${site}/new-or-used-cars-for-sale/single-cab-bakkie` },
-    { title: "Double Cab", description: "Double cab bakkie", image: "/img/type-cars/double-cab.png", href: `${site}/new-or-used-cars-for-sale/double-cab-bakkie` },
-    { title: "Panel Van", description: "Cargo vehicle", image: "/img/type-cars/panel-van.png", href: `${site}/new-or-used-cars-for-sale/panel-van` },
-    { title: "Extended Cab", description: "Extended cab bakkie", image: "/img/type-cars/xcab.png", href: `${site}/new-or-used-cars-for-sale/extended-cab` },
-    { title: "Leisure", description: "Recreational item", image: "/img/type-cars/leisure.png", href: `${site}/leisure-vehicles` },
-    { title: "Single Cab", description: "Single cab bakkie", image: "/img/type-cars/single-cab.png", href: `${site}/new-or-used-cars-for-sale/single-cab-bakkie` },
-    { title: "Mini Bus", description: "A small bus ranging in capacity from 8 to 16 passengers", image: "/img/type-cars/mini-bus.png", href: `${site}/new-or-used-cars-for-sale/minibus` },
-    { title: "Sedan", description: "Passenger vehicle with four doors", image: "/img/type-cars/sedan.png", href: `${site}/new-or-used-cars-for-sale/sedan` },
-    { title: "X Cab", description: "X cab bakkie", image: "/img/type-cars/xcab-2.png", href: `${site}/new-or-used-cars-for-sale/extended-cab` },
+    { title: "Super Cab", description: "Super cab bakkie", image: "/img/type-cars/super-cab.png", href: carSearchHref({ bodyType: "Extended Cab" }) },
+    { title: "Hatchback", description: "Four door saloon with a tailgate", image: "/img/type-cars/hatchback.png", href: carSearchHref({ bodyType: "Hatchback" }) },
+    { title: "Crossover", description: "Hatchback / SUV type vehicle with increased height", image: "/img/type-cars/crossover.png", href: carSearchHref({ bodyType: "SUV" }) },
+    { title: "SUV", description: "Sport utility vehicle with four-wheel drive", image: "/img/type-cars/suv.png", href: carSearchHref({ bodyType: "SUV" }) },
+    { title: "Coupé", description: "Two doors and stylish", image: "/img/type-cars/coupe.png", href: carSearchHref({ bodyType: "Coupé" }) },
+    { title: "King Cab", description: "King cab bakkie", image: "/img/type-cars/toyota-xcab.png", href: carSearchHref({ bodyType: "Extended Cab" }) },
+    { title: "Convertible", description: "Coupe style vehicle with retractable roof", image: "/img/type-cars/convertible.png", href: carSearchHref({ bodyType: "Convertible" }) },
+    { title: "Half Ton", description: "Single cab bakkie with a 800kg load rating", image: "/img/type-cars/half-ton.png", href: carSearchHref({ bodyType: "Single Cab Bakkie" }) },
+    { title: "Double Cab", description: "Double cab bakkie", image: "/img/type-cars/double-cab.png", href: carSearchHref({ bodyType: "Double Cab Bakkie" }) },
+    { title: "Panel Van", description: "Cargo vehicle", image: "/img/type-cars/panel-van.png", href: carSearchHref({ bodyType: "Panel Van" }) },
+    { title: "Extended Cab", description: "Extended cab bakkie", image: "/img/type-cars/xcab.png", href: carSearchHref({ bodyType: "Extended Cab" }) },
+    { title: "Leisure", description: "Recreational item", image: "/img/type-cars/leisure.png", href: carSearchHref({ collection: "leisure" }) },
+    { title: "Single Cab", description: "Single cab bakkie", image: "/img/type-cars/single-cab.png", href: carSearchHref({ bodyType: "Single Cab Bakkie" }) },
+    { title: "Mini Bus", description: "A small bus ranging in capacity from 8 to 16 passengers", image: "/img/type-cars/mini-bus.png", href: carSearchHref({ bodyType: "Minibus" }) },
+    { title: "Sedan", description: "Passenger vehicle with four doors", image: "/img/type-cars/sedan.png", href: carSearchHref({ bodyType: "Sedan" }) },
+    { title: "X Cab", description: "X cab bakkie", image: "/img/type-cars/xcab-2.png", href: carSearchHref({ bodyType: "Extended Cab" }) },
 ];
 
 export const specials: ImageBlock[] = [

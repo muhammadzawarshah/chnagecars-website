@@ -1,7 +1,7 @@
 import { Ref } from "react"
+import Link from "next/link"
 import { makes } from "../Data/makes"
-
-const site = "https://www.changecars.co.za/new-or-used-cars-for-sale";
+import { carSearchHref, slugify } from "@/app/lib/cars/search"
 
 export default function QuickSearchList({ listRef }: { listRef?: Ref<HTMLUListElement> }) {
 
@@ -10,13 +10,13 @@ export default function QuickSearchList({ listRef }: { listRef?: Ref<HTMLUListEl
     return (
         <ul ref={listRef} className="m-0 mr-3.75 flex shrink-0 list-none gap-3.75 p-0">
             <li className="shrink-0 rounded-[5px] border border-coal/28">
-                <a href={`${site}/`} className={pill}>All <span className="font-bold text-gold">(36530)</span></a>
+                <Link href={carSearchHref({})} className={pill}>All <span className="font-bold text-gold">(36530)</span></Link>
             </li>
             {makes.map((make, index) => (
                 <li key={`${make.name}-${index}`} className="shrink-0 rounded-[5px] border border-coal/28">
-                    <a href={`${site}/${make.slug}`} className={pill}>
+                    <Link href={carSearchHref({ make: slugify(make.name) })} className={pill}>
                         {make.name} <span className="font-bold text-gold">({make.count})</span>
-                    </a>
+                    </Link>
                 </li>
             ))}
         </ul>

@@ -10,6 +10,7 @@ type AuthFormProps = {
     title: string
     highlight: string
     description?: ReactNode
+    header?: ReactNode
     primaryLabel: string
     compact?: boolean
     light?: boolean
@@ -19,13 +20,14 @@ type AuthFormProps = {
     children: ReactNode
 }
 
-export default function AuthForm({ title, highlight, description, primaryLabel, compact = false, light = false, links, onPrimary, onClose, children }: AuthFormProps) {
+export default function AuthForm({ title, highlight, description, header, primaryLabel, compact = false, light = false, links, onPrimary, onClose, children }: AuthFormProps) {
 
     const button = "float-right ml-3.75 block h-10 w-38 cursor-pointer rounded-[5px] text-center text-sm leading-10 font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.07)] transition duration-300 hover:opacity-80";
 
     return (
         <div className={`relative float-left w-3/5 overflow-auto max-[841px]:float-none max-[841px]:w-full max-[841px]:p-5 ${compact ? "px-17.5 pt-10.25 pb-0" : "px-17.5 pt-32.5 pb-7.5"}`}>
             <a onClick={onClose} className={`absolute top-8 right-8 block size-3.75 cursor-pointer ${light ? "bg-[url(/img/close-black.svg)]" : "bg-[url(/img/close-popup.svg)]"} bg-contain bg-center bg-no-repeat`}></a>
+            {header}
             <h4 className={`mx-0 mt-0 text-2xl leading-7.25 font-light uppercase ${light ? "text-[#957e4e]" : "text-white"} ${description ? "mb-3.75" : "mb-13.75"}`}>
                 {title} <strong className="block text-[32px] font-bold">{highlight}</strong>
             </h4>

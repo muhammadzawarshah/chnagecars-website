@@ -1,3 +1,4 @@
+import { carSearchHref } from "@/app/lib/cars/search"
 import type { NavAction } from "../Popups/PopupContext"
 
 const site = "https://www.changecars.co.za";
@@ -40,7 +41,7 @@ export const mainMenus: NavMenu[] = [
         icon: "/img/media-icon.svg",
         items: [
             { label: "ALL THINGS MOTORING", href: "https://www.allthingsmotoringinternational.com/", external: true },
-            { label: "Articles", href: `${site}/motoring-news` },
+            { label: "Articles", href: "/motoring-news" },
             { label: "Podcasts", href: "https://www.youtube.com/channel/UCZERPfVcd1TVgqtIucVgNwg", external: true },
             { label: "Share your story", href: "https://www.allthingsmotoringinternational.com/your-experience-matters", external: true },
             { label: "Videos", href: `${site}/videos` },
@@ -91,19 +92,19 @@ export const mainMenus: NavMenu[] = [
 ];
 
 export const subNavLinks: NavLink[] = [
-    { label: "Hot sellers", href: `${site}/hot-sellers` },
-    { label: "Student Cars", href: `${site}/new-and-used-student-cars-for-sale` },
-    { label: "Bakkies", href: `${site}/new-and-used-bakkies-for-sale` },
-    { label: "Cheap Cars", href: `${site}/cheap-cars-for-sale` },
+    { label: "Hot sellers", href: carSearchHref({ collection: "hot-sellers" }) },
+    { label: "Student Cars", href: carSearchHref({ collection: "student" }) },
+    { label: "Bakkies", href: carSearchHref({ collection: "bakkies" }) },
+    { label: "Cheap Cars", href: carSearchHref({ collection: "cheap" }) },
     {
         label: "Spoil Yourself",
         children: [
-            { label: "Classics", href: `${site}/classics` },
-            { label: "Exotics", href: `${site}/exotics` },
-            { label: "Leisure", href: `${site}/leisure-vehicles` },
+            { label: "Classics", href: carSearchHref({ collection: "classics" }) },
+            { label: "Exotics", href: carSearchHref({ collection: "exotics" }) },
+            { label: "Leisure", href: carSearchHref({ collection: "leisure" }) },
         ],
     },
-    { label: "Motorbikes", href: `${site}/motorbikes` },
+    { label: "Motorbikes", href: carSearchHref({ bodyType: "Motorbike" }) },
     { label: "Our Brands", href: `${site}/our-car-brands` },
     { label: "Our Dealers", href: `${site}/dealer-listing` },
 ];
@@ -121,21 +122,21 @@ export type DrawerSection = {
 
 const atm = "https://www.allthingsmotoringinternational.com";
 
-export const drawerSearch = { icon: "/img/mobile-menu/search.svg", href: `${site}/` };
+export const drawerSearch = { icon: "/img/mobile-menu/search.svg", href: carSearchHref({}) };
 
 export const drawerSections: DrawerSection[] = [
     {
         icon: "/img/mobile-menu/buying.svg",
         links: [
-            { href: `${site}/new-and-used-bakkies-for-sale` },
-            { href: `${site}/cheap-cars-for-sale` },
-            { href: `${site}/classics` },
-            { href: `${site}/exotics` },
-            { href: `${site}/hot-sellers` },
-            { href: `${site}/leisure-vehicles` },
-            { href: `${site}/motorbikes` },
+            { href: carSearchHref({ collection: "bakkies" }) },
+            { href: carSearchHref({ collection: "cheap" }) },
+            { href: carSearchHref({ collection: "classics" }) },
+            { href: carSearchHref({ collection: "exotics" }) },
+            { href: carSearchHref({ collection: "hot-sellers" }) },
+            { href: carSearchHref({ collection: "leisure" }) },
+            { href: carSearchHref({ bodyType: "Motorbike" }) },
             { href: `${site}/specials` },
-            { href: `${site}/new-and-used-student-cars-for-sale` },
+            { href: carSearchHref({ collection: "student" }) },
         ],
     },
     {
@@ -182,7 +183,7 @@ export const drawerSections: DrawerSection[] = [
         icon: "/img/mobile-menu/media.svg",
         links: [
             { href: `${atm}/`, external: true },
-            { href: `${site}/motoring-news` },
+            { href: "/motoring-news" },
             { href: "https://www.youtube.com/channel/UCZERPfVcd1TVgqtIucVgNwg", external: true },
             { href: `${site}/videos` },
             { href: `${atm}/your-experience-matters`, external: true },
@@ -221,32 +222,32 @@ export const footerColumns: NavLink[][] = [
         { label: "Videos", href: `${site}/videos` },
     ],
     [
-        { label: "Articles", href: `${site}/motoring-news` },
-        { label: "Classics", href: `${site}/classics` },
+        { label: "Articles", href: "/motoring-news" },
+        { label: "Classics", href: carSearchHref({ collection: "classics" }) },
         { label: "Concierge Service", href: `${site}/concierge-service` },
-        { label: "Exotics", href: `${site}/exotics` },
-        { label: "Hot Sellers", href: `${site}/hot-sellers` },
-        { label: "Leisure", href: `${site}/leisure-vehicles` },
-        { label: "Motorbikes", href: `${site}/motorbikes` },
-        { label: "Student Cars", href: `${site}/new-and-used-student-cars-for-sale` },
-        { label: "Your Bakkie Awaits", href: `${site}/new-and-used-bakkies-for-sale` },
+        { label: "Exotics", href: carSearchHref({ collection: "exotics" }) },
+        { label: "Hot Sellers", href: carSearchHref({ collection: "hot-sellers" }) },
+        { label: "Leisure", href: carSearchHref({ collection: "leisure" }) },
+        { label: "Motorbikes", href: carSearchHref({ bodyType: "Motorbike" }) },
+        { label: "Student Cars", href: carSearchHref({ collection: "student" }) },
+        { label: "Your Bakkie Awaits", href: carSearchHref({ collection: "bakkies" }) },
     ],
     [
-        { label: "Top Searches", href: `${site}/hot-sellers` },
-        { label: "Cars For Sale", href: `${site}/new-or-used-cars-for-sale` },
-        { label: "Cheap Used Cars", href: `${site}/cheap-cars-for-sale` },
-        { label: "VW Used Cars", href: `${site}/new-or-used-cars-for-sale/volkswagen` },
-        { label: "Toyota Used Cars", href: `${site}/new-or-used-cars-for-sale/toyota` },
-        { label: "Gauteng Used Cars", href: `${site}/new-or-used-cars-for-sale/gauteng` },
-        { label: "Automatic Cars", href: `${site}/new-or-used-cars-for-sale?transmission=automatic` },
+        { label: "Top Searches", href: carSearchHref({ collection: "hot-sellers" }) },
+        { label: "Cars For Sale", href: carSearchHref({}) },
+        { label: "Cheap Used Cars", href: carSearchHref({ collection: "cheap" }) },
+        { label: "VW Used Cars", href: carSearchHref({ make: "volkswagen" }) },
+        { label: "Toyota Used Cars", href: carSearchHref({ make: "toyota" }) },
+        { label: "Gauteng Used Cars", href: carSearchHref({ province: "gauteng" }) },
+        { label: "Automatic Cars", href: carSearchHref({ transmission: "Automatic" }) },
         {
             label: "Electric Cars",
             children: [
-                { label: "Electric Cars", href: `${site}/new-or-used-cars-for-sale?fueltype=electric` },
+                { label: "Electric Cars", href: carSearchHref({ fuel: "Electric" }) },
                 { label: "EV charging stations", href: `${site}/ev-charging-stations` },
             ],
         },
-        { label: "Hybrid Cars", href: `${site}/new-or-used-cars-for-sale?fueltype=hybrid` },
+        { label: "Hybrid Cars", href: carSearchHref({ fuel: "Hybrid" }) },
     ],
 ];
 
