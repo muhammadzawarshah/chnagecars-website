@@ -8,13 +8,13 @@ export default function SellVehicle() {
         <>
             <main className="bg-[#f8fafd] pb-15 font-roboto">
                 <div className="mx-auto w-full max-w-150 bg-white pb-8 min-[981px]:max-w-300 min-[981px]:pb-15">
-                    <div className="flex h-14 items-center gap-4 px-3 min-[981px]:h-18 min-[981px]:px-7.5">
+                    <div className="flex h-14 items-center gap-4 px-3 min-[981px]:hidden">
                         <Link href="/" aria-label="Back" className="flex size-7 items-center justify-center">
                             <svg width="17" height="15" viewBox="0 0 17 15" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M16 7.5H2M7.5 1.5l-6 6 6 6" />
                             </svg>
                         </Link>
-                        <h1 className="m-0 text-[18.5px] leading-none font-medium text-[#111] min-[981px]:text-2xl">Sell Car</h1>
+                        <h1 className="m-0 text-[18.5px] leading-none font-medium text-[#111]">Sell Car</h1>
                     </div>
                     <img src="/img/sell/sell-car-banner.jpg" alt="Want to sell your car? CHANGECARS helps you get competitive offers" className="block aspect-video w-full object-cover min-[981px]:aspect-[15/7]" />
                     <div className="px-3 min-[981px]:px-7.5">
