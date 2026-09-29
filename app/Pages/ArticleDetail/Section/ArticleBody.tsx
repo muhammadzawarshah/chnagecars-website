@@ -3,14 +3,14 @@ import { ArticleBlock } from "@/app/lib/articles/types"
 
 export default function ArticleBody({ blocks }: { blocks: ArticleBlock[] }) {
 
-    const text = "my-3.5 font-sans text-sm leading-[1.5] text-[#2f2f2f] max-[675px]:text-base";
+    const text = "my-3.5 font-sans text-sm leading-5.25 text-[#2f2f2f]";
 
     return (
         <>
-            <div className="min-h-[50vh]">
+            <div>
                 {blocks.map((block, index) => {
                     if (block.type === "heading") return <h2 key={index} className="mt-7 mb-3.5 font-sans text-lg leading-none font-black text-[#2f2f2f]">{block.text}</h2>;
-                    if (block.type === "image") return <img key={index} src={block.src} alt={block.alt ?? ""} className="block h-auto w-full py-6.75" />;
+                    if (block.type === "image") return <p key={index} className={text}><img src={block.src} alt={block.alt ?? ""} className="inline h-auto w-full py-6.75" /></p>;
                     if (block.type === "link") {
                         const internal = block.href.startsWith("/");
                         const className = "font-bold text-gold italic underline";

@@ -14,7 +14,7 @@ export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     // These pages paint a light column behind the right side of the header, so sub-nav links turn gold there.
     const pathname = usePathname();
-    const onListing = pathname === "/cars" || pathname.startsWith("/blogs/");
+    const onListing = pathname === "/cars" || pathname.startsWith("/blogs/") || pathname.startsWith("/car/");
     const subLink = onListing ? "text-gold hover:text-ink" : "text-white hover:text-gold";
 
     return (

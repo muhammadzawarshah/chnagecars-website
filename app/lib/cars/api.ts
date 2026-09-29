@@ -33,6 +33,28 @@ export async function getSimilarCars(car: Car, limit = 6): Promise<Car[]> {
     return [...sameType, ...others.filter((item) => item.bodyType !== car.bodyType)].slice(0, limit);
 }
 
+export type PopularDealer = {
+    dealer: Car["dealer"]
+    count: number
+}
+
+// Dealers with the most stock of the same make and model.
+export async function getPopularDealers(car: Car, limit = 3): Promise<PopularDealer[]> {
+    const counts = new Map<string, PopularDealer>();
+    for (const item of mockCars.filter((item) => item.make === car.make && item.model === car.model)) {
+        const entry = counts.get(item.dealer.id) ?? { dealer: item.dealer, count: 0 };
+        entry.count++;
+        counts.set(item.dealer.id, entry);
+    }
+    return [...counts.values()].sort((a, b) => b.count - a.count).slice(0, limit);
+}
+
+// Average asking price of the same make and model, for the price comparison.
+export async function getMarketPrice(car: Car): Promise<number | undefined> {
+    const others = mockCars.filter((item) => item.id !== car.id && item.make === car.make && item.model === car.model);
+    return others.length ? others.reduce((sum, item) => sum + item.price, 0) / others.length : undefined;
+}
+
 const sorters: Record<SortKey, (a: Car, b: Car) => number> = {
     "recent": (a, b) => b.listedAt.localeCompare(a.listedAt),
     "price-asc": (a, b) => a.price - b.price,

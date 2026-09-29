@@ -1,44 +1,66 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import FinanceCalculator from "./FinanceCalculator"
 
-type SpecAccordionProps = {
+export type SpecGroup = {
     icon: string
     title: string
     rows?: [string, string][]
-    onOpen?: () => void
+    calculator?: number
 }
 
-export default function SpecAccordion({ icon, title, rows, onOpen }: SpecAccordionProps) {
+// Technical specifications list; the finance row holds the calculator and also opens from the price.
+export default function SpecAccordion({ groups }: { groups: SpecGroup[] }) {
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState<string | null>(null);
+    const finance = useRef<HTMLLIElement>(null);
 
-    function toggle() {
-        if (onOpen) onOpen();
-        else setOpen(!open);
-    }
+    useEffect(() => {
+        function showFinance() {
+            const group = groups.find((item) => item.calculator);
+            if (!group) return;
+            setOpen(group.title);
+            setTimeout(() => finance.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+        }
+        window.addEventListener("open-finance", showFinance);
+        return () => window.removeEventListener("open-finance", showFinance);
+    }, [groups]);
 
     return (
         <>
-            <div>
-                <button type="button" onClick={toggle} className={`flex h-12.5 w-full cursor-pointer items-center gap-3 border-0 pr-7.5 pl-4 text-left min-[981px]:h-15 min-[981px]:px-5 ${open ? "bg-white" : "bg-[#edeaea]"}`}>
-                    <img src={icon} alt="" className="h-5 w-6 object-contain min-[981px]:h-6 min-[981px]:w-7" />
-                    <span className="flex-1 text-[11.5px] tracking-[0.3px] text-[#222] min-[981px]:text-lg min-[981px]:tracking-normal">{title}</span>
-                    <svg width="13" height="8" viewBox="0 0 12 7" fill="none" stroke="#111" strokeWidth="1.8" className={open ? "rotate-180" : ""}>
-                        <path d="M1 1l5 5 5-5" />
-                    </svg>
-                </button>
-                {open && rows && (
-                    <div>
-                        {rows.map(([label, value], index) => (
-                            <div key={label} className={`flex h-11 items-center justify-between pr-7.5 pl-4 text-[11.5px] text-[#222] min-[981px]:h-13 min-[981px]:px-5 min-[981px]:text-base ${index % 2 === 0 ? "bg-[#edeaea]" : "bg-white"}`}>
-                                <span>{label}</span>
-                                <span>{value}</span>
+            <ul className="m-0 list-none border-t border-[#d6d6d6] p-0">
+                {groups.map((group) => (
+                    <li key={group.title} ref={group.calculator ? finance : undefined} className="scroll-mt-5 border-b border-[#d6d6d6]">
+                        <button
+                            type="button"
+                            onClick={() => setOpen(open === group.title ? null : group.title)}
+                            aria-expanded={open === group.title}
+                            className="relative block h-12.25 w-full cursor-pointer border-0 bg-transparent pr-6.25 pl-12.5 text-left font-sans text-sm leading-12.25 font-medium text-black uppercase"
+                        >
+                            <img src={group.icon} alt="" className="absolute top-1/2 left-2.5 max-h-6 -translate-y-1/2" />
+                            {group.title}
+                            <span className={`absolute top-5.25 right-4.25 border-x-7 border-t-9 border-x-transparent border-t-gold ${open === group.title ? "rotate-180" : ""}`}></span>
+                        </button>
+                        {open === group.title && group.rows && (
+                            <ul className="m-0 list-none p-0 pb-3.75">
+                                {group.rows.map(([label, value], index) => (
+                                    <li key={label} className={`flex px-6.5 py-3.75 text-base leading-[18.4px] text-ink ${index % 2 === 0 ? "bg-[#f5f5f5]" : ""}`}>
+                                        <span className="w-1/2 pr-2.5">{label}</span>
+                                        <strong className="w-1/2">{value}</strong>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        {open === group.title && group.calculator !== undefined && (
+                            <div>
+                                <FinanceCalculator price={group.calculator} />
+                                <button type="button" onClick={() => setOpen(null)} className="mx-auto mt-1.25 mb-5 block h-9.75 w-39 cursor-pointer rounded-[5px] border-0 bg-[#0a0a0a] font-sans text-lg leading-9.75 font-medium text-white">Close</button>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
         </>
     )
 }

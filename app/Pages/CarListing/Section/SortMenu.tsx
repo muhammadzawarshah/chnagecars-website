@@ -21,7 +21,7 @@ export default function SortMenu({ search }: { search: CarSearch }) {
     return (
         <>
             <div ref={ref} className="relative shrink-0">
-                <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="cursor-pointer rounded-full border-0 bg-gold p-2.5 font-sans text-sm font-medium text-white">
+                <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="cursor-pointer rounded-full border-0 bg-gold p-2.5 font-sans text-sm leading-4.25 font-medium whitespace-nowrap text-white">
                     Sort by: <span className="underline">{current.label}</span>
                 </button>
                 {open && (

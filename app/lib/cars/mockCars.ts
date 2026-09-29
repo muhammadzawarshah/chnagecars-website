@@ -4,7 +4,16 @@ import { Car } from "./types"
 
 type MockInput = Omit<Car, "gallery" | "photoCount" | "dealer" | "location">
 
-const dealer = { id: "1", name: "Dealer Name" };
+const dealer = {
+    id: "1",
+    name: "Dealer Name",
+    hours: [
+        { day: "Monday to Friday", time: "08.00 – 17.00" },
+        { day: "Saturdays", time: "08.30 – 13.00" },
+        { day: "Sundays", time: "Closed" },
+        { day: "Public holidays", time: "Closed" },
+    ],
+};
 
 // Real listings will send their own gallery; repeat the cover so the gallery grid shows.
 function mock(car: MockInput): Car {

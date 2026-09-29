@@ -7,6 +7,7 @@ import FloatingButtons from "./components/FloatingButtons";
 import PopupProvider from "./components/Popups/PopupContext";
 import Popups from "./components/Popups/Popups";
 import LanguageProvider from "./components/Language/LanguageContext";
+import CompareBar from "./components/Compare/CompareBar";
 
 const lato = Lato({
   variable: "--font-lato",
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Footer />
             <FloatingButtons />
             <Popups />
+            <CompareBar />
           </PopupProvider>
         </LanguageProvider>
       </body>

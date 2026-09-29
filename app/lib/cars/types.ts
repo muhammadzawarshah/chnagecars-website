@@ -4,6 +4,9 @@
 export type Dealer = {
     id: string
     name: string
+    logo?: string
+    address?: string
+    hours?: { day: string, time: string }[]
 }
 
 export type CarCategory = "exotic" | "classic" | "leisure"
@@ -31,4 +34,6 @@ export type Car = {
     category?: CarCategory
     featured: boolean
     listedAt: string
+    views?: number
+    enquiries?: number
 }
