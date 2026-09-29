@@ -25,3 +25,26 @@ export const recentCars: ListedCar[] = [
     { title: "2020 Mercedes-Benz A-Class A200 AMG Dynamic", price: "R959,000", specs: ["Sedan", "Gasoline", "Automatic", "1.3L", "40,000 km"], image: "/img/recent-cars/mercedes-a200.jpg", photos: 18, dealer: "Dealer Name", location: "City, Province" },
     { title: "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic", price: "R1,199,000", specs: ["SUV", "Gasoline", "Automatic", "1.3L", "89,000 km"], image: "/img/recent-cars/mercedes-gla200.jpg", photos: 18, dealer: "Dealer Name", location: "City, Province" },
 ];
+
+export const allCars: ListedCar[] = [...featuredCars, ...recentCars];
+
+export function carSlug(car: ListedCar) {
+    return car.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function findCar(slug: string) {
+    return allCars.find((car) => carSlug(car) === slug);
+}
+
+export function priceValue(car: ListedCar) {
+    return Number(car.price.replace(/[^\d]/g, ""));
+}
+
+export function monthlyPayment(principal: number, months = 72, rate = 0.125) {
+    const r = rate / 12;
+    return principal <= 0 ? 0 : (principal * r) / (1 - Math.pow(1 + r, -months));
+}
+
+export function formatRand(value: number) {
+    return `R${Math.round(value).toLocaleString("en-US")}`;
+}

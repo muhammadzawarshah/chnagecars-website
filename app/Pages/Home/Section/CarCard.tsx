@@ -1,9 +1,10 @@
-import { ListedCar } from "../Data/cars"
+import Link from "next/link"
+import { carSlug, ListedCar } from "../Data/cars"
 
 export default function CarCard({ car }: { car: ListedCar }) {
     return (
         <>
-            <a href="https://www.changecars.co.za/new-or-used-cars-for-sale/" className="block h-full overflow-hidden rounded-[10px] bg-white font-roboto no-underline shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+            <Link href={`/car/${carSlug(car)}`} className="block h-full overflow-hidden rounded-[10px] bg-white font-roboto no-underline shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
                 <div className="relative aspect-[675/359] w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${car.image})` }}>
                     <span className="absolute top-1.75 right-2.25 flex h-5.75 items-center gap-1 rounded-md bg-white px-1.5 text-xs font-bold text-black">
                         <svg width="13" height="11" viewBox="0 0 14 12" fill="none" stroke="#000" strokeWidth="1.2">
@@ -30,7 +31,7 @@ export default function CarCard({ car }: { car: ListedCar }) {
                         {car.location}
                     </p>
                 </div>
-            </a>
+            </Link>
         </>
     )
 }

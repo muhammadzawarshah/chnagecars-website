@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="11" height="14" viewBox="0 0 11 14">
+  <g id="Group_24" data-name="Group 24" transform="translate(0.09 0.222)">
+    <line id="Line_10" data-name="Line 10" y2="5.463" transform="translate(1.326 1.493)" fill="none" stroke="#7c7c7c" stroke-linecap="round" stroke-width="1"/>
+    <line id="Line_11" data-name="Line 11" x1="8.228" transform="translate(1.326 6.956)" fill="none" stroke="#7c7c7c" stroke-linecap="round" stroke-width="1"/>
+    <line id="Line_13" data-name="Line 13" y2="8.752" transform="translate(5.796 2.465)" fill="none" stroke="#7c7c7c" stroke-linecap="round" stroke-width="1"/>
+    <line id="Line_14" data-name="Line 14" y2="8.752" transform="translate(9.554 2.465)" fill="none" stroke="#7c7c7c" stroke-linecap="round" stroke-width="1"/>
+    <g id="Ellipse_1" data-name="Ellipse 1" transform="translate(-0.09 -0.222)" fill="#fff" stroke="#7c7c7c" stroke-width="1">
+      <circle cx="1.5" cy="1.5" r="1.5" stroke="none"/>
+      <circle cx="1.5" cy="1.5" r="1" fill="none"/>
+    </g>
+    <g id="Ellipse_2" data-name="Ellipse 2" transform="translate(3.91 -0.222)" fill="#fff" stroke="#7c7c7c" stroke-width="1">
+      <circle cx="1.5" cy="1.5" r="1.5" stroke="none"/>
+      <circle cx="1.5" cy="1.5" r="1" fill="none"/>
+    </g>
+    <g id="Ellipse_3" data-name="Ellipse 3" transform="translate(7.91 -0.222)" fill="#fff" stroke="#7c7c7c" stroke-width="1">
+      <circle cx="1.5" cy="1.5" r="1.5" stroke="none"/>
+      <circle cx="1.5" cy="1.5" r="1" fill="none"/>
+    </g>
+    <g id="Ellipse_4" data-name="Ellipse 4" transform="translate(3.91 10.778)" fill="#fff" stroke="#7c7c7c" stroke-width="1">
+      <circle cx="1.5" cy="1.5" r="1.5" stroke="none"/>
+      <circle cx="1.5" cy="1.5" r="1" fill="none"/>
+    </g>
+    <g id="Ellipse_5" data-name="Ellipse 5" transform="translate(7.91 10.778)" fill="#fff" stroke="#7c7c7c" stroke-width="1">
+      <circle cx="1.5" cy="1.5" r="1.5" stroke="none"/>
+      <circle cx="1.5" cy="1.5" r="1" fill="none"/>
+    </g>
+  </g>
+</svg>
