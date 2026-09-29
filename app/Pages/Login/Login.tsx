@@ -70,7 +70,7 @@ export default function Login() {
                         <button type="submit" className="mt-8.5 h-13.75 w-full cursor-pointer rounded-lg border-0 bg-[#957e4e] text-[22px] font-bold text-white shadow-[0_2px_4px_rgba(0,0,0,0.15)] transition hover:opacity-90">Login</button>
                     </form>
                     <p className="mt-6 mb-0 text-center font-roboto text-sm text-black">
-                        Don&apos;t have an account? <button type="button" onClick={() => open("register")} className="cursor-pointer border-0 bg-transparent p-0 font-sans text-sm font-bold text-[#957e4e]">Register</button>
+                        Don&apos;t have an account? <Link href="/register" className="font-sans text-sm font-bold text-[#957e4e] no-underline">Register</Link>
                     </p>
                 </div>
             </main>

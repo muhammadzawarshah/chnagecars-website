@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 export type PopupName = "login" | "register" | "forgot" | "help" | "info" | "screan"
 
@@ -17,6 +18,7 @@ const PopupContext = createContext<PopupContextValue | null>(null);
 
 export default function PopupProvider({ children }: { children: ReactNode }) {
 
+    const router = useRouter();
     const [active, setActive] = useState<PopupName | null>(null);
 
     useEffect(() => {
@@ -35,6 +37,12 @@ export default function PopupProvider({ children }: { children: ReactNode }) {
         if (action === "newsletter") {
             const target = document.getElementById("newsletter");
             if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY + 30, behavior: "smooth" });
+            return;
+        }
+        // Registration is a full page on mobile and tablet; only the desktop header keeps the popup.
+        if (action === "register" && window.innerWidth < 1112) {
+            setActive(null);
+            router.push("/register");
             return;
         }
         setActive(action);

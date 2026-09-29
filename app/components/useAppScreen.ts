@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 
 // Pages that copy an app screen on mobile: they bring their own top bar,
 // so the site AppBar and floating buttons are hidden below 981px.
-const appScreens: string[] = [];
+const appScreens = ["/register"];
 
 export default function useAppScreen() {
     const pathname = usePathname();
