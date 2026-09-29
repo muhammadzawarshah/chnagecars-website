@@ -24,7 +24,7 @@ export default async function Home() {
                 <AppExtras />
                 <Testimonials />
                 <CarSection title={<>Featured <strong>Cars</strong></>} cars={featuredCars} featured />
-                <CarSection title={<>Recently Added <strong>Cars</strong></>} cars={recentCars} />
+                <CarSection title={<>Recently Added <strong>Cars</strong></>} cars={recentCars} featured />
                 <QuickSearch />
                 <LatestArticles />
                 <CarTypes />
