@@ -42,27 +42,28 @@ export default function RegisterPopup() {
     }
 
     return (
-        <AuthPopup open={active === "register"}>
+        <AuthPopup open={active === "register"} light>
             {success ? (
-                <AuthSuccess message="Your account is ready! Please check your mail to activate your account" onClose={close} onLogin={() => open("login")} />
+                <AuthSuccess light message="Your account is ready! Please check your mail to activate your account" onClose={close} onLogin={() => open("login")} />
             ) : (
                 <AuthForm
                     title="Dealer"
                     highlight="REGISTRATION"
                     compact
-                    description={<p className="text-sm leading-4.5 text-white">CHANGECARS is a platform for <strong>Franchised approved dealers</strong> only</p>}
+                    light
+                    description={<p className="text-sm leading-4.5 text-[#555]">CHANGECARS is a platform for <strong className="text-[#957e4e]">Franchised approved dealers</strong> only</p>}
                     primaryLabel="Register"
                     onPrimary={submit}
                     onClose={close}
                     links={[{ label: "Already have an account?", strong: "Sign in", onClick: () => open("login") }]}
                 >
-                    <AuthField label="Dealer name" value={form.name} error={errors.name} onChange={(value) => update("name", value)} />
-                    <AuthField label="Contact person" value={form.contactPerson} error={errors.contactPerson} className="mt-2.5 w-[53%]!" onChange={(value) => update("contactPerson", value)} />
-                    <AuthField label="Contact number" type="tel" value={form.contactNumber} error={errors.contactNumber} className="float-right! mt-2.5 w-[43%]!" onChange={(value) => update("contactNumber", value.replace(/[^\d+ ]/g, "").slice(0, 12))} />
-                    <AuthField label="Email" type="email" value={form.email} error={errors.email} onChange={(value) => update("email", value)} />
-                    <AuthField label="Address" value={form.address} error={errors.address} onChange={(value) => update("address", value)} />
-                    <AuthField label="Password" type="password" value={form.password} error={errors.password} className="w-[48%]! max-[841px]:mb-5 max-[601px]:mb-2.5" onChange={(value) => update("password", value)} />
-                    <AuthField label="Retype password" type="password" value={form.confirmPassword} error={errors.confirmPassword} className="float-right! w-[48%]! max-[601px]:mb-2.5" onChange={(value) => update("confirmPassword", value)} />
+                    <AuthField light label="Dealer name" value={form.name} error={errors.name} onChange={(value) => update("name", value)} />
+                    <AuthField light label="Contact person" value={form.contactPerson} error={errors.contactPerson} className="mt-2.5 w-[53%]!" onChange={(value) => update("contactPerson", value)} />
+                    <AuthField light label="Contact number" type="tel" value={form.contactNumber} error={errors.contactNumber} className="float-right! mt-2.5 w-[43%]!" onChange={(value) => update("contactNumber", value.replace(/[^\d+ ]/g, "").slice(0, 12))} />
+                    <AuthField light label="Email" type="email" value={form.email} error={errors.email} onChange={(value) => update("email", value)} />
+                    <AuthField light label="Address" value={form.address} error={errors.address} onChange={(value) => update("address", value)} />
+                    <AuthField light label="Password" type="password" value={form.password} error={errors.password} className="w-[48%]! max-[841px]:mb-5 max-[601px]:mb-2.5" onChange={(value) => update("password", value)} />
+                    <AuthField light label="Retype password" type="password" value={form.confirmPassword} error={errors.confirmPassword} className="float-right! w-[48%]! max-[601px]:mb-2.5" onChange={(value) => update("confirmPassword", value)} />
                 </AuthForm>
             )}
         </AuthPopup>
