@@ -5,7 +5,7 @@ import { usePopup } from "./PopupContext"
 const site = "https://www.changecars.co.za";
 
 const helpLinks = [
-    { label: "Looking to sell your vehicle", href: `${site}/sell-your-vehicle` },
+    { label: "Looking to sell your vehicle", href: "/sell-your-vehicle" },
     { label: "Looking to buy brand new", href: `${site}/new-vehicle-quote` },
     { label: "Looking for insurance", href: `${site}/insurance/discovery-car-insurance` },
     { label: "Looking for quote comparisons", href: `${site}/beat-my-quote` },

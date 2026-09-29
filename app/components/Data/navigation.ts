@@ -60,7 +60,7 @@ export const mainMenus: NavMenu[] = [
         icon: "/img/private-sellers/key-in-hand.svg",
         items: [
             { label: "Keep it or CHANGECARS", href: `${site}/keep-it-or-changecars` },
-            { label: "Sell your vehicle", href: `${site}/sell-your-vehicle` },
+            { label: "Sell your vehicle", href: "/sell-your-vehicle" },
             { label: "Value my vehicle", href: `${site}/value-my-vehicle` },
         ],
     },
@@ -142,7 +142,7 @@ export const drawerSections: DrawerSection[] = [
         icon: "/img/mobile-menu/selling.svg",
         links: [
             { href: `${site}/keep-it-or-changecars` },
-            { href: `${site}/sell-your-vehicle` },
+            { href: "/sell-your-vehicle" },
             { href: `${site}/value-my-vehicle` },
         ],
     },
@@ -214,7 +214,7 @@ export const footerColumns: NavLink[][] = [
         { label: "Help Me Find", href: `${site}/help-me-find` },
         { label: "Keep It or CHANGECARS", href: `${site}/keep-it-or-changecars` },
         { label: "New Vehicle Quote", href: `${site}/new-vehicle-quote` },
-        { label: "Sell Your Vehicle", href: `${site}/sell-your-vehicle` },
+        { label: "Sell Your Vehicle", href: "/sell-your-vehicle" },
         { label: "Finance", href: `${site}/insurance/discovery-car-insurance` },
         { label: "What Can I Afford", href: `${site}/finance-calculator` },
         { label: "Podcasts", href: "https://www.youtube.com/channel/UCZERPfVcd1TVgqtIucVgNwg", external: true },

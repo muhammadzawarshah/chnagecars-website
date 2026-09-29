@@ -90,7 +90,7 @@ export const specials: ImageBlock[] = [
 ];
 
 export const ctas: Cta[] = [
-    { title: "Sell your", highlight: "vehicle", description: ["We would love to buy your low mileage, excellent condition used vehicle"], image: "/img/sell-vehicle-cta-icon.png", href: `${site}/sell-your-vehicle` },
+    { title: "Sell your", highlight: "vehicle", description: ["We would love to buy your low mileage, excellent condition used vehicle"], image: "/img/sell-vehicle-cta-icon.png", href: "/sell-your-vehicle" },
     { title: "Value my", highlight: "vehicle", description: ["Are you keen to find out what your vehicle is worth, we are here to assist"], image: "/img/value-cta-icon.png", href: `${site}/value-my-vehicle` },
     { title: "Beat my", highlight: "quote", description: ["We help ensure you get the best price and best service on your new vehicle purchase"], image: "/img/beat-my-quote-cta-icon.png", href: `${site}/beat-my-quote` },
     { title: "Keep it or", highlight: "changecars", description: ["We offer advice to help you make an informed decision as to whether it is time to CHANGECARS"], image: "/img/keep-it-cta-icon.png", href: `${site}/keep-it-or-changecars` },

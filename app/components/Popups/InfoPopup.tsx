@@ -28,7 +28,7 @@ export default function InfoPopup() {
                                 Get started today – selling your car has never been easier
                             </div>
                             <div className="mb-5 flex h-10 flex-row justify-center">
-                                <a href="https://www.changecars.co.za/sell-your-vehicle" target="_blank" className="relative mx-2.5 h-10 cursor-pointer rounded-[5px] bg-gold px-5 text-center text-sm leading-10 font-normal whitespace-nowrap text-snow no-underline transition duration-100 hover:opacity-90 max-[301px]:px-3">
+                                <a href="/sell-your-vehicle" className="relative mx-2.5 h-10 cursor-pointer rounded-[5px] bg-gold px-5 text-center text-sm leading-10 font-normal whitespace-nowrap text-snow no-underline transition duration-100 hover:opacity-90 max-[301px]:px-3">
                                     Sell Your Vehicle
                                 </a>
                             </div>
