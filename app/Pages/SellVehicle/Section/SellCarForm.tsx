@@ -26,7 +26,7 @@ const required: FieldKey[] = [
 ];
 
 function SectionTitle({ children }: { children: ReactNode }) {
-    return <h2 className="mt-7 mb-2.5 text-[13.5px] leading-5 font-bold text-gold">{children}</h2>;
+    return <h2 className="mt-7 mb-2.5 text-[13.5px] leading-5 font-bold text-gold min-[981px]:mt-11 min-[981px]:mb-5 min-[981px]:text-[22px] min-[981px]:leading-7">{children}</h2>;
 }
 
 export default function SellCarForm() {
@@ -61,9 +61,9 @@ export default function SellCarForm() {
     if (sent) {
         return (
             <>
-                <div className="mt-7 rounded-[10px] border-[1.5px] border-[#e7e1d3] px-4 py-8 text-center">
-                    <h2 className="mt-0 mb-2 text-lg font-bold text-gold">Thank You!</h2>
-                    <p className="m-0 text-[12.5px] leading-4.5 text-[#333]"><strong>CHANGECARS</strong> will contact you shortly to arrange a free, no-obligation valuation.</p>
+                <div className="mt-7 rounded-[10px] border-[1.5px] border-[#e7e1d3] px-4 py-8 text-center min-[981px]:mt-11 min-[981px]:py-14">
+                    <h2 className="mt-0 mb-2 text-lg font-bold text-gold min-[981px]:mb-3 min-[981px]:text-[28px]">Thank You!</h2>
+                    <p className="m-0 text-[12.5px] leading-4.5 text-[#333] min-[981px]:text-base min-[981px]:leading-6.5"><strong>CHANGECARS</strong> will contact you shortly to arrange a free, no-obligation valuation.</p>
                 </div>
             </>
         )
@@ -73,7 +73,7 @@ export default function SellCarForm() {
         <>
             <form onSubmit={submit} noValidate>
                 <SectionTitle>Contact Details</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-2.25 gap-y-2.5 max-[361px]:grid-cols-1">
+                <div className="grid grid-cols-2 min-[981px]:gap-x-6 gap-x-2.25 gap-y-2.5 max-[361px]:grid-cols-1 min-[981px]:gap-y-5">
                     <SellField label="Name" required error={errors.name}>{text("name")}</SellField>
                     <SellField label="Surname" required error={errors.surname}>{text("surname")}</SellField>
                     <SellField label="Email" required error={errors.email}>{text("email", "", "email")}</SellField>
@@ -83,7 +83,7 @@ export default function SellCarForm() {
                 </div>
 
                 <SectionTitle>Vehicle Details</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-2.25 gap-y-2.5 max-[361px]:grid-cols-1">
+                <div className="grid grid-cols-2 min-[981px]:gap-x-6 gap-x-2.25 gap-y-2.5 max-[361px]:grid-cols-1 min-[981px]:gap-y-5">
                     <SellField label="Make" required error={errors.make}>
                         <SellInput value={form.make} placeholder="Select Make" options={makes.map((item) => item.name)} error={!!errors.make} onChange={(value) => update("make", value)} />
                     </SellField>
@@ -105,50 +105,50 @@ export default function SellCarForm() {
                 </div>
 
                 <SectionTitle>Condition And History</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-2.25 gap-y-5 max-[481px]:grid-cols-1">
+                <div className="grid grid-cols-2 min-[981px]:gap-x-6 gap-x-2.25 gap-y-5 max-[481px]:grid-cols-1">
                     <SellField label="Condition" required error={errors.condition}>
-                        <div className="pt-1.5"><SellChoices options={conditions} value={form.condition} onChange={(value) => update("condition", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={conditions} value={form.condition} onChange={(value) => update("condition", value)} /></div>
                     </SellField>
                     <SellField label="Service History" required error={errors.service}>
-                        <div className="pt-1.5"><SellChoices options={serviceHistories} value={form.service} stacked onChange={(value) => update("service", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={serviceHistories} value={form.service} stacked onChange={(value) => update("service", value)} /></div>
                     </SellField>
                     <SellField label="How Long Has The User Owned The Car?" required error={errors.owned}>{text("owned")}</SellField>
                 </div>
-                <SellField label="Current Damages Or Previous Repairs" className="mt-2.5">
+                <SellField label="Current Damages Or Previous Repairs" className="mt-2.5 min-[981px]:mt-5">
                     <textarea
                         value={form.damages}
                         maxLength={500}
                         onChange={(e) => update("damages", e.target.value)}
-                        className="block h-22 w-full resize-none rounded-md border border-[#e0e0e0] bg-[#fafafa] p-3 text-[11.5px] text-[#222] outline-none focus:border-gold"
+                        className="block h-22 w-full resize-none rounded-md border border-[#e0e0e0] bg-[#fafafa] p-3 text-[11.5px] min-[981px]:h-32 min-[981px]:p-4 min-[981px]:text-[15px] text-[#222] outline-none focus:border-gold"
                     />
-                    <p className="mt-1 mb-0 text-right text-[11px] text-[#616161]">{form.damages.length}/500</p>
+                    <p className="mt-1 mb-0 text-right text-[11px] text-[#616161] min-[981px]:text-[13px]">{form.damages.length}/500</p>
                 </SellField>
 
                 <SectionTitle>Registration And Finance</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-2.25 gap-y-3 max-[481px]:grid-cols-1">
+                <div className="grid grid-cols-2 min-[981px]:gap-x-6 gap-x-2.25 gap-y-3 max-[481px]:grid-cols-1">
                     <SellField label="Does The User Know The Registration Number?" required error={errors.registration}>
-                        <div className="pt-1.5"><SellChoices options={yesNo} value={form.registration} onChange={(value) => update("registration", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={yesNo} value={form.registration} onChange={(value) => update("registration", value)} /></div>
                     </SellField>
                     <SellField label="Is The Car Under Warranty?" required error={errors.warranty}>
-                        <div className="pt-1.5"><SellChoices options={yesNo} value={form.warranty} onChange={(value) => update("warranty", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={yesNo} value={form.warranty} onChange={(value) => update("warranty", value)} /></div>
                     </SellField>
                     <SellField label="Is The Car Financed?" required error={errors.financed}>
-                        <div className="pt-1.5"><SellChoices options={yesNo} value={form.financed} onChange={(value) => update("financed", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={yesNo} value={form.financed} onChange={(value) => update("financed", value)} /></div>
                     </SellField>
                 </div>
 
                 <SectionTitle>Selling Preferences</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-2.25 gap-y-3 max-[481px]:grid-cols-1">
+                <div className="grid grid-cols-2 min-[981px]:gap-x-6 gap-x-2.25 gap-y-3 max-[481px]:grid-cols-1">
                     <SellField label="When Does The User Want To Sell?" required error={errors.sellTime}>
-                        <div className="pt-1.5"><SellChoices options={sellTimes} value={form.sellTime} onChange={(value) => update("sellTime", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={sellTimes} value={form.sellTime} onChange={(value) => update("sellTime", value)} /></div>
                     </SellField>
                     <SellField label="Photo Upload Timing" required error={errors.photoTiming}>
-                        <div className="pt-1.5"><SellChoices options={photoTimings} value={form.photoTiming} onChange={(value) => update("photoTiming", value)} /></div>
+                        <div className="pt-1.5 min-[981px]:pt-0"><SellChoices options={photoTimings} value={form.photoTiming} onChange={(value) => update("photoTiming", value)} /></div>
                     </SellField>
                 </div>
 
                 <SectionTitle>Documents And Photos</SectionTitle>
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5 min-[981px]:gap-5">
                     <SellField label="Images" required={form.photoTiming === "Upload Now"} hint="Add front, left side, rear, right side, dashboard, interior, and engine photos." error={errors.images}>
                         <SellFile
                             placeholder="Add images"
@@ -180,7 +180,7 @@ export default function SellCarForm() {
                     </SellField>
                 </div>
 
-                <button type="submit" className="mt-6 h-10 w-full cursor-pointer rounded-md border-0 bg-gold text-[13.5px] font-bold text-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition hover:opacity-90">Submit</button>
+                <button type="submit" className="mt-6 h-10 w-full cursor-pointer rounded-md border-0 bg-gold text-[13.5px] font-bold min-[981px]:mt-10 min-[981px]:h-13 min-[981px]:text-lg text-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition hover:opacity-90">Submit</button>
             </form>
         </>
     )

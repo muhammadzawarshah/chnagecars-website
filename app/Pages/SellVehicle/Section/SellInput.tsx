@@ -10,7 +10,7 @@ type SellInputProps = {
 
 export default function SellInput({ value, placeholder = "", type = "text", options, disabled = false, error = false, onChange }: SellInputProps) {
 
-    const box = `h-9.5 w-full rounded-md border px-3 text-[11.5px] outline-none focus:border-gold ${error ? "border-[#e53935]" : "border-[#e0e0e0]"}`;
+    const box = `h-9.5 w-full rounded-md border px-3 text-[11.5px] outline-none min-[981px]:h-12 min-[981px]:px-4 min-[981px]:text-[15px] focus:border-gold ${error ? "border-[#e53935]" : "border-[#e0e0e0]"}`;
 
     if (options) {
         return (
@@ -22,7 +22,7 @@ export default function SellInput({ value, placeholder = "", type = "text", opti
                             <option key={option} value={option} className="text-[#222]">{option}</option>
                         ))}
                     </select>
-                    <svg width="10" height="5" viewBox="0 0 10 5" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
+                    <svg width="10" height="5" viewBox="0 0 10 5" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 min-[981px]:right-4 min-[981px]:scale-125">
                         <path d="M0 0h10L5 5z" fill={disabled ? "#bdbdbd" : "#616161"} />
                     </svg>
                 </div>
