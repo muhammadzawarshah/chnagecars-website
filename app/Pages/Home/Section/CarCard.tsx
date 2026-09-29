@@ -1,11 +1,11 @@
 import Link from "next/link"
 import { Car } from "@/app/lib/cars/types"
-import { carHref, carSpecs, formatRand } from "@/app/lib/cars/format"
+import { carHref, carSpecs, featuredCarHref, formatRand } from "@/app/lib/cars/format"
 
-export default function CarCard({ car }: { car: Car }) {
+export default function CarCard({ car, featured = false }: { car: Car, featured?: boolean }) {
     return (
         <>
-            <Link href={carHref(car)} className="block h-full overflow-hidden rounded-[10px] bg-white font-roboto no-underline shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+            <Link href={featured ? featuredCarHref(car) : carHref(car)} className="block h-full overflow-hidden rounded-[10px] bg-white font-roboto no-underline shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
                 <div className="relative aspect-[675/359] w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${car.image})` }}>
                     <span className="absolute top-1.75 right-2.25 flex h-5.75 items-center gap-1 rounded-md bg-white px-1.5 text-xs font-bold text-black">
                         <svg width="13" height="11" viewBox="0 0 14 12" fill="none" stroke="#000" strokeWidth="1.2">

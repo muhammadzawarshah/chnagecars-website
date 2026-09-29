@@ -24,6 +24,11 @@ export function carHref(car: Car) {
     return `/car/${carSlug(car)}`;
 }
 
+// Featured Cars on the home page open the app-style detail page.
+export function featuredCarHref(car: Car) {
+    return `/featured-car/${carSlug(car)}`;
+}
+
 export function idFromSlug(slug: string) {
     return slug.slice(slug.lastIndexOf("-") + 1);
 }
