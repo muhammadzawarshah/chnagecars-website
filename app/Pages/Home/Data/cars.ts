@@ -4,6 +4,7 @@ export type ListedCar = {
     specs: string[]
     image: string
     photos: number
+    gallery?: string[]
     dealer: string
     location: string
 }

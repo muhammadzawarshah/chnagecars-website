@@ -7,6 +7,7 @@ import SpecAccordion from "./Section/SpecAccordion"
 import FinanceSheet from "./Section/FinanceSheet"
 import RelatedCars from "./Section/RelatedCars"
 import ContactBar from "./Section/ContactBar"
+import CarGallery from "./Section/CarGallery"
 
 export default function CarDetail({ car }: { car: ListedCar }) {
 
@@ -54,13 +55,7 @@ export default function CarDetail({ car }: { car: ListedCar }) {
                     {shared && <p className="fixed top-30 left-1/2 z-50 m-0 -translate-x-1/2 rounded bg-black/80 px-3 py-1.5 text-xs text-white">Link copied</p>}
 
                     <div className="bg-white px-3 pt-2 pb-4 min-[981px]:mt-10 min-[981px]:grid min-[981px]:grid-cols-[1.25fr_1fr] min-[981px]:gap-10 min-[981px]:rounded-xl min-[981px]:p-7.5">
-                        <div className="relative overflow-hidden rounded-xl">
-                            <img src={car.image} alt={car.title} className="block aspect-[675/359] w-full object-cover" />
-                            <span className="absolute top-2.5 right-2.5 flex h-6.5 items-center gap-1 rounded-md bg-white px-2 text-[13px] font-bold text-black">
-                                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" stroke="#000" strokeWidth="1.2"><path d="M1 3.5h3l1.2-2h3.6l1.2 2h3v7.5H1z" /><circle cx="7" cy="7" r="2.3" /></svg>
-                                {car.photos}
-                            </span>
-                        </div>
+                        <CarGallery photos={car.gallery ?? [car.image]} title={car.title} />
 
                         <div>
                             <div className="mt-4 flex gap-1.5 min-[981px]:mt-0 min-[981px]:gap-2.5">
@@ -92,6 +87,7 @@ export default function CarDetail({ car }: { car: ListedCar }) {
                                     <Link key={label} href="/login" className={outline}>+ {label}</Link>
                                 ))}
                             </div>
+                            <ContactBar title={car.title} inline />
                         </div>
                     </div>
 
