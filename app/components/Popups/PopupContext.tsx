@@ -39,6 +39,12 @@ export default function PopupProvider({ children }: { children: ReactNode }) {
             if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY + 30, behavior: "smooth" });
             return;
         }
+        // Login is always a full page.
+        if (action === "login") {
+            setActive(null);
+            router.push("/login");
+            return;
+        }
         // Registration is a full page on mobile and tablet; only the desktop header keeps the popup.
         if (action === "register" && window.innerWidth < 1112) {
             setActive(null);
@@ -49,7 +55,7 @@ export default function PopupProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <PopupContext.Provider value={{ active, open: setActive, close: () => setActive(null), runAction }}>
+        <PopupContext.Provider value={{ active, open: (name) => (name === "login" ? runAction("login") : setActive(name)), close: () => setActive(null), runAction }}>
             {children}
         </PopupContext.Provider>
     )

@@ -24,7 +24,7 @@ export default function Login() {
         <>
             <main className="bg-[#f8fafd] px-5 pt-5 pb-20">
                 <div className="mx-auto w-full max-w-150">
-                    <Link href="/" aria-label="Back" className="flex size-6.5 items-center justify-center">
+                    <Link href="/" aria-label="Back" className="flex size-6.5 items-center justify-center min-[982px]:hidden">
                         <svg width="20" height="17" viewBox="0 0 20 17" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M19 8.5H2M8.5 2L2 8.5 8.5 15" />
                         </svg>

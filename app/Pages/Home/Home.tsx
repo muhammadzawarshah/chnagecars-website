@@ -3,9 +3,7 @@ import AppExtras from "./Section/AppExtras"
 import Testimonials from "./Section/Testimonials"
 import CarSection from "./Section/CarSection"
 import { getFeaturedCars, getRecentCars } from "@/app/lib/cars/api"
-import QuickSearch from "./Section/QuickSearch"
 import LatestArticles from "./Section/LatestArticles"
-import CarTypes from "./Section/CarTypes"
 import Specials from "./Section/Specials"
 import FeaturedDealers from "./Section/FeaturedDealers"
 import CallToActions from "./Section/CallToActions"
@@ -25,12 +23,10 @@ export default async function Home() {
                 <Testimonials />
                 <CarSection title={<>Featured <strong>Cars</strong></>} cars={featuredCars} featured />
                 <CarSection title={<>Recently Added <strong>Cars</strong></>} cars={recentCars} featured />
-                <QuickSearch />
-                <LatestArticles />
-                <CarTypes />
-                <Specials />
                 <FeaturedDealers />
+                <Specials />
                 <CallToActions />
+                <LatestArticles />
                 <PopularBrands />
                 <BottomAd />
                 <div className="relative top-px -mt-px h-px"></div>
