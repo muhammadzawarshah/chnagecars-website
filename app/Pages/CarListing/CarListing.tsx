@@ -14,7 +14,7 @@ type CarListingProps = {
     inventory: number
 }
 
-// Desktop: fixed search column on the dark photo, grey results column to the right edge.
+// Desktop: sticky search column on the dark photo (it stops above the footer), grey results column to the right edge.
 // Below 1039px the search column becomes the "Refine search" drawer.
 export default function CarListing({ search, result, premium, inventory }: CarListingProps) {
 
@@ -31,15 +31,15 @@ export default function CarListing({ search, result, premium, inventory }: CarLi
             </div>
 
             <main className="relative z-1 pt-[109px] font-sans min-[768px]:pt-[99px] min-[982px]:pt-32.5 min-[1039px]:pt-20 min-[1112px]:pt-0">
-                <div className="mx-auto w-full max-w-350 px-5">
-                    <aside className="fixed top-27 z-2 hidden w-95 pt-2.5 pr-3.75 max-[1111px]:top-8.75 max-[1111px]:pt-17 max-[1080px]:pt-18.5 min-[1039px]:block">
+                <div className="mx-auto w-full max-w-350 px-5 min-[1039px]:flex min-[1039px]:items-start">
+                    <aside className="sticky top-27 z-2 hidden w-95 shrink-0 pt-2.5 pr-3.75 pb-6.25 max-[1111px]:top-8.75 max-[1111px]:-mt-11.25 max-[1111px]:pt-17 max-[1080px]:pt-18.5 min-[1039px]:block">
                         <RefineSearch key={JSON.stringify(search)} search={search} inventory={inventory} />
                         <a href="/sell-your-vehicle" className="mt-6.25 block">
                             <img src="/img/banners/cc-sell-your-vehicle.gif" alt="Sell Your Vehicle" className="block h-20.5 w-full" />
                         </a>
                     </aside>
 
-                    <section className="min-h-300 bg-[#ccc] pb-20 min-[1039px]:ml-111.5 min-[1039px]:px-10 min-[1039px]:pt-5">
+                    <section className="min-h-300 bg-[#ccc] pb-20 min-[1039px]:ml-16.5 min-[1039px]:min-w-0 min-[1039px]:flex-1 min-[1039px]:px-10 min-[1039px]:pt-5">
                         <div className="mx-auto max-w-175 border-b border-dotted border-[#707070] px-5 pt-14.5 pb-3.75 text-[#7c7c7c] min-[1039px]:max-w-none min-[1039px]:px-0 min-[1039px]:pt-10 min-[1039px]:pb-8.75">
                             <div className="flex h-10.25 items-start justify-between min-[1039px]:h-9.75 min-[1081px]:h-10.75 min-[1112px]:h-8.25">
                                 <p className="m-0 mt-3 text-lg leading-[20.7px] font-extrabold max-[701px]:hidden min-[1039px]:mt-2 min-[1081px]:mt-2.5 min-[1081px]:text-xl min-[1081px]:leading-5.75 min-[1112px]:mt-0">{`${count} Results`}</p>

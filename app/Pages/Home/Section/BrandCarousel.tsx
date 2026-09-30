@@ -17,7 +17,7 @@ type BrandCarouselProps = {
 export default function BrandCarousel({ title, brands, banner, dots = false, viewAll }: BrandCarouselProps) {
     return (
         <>
-            <div data-brand-block className="mb-25 max-[901px]:mb-12.5">
+            <div data-brand-block className="pb-25 max-[901px]:pb-12.5">
                 <SectionTitle className={banner ? "max-[951px]:mb-3" : "max-[951px]:mb-13.75"}>{title}</SectionTitle>
                 {banner && (
                     <div className="mb-5 max-[601px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
