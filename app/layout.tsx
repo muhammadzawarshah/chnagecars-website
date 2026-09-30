@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Lato, Roboto } from "next/font/google";
+import { Inter, Lato, Poppins, Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
@@ -20,6 +20,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
@@ -38,7 +44,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${lato.variable} ${inter.variable} ${roboto.variable}`}>
+    <html lang="en" className={`${lato.variable} ${inter.variable} ${roboto.variable} ${poppins.variable}`}>
       <body className="max-[981px]:mt-14">
         <LanguageProvider>
           <PopupProvider>

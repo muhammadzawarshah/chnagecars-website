@@ -83,10 +83,10 @@ export const specials: Special[] = [
 ];
 
 export const ctas: Cta[] = [
-    { title: "Sell your", highlight: "vehicle", description: ["We would love to buy your low mileage, excellent condition used vehicle"], image: "/img/sell-vehicle-cta-icon.png", href: "/sell-your-vehicle" },
-    { title: "Value my", highlight: "vehicle", description: ["Are you keen to find out what your vehicle is worth, we are here to assist"], image: "/img/value-cta-icon.png", href: `${site}/value-my-vehicle` },
-    { title: "Beat my", highlight: "quote", description: ["We help ensure you get the best price and best service on your new vehicle purchase"], image: "/img/beat-my-quote-cta-icon.png", href: `${site}/beat-my-quote` },
-    { title: "Keep it or", highlight: "changecars", description: ["We offer advice to help you make an informed decision as to whether it is time to CHANGECARS"], image: "/img/keep-it-cta-icon.png", href: `${site}/keep-it-or-changecars` },
+    { title: "Sell your", highlight: "vehicle", description: ["We would love to buy your low mileage, excellent condition used vehicle"], image: "/img/sell-vehicle-cta-icon.png", href: "/sell-vehicle" },
+    { title: "Value my", highlight: "vehicle", description: ["Are you keen to find out what your vehicle is worth, we are here to assist"], image: "/img/value-cta-icon.png", href: "/value-my-vehicle" },
+    { title: "Beat my", highlight: "quote", description: ["We help ensure you get the best price and best service on your new vehicle purchase"], image: "/img/beat-my-quote-cta-icon.png", href: "/beat-my-quote" },
+    { title: "Keep it or", highlight: "changecars", description: ["We offer advice to help you make an informed decision as to whether it is time to CHANGECARS"], image: "/img/keep-it-cta-icon.png", href: "/keep-it-or-changecars" },
     { title: "NEW", highlight: "CARS", description: ["Find the Car You Want.... Your Way!", "Then SIMPLY call for Quotations from Approved Dealers"], image: "/img/new-cars-cta-image.png", href: "https://newcars.changecars.co.za/", external: true },
-    { title: "New vehicle", highlight: "quote", description: ["Let us know what it is that you are looking for and our team will do their best to assist"], image: "/img/new-vehicle-quote-image.png", href: `${site}/new-vehicle-quote` },
+    { title: "New vehicle", highlight: "quote", description: ["Let us know what it is that you are looking for and our team will do their best to assist"], image: "/img/new-vehicle-quote-image.png", href: "/new-vehicle-quote" },
 ];
