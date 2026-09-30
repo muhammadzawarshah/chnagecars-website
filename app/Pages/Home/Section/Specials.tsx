@@ -7,7 +7,7 @@ import { specials } from "../Data/blocks"
 export default function Specials() {
     return (
         <>
-            <section className="m-0 -mt-px overflow-hidden bg-white px-8.75 max-[401px]:px-3.75 max-[251px]:px-2.5 pb-25 max-[901px]:pb-13.75">
+            <section id="specials" className="m-0 -mt-px overflow-hidden bg-white px-8.75 max-[401px]:px-3.75 max-[251px]:px-2.5 pb-25 max-[901px]:pb-13.75">
                 <SectionTitle className="font-black! max-[1000px]:mb-6.25">Specials</SectionTitle>
                 <p className="mt-4 mb-22.5 text-center text-base leading-6.5 font-normal max-[801px]:mb-17.5 max-[768px]:text-lg">
                     As a Customer you are special to us! Here are our specials for you!

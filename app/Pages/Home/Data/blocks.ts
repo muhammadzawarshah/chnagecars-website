@@ -61,19 +61,25 @@ export const carTypes: CarType[] = [
     { title: "X Cab", description: "X cab bakkie", image: "/img/type-cars/xcab-2.png", href: carSearchHref({ bodyType: "Extended Cab" }) },
 ];
 
-export const specials: ImageBlock[] = [
-    { title: "Truck Month", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-1-42648-1.jpg", href: `${site}/specials/single/truck-month` },
-    { title: "Ranger XL 2.0 SIT Single/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-2-42648-1.jpg", href: `${site}/specials/single/the-ranger-xl-20-sit-singlec-x4-at` },
-    { title: "Ranger Sport 3.0 V6 D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-8-42648-1.jpg", href: `${site}/specials/single/ranger-sport-30-v6-dc-4x4-at` },
-    { title: "Ranger XL 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-6-42648-1.jpg", href: `${site}/specials/single/ranger-xl-20-sit-dc-4x4-at` },
-    { title: "Suzuki S-Presso GL+ MT", image: "/images/specials/260909/suzuki-gl.png", href: `${site}/specials/single/suzuki-s-presso-gl-mt` },
-    { title: "Omoda C7 Luxury", image: "/images/specials/260910/c7.png", href: `${site}/specials/single/omoda-c7-luxury` },
-    { title: "Ranger Sport 3.0 V6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-4-42648-1.jpg", href: `${site}/specials/single/ranger-sport-30-v6-supc-4x4-at` },
-    { title: "Geely E2 Aspire", image: "/images/specials/260917/geely-e2.png", href: `${site}/specials/single/geely-e2-aspire` },
-    { title: "Ranger Wildtrak 3.0 v6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-5-42648-1.jpg", href: `${site}/specials/single/ranger-wildtrak-30-v6-supc-4x4-at` },
-    { title: "All new Mazda CX-5 Individual 2.5L AT", image: "/images/specials/260910/mazda-cx5.png", href: `${site}/specials/single/all-new-mazda-cx-5-individual-25l-at` },
-    { title: "Ranger XL 2.0 SIT SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-3-42648-1.jpg", href: `${site}/specials/single/ranger-xl-20-sit-supc-4x4-at` },
-    { title: "Ranger XLT 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-7-42648-1.jpg", href: `${site}/specials/single/ranger-xlt-20-sit-dc-4x4-at` },
+// Each special opens its own page at /specials/<slug>.
+export type Special = ImageBlock & {
+    slug: string
+    text: string
+}
+
+export const specials: Special[] = [
+    { title: "Truck Month", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-1-42648-1.jpg", slug: "truck-month", text: "This Truck Month save up to R150 000", href: "/specials/truck-month" },
+    { title: "Ranger XL 2.0 SIT Single/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-2-42648-1.jpg", slug: "the-ranger-xl-20-sit-singlec-x4-at", text: "This Truck Month save up to R70 000", href: "/specials/the-ranger-xl-20-sit-singlec-x4-at" },
+    { title: "Ranger Sport 3.0 V6 D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-8-42648-1.jpg", slug: "ranger-sport-30-v6-dc-4x4-at", text: "This Truck Month save up to R150 000", href: "/specials/ranger-sport-30-v6-dc-4x4-at" },
+    { title: "Ranger XL 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-6-42648-1.jpg", slug: "ranger-xl-20-sit-dc-4x4-at", text: "This Truck Month save up to R105 000", href: "/specials/ranger-xl-20-sit-dc-4x4-at" },
+    { title: "Suzuki S-Presso GL+ MT", image: "/images/specials/260909/suzuki-gl.png", slug: "suzuki-s-presso-gl-mt", text: "From R2 599pm. | 10% Deposit. | 35% Balloon. |", href: "/specials/suzuki-s-presso-gl-mt" },
+    { title: "Omoda C7 Luxury", image: "/images/specials/260910/c7.png", slug: "omoda-c7-luxury", text: "From R6 499PM. | Retail price: R539 900 | Deposit: R53 990 | Ball", href: "/specials/omoda-c7-luxury" },
+    { title: "Ranger Sport 3.0 V6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-4-42648-1.jpg", slug: "ranger-sport-30-v6-supc-4x4-at", text: "This Truck Month save up to R80 000", href: "/specials/ranger-sport-30-v6-supc-4x4-at" },
+    { title: "Geely E2 Aspire", image: "/images/specials/260917/geely-e2.png", slug: "geely-e2-aspire", text: "From R339 890", href: "/specials/geely-e2-aspire" },
+    { title: "Ranger Wildtrak 3.0 v6 SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-5-42648-1.jpg", slug: "ranger-wildtrak-30-v6-supc-4x4-at", text: "This Truck Month save up to R100 000", href: "/specials/ranger-wildtrak-30-v6-supc-4x4-at" },
+    { title: "All new Mazda CX-5 Individual 2.5L AT", image: "/images/specials/260910/mazda-cx5.png", slug: "all-new-mazda-cx-5-individual-25l-at", text: "From R717 100", href: "/specials/all-new-mazda-cx-5-individual-25l-at" },
+    { title: "Ranger XL 2.0 SIT SUP/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-3-42648-1.jpg", slug: "ranger-xl-20-sit-supc-4x4-at", text: "This Truck Month save up to R88 000", href: "/specials/ranger-xl-20-sit-supc-4x4-at" },
+    { title: "Ranger XLT 2.0 SIT D/C 4x4 AT", image: "/images/specials/260908/Human-Auto-Bloemfontein-Ford-42648-7-42648-1.jpg", slug: "ranger-xlt-20-sit-dc-4x4-at", text: "This Truck Month save up to R115 000", href: "/specials/ranger-xlt-20-sit-dc-4x4-at" },
 ];
 
 export const ctas: Cta[] = [
