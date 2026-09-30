@@ -54,18 +54,18 @@ export default function SpecialForm() {
                                         onFocus={() => setFocused(field.key)}
                                         onBlur={() => setFocused(null)}
                                         onChange={(event) => setValues({ ...values, [field.key]: event.target.value })}
-                                        className="block h-11.25 w-full cursor-pointer border-0 border-b border-white/60 bg-transparent px-3.75 font-sans text-base text-white"
+                                        className="block h-11.25 w-full cursor-pointer border-0 border-b border-white/60 bg-transparent px-3.75 font-sans text-base text-white outline-none"
                                     />
                                 </li>
                             );
                         })}
                         <li className="mb-4 h-39.25">
                             <label htmlFor="special-message" className="mt-px block text-sm leading-[17px] font-light text-white max-[676px]:text-base">Message</label>
-                            <textarea id="special-message" className="mt-4 mb-3.25 block h-26.75 w-full resize-none overflow-hidden rounded-[5px] border border-transparent bg-white p-2.5 font-sans text-base leading-4 text-ink"></textarea>
+                            <textarea id="special-message" className="mt-4 mb-3.25 block h-26.75 w-full resize-none overflow-hidden rounded-[5px] border border-transparent bg-white p-2.5 font-sans text-base leading-4 text-ink outline-none"></textarea>
                         </li>
                         <li className="flex items-start max-[406px]:block">
                             <label className="mt-2 flex w-1/2 cursor-pointer items-center max-[406px]:mt-0 max-[406px]:w-full">
-                                <input type="checkbox" required className="mr-2.5 size-5.5 cursor-pointer appearance-none rounded-[5px] bg-white checked:bg-[url(/img/specials/close-gold-hover.svg)] checked:bg-size-[14px] checked:bg-center checked:bg-no-repeat" />
+                                <input type="checkbox" required className="mr-2.5 size-5.5 cursor-pointer appearance-none rounded-[5px] bg-white outline-none checked:bg-[url(/img/specials/close-gold-hover.svg)] checked:bg-size-[14px] checked:bg-center checked:bg-no-repeat" />
                                 <span className="text-xs leading-5.5 font-medium text-[#f5f5f5]">I`m not a robot</span>
                             </label>
                             <span className="ml-[3.5px] block w-[49%] max-[406px]:mt-3.25 max-[406px]:-ml-1 max-[406px]:w-full">
