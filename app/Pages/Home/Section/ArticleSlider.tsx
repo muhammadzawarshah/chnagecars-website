@@ -7,7 +7,7 @@ import ArticleCard from "./ArticleCard"
 export default function ArticleSlider({ articles }: { articles: Article[] }) {
     return (
         <>
-            <div className="max-[681px]:mx-auto max-[681px]:max-w-121.25">
+            <div className="-mx-2.5 max-[681px]:mr-0 max-[681px]:ml-[max(-0.625rem,calc((100%-30.3125rem)/2))] max-[681px]:w-[min(30.3125rem,calc(100%+1.25rem))]">
                 <SwipeSlider
                     items={articles}
                     itemKey={(article) => article.slug}

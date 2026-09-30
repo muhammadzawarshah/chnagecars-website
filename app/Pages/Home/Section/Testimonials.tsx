@@ -7,7 +7,7 @@ import { testimonials } from "../Data/testimonials"
 export default function Testimonials() {
     return (
         <>
-            <section className="m-0 overflow-hidden bg-white px-8.75 max-[401px]:px-3.75 max-[251px]:px-2.5 pt-25 max-[901px]:pb-13.75">
+            <section className="m-0 overflow-hidden bg-white px-8.75 max-[401px]:px-3.75 max-[251px]:px-2.5 pt-25 pb-12.5 max-[901px]:pt-7.5 max-[901px]:pb-6.25 max-[601px]:pt-2.5">
                 <SectionTitle className="font-bold!">Testimonials</SectionTitle>
                 <p className="mt-4 mb-22.5 text-center text-base leading-6.5 font-normal max-[801px]:mb-17.5 max-[768px]:text-lg">
                     Where Satisfaction meets Success
