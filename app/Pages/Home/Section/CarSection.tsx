@@ -10,7 +10,7 @@ import CarCard from "./CarCard"
 export default function CarSection({ title, cars, featured = false }: { title: ReactNode, cars: Car[], featured?: boolean }) {
     return (
         <>
-            <section className="m-0 -mt-px bg-[#f8fafd] px-8.75 pt-15 pb-12.5 max-[401px]:px-3.75 max-[251px]:px-2.5 max-[601px]:pt-10 max-[601px]:pb-8">
+            <section className="m-0 -mt-px bg-white px-8.75 pt-15 pb-12.5 max-[401px]:px-3.75 max-[251px]:px-2.5 max-[601px]:pt-10 max-[601px]:pb-8">
                 <div className="mx-auto max-w-350">
                     <SectionTitle className="max-[601px]:mb-5">{title}</SectionTitle>
                     <div className="max-[601px]:-mr-3.75">

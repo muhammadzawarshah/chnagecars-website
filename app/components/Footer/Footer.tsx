@@ -12,6 +12,8 @@ export default function Footer() {
         <>
             <footer className="relative z-4 clear-both bg-ink">
                 <div className="relative z-5 mx-auto w-full max-w-350 overflow-hidden px-5 pt-12.5 pb-7.5 max-[526px]:pt-6.25">
+                    <Newsletter />
+
                     <div className="float-left mr-10 pt-5 pb-7.5 max-[526px]:float-none max-[526px]:mx-auto max-[526px]:block max-[526px]:w-full max-[526px]:max-w-91 max-[526px]:p-0">
                         <div className="flex w-full max-w-90.5 items-center">
                             <Link href="/" className="block w-[45%] max-[981px]:pt-2.5 max-[981px]:pb-5 max-[526px]:p-0">
@@ -53,8 +55,6 @@ export default function Footer() {
                             </nav>
                         ))}
                     </div>
-
-                    <Newsletter />
                 </div>
 
                 <div className="w-full bg-[#2f2f2f] text-center">
