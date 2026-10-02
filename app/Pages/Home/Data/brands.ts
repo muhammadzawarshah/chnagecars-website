@@ -1,4 +1,4 @@
-import { CarSearch, carSearchHref, slugify } from "@/app/lib/cars/search"
+import { appSearchHref, CarSearch, carSearchHref, slugify } from "@/app/lib/cars/search"
 
 export type BrandModel = {
     name: string
@@ -23,7 +23,8 @@ function brand(name: string, logo: string, models: string[][], filter: CarSearch
     return {
         name,
         logo,
-        href: carSearchHref({ ...filter, make }),
+        // Like the app, a brand card opens the Search screen for that brand.
+        href: appSearchHref({ ...filter, make }),
         models: models.map(([model, label]) => ({ name: label, href: carSearchHref({ ...filter, make, model }) })),
     };
 }

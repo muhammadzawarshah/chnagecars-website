@@ -93,6 +93,11 @@ export function carSearchHref(search: CarSearch) {
     return text ? `/cars?${text}` : "/cars";
 }
 
+// Same search on the app-style "Search" screen.
+export function appSearchHref(search: CarSearch) {
+    return carSearchHref(search).replace(/^\/cars/, "/search");
+}
+
 export function slugify(value: string) {
     return value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }

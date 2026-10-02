@@ -6,19 +6,20 @@ import { useRouter } from "next/navigation"
 import { Car } from "@/app/lib/cars/types"
 import { SortKey, sortOptions } from "@/app/lib/cars/search"
 import BottomSheet from "../Home/Section/AppSearch/BottomSheet"
-import { BuyingCategory, buyingFiltersHref, buyingResultsHref } from "../BuyingFilters/Data/categories"
 import ResultCard from "./Section/ResultCard"
 
 type BuyingResultsProps = {
-    category: BuyingCategory
     cars: Car[]
     sort: SortKey
     // Current filters as a query string, kept when the sort changes.
     query: string
+    // This screen's address (without query) and the address its Filters button opens.
+    resultsPath: string
+    filtersPath: string
 }
 
-// Copies the app's "Search" results screen shown after Apply on a Buying filter page.
-export default function BuyingResults({ category, cars, sort, query }: BuyingResultsProps) {
+// Copies the app's "Search" results screen (Buying links, brand cards).
+export default function BuyingResults({ cars, sort, query, resultsPath, filtersPath }: BuyingResultsProps) {
 
     const router = useRouter();
     const [text, setText] = useState("");
@@ -36,7 +37,8 @@ export default function BuyingResults({ category, cars, sort, query }: BuyingRes
         if (value === "recent") params.delete("sort");
         else params.set("sort", value);
         setSorting(false);
-        router.push(buyingResultsHref(category.slug, params.toString()));
+        const next = params.toString();
+        router.push(next ? `${resultsPath}?${next}` : resultsPath);
     }
 
     return (
@@ -66,7 +68,7 @@ export default function BuyingResults({ category, cars, sort, query }: BuyingRes
                                 </svg>
                                 <input type="search" value={text} onChange={(event) => setText(event.target.value)} placeholder="Find Your Next Car" className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12.5px] tracking-[0.3px] text-black outline-none placeholder:text-[#9e9e9e]" />
                             </label>
-                            <Link href={buyingFiltersHref(category.slug)} className="flex h-11.75 w-27.75 shrink-0 items-center justify-center gap-2.5 self-center rounded-md border border-[#957e4e] text-[15px] text-[#957e4e] no-underline">
+                            <Link href={filtersPath} className="flex h-11.75 w-27.75 shrink-0 items-center justify-center gap-2.5 self-center rounded-md border border-[#957e4e] text-[15px] text-[#957e4e] no-underline">
                                 <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="#957e4e" strokeWidth="1.5" strokeLinecap="round">
                                     <path d="M1 1h14M3.5 5.5h9M6 10h4" />
                                 </svg>
@@ -82,7 +84,7 @@ export default function BuyingResults({ category, cars, sort, query }: BuyingRes
                         <div className="py-15 text-center">
                             <p className="m-0 text-base font-medium text-black">No vehicles found</p>
                             <p className="mt-2 mb-0 text-sm text-[#757575]">Try changing your filters.</p>
-                            <Link href={buyingFiltersHref(category.slug)} className="mx-auto mt-5 flex h-10 w-40 items-center justify-center rounded-md bg-[#957e4e] text-sm text-white no-underline">Change filters</Link>
+                            <Link href={filtersPath} className="mx-auto mt-5 flex h-10 w-40 items-center justify-center rounded-md bg-[#957e4e] text-sm text-white no-underline">Change filters</Link>
                         </div>
                     )}
                 </div>

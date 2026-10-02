@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BuyingFilters from "../../../Pages/BuyingFilters/BuyingFilters";
-import { buyingCategories } from "../../../Pages/BuyingFilters/Data/categories";
+import { buyingCategories, buyingHref } from "../../../Pages/BuyingFilters/Data/categories";
 
 export function generateStaticParams() {
   return buyingCategories.map((category) => ({ category: category.slug }));
@@ -17,5 +17,5 @@ export default async function Page({ params }: PageProps<"/buying/[category]/fil
   const { category } = await params;
   const match = buyingCategories.find((item) => item.slug === category);
   if (!match) notFound();
-  return <BuyingFilters category={match} />;
+  return <BuyingFilters preset={match.preset} resultsPath={buyingHref(match.slug)} />;
 }

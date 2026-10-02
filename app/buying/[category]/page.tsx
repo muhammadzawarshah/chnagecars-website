@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BuyingResults from "../../Pages/BuyingResults/BuyingResults";
-import { buyingCategories } from "../../Pages/BuyingFilters/Data/categories";
+import { buyingCategories, buyingFiltersHref, buyingHref } from "../../Pages/BuyingFilters/Data/categories";
 import { searchCars } from "../../lib/cars/api";
 import { parseCarSearch } from "../../lib/cars/search";
 
@@ -19,5 +19,5 @@ export default async function Page({ params, searchParams }: PageProps<"/buying/
   const search = { ...parseCarSearch(raw), ...match.preset };
   const result = await searchCars(search);
   const query = new URLSearchParams(Object.entries(raw).flatMap(([key, value]) => (typeof value === "string" ? [[key, value]] : []))).toString();
-  return <BuyingResults category={match} cars={result.cars} sort={search.sort ?? "recent"} query={query} />;
+  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} query={query} resultsPath={buyingHref(match.slug)} filtersPath={buyingFiltersHref(match.slug)} />;
 }
