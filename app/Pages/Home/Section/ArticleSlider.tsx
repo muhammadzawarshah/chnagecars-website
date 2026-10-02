@@ -11,7 +11,7 @@ export default function ArticleSlider({ articles }: { articles: Article[] }) {
                 <SwipeSlider
                     items={articles}
                     itemKey={(article) => article.slug}
-                    slideClass="w-1/3 max-[1241px]:w-1/2 max-[681px]:w-full"
+                    slideClass="w-1/4 max-[1241px]:w-1/3 max-[981px]:w-1/2 max-[681px]:w-full"
                     renderItem={(article) => <ArticleCard article={article} />}
                 />
             </div>

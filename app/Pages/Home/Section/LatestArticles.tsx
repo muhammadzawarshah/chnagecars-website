@@ -6,7 +6,7 @@ import { ARTICLES_PATH } from "@/app/lib/articles/format"
 
 export default async function LatestArticles() {
 
-    const articles = await getLatestArticles(4);
+    const articles = await getLatestArticles(8);
 
     return (
         <>
