@@ -35,7 +35,7 @@ export default function Newsletter() {
 
     return (
         <>
-            <main className="bg-white pb-15 font-roboto">
+            <main className="bg-white pb-15 font-roboto min-[982px]:max-[1111px]:pt-15">
                 <AppBanner src={`/img/newsletter/newsletter-banner-${language}.jpg`} alt="Be the first to know. Subscribe for CHANGECARS updates" />
                 <div className="mx-auto w-full max-w-150 px-3.75 pb-10 min-[981px]:px-0 min-[981px]:pb-0">
                     <h1 className="mt-5.5 mb-0 text-center text-xl leading-6 font-normal text-[#957e4e] uppercase min-[981px]:mt-12.5 min-[981px]:text-[32px] min-[981px]:leading-10">

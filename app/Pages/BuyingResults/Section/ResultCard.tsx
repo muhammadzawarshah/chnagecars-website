@@ -16,7 +16,7 @@ function Spec({ icon, children, last = false }: { icon: ReactNode, children: Rea
     )
 }
 
-const action = "flex h-6 flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border! border-[#957e4e] bg-white font-roboto! text-[9.5px] font-bold text-[#111] no-underline";
+const action = "flex h-6 flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border! border-[#957e4e] bg-white font-roboto! text-[9.5px] font-bold text-[#111] no-underline min-[982px]:h-8.5 min-[982px]:text-xs min-[982px]:transition-colors min-[982px]:hover:bg-[#957e4e] min-[982px]:hover:text-white min-[982px]:[&:hover_span]:text-white";
 
 // Result card from the app's search screen.
 export default function ResultCard({ car }: { car: Car }) {
@@ -28,7 +28,7 @@ export default function ResultCard({ car }: { car: Car }) {
 
     return (
         <>
-            <article className="overflow-hidden rounded-[11px] border border-[#957e4e] bg-white font-roboto">
+            <article className="flex flex-col overflow-hidden rounded-[11px] border border-[#957e4e] bg-white font-roboto min-[982px]:h-full min-[982px]:transition-shadow min-[982px]:hover:shadow-[0_6px_18px_rgba(0,0,0,0.12)]">
                 <div className="relative aspect-[1.48] w-full bg-[#eee]">
                     <div ref={trackRef} onScroll={(event) => setSlide(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))} className="scrollbar-none flex h-full snap-x snap-mandatory overflow-x-auto">
                         {photos.map((photo, index) => (
@@ -53,15 +53,15 @@ export default function ResultCard({ car }: { car: Car }) {
                     <a href="https://www.youtube.com/channel/UCZERPfVcd1TVgqtIucVgNwg" target="_blank" className="absolute right-2 bottom-2 flex h-5.5 items-center rounded-[5px] bg-white px-2 text-[11px] font-bold text-black no-underline">Watch Review</a>
                 </div>
 
-                <Link href={href} className="block bg-[#e8e4e1] px-2 pt-2.5 pb-2 no-underline">
-                    <h3 className="m-0 truncate text-[15.5px] leading-5 font-medium text-[#111]">{car.title}</h3>
+                <Link href={href} className="block bg-[#e8e4e1] px-2 pt-2.5 pb-2 no-underline min-[982px]:px-3 min-[982px]:pt-3 min-[982px]:pb-2.5">
+                    <h3 className="m-0 truncate text-[15.5px] leading-5 font-medium text-[#111] min-[982px]:text-base">{car.title}</h3>
                     <p className="mt-1.5 mb-0 flex items-baseline gap-2.5">
-                        <span className="text-xl leading-6 font-bold text-[#957e4e]">{formatRand(car.price)}</span>
-                        <span className="text-[10.5px] font-semibold text-[#957e4e] underline">{formatRand(monthlyPayment(car.price), " ")} pm</span>
+                        <span className="text-xl leading-6 font-bold text-[#957e4e] min-[982px]:text-[22px]">{formatRand(car.price)}</span>
+                        <span className="text-[10.5px] font-semibold text-[#957e4e] underline min-[982px]:text-xs">{formatRand(monthlyPayment(car.price), " ")} pm</span>
                     </p>
                 </Link>
 
-                <div className="flex flex-col gap-3.5 bg-white px-2 py-3 text-[12.5px] leading-4 text-[#a3a3a3]">
+                <div className="flex flex-col gap-3.5 bg-white px-2 py-3 text-[12.5px] leading-4 text-[#a3a3a3] min-[982px]:px-3 min-[982px]:text-[13px]">
                     <div className="flex overflow-hidden whitespace-nowrap">
                         <Spec icon={<YearIcon />}>{car.year}</Spec>
                         <Spec icon={<MileageIcon />}>{formatKm(car.mileage)}</Spec>
@@ -74,12 +74,12 @@ export default function ResultCard({ car }: { car: Car }) {
                     </div>
                 </div>
 
-                <div className="bg-[#e8e4e1] px-3 pt-3.5 pb-3 text-[12.5px] leading-4 text-[#222]">
+                <div className="flex-1 bg-[#e8e4e1] px-3 pt-3.5 pb-3 text-[12.5px] leading-4 text-[#222] min-[982px]:text-[13px]">
                     <p className="m-0 flex items-center gap-1.5"><span><strong>Dealer:</strong> {car.dealer.name}</span><InfoIcon /></p>
                     <p className="mt-3 mb-0 flex items-center gap-2"><PinIcon />{car.location}</p>
                 </div>
 
-                <div className="flex gap-1.25 bg-[#cec9b5] px-2 py-3">
+                <div className="flex gap-1.25 bg-[#cec9b5] px-2 py-3 min-[982px]:gap-2 min-[982px]:px-3">
                     <CompareButton car={{ id: car.id, title: car.title, price: car.price, image: car.image, href }} className={action}><span className="text-sm font-normal text-[#957e4e]">+</span> Compare</CompareButton>
                     <Link href="/login" className={action}><span className="text-sm font-normal text-[#957e4e]">+</span> Favourite</Link>
                     <Link href="/login" className={action}><span className="text-sm font-normal text-[#957e4e]">+</span> Track Price</Link>

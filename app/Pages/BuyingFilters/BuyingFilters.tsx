@@ -39,7 +39,7 @@ export default function BuyingFilters({ preset, resultsPath, presetInQuery = fal
 
     return (
         <>
-            <main className="bg-white max-[981px]:-mt-14 max-[981px]:min-h-svh">
+            <main className="bg-white max-[981px]:-mt-14 max-[981px]:min-h-svh min-[982px]:max-[1111px]:pt-15">
                 <div className="relative mx-auto w-full max-w-150 min-[982px]:pt-10 min-[982px]:pb-15">
                     <button onClick={back} aria-label="Back" className="absolute top-2.75 left-5 flex size-5.5 cursor-pointer items-center justify-center border-0 bg-transparent p-0 min-[982px]:hidden">
                         <svg width="17.5" height="15" viewBox="0 0 18 15" fill="none" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

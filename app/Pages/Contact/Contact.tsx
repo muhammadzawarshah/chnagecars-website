@@ -12,7 +12,7 @@ export default function Contact() {
 
     return (
         <>
-            <main className="bg-white pb-15 font-roboto">
+            <main className="bg-white pb-15 font-roboto min-[982px]:max-[1111px]:pt-15">
                 <AppBanner src={`/img/contact/contact-banner-${language}.jpg`} alt="Need assistance? Get in touch. CHANGECARS is here to help" />
                 <div className="mx-auto w-full max-w-150 pb-10 min-[981px]:max-w-300 min-[981px]:pb-0">
                     <div className="px-4.5 min-[981px]:grid min-[981px]:grid-cols-2 min-[981px]:gap-15 min-[981px]:px-10">
