@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import AdBanner from "../../components/AdBanner"
 import { heroAd } from "../Home/Data/ads"
 import useAppFilters, { rangeKeys } from "../Home/Section/AppSearch/useAppFilters"
-import { BuyingCategory } from "./Data/categories"
+import { BuyingCategory, buyingResultsHref } from "./Data/categories"
 import BuyingField from "./Section/BuyingField"
 
 // Copies the app's "Filters" screen that opens from the Buying links; Apply searches within that category.
@@ -15,6 +15,13 @@ export default function BuyingFilters({ category }: { category: BuyingCategory }
 
     const toggle = "h-9 flex-1 cursor-pointer rounded-[3px] border-0 text-[14.5px]";
     const choice = (key: string, wide = false) => <BuyingField key={key} wide={wide} label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => openSheet(key)} />;
+
+    // The category is part of the results address, so only the chosen filters go in the query.
+    function resultsQuery() {
+        const params = new URLSearchParams(searchUrl().split("?")[1] ?? "");
+        for (const key of Object.keys(category.preset)) params.delete(key);
+        return params.toString();
+    }
 
     function back() {
         if (window.history.length > 1) router.back();
@@ -57,7 +64,7 @@ export default function BuyingFilters({ category }: { category: BuyingCategory }
 
                     {/* Phones: the app's joined bottom bar. Desktop: two separate buttons under the filter columns. */}
                     <div className="sticky bottom-0 z-10 flex h-11.75 border-t border-[#f3f4f5] bg-white max-[981px]:fixed max-[981px]:inset-x-0 min-[982px]:mx-4.25 min-[982px]:gap-2.25 min-[982px]:border-0">
-                        <button onClick={() => router.push(searchUrl())} className="w-1/2 cursor-pointer border-0 bg-[#957e4e] text-[17px] text-white min-[982px]:flex-1 min-[982px]:rounded-[5px]">Apply</button>
+                        <button onClick={() => router.push(buyingResultsHref(category.slug, resultsQuery()))} className="w-1/2 cursor-pointer border-0 bg-[#957e4e] text-[17px] text-white min-[982px]:flex-1 min-[982px]:rounded-[5px]">Apply</button>
                         <button onClick={reset} className="w-1/2 cursor-pointer border-0 bg-white text-[17px] text-black min-[982px]:flex-1 min-[982px]:rounded-[5px] min-[982px]:border min-[982px]:border-[#ececec]">Reset</button>
                     </div>
                 </div>

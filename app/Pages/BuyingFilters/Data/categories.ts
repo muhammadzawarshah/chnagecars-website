@@ -21,3 +21,8 @@ export const buyingCategories: BuyingCategory[] = [
 export function buyingHref(slug: string) {
     return `/buying/${slug}`;
 }
+
+// Results screen of a Buying category; `query` is the chosen filters as a query string.
+export function buyingResultsHref(slug: string, query = "") {
+    return `/buying/${slug}/results${query ? `?${query}` : ""}`;
+}
