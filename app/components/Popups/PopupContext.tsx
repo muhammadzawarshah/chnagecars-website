@@ -34,9 +34,10 @@ export default function PopupProvider({ children }: { children: ReactNode }) {
     }, []);
 
     function runAction(action: NavAction) {
+        // Newsletter sign-up has its own page, like the app.
         if (action === "newsletter") {
-            const target = document.getElementById("newsletter");
-            if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY + 30, behavior: "smooth" });
+            setActive(null);
+            router.push("/newsletter");
             return;
         }
         // Login is always a full page.

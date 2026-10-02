@@ -8,9 +8,12 @@ type SwipeSliderProps<T> = {
     itemKey: (item: T) => string
     renderItem: (item: T) => ReactNode
     slideClass?: string
+    // Spacing around each slide and extra track classes (e.g. a left inset with matching scroll padding).
+    slidePadding?: string
+    trackClass?: string
 }
 
-export default function SwipeSlider<T>({ items, itemKey, renderItem, slideClass = "w-full" }: SwipeSliderProps<T>) {
+export default function SwipeSlider<T>({ items, itemKey, renderItem, slideClass = "w-full", slidePadding = "px-2.5 pt-2.5 pb-5", trackClass = "" }: SwipeSliderProps<T>) {
 
     const trackRef = useRef<HTMLDivElement>(null);
     const [current, setCurrent] = useState(0);
@@ -40,9 +43,9 @@ export default function SwipeSlider<T>({ items, itemKey, renderItem, slideClass 
 
     return (
         <>
-            <div ref={trackRef} onScroll={measure} className="scrollbar-none flex snap-x snap-mandatory items-stretch overflow-x-auto">
+            <div ref={trackRef} onScroll={measure} className={`scrollbar-none flex snap-x snap-mandatory items-stretch overflow-x-auto ${trackClass}`}>
                 {items.map((item) => (
-                    <div key={itemKey(item)} className={`shrink-0 snap-start px-2.5 pt-2.5 pb-5 ${slideClass}`}>
+                    <div key={itemKey(item)} className={`shrink-0 snap-start ${slidePadding} ${slideClass}`}>
                         {renderItem(item)}
                     </div>
                 ))}

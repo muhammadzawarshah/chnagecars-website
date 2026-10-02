@@ -11,9 +11,9 @@ export type SearchValues = {
     bodyTypes: string[]
 }
 
-// Turns the home page search forms into a /cars URL.
+// Turns the app-style search forms into a /cars URL; `preset` (e.g. a Buying page's collection) stays unless the user picked that filter.
 // CarSearch holds one value per filter for now, so multi-selects use the first choice.
-export function buildSearchUrl(values: SearchValues, extra: Record<string, string[]>) {
+export function buildSearchUrl(values: SearchValues, extra: Record<string, string[]>, preset: CarSearch = {}) {
     const first = (key: string) => extra[key]?.[0];
     const [makeName, modelName] = values.makes[0]?.split("|") ?? [];
 
@@ -33,5 +33,6 @@ export function buildSearchUrl(values: SearchValues, extra: Record<string, strin
         colour: first("colour"),
         province: first("province"),
     };
-    return carSearchHref(search);
+    const picked = Object.fromEntries(Object.entries(search).filter(([, value]) => value !== undefined));
+    return carSearchHref({ ...preset, ...picked });
 }

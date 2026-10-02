@@ -1,5 +1,6 @@
 import { carSearchHref } from "@/app/lib/cars/search"
 import type { NavAction } from "../Popups/PopupContext"
+import { buyingHref } from "@/app/Pages/BuyingFilters/Data/categories"
 
 const site = "https://www.changecars.co.za";
 
@@ -31,7 +32,7 @@ export const mainMenus: NavMenu[] = [
         label: "Get in touch",
         icon: "/img/signup-icon.svg",
         items: [
-            { label: "Contact", href: `${site}/contact-us` },
+            { label: "Contact", href: "/contact-us" },
             { label: "Newsletter", action: "newsletter" },
             { label: "Share your story", href: "https://www.allthingsmotoringinternational.com/your-experience-matters", external: true },
         ],
@@ -69,19 +70,15 @@ export const mainMenus: NavMenu[] = [
         label: "Buying",
         icon: "/img/wallet-icon.svg",
         items: [
-            { label: "A-V of vehicles", href: "https://www.allthingsmotoringinternational.com/articles/michaels-take-on-the-local-industry-and-its-products", external: true },
-            { label: "Ask MIKEY", href: "https://www.allthingsmotoringinternational.com/ask-mikey", external: true },
-            { label: "BEAT-MY-QUOTE", href: `${site}/beat-my-quote` },
-            { label: "Compare New Cars", href: "https://newcars.changecars.co.za/", external: true },
-            { label: "Concierge Service", href: `${site}/concierge-service` },
-            { label: "EV charging stations", href: `${site}/ev-charging-stations` },
-            { label: "Help me find", href: `${site}/help-me-find` },
-            { label: "Motoring advice", href: "https://www.allthingsmotoringinternational.com/motoring-advice", external: true },
-            { label: "New vehicle quote", href: `${site}/new-vehicle-quote` },
-            { label: "Reduced Price Vehicles", href: `${site}/` },
-            { label: "Screan", href: "https://screan.co.za/", action: "screan" },
+            { label: "Bakkies", href: buyingHref("bakkies") },
+            { label: "Cheap Cars", href: buyingHref("cheap-cars") },
+            { label: "Classics", href: buyingHref("classics") },
+            { label: "Exotics", href: buyingHref("exotics") },
+            { label: "Hot Sellers", href: buyingHref("hot-sellers") },
+            { label: "Leisure", href: buyingHref("leisure") },
+            { label: "Motorbikes", href: buyingHref("motorbikes") },
             { label: "Specials", href: `${site}/specials` },
-            { label: "What can I afford", href: `${site}/finance-calculator` },
+            { label: "Student Cars", href: buyingHref("student-cars") },
         ],
     },
     {
@@ -128,15 +125,15 @@ export const drawerSections: DrawerSection[] = [
     {
         icon: "/img/mobile-menu/buying.svg",
         links: [
-            { href: carSearchHref({ collection: "bakkies" }) },
-            { href: carSearchHref({ collection: "cheap" }) },
-            { href: carSearchHref({ collection: "classics" }) },
-            { href: carSearchHref({ collection: "exotics" }) },
-            { href: carSearchHref({ collection: "hot-sellers" }) },
-            { href: carSearchHref({ collection: "leisure" }) },
-            { href: carSearchHref({ bodyType: "Motorbike" }) },
+            { href: buyingHref("bakkies") },
+            { href: buyingHref("cheap-cars") },
+            { href: buyingHref("classics") },
+            { href: buyingHref("exotics") },
+            { href: buyingHref("hot-sellers") },
+            { href: buyingHref("leisure") },
+            { href: buyingHref("motorbikes") },
             { href: `${site}/specials` },
-            { href: carSearchHref({ collection: "student" }) },
+            { href: buyingHref("student-cars") },
         ],
     },
     {
@@ -192,7 +189,7 @@ export const drawerSections: DrawerSection[] = [
     {
         icon: "/img/mobile-menu/contact.svg",
         links: [
-            { href: `${site}/contact-us` },
+            { href: "/contact-us" },
             { action: "newsletter" },
         ],
     },
@@ -202,7 +199,7 @@ export const footerInfoLinks: NavLink[] = [
     { label: "ALL THINGS MOTORING", href: "https://www.allthingsmotoringinternational.com/", external: true },
     { label: "Price Index", href: `${site}/price-index` },
     { label: "Our Dealers", href: `${site}/dealer-listing` },
-    { label: "Contact", href: `${site}/contact-us` },
+    { label: "Contact", href: "/contact-us" },
     { label: "Our Brands", href: `${site}/our-car-brands` },
     { label: "Privacy Policy", href: `${site}/privacy_policy` },
     { label: "FAQ", href: `${site}/faqs` },
