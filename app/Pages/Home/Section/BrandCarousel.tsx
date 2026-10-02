@@ -22,7 +22,7 @@ export default function BrandCarousel({ title, brands, banner, dots = false, vie
             <div data-brand-block className="pb-25 max-[901px]:pb-12.5">
                 <SectionTitle className={banner ? "max-[951px]:mb-3" : "max-[951px]:mb-13.75"}>{title}</SectionTitle>
                 {banner && (
-                    <div className="mb-5 max-[601px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
+                    <div className="mb-5 max-[981px]:-mx-8.75 max-[401px]:-mx-3.75 max-[251px]:-mx-2.5">
                         <img src={banner} alt="" className="block aspect-12/5 w-full object-cover object-[50%_60%] max-[601px]:aspect-auto" />
                     </div>
                 )}
