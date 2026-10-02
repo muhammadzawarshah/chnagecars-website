@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { CarSearch } from "@/app/lib/cars/search"
+import { CarSearch, filterValues, slugify } from "@/app/lib/cars/search"
+import { makes } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import { additionalFilters, findFilter } from "../../Data/additionalFilters"
@@ -35,15 +36,49 @@ function isRange(key: string): key is RangeKey {
     return rangeKeys.includes(key as RangeKey);
 }
 
+// Form values for a search already in the address, so the filter form shows what is active.
+function valuesFrom(search: CarSearch): AppValues {
+    const picked: string[] = [];
+    const models = filterValues(search.model);
+    for (const makeSlug of filterValues(search.make)) {
+        const make = makes.find((item) => slugify(item.name) === makeSlug);
+        if (!make) continue;
+        const chosen = make.models.filter((model) => models.some((item) => item === slugify(model.name) || item === `${makeSlug}:${slugify(model.name)}`));
+        if (chosen.length) chosen.forEach((model) => picked.push(`${make.name}|${model.name}`));
+        else picked.push(make.name);
+    }
+    return {
+        minPrice: search.minPrice ?? null,
+        maxPrice: search.maxPrice ?? null,
+        minYear: search.minYear ?? null,
+        maxYear: search.maxYear ?? null,
+        minMileage: search.minMileage ?? null,
+        maxMileage: search.maxMileage ?? null,
+        bodyTypes: filterValues(search.bodyType),
+        makes: picked,
+    };
+}
+
+function extrasFrom(search: CarSearch): Record<string, string[]> {
+    const extras: Record<string, string[]> = {};
+    const add = (key: string, value?: string) => { const items = filterValues(value); if (items.length) extras[key] = items; };
+    add("transmission", search.transmission);
+    add("fuelType", search.fuel);
+    add("drive", search.drive);
+    add("colour", search.colour);
+    add("province", search.province);
+    return extras;
+}
+
 // State, labels and pick-lists of the app-style car search (home hero and the Buying filter pages).
-// `preset` is kept in the search URL, e.g. the collection of a Buying page.
-export default function useAppFilters(preset: CarSearch = {}) {
+// `preset` is kept in the search URL, e.g. the collection of a Buying page; `initial` fills the form with the current search.
+export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch = {}) {
 
     const { t } = useLanguage();
     const [monthly, setMonthly] = useState(false);
-    const [values, setValues] = useState<AppValues>(emptyValues);
+    const [values, setValues] = useState<AppValues>(() => valuesFrom(initial));
     const [sheet, setSheet] = useState<string | null>(null);
-    const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
+    const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>(() => extrasFrom(initial));
 
     const priceOptions: AppOption[] = cashPrices.map((price, index) => {
         const plus = index === cashPrices.length - 1 ? "+" : "";

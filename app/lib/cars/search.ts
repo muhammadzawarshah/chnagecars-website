@@ -18,6 +18,8 @@ export const collectionTitles: Record<CarCollection, string> = {
     "leisure": "Leisure Vehicles For Sale",
 };
 
+// Text filters may hold several comma-separated values (any of them matches),
+// e.g. fuel=Diesel,Petrol. A model may be tied to its make: model=toyota:corolla.
 export type CarSearch = {
     make?: string
     model?: string
@@ -96,6 +98,19 @@ export function carSearchHref(search: CarSearch) {
 // Same search on the app-style "Search" screen.
 export function appSearchHref(search: CarSearch) {
     return carSearchHref(search).replace(/^\/cars/, "/search");
+}
+
+// The filters of a search without its paging and sort order (what the filter form edits).
+export function searchFilters(search: CarSearch): CarSearch {
+    const filters = { ...search };
+    delete filters.sort;
+    delete filters.page;
+    return filters;
+}
+
+// Splits a comma-separated filter value.
+export function filterValues(value?: string) {
+    return value ? value.split(",").map((item) => item.trim()).filter(Boolean) : [];
 }
 
 export function slugify(value: string) {

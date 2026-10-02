@@ -1,6 +1,6 @@
 import { Car } from "./types"
 import { mockCars } from "./mockCars"
-import { CarCollection, CarSearch, CarSearchResult, PAGE_SIZE, SortKey, slugify } from "./search"
+import { CarCollection, CarSearch, CarSearchResult, filterValues, PAGE_SIZE, SortKey, slugify } from "./search"
 
 // Every page gets car listings from here. When the backend is ready, replace each
 // function body with a fetch to the matching endpoint; pages and components stay the same.
@@ -78,18 +78,34 @@ const collections: Record<CarCollection, (car: Car) => boolean> = {
 
 const same = (a: string, b: string) => slugify(a) === slugify(b);
 
+// A filter matches when it is empty or any of its comma-separated values matches.
+function anyOf(value: string | undefined, actual: string, compare = (a: string, b: string) => a === b) {
+    const values = filterValues(value);
+    return values.length === 0 || values.some((item) => compare(actual, item));
+}
+
+// Models are either plain ("corolla", applies to every chosen make) or tied to a make ("toyota:corolla").
+function modelMatches(car: Car, model?: string) {
+    const models = filterValues(model);
+    if (models.length === 0) return true;
+    const make = slugify(car.make);
+    const mine = models.filter((item) => !item.includes(":") || item.startsWith(`${make}:`)).map((item) => item.split(":").pop()!);
+    const forMake = models.some((item) => item.startsWith(`${make}:`)) || models.some((item) => !item.includes(":"));
+    return !forMake || mine.some((item) => same(car.model, item));
+}
+
 // Backend: GET /cars?<CarSearch fields> → { cars, total }.
 export async function searchCars(search: CarSearch): Promise<CarSearchResult<Car>> {
     const matches = mockCars.filter((car) =>
-        (!search.make || same(car.make, search.make)) &&
-        (!search.model || same(car.model, search.model)) &&
+        anyOf(search.make, car.make, same) &&
+        modelMatches(car, search.model) &&
         (!search.collection || collections[search.collection](car)) &&
-        (!search.bodyType || car.bodyType === search.bodyType) &&
-        (!search.fuel || car.fuel === search.fuel) &&
-        (!search.transmission || car.transmission === search.transmission) &&
-        (!search.drive || car.drive === search.drive) &&
-        (!search.province || same(car.province, search.province)) &&
-        (!search.colour || car.colour === search.colour) &&
+        anyOf(search.bodyType, car.bodyType) &&
+        anyOf(search.fuel, car.fuel) &&
+        anyOf(search.transmission, car.transmission) &&
+        anyOf(search.drive, car.drive) &&
+        anyOf(search.province, car.province, same) &&
+        anyOf(search.colour, car.colour) &&
         (!search.minPrice || car.price >= search.minPrice) &&
         (!search.maxPrice || car.price <= search.maxPrice) &&
         (!search.minYear || car.year >= search.minYear) &&

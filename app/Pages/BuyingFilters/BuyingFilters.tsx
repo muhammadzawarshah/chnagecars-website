@@ -8,8 +8,10 @@ import { CarSearch } from "@/app/lib/cars/search"
 import BuyingField from "./Section/BuyingField"
 
 type BuyingFiltersProps = {
-    // Filters that always apply here, e.g. a Buying category or a brand.
+    // Filters that always apply here, e.g. a Buying category.
     preset: CarSearch
+    // The search currently shown, so the form opens with those filters filled in.
+    initial?: CarSearch
     // Results screen that Apply opens.
     resultsPath: string
     // Buying pages carry the preset in their address; the general /search screen needs it in the query.
@@ -17,10 +19,10 @@ type BuyingFiltersProps = {
 }
 
 // Copies the app's "Filters" screen (opened from the results screen's Filters button); Apply shows the results.
-export default function BuyingFilters({ preset, resultsPath, presetInQuery = false }: BuyingFiltersProps) {
+export default function BuyingFilters({ preset, initial = {}, resultsPath, presetInQuery = false }: BuyingFiltersProps) {
 
     const router = useRouter();
-    const { t, monthly, setMonthly, values, extraFilters, openSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets } = useAppFilters(preset);
+    const { t, monthly, setMonthly, values, extraFilters, openSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets } = useAppFilters(preset, initial);
 
     const toggle = "h-9 flex-1 cursor-pointer rounded-[3px] border-0 text-[14.5px]";
     const choice = (key: string, wide = false) => <BuyingField key={key} wide={wide} label={choiceLabel(key)} active={!!extraFilters[key]?.length} onClick={() => openSheet(key)} />;

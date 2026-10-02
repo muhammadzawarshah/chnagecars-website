@@ -19,5 +19,9 @@ export default async function Page({ params, searchParams }: PageProps<"/buying/
   const search = { ...parseCarSearch(raw), ...match.preset };
   const result = await searchCars(search);
   const query = new URLSearchParams(Object.entries(raw).flatMap(([key, value]) => (typeof value === "string" ? [[key, value]] : []))).toString();
-  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} query={query} resultsPath={buyingHref(match.slug)} filtersPath={buyingFiltersHref(match.slug)} />;
+  const filterParams = new URLSearchParams(query);
+  filterParams.delete("sort");
+  filterParams.delete("page");
+  const filtersQuery = filterParams.toString();
+  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} query={query} resultsPath={buyingHref(match.slug)} filtersPath={filtersQuery ? `${buyingFiltersHref(match.slug)}?${filtersQuery}` : buyingFiltersHref(match.slug)} />;
 }
