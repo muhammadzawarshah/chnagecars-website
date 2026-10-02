@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
-import CarListing from "../Pages/CarListing/CarListing";
-import { getPremiumCars, searchCars } from "../lib/cars/api";
-import { parseCarSearch } from "../lib/cars/search";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "New & Used Cars For Sale | CHANGECARS",
-  description: "Search new and used cars for sale in South Africa from franchised approved dealers.",
-};
-
+// The car listing now uses the app-style Search screen; every /cars link (with its filters) opens /search.
+// The previous listing page is kept in Pages/CarListing.
 export default async function Page({ searchParams }: PageProps<"/cars">) {
-  const search = parseCarSearch(await searchParams);
-  const [result, premium, all] = await Promise.all([searchCars(search), getPremiumCars(), searchCars({})]);
-  return <CarListing search={search} result={result} premium={premium} inventory={all.total} />;
+  const raw = await searchParams;
+  const query = new URLSearchParams(Object.entries(raw).flatMap(([key, value]) => (typeof value === "string" ? [[key, value]] : []))).toString();
+  redirect(query ? `/search?${query}` : "/search");
 }
