@@ -25,7 +25,7 @@ export default function BuyingFilters({ category }: { category: BuyingCategory }
 
     function back() {
         if (window.history.length > 1) router.back();
-        else router.push("/");
+        else router.push(buyingResultsHref(category.slug));
     }
 
     return (

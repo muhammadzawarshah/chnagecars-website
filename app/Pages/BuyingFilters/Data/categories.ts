@@ -18,11 +18,16 @@ export const buyingCategories: BuyingCategory[] = [
     { slug: "student-cars", label: "Student Cars", preset: { collection: "student" } },
 ];
 
+// The Buying links open the app's "Search" results screen; its Filters button opens the filter form.
 export function buyingHref(slug: string) {
     return `/buying/${slug}`;
 }
 
-// Results screen of a Buying category; `query` is the chosen filters as a query string.
+export function buyingFiltersHref(slug: string) {
+    return `/buying/${slug}/filters`;
+}
+
+// Results screen with the chosen filters as a query string.
 export function buyingResultsHref(slug: string, query = "") {
-    return `/buying/${slug}/results${query ? `?${query}` : ""}`;
+    return `/buying/${slug}${query ? `?${query}` : ""}`;
 }
