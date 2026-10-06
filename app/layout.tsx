@@ -1,13 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Lato, Poppins, Roboto } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
-import FloatingButtons from "./components/FloatingButtons";
 import PopupProvider from "./components/Popups/PopupContext";
-import Popups from "./components/Popups/Popups";
 import LanguageProvider from "./components/Language/LanguageContext";
-import CompareBar from "./components/Compare/CompareBar";
 
 const lato = Lato({
   variable: "--font-lato",
@@ -45,15 +40,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${lato.variable} ${inter.variable} ${roboto.variable} ${poppins.variable}`}>
-      <body className="max-[981px]:mt-14">
+      <body>
         <LanguageProvider>
           <PopupProvider>
-            <Header />
             {children}
-            <Footer />
-            <FloatingButtons />
-            <Popups />
-            <CompareBar />
           </PopupProvider>
         </LanguageProvider>
       </body>
