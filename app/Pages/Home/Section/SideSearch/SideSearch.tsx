@@ -93,7 +93,7 @@ export default function SideSearch() {
             id: String(option.value),
             label: option.label,
             selected: filters[key] === option.value,
-            onSelect: () => key === "minPrice" || key === "maxPrice" ? selectPrice(key, option.value) : update(key, option.value),
+            onSelect: () => selectRange(key, option.value),
         }));
     }
 
@@ -154,6 +154,15 @@ export default function SideSearch() {
         const next = { ...filters, [key]: value };
         if (key === "maxPrice" && next.minPrice !== null && value < next.minPrice) next.minPrice = value;
         if (key === "minPrice" && next.maxPrice !== null && value > next.maxPrice) next.maxPrice = value;
+        setFilters(next);
+        setOpen(null);
+    }
+
+    function selectRange(key: RangeKey, value: number) {
+        if (key === "minPrice" || key === "maxPrice") return selectPrice(key, value);
+        const next = { ...filters, [key]: value };
+        const other: RangeKey = key === "minYear" ? "maxYear" : key === "maxYear" ? "minYear" : key === "minMileage" ? "maxMileage" : "minMileage";
+        if (next[other] !== null && (key.startsWith("min") ? value > next[other]! : value < next[other]!)) next[other] = value;
         setFilters(next);
         setOpen(null);
     }

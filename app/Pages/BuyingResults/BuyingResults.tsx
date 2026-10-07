@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Car } from "@/app/lib/cars/types"
@@ -11,6 +11,9 @@ import ResultCard from "./Section/ResultCard"
 type BuyingResultsProps = {
     cars: Car[]
     sort: SortKey
+    page: number
+    pageCount: number
+    total: number
     // Current filters as a query string, kept when the sort changes.
     query: string
     // This screen's address (without query) and the address its Filters button opens.
@@ -19,13 +22,26 @@ type BuyingResultsProps = {
 }
 
 // Copies the app's "Search" results screen (Buying links, brand cards).
-export default function BuyingResults({ cars, sort, query, resultsPath, filtersPath }: BuyingResultsProps) {
+export default function BuyingResults({ cars, sort, page, pageCount, total, query, resultsPath, filtersPath }: BuyingResultsProps) {
 
     const router = useRouter();
-    const [text, setText] = useState("");
+    const [text, setText] = useState(() => new URLSearchParams(query).get("q") ?? "");
     const [sorting, setSorting] = useState(false);
-    const words = text.trim().toLowerCase();
-    const shown = words ? cars.filter((car) => car.title.toLowerCase().includes(words)) : cars;
+
+    useEffect(() => {
+        const params = new URLSearchParams(query);
+        const current = params.get("q") ?? "";
+        const next = text.trim();
+        if (current === next) return;
+        const timer = window.setTimeout(() => {
+            params.delete("page");
+            if (next) params.set("q", next);
+            else params.delete("q");
+            const value = params.toString();
+            router.replace(value ? `${resultsPath}?${value}` : resultsPath);
+        }, 250);
+        return () => window.clearTimeout(timer);
+    }, [text, query, resultsPath, router]);
 
     function back() {
         if (window.history.length > 1) router.back();
@@ -34,11 +50,20 @@ export default function BuyingResults({ cars, sort, query, resultsPath, filtersP
 
     function pickSort(value: SortKey) {
         const params = new URLSearchParams(query);
+        params.delete("page");
         if (value === "recent") params.delete("sort");
         else params.set("sort", value);
         setSorting(false);
         const next = params.toString();
         router.push(next ? `${resultsPath}?${next}` : resultsPath);
+    }
+
+    function pageHref(target: number) {
+        const params = new URLSearchParams(query);
+        if (target <= 1) params.delete("page");
+        else params.set("page", String(target));
+        const next = params.toString();
+        return next ? `${resultsPath}?${next}` : resultsPath;
     }
 
     return (
@@ -79,8 +104,8 @@ export default function BuyingResults({ cars, sort, query, resultsPath, filtersP
                 </div>
 
                 <div className="mx-auto flex w-full max-w-150 flex-col gap-5 px-5.25 pt-6 pb-15 min-[982px]:grid min-[982px]:max-w-300 min-[982px]:grid-cols-2 min-[982px]:gap-6 min-[982px]:px-5 min-[982px]:pt-8 min-[1200px]:grid-cols-3">
-                    {shown.map((car) => <ResultCard key={car.id} car={car} />)}
-                    {shown.length === 0 && (
+                    {cars.map((car) => <ResultCard key={car.id} car={car} />)}
+                    {cars.length === 0 && (
                         <div className="py-15 text-center min-[982px]:col-span-full">
                             <p className="m-0 text-base font-medium text-black">No vehicles found</p>
                             <p className="mt-2 mb-0 text-sm text-[#757575]">Try changing your filters.</p>
@@ -88,6 +113,13 @@ export default function BuyingResults({ cars, sort, query, resultsPath, filtersP
                         </div>
                     )}
                 </div>
+                {pageCount > 1 && (
+                    <nav aria-label="Search result pages">
+                        {page > 1 && <Link href={pageHref(page - 1)}>Previous</Link>}
+                        <span> Page {page} of {pageCount} ({total} vehicles) </span>
+                        {page < pageCount && <Link href={pageHref(page + 1)}>Next</Link>}
+                    </nav>
+                )}
             </main>
 
             {sorting && (

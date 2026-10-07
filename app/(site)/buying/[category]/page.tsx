@@ -23,5 +23,5 @@ export default async function Page({ params, searchParams }: PageProps<"/buying/
   filterParams.delete("sort");
   filterParams.delete("page");
   const filtersQuery = filterParams.toString();
-  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} query={query} resultsPath={buyingHref(match.slug)} filtersPath={filtersQuery ? `${buyingFiltersHref(match.slug)}?${filtersQuery}` : buyingFiltersHref(match.slug)} />;
+  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} page={result.page} pageCount={result.pageCount} total={result.total} query={query} resultsPath={buyingHref(match.slug)} filtersPath={filtersQuery ? `${buyingFiltersHref(match.slug)}?${filtersQuery}` : buyingFiltersHref(match.slug)} />;
 }

@@ -21,8 +21,10 @@ export const collectionTitles: Record<CarCollection, string> = {
 // Text filters may hold several comma-separated values (any of them matches),
 // e.g. fuel=Diesel,Petrol. A model may be tied to its make: model=toyota:corolla.
 export type CarSearch = {
+    q?: string
     make?: string
     model?: string
+    variant?: string
     bodyType?: string
     fuel?: string
     transmission?: string
@@ -30,6 +32,15 @@ export type CarSearch = {
     province?: string
     colour?: string
     collection?: CarCollection
+    vehicleGroup?: string
+    specials?: string
+    minEngine?: number
+    maxEngine?: number
+    minKw?: number
+    maxKw?: number
+    seats?: string
+    cylinders?: string
+    dealership?: string
     minPrice?: number
     maxPrice?: number
     minYear?: number
@@ -59,8 +70,8 @@ export const sortOptions: { value: SortKey, label: string }[] = [
     { value: "year-desc", label: "Newest to oldest" },
 ];
 
-const textKeys = ["make", "model", "bodyType", "fuel", "transmission", "drive", "province", "colour", "collection", "sort"] as const;
-const numberKeys = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage", "page"] as const;
+const textKeys = ["q", "make", "model", "variant", "bodyType", "fuel", "transmission", "drive", "province", "colour", "collection", "vehicleGroup", "specials", "seats", "cylinders", "dealership", "sort"] as const;
+const numberKeys = ["minPrice", "maxPrice", "minYear", "maxYear", "minMileage", "maxMileage", "minEngine", "maxEngine", "minKw", "maxKw", "page"] as const;
 
 type RawParams = Record<string, string | string[] | undefined>
 
@@ -81,6 +92,14 @@ export function parseCarSearch(params: RawParams): CarSearch {
     }
     if (search.sort && !sortOptions.some((option) => option.value === search.sort)) delete search.sort;
     if (search.collection && !(search.collection in collectionTitles)) delete search.collection;
+    for (const [min, max] of [["minPrice", "maxPrice"], ["minYear", "maxYear"], ["minMileage", "maxMileage"], ["minEngine", "maxEngine"], ["minKw", "maxKw"]] as const) {
+        const minValue = search[min];
+        const maxValue = search[max];
+        if (typeof minValue === "number" && typeof maxValue === "number" && minValue > maxValue) {
+            search[min] = maxValue;
+            search[max] = minValue;
+        }
+    }
     return search as CarSearch;
 }
 

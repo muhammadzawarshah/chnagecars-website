@@ -84,21 +84,73 @@ function anyOf(value: string | undefined, actual: string, compare = (a: string, 
     return values.length === 0 || values.some((item) => compare(actual, item));
 }
 
+function modelNameMatches(actual: string, title: string, requested: string) {
+    const normalize = (value: string) => slugify(value).replace(/-class$/, "");
+    const actualSlug = normalize(actual);
+    const requestedSlug = normalize(requested);
+    if (actualSlug === requestedSlug) return true;
+    if (!requestedSlug.startsWith(`${actualSlug}-`)) return false;
+    const extra = requestedSlug.slice(actualSlug.length + 1).split("-").filter((part) => part !== "series");
+    const titleSlug = slugify(title);
+    return extra.length > 0 && extra.every((part) => titleSlug.includes(part));
+}
+
 // Models are either plain ("corolla", applies to every chosen make) or tied to a make ("toyota:corolla").
 function modelMatches(car: Car, model?: string) {
     const models = filterValues(model);
     if (models.length === 0) return true;
     const make = slugify(car.make);
     const mine = models.filter((item) => !item.includes(":") || item.startsWith(`${make}:`)).map((item) => item.split(":").pop()!);
-    const forMake = models.some((item) => item.startsWith(`${make}:`)) || models.some((item) => !item.includes(":"));
-    return !forMake || mine.some((item) => same(car.model, item));
+    return mine.some((item) => modelNameMatches(car.model, car.title, item));
+}
+
+function variantMatches(car: Car, variant?: string) {
+    const selectedVariants = filterValues(variant);
+    if (selectedVariants.length === 0) return true;
+    const variants = selectedVariants.filter((item) => {
+        const [make] = item.split(":");
+        return item.includes(":") ? make === slugify(car.make) : true;
+    });
+    if (!variants.length) return false;
+    const title = slugify(car.title);
+    return variants.some((item) => {
+        const parts = item.split(":");
+        const selected = parts.length > 2 ? parts.at(-1)! : item;
+        return title.includes(slugify(selected));
+    });
+}
+
+function matchesAdvanced(car: Car, search: CarSearch) {
+    const engineCc = car.engineCc ?? (() => {
+        const value = Number.parseFloat(car.engine);
+        if (!Number.isFinite(value)) return undefined;
+        return /l$/i.test(car.engine.trim()) ? value * 1000 : value;
+    })();
+    const selectedGroups = filterValues(search.vehicleGroup);
+    const selectedSpecials = filterValues(search.specials).map((item) => slugify(item));
+    const cylinderRanges: Record<string, [number, number]> = { "1-2": [1, 2], "3-5": [3, 5], "6-8": [6, 8], "10-12": [10, 12] };
+    return (!selectedGroups.length || (!!car.vehicleGroup && selectedGroups.some((item) => same(car.vehicleGroup!, item)))) &&
+        (!selectedSpecials.length || (car.isSpecial !== undefined && selectedSpecials.includes(car.isSpecial ? "on-special" : "not-on-special"))) &&
+        (search.minEngine === undefined || (engineCc !== undefined && engineCc >= search.minEngine)) &&
+        (search.maxEngine === undefined || (engineCc !== undefined && engineCc <= search.maxEngine)) &&
+        (search.minKw === undefined || (car.powerKw !== undefined && car.powerKw >= search.minKw)) &&
+        (search.maxKw === undefined || (car.powerKw !== undefined && car.powerKw <= search.maxKw)) &&
+        (!search.seats || filterValues(search.seats).some((item) => item === "8+" ? car.seats !== undefined && car.seats >= 8 : car.seats !== undefined && car.seats === Number(item))) &&
+        (!search.cylinders || filterValues(search.cylinders).some((item) => {
+            const bounds = cylinderRanges[item];
+            return !!bounds && car.cylinders !== undefined && car.cylinders >= bounds[0] && car.cylinders <= bounds[1];
+        })) &&
+        anyOf(search.dealership, car.dealer.name, same);
 }
 
 // Backend: GET /cars?<CarSearch fields> → { cars, total }.
 export async function searchCars(search: CarSearch): Promise<CarSearchResult<Car>> {
     const matches = mockCars.filter((car) =>
+        (!search.q || car.title.toLowerCase().includes(search.q.trim().toLowerCase())) &&
         anyOf(search.make, car.make, same) &&
         modelMatches(car, search.model) &&
+        variantMatches(car, search.variant) &&
+        matchesAdvanced(car, search) &&
         (!search.collection || collections[search.collection](car)) &&
         anyOf(search.bodyType, car.bodyType) &&
         anyOf(search.fuel, car.fuel) &&

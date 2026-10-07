@@ -43,8 +43,18 @@ function valuesFrom(search: CarSearch): AppValues {
     for (const makeSlug of filterValues(search.make)) {
         const make = makes.find((item) => slugify(item.name) === makeSlug);
         if (!make) continue;
-        const chosen = make.models.filter((model) => models.some((item) => item === slugify(model.name) || item === `${makeSlug}:${slugify(model.name)}`));
-        if (chosen.length) chosen.forEach((model) => picked.push(`${make.name}|${model.name}`));
+        const chosen = make.models.filter((model) => models.some((item) => {
+            const value = item.split(":").pop()!;
+            const normalize = (text: string) => slugify(text).replace(/-class$/, "");
+            return normalize(value) === normalize(model.name) || (normalize(value).startsWith(`${normalize(model.name)}-`) && normalize(value).split("-").filter((part) => part !== "series").every((part) => slugify(model.name).includes(part) || part === normalize(model.name).split("-").at(-1)));
+        }));
+        if (chosen.length) chosen.forEach((model) => {
+            picked.push(`${make.name}|${model.name}`);
+            for (const selected of filterValues(search.variant)) {
+                const parts = selected.split(":");
+                if (parts.length > 2 && parts[0] === makeSlug && parts[1] === slugify(model.name)) picked.push(`${make.name}|${model.name}|${parts.at(-1)}`);
+            }
+        });
         else picked.push(make.name);
     }
     return {
@@ -67,6 +77,18 @@ function extrasFrom(search: CarSearch): Record<string, string[]> {
     add("drive", search.drive);
     add("colour", search.colour);
     add("province", search.province);
+    add("vehicleGroup", search.vehicleGroup);
+    add("specials", search.specials);
+    const optionForValue = (key: string, value: number | undefined) => value === undefined ? undefined : findFilter(key).options.find((option) => Number.parseInt(option, 10) === value) ?? String(value);
+    add("minEngine", optionForValue("minEngine", search.minEngine));
+    add("maxEngine", optionForValue("maxEngine", search.maxEngine));
+    add("minKw", optionForValue("minKw", search.minKw));
+    add("maxKw", optionForValue("maxKw", search.maxKw));
+    add("seats", search.seats);
+    add("cylinders", search.cylinders);
+    add("dealership", search.dealership);
+    const provinceOptions = findFilter("province").options;
+    if (extras.province) extras.province = extras.province.map((value) => provinceOptions.find((option) => slugify(option) === slugify(value)) ?? value);
     return extras;
 }
 
@@ -79,6 +101,12 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
     const [values, setValues] = useState<AppValues>(() => valuesFrom(initial));
     const [sheet, setSheet] = useState<string | null>(null);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>(() => extrasFrom(initial));
+
+    function updateRange(key: RangeKey, value: number | null) {
+        const pairs: Partial<Record<RangeKey, RangeKey>> = { minPrice: "maxPrice", maxPrice: "minPrice", minYear: "maxYear", maxYear: "minYear", minMileage: "maxMileage", maxMileage: "minMileage" };
+        const other = pairs[key];
+        setValues((current) => ({ ...current, [key]: value, ...(other && value !== null && current[other] !== null && (key.startsWith("min") ? value > current[other]! : value < current[other]!) ? { [other]: value } : {}) }));
+    }
 
     const priceOptions: AppOption[] = cashPrices.map((price, index) => {
         const plus = index === cashPrices.length - 1 ? "+" : "";
@@ -144,7 +172,7 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
                     options={ranges[sheet].options}
                     selected={values[sheet]}
                     fallback={ranges[sheet].fallback}
-                    onSelect={(value) => { setValues({ ...values, [sheet]: value }); setSheet(null); }}
+                    onSelect={(value) => { updateRange(sheet, value); setSheet(null); }}
                     onClose={() => setSheet(null)}
                 />
             )}

@@ -20,10 +20,17 @@ export function buildSearchUrl(values: SearchValues, extra: Record<string, strin
     const picks = values.makes.map((item) => item.split("|"));
     const makes = picks.map(([make]) => slugify(make));
     const models = picks.filter((pick) => pick[1]).map(([make, model]) => `${slugify(make)}:${slugify(model)}`);
+    const variants = picks.filter((pick) => pick[1] && pick[2]).map(([make, model, variant]) => `${slugify(make)}:${slugify(model)}:${slugify(variant)}`);
+    const quantity = (key: string) => {
+        const value = all(key)?.[0];
+        const parsed = value ? Number.parseInt(value, 10) : NaN;
+        return Number.isFinite(parsed) ? parsed : undefined;
+    };
 
     const search: CarSearch = {
         make: joined(makes),
         model: joined(models),
+        variant: joined(variants),
         bodyType: joined(values.bodyTypes),
         minPrice: values.minPrice ?? undefined,
         maxPrice: values.maxPrice ?? undefined,
@@ -36,6 +43,15 @@ export function buildSearchUrl(values: SearchValues, extra: Record<string, strin
         drive: all("drive"),
         colour: all("colour"),
         province: all("province"),
+        vehicleGroup: all("vehicleGroup"),
+        specials: all("specials"),
+        minEngine: quantity("minEngine"),
+        maxEngine: quantity("maxEngine"),
+        minKw: quantity("minKw"),
+        maxKw: quantity("maxKw"),
+        seats: all("seats"),
+        cylinders: all("cylinders"),
+        dealership: all("dealership"),
     };
     const picked = Object.fromEntries(Object.entries(search).filter(([, value]) => value !== undefined));
     return carSearchHref({ ...preset, ...picked });

@@ -32,6 +32,12 @@ export type Car = {
     location: string
     province: string
     category?: CarCategory
+    vehicleGroup?: string
+    isSpecial?: boolean
+    engineCc?: number
+    powerKw?: number
+    seats?: number
+    cylinders?: number
     featured: boolean
     listedAt: string
     views?: number

@@ -18,5 +18,5 @@ export default async function Page({ searchParams }: PageProps<"/search">) {
   params.delete("sort");
   params.delete("page");
   const filters = params.toString();
-  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} query={query} resultsPath="/search" filtersPath={filters ? `/search/filters?${filters}` : "/search/filters"} />;
+  return <BuyingResults cars={result.cars} sort={search.sort ?? "recent"} page={result.page} pageCount={result.pageCount} total={result.total} query={query} resultsPath="/search" filtersPath={filters ? `/search/filters?${filters}` : "/search/filters"} />;
 }

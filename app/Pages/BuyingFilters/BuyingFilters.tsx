@@ -29,6 +29,7 @@ export default function BuyingFilters({ preset, initial = {}, resultsPath, prese
 
     function resultsHref() {
         const params = new URLSearchParams(searchUrl().split("?")[1] ?? "");
+        if (initial.q) params.set("q", initial.q);
         if (!presetInQuery) for (const key of Object.keys(preset)) params.delete(key);
         const query = params.toString();
         return query ? `${resultsPath}?${query}` : resultsPath;
