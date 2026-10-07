@@ -1,33 +1,51 @@
 import { Car } from "./types"
 import { mockCars } from "./mockCars"
 import { CarCollection, CarSearch, CarSearchResult, filterValues, PAGE_SIZE, SortKey, slugify } from "./search"
+import { unstable_rethrow } from "next/navigation"
+import { backendEnabled, publicGet, queryString, softly } from "../backend/client"
 
-// Every page gets car listings from here. When the backend is ready, replace each
-// function body with a fetch to the matching endpoint; pages and components stay the same.
-// e.g. getFeaturedCars → fetch(`${process.env.API_URL}/cars?featured=true&limit=${limit}`)
+// Every page gets car listings from here. With API_URL set, each function reads the
+// ChangeCars API (backend/src/modules/web, same shapes as ./types); without it the
+// sample data below is used. Pages and components stay the same either way.
 
 export async function getAllCars(): Promise<Car[]> {
+    if (backendEnabled()) {
+        // Used to pre-build car pages; if the API is down the pages are built on first visit instead.
+        try {
+            return (await publicGet<Car[]>("/web/cars/all")) ?? [];
+        } catch (error) {
+            unstable_rethrow(error);
+            console.error("getAllCars: API unavailable", error);
+            return [];
+        }
+    }
     return mockCars;
 }
 
 export async function getFeaturedCars(limit = 6): Promise<Car[]> {
+    if (backendEnabled()) return softly("featured cars", async () => (await publicGet<Car[]>(`/web/cars/featured?limit=${limit}`)) ?? [], []);
     return mockCars.filter((car) => car.featured).slice(0, limit);
 }
 
 export async function getRecentCars(limit = 6): Promise<Car[]> {
+    if (backendEnabled()) return softly("recent cars", async () => (await publicGet<Car[]>(`/web/cars/recent?limit=${limit}`)) ?? [], []);
     return [...mockCars].sort((a, b) => b.listedAt.localeCompare(a.listedAt)).slice(0, limit);
 }
 
 export async function getCar(id: string): Promise<Car | undefined> {
+    // Always fresh: price and availability change, and the API counts the view.
+    if (backendEnabled()) return /^[\w-]{1,64}$/.test(id) ? publicGet<Car>(`/web/cars/${id}`, { fresh: true }) : undefined;
     return mockCars.find((car) => car.id === id);
 }
 
 export async function getDealerCars(car: Car, limit = 6): Promise<Car[]> {
+    if (backendEnabled()) return softly("dealer cars", async () => (await publicGet<Car[]>(`/web/cars/${car.id}/dealer-cars?limit=${limit}`)) ?? [], []);
     return mockCars.filter((item) => item.dealer.id === car.dealer.id && item.id !== car.id).slice(0, limit);
 }
 
 // Same body type first, then everything else.
 export async function getSimilarCars(car: Car, limit = 6): Promise<Car[]> {
+    if (backendEnabled()) return softly("similar cars", async () => (await publicGet<Car[]>(`/web/cars/${car.id}/similar?limit=${limit}`)) ?? [], []);
     const others = mockCars.filter((item) => item.id !== car.id);
     const sameType = others.filter((item) => item.bodyType === car.bodyType);
     return [...sameType, ...others.filter((item) => item.bodyType !== car.bodyType)].slice(0, limit);
@@ -40,6 +58,7 @@ export type PopularDealer = {
 
 // Dealers with the most stock of the same make and model.
 export async function getPopularDealers(car: Car, limit = 3): Promise<PopularDealer[]> {
+    if (backendEnabled()) return softly("popular dealers", async () => (await publicGet<PopularDealer[]>(`/web/cars/${car.id}/popular-dealers?limit=${limit}`)) ?? [], []);
     const counts = new Map<string, PopularDealer>();
     for (const item of mockCars.filter((item) => item.make === car.make && item.model === car.model)) {
         const entry = counts.get(item.dealer.id) ?? { dealer: item.dealer, count: 0 };
@@ -51,6 +70,7 @@ export async function getPopularDealers(car: Car, limit = 3): Promise<PopularDea
 
 // Average asking price of the same make and model, for the price comparison.
 export async function getMarketPrice(car: Car): Promise<number | undefined> {
+    if (backendEnabled()) return softly("market price", async () => (await publicGet<{ price: number | null }>(`/web/cars/${car.id}/market-price`))?.price ?? undefined, undefined);
     const others = mockCars.filter((item) => item.id !== car.id && item.make === car.make && item.model === car.model);
     return others.length ? others.reduce((sum, item) => sum + item.price, 0) / others.length : undefined;
 }
@@ -143,8 +163,12 @@ function matchesAdvanced(car: Car, search: CarSearch) {
         anyOf(search.dealership, car.dealer.name, same);
 }
 
-// Backend: GET /cars?<CarSearch fields> → { cars, total }.
+// API: GET /web/cars?<CarSearch fields> → { cars, total, page, pageCount }.
 export async function searchCars(search: CarSearch): Promise<CarSearchResult<Car>> {
+    if (backendEnabled()) {
+        const result = await publicGet<CarSearchResult<Car>>(`/web/cars${queryString(search)}`, { revalidate: 30 });
+        return result ?? { cars: [], total: 0, page: 1, pageCount: 1 };
+    }
     const matches = mockCars.filter((car) =>
         (!search.q || car.title.toLowerCase().includes(search.q.trim().toLowerCase())) &&
         anyOf(search.make, car.make, same) &&
@@ -172,5 +196,6 @@ export async function searchCars(search: CarSearch): Promise<CarSearchResult<Car
 }
 
 export async function getPremiumCars(limit = 12): Promise<Car[]> {
+    if (backendEnabled()) return softly("premium cars", async () => (await publicGet<Car[]>(`/web/cars/premium?limit=${limit}`)) ?? [], []);
     return mockCars.filter((car) => car.featured).slice(0, limit);
 }

@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { usePopup } from "./PopupContext"
 import AuthPopup from "./AuthPopup"
 import AuthForm from "./AuthForm"
 import AuthField from "./AuthField"
 import AuthSuccess from "./AuthSuccess"
+import { requestPasswordReset } from "../../lib/backend/actions"
+import { callAction, firstMessage } from "../../lib/backend/formFields"
 
 export default function ForgotPasswordPopup() {
 
@@ -13,11 +15,20 @@ export default function ForgotPasswordPopup() {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const sending = useRef(false);
 
-    function submit() {
+    async function submit() {
         const valid = /^\S+@\S+\.\S+$/.test(email);
         setError(valid ? "" : "Valid email is required");
-        if (valid) setSuccess(true);
+        if (!valid || sending.current) return;
+        sending.current = true;
+        const result = await callAction(() => requestPasswordReset(email));
+        sending.current = false;
+        if (!result.ok) {
+            setError(firstMessage(result));
+            return;
+        }
+        setSuccess(true);
     }
 
     return (

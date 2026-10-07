@@ -1,7 +1,10 @@
 "use client"
 
-import { FormEvent, ReactNode, useState } from "react"
+import { FormEvent, ReactNode, useRef, useState } from "react"
 import Link from "next/link"
+import { registerAccount } from "../../lib/backend/actions"
+import { callAction } from "../../lib/backend/formFields"
+import { PRIVACY_POLICY_URL } from "../../lib/backend/legal"
 import LoginField from "../Login/Section/LoginField"
 
 type SellerType = "private" | "dealer"
@@ -60,8 +63,9 @@ export default function Register() {
     const [errors, setErrors] = useState<Partial<Record<keyof typeof emptyForm, string>>>({});
     const [sellerType, setSellerType] = useState<SellerType>("private");
     const [done, setDone] = useState(false);
+    const sending = useRef(false);
 
-    function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault();
         const next: Partial<Record<keyof typeof emptyForm, string>> = {};
         for (const field of fields) {
@@ -69,7 +73,20 @@ export default function Register() {
         }
         if (!next.email && !/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Please enter a valid email address";
         setErrors(next);
-        if (Object.keys(next).length === 0) setDone(true);
+        if (Object.keys(next).length > 0 || sending.current) return;
+        // The username is saved as the account's handle; sign-in stays with the email address.
+        sending.current = true;
+        const result = await callAction(() => registerAccount({ accountType: sellerType, username: form.username, firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password }));
+        sending.current = false;
+        if (!result.ok) {
+            const fieldErrors: Partial<Record<keyof typeof emptyForm, string>> = {};
+            for (const [key, message] of Object.entries(result.fields)) {
+                if (key in emptyForm) fieldErrors[key as keyof typeof emptyForm] = message;
+            }
+            setErrors(Object.keys(fieldErrors).length ? fieldErrors : { email: result.message });
+            return;
+        }
+        setDone(true);
     }
 
     const toggle = "h-9.25 cursor-pointer border-0 px-4.75 font-roboto text-[13px] font-bold transition";
@@ -113,6 +130,9 @@ export default function Register() {
                                 </div>
                             </div>
                             <button type="submit" className="mt-4.75 h-12.75 w-full cursor-pointer rounded-lg border-0 bg-[#957e4e] text-[22px] font-bold text-white shadow-[0_2px_4px_rgba(0,0,0,0.15)] transition hover:opacity-90">Register</button>
+                            <p className="mt-3 mb-0 text-center font-roboto text-xs leading-4 text-[#949494]">
+                                By registering you agree to the CHANGECARS <a href={PRIVACY_POLICY_URL} target="_blank" rel="noopener" className="text-[#957e4e] underline">Privacy Policy</a> and terms of use.
+                            </p>
                         </form>
                     )}
                     <p className="mt-5 mb-0 text-center font-roboto text-sm text-black">

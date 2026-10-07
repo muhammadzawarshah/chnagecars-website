@@ -1,7 +1,9 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useRef, useState } from "react"
 import { hearAbout, provinces } from "../../QuoteForms/Data/options"
+import { submitWebsiteForm } from "../../../lib/backend/actions"
+import { callAction, firstMessage } from "../../../lib/backend/formFields"
 import { FieldError, FieldLabel, fieldBox, SelectChevron } from "../../../components/AppForm/AppFormParts"
 
 const emptyForm = { name: "", email: "", phone: "", province: "", hearAbout: "", message: "" };
@@ -13,13 +15,14 @@ export default function ContactForm() {
     const [form, setForm] = useState(emptyForm);
     const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
     const [sent, setSent] = useState(false);
+    const sending = useRef(false);
 
     const set = (field: Field) => (value: string) => {
         setForm((current) => ({ ...current, [field]: value }));
         setErrors((current) => ({ ...current, [field]: "" }));
     };
 
-    function submit(event: FormEvent) {
+    async function submit(event: FormEvent) {
         event.preventDefault();
         const next: Partial<Record<Field, string>> = {
             name: form.name.trim() ? "" : "Full name is required",
@@ -30,7 +33,15 @@ export default function ContactForm() {
             message: form.message.trim() ? "" : "Message is required",
         };
         setErrors(next);
-        if (Object.values(next).every((error) => !error)) setSent(true);
+        if (!Object.values(next).every((error) => !error) || sending.current) return;
+        sending.current = true;
+        const result = await callAction(() => submitWebsiteForm("contact", form));
+        sending.current = false;
+        if (!result.ok) {
+            setErrors(Object.keys(result.fields).length ? result.fields : { message: firstMessage(result) });
+            return;
+        }
+        setSent(true);
     }
 
     return (

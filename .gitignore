@@ -42,3 +42,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# example settings for connecting to the backend
+!.env.example

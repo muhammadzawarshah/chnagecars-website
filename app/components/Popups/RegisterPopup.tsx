@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { usePopup } from "./PopupContext"
+import { registerAccount } from "../../lib/backend/actions"
+import { callAction } from "../../lib/backend/formFields"
+import { PRIVACY_POLICY_URL } from "../../lib/backend/legal"
 import AuthPopup from "./AuthPopup"
 import AuthForm from "./AuthForm"
 import AuthField from "./AuthField"
@@ -42,12 +45,13 @@ export default function RegisterPopup() {
     const [sellerType, setSellerType] = useState<SellerType>("private");
     const isPrivate = sellerType === "private";
     const nameLabel = isPrivate ? "Full name" : "Dealer name";
+    const sending = useRef(false);
 
     function update(key: keyof typeof emptyForm, value: string) {
         setForm({ ...form, [key]: value });
     }
 
-    function submit() {
+    async function submit() {
         const next: Record<string, string> = {};
         if (!form.name.trim()) next.name = `${nameLabel} is required`;
         if (!form.contactPerson.trim()) next.contactPerson = "Contact person name is required";
@@ -57,7 +61,31 @@ export default function RegisterPopup() {
         if (!form.password) next.password = "Password name is required";
         if (form.password !== form.confirmPassword) next.confirmPassword = "Password does not match";
         setErrors(next);
-        if (Object.keys(next).length === 0) setSuccess(true);
+        if (Object.keys(next).length > 0 || sending.current) return;
+
+        // A private seller's account carries their full name; a dealer's carries the contact person.
+        const person = (isPrivate ? form.name : form.contactPerson).trim().split(/\s+/);
+        sending.current = true;
+        const result = await callAction(() => registerAccount({
+            accountType: sellerType,
+            firstName: person[0],
+            lastName: person.slice(1).join(" ") || person[0],
+            email: form.email,
+            password: form.password,
+            phone: form.contactNumber,
+            dealerName: isPrivate ? undefined : form.name,
+            address: form.address,
+        }));
+        sending.current = false;
+        if (!result.ok) {
+            const nameField = isPrivate ? "name" : "contactPerson";
+            const fieldFor: Record<string, string> = { firstName: nameField, lastName: nameField, phone: "contactNumber", dealerName: "name", email: "email", password: "password", address: "address" };
+            const fieldErrors: Record<string, string> = {};
+            for (const [key, message] of Object.entries(result.fields)) if (fieldFor[key]) fieldErrors[fieldFor[key]] = message;
+            setErrors(Object.keys(fieldErrors).length ? fieldErrors : { email: result.message });
+            return;
+        }
+        setSuccess(true);
     }
 
     return (
@@ -86,6 +114,9 @@ export default function RegisterPopup() {
                     <AuthField light label="Address" value={form.address} error={errors.address} onChange={(value) => update("address", value)} />
                     <AuthField light label="Password" type="password" value={form.password} error={errors.password} className="w-[48%]! max-[841px]:mb-5 max-[601px]:mb-2.5" onChange={(value) => update("password", value)} />
                     <AuthField light label="Retype password" type="password" value={form.confirmPassword} error={errors.confirmPassword} className="float-right! w-[48%]! max-[601px]:mb-2.5" onChange={(value) => update("confirmPassword", value)} />
+                    <li className="float-left clear-left mb-3 w-full text-xs leading-4 text-[#555]">
+                        By registering you agree to the CHANGECARS <a href={PRIVACY_POLICY_URL} target="_blank" rel="noopener" className="text-[#957e4e] underline">Privacy Policy</a> and terms of use.
+                    </li>
                 </AuthForm>
             )}
         </AuthPopup>

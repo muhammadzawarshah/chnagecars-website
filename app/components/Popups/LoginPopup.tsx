@@ -1,23 +1,41 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { usePopup } from "./PopupContext"
 import AuthPopup from "./AuthPopup"
 import AuthForm from "./AuthForm"
 import AuthField from "./AuthField"
+import { signIn } from "../../lib/backend/actions"
+import { callAction } from "../../lib/backend/formFields"
 
 export default function LoginPopup() {
 
     const { active, open, close } = usePopup();
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const sending = useRef(false);
 
-    function submit() {
+    async function submit() {
         const next: Record<string, string> = {};
         if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "Valid email is required";
         if (!password) next.password = "Password is required";
         setErrors(next);
+        if (Object.keys(next).length || sending.current) return;
+        sending.current = true;
+        const result = await callAction(() => signIn(email, password));
+        sending.current = false;
+        if (!result.ok) {
+            setErrors(Object.keys(result.fields).length ? result.fields : { password: result.message });
+            return;
+        }
+        if (result.redirectTo) {
+            close();
+            router.push(result.redirectTo);
+            router.refresh();
+        }
     }
 
     return (

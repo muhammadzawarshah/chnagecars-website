@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { submitWebsiteForm } from "../../lib/backend/actions"
+import { callAction, firstMessage } from "../../lib/backend/formFields"
+import FormAlert from "../AppForm/FormAlert"
 
 const fields = [
     { name: "name", label: "Name", type: "text", error: "Name is required" },
@@ -13,14 +16,25 @@ export default function Newsletter() {
     const [values, setValues] = useState<Record<string, string>>({});
     const [errors, setErrors] = useState<Record<string, boolean>>({});
     const [success, setSuccess] = useState(false);
+    const sending = useRef(false);
+    const [formError, setFormError] = useState("");
 
-    function handleSubmit() {
+    async function handleSubmit() {
         const nextErrors: Record<string, boolean> = {};
         fields.forEach((field) => {
             if (!values[field.name]?.trim()) nextErrors[field.name] = true;
         });
         setErrors(nextErrors);
-        if (Object.keys(nextErrors).length === 0) setSuccess(true);
+        if (Object.keys(nextErrors).length > 0 || sending.current) return;
+        sending.current = true;
+        setFormError("");
+        const result = await callAction(() => submitWebsiteForm("newsletter", { name: values.name, surname: values.surname, email: values.email, source: "web:footer" }));
+        sending.current = false;
+        if (!result.ok) {
+            setFormError(firstMessage(result));
+            return;
+        }
+        setSuccess(true);
     }
 
     return (
@@ -51,6 +65,7 @@ export default function Newsletter() {
                                 Submit
                             </a>
                         </div>
+                        <FormAlert tone="dark" message={formError} className="mx-auto mt-5 w-full max-w-150 max-[981px]:w-[calc(100%-32px)]" />
                     </form>
                 )}
             </div>

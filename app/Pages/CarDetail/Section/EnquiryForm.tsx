@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import CheckSelect from "./CheckSelect"
+import { submitWebsiteForm } from "../../../lib/backend/actions"
+import { callAction, firstMessage, lastPathPart, readFields } from "../../../lib/backend/formFields"
+import FormAlert from "../../../components/AppForm/FormAlert"
 
 const titles = ["Mr", "Mrs", "Miss"];
 const sources = ["ALL THINGS MOTORING", "Billboard", "Educar", "Facebook", "Google", "Instagram", "Other", "Podcast", "Radio", "Recommendation", "Tik Tok", "Truecaller", "TV", "Whatsapp", "Word of mouth", "YouTube"];
@@ -16,12 +19,37 @@ type EnquiryFormProps = {
 export default function EnquiryForm({ title, dealer, logo, idPrefix = "enquiry" }: EnquiryFormProps) {
 
     const [sent, setSent] = useState(false);
+    const sending = useRef(false);
+    const [formError, setFormError] = useState("");
     const message = encodeURIComponent(`Hi, I'm interested in the ${title} on CHANGECARS.`);
     const field = "block h-7.75 w-full rounded-[20px] border border-gold bg-black/75 px-2.5 font-sans text-sm text-white outline-none placeholder:text-white";
     const contact = "h-10 rounded-[5px] bg-gold px-2.5 text-sm font-medium text-white no-underline shadow-[0_3px_6px_rgba(0,0,0,0.7)]";
 
-    function submit(event: React.FormEvent) {
+    async function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (sending.current) return;
+        const formElement = event.currentTarget;
+        const values = readFields(formElement);
+        // The car is the one this page shows: its id ends the URL (/car/<title>-<id>).
+        const slug = lastPathPart();
+        sending.current = true;
+        setFormError("");
+        const result = await callAction(() => submitWebsiteForm("vehicle-enquiry", {
+            carId: slug.slice(slug.lastIndexOf("-") + 1),
+            title: values["Title"] as string,
+            name: values["Name"] as string,
+            surname: values["Surname"] as string,
+            email: values["Email address"] as string,
+            phone: values["Contact number"] as string,
+            hearAbout: values["Where did you hear about CHANGECARS"] as string,
+            message: values[`${idPrefix}-message`] as string,
+            newsletter: formElement.querySelector<HTMLInputElement>("input[type=checkbox]")?.checked ?? false,
+        }));
+        sending.current = false;
+        if (!result.ok) {
+            setFormError(firstMessage(result));
+            return;
+        }
         setSent(true);
     }
 
@@ -60,6 +88,7 @@ export default function EnquiryForm({ title, dealer, logo, idPrefix = "enquiry" 
                         <input type="checkbox" className="mr-2.5 size-5.5 cursor-pointer appearance-none rounded-[5px] bg-white checked:bg-[url(/img/check.svg)] checked:bg-size-[14px] checked:bg-center checked:bg-no-repeat" />
                         Newsletter signup
                     </label>
+                    <FormAlert tone="dark" message={formError} className="clear-both mt-4" />
                 </form>
             )}
         </>

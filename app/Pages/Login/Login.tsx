@@ -1,23 +1,41 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useRef, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { usePopup } from "../../components/Popups/PopupContext"
+import { signIn } from "../../lib/backend/actions"
+import { callAction } from "../../lib/backend/formFields"
 import LoginField from "./Section/LoginField"
 
 export default function Login() {
 
     const { open } = usePopup();
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({ email: "", password: "" });
+    const sending = useRef(false);
 
-    function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault();
-        setErrors({
+        const next = {
             email: !email.trim() ? "Email is required" : !/^\S+@\S+\.\S+$/.test(email) ? "Please enter a valid email address" : "",
             password: !password ? "Password is required" : "",
-        });
+        };
+        setErrors(next);
+        if (next.email || next.password || sending.current) return;
+        sending.current = true;
+        const result = await callAction(() => signIn(email, password));
+        sending.current = false;
+        if (!result.ok) {
+            setErrors({ email: result.fields.email ?? "", password: result.fields.password ?? (result.fields.email ? "" : result.message) });
+            return;
+        }
+        if (result.redirectTo) {
+            router.push(result.redirectTo);
+            router.refresh();
+        }
     }
 
     return (

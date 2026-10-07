@@ -1,6 +1,9 @@
 "use client"
 
 import { FormEvent, useEffect, useRef, useState } from "react"
+import { submitWebsiteForm } from "../../../lib/backend/actions"
+import { callAction, firstMessage, lastPathPart } from "../../../lib/backend/formFields"
+import FormAlert from "../../../components/AppForm/FormAlert"
 
 const fields = [
     { key: "firstName", label: "First Name", type: "text" },
@@ -17,6 +20,8 @@ export default function SpecialForm() {
     const [focused, setFocused] = useState<FieldKey | null>("firstName");
     const [sent, setSent] = useState(false);
     const firstField = useRef<HTMLInputElement>(null);
+    const sending = useRef(false);
+    const [formError, setFormError] = useState("");
 
     // Like the live page: open scrolled 150px down, with First Name focused and its label raised.
     useEffect(() => {
@@ -24,8 +29,23 @@ export default function SpecialForm() {
         firstField.current?.focus({ preventScroll: true });
     }, []);
 
-    function submit(event: FormEvent) {
+    async function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (sending.current) return;
+        const message = event.currentTarget.querySelector("textarea")?.value.trim();
+        sending.current = true;
+        setFormError("");
+        const result = await callAction(() => submitWebsiteForm("special", {
+            ...values,
+            special: lastPathPart(),
+            specialTitle: document.querySelector("main h1")?.textContent?.trim(),
+            message,
+        }));
+        sending.current = false;
+        if (!result.ok) {
+            setFormError(firstMessage(result));
+            return;
+        }
         setSent(true);
     }
 
@@ -72,6 +92,7 @@ export default function SpecialForm() {
                                 <button type="submit" className="float-right -mr-0.75 h-10 w-38 max-[406px]:float-none cursor-pointer rounded-[5px] border-0 bg-[#212121] font-sans text-sm leading-10 font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.07)] transition duration-300 hover:opacity-80 active:opacity-80 max-[676px]:text-base">Submit form</button>
                             </span>
                         </li>
+                        {formError && <li className="clear-both pt-4"><FormAlert tone="dark" message={formError} /></li>}
                     </ul>
                 )}
             </form>

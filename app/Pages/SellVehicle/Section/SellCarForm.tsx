@@ -1,7 +1,10 @@
 "use client"
 
-import { FormEvent, ReactNode, useState } from "react"
+import { FormEvent, ReactNode, useRef, useState } from "react"
 import { makes } from "../../Home/Data/makes"
+import { submitWebsiteForm } from "../../../lib/backend/actions"
+import { callAction, checkFiles, firstMessage, pickedFiles, uploadFiles, uploadProblem } from "../../../lib/backend/formFields"
+import FormAlert from "../../../components/AppForm/FormAlert"
 import { appYears } from "../../Home/Data/appSearch"
 import { conditions, fuelTypes, photoTimings, sellTimes, serviceHistories, transmissions, yesNo } from "../Data/sellCar"
 import SellField from "./SellField"
@@ -36,6 +39,9 @@ export default function SellCarForm() {
     const [document, setDocument] = useState<string[]>([]);
     const [errors, setErrors] = useState<Partial<Record<FieldKey | "images", string>>>({});
     const [sent, setSent] = useState(false);
+    const sending = useRef(false);
+    const [formError, setFormError] = useState("");
+    const [uploadNote, setUploadNote] = useState("");
 
     const make = makes.find((item) => item.name === form.make);
 
@@ -44,14 +50,39 @@ export default function SellCarForm() {
         setErrors((current) => ({ ...current, [key]: "" }));
     }
 
-    function submit(event: FormEvent) {
+    async function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        // The picked files themselves (the inputs keep them; the form state only holds their names).
+        const photoFiles = form.photoTiming === "Upload Now" ? pickedFiles(event.currentTarget, { multiple: true }) : [];
+        const documentFiles = pickedFiles(event.currentTarget, { multiple: false });
         const next: Partial<Record<FieldKey | "images", string>> = {};
         required.forEach((key) => { if (!form[key].trim()) next[key] = "This field is required"; });
         if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Please enter a valid email address";
         if (form.photoTiming === "Upload Now" && images.length === 0) next.images = "Please add images of your vehicle";
+        const photoProblem = checkFiles(photoFiles, "photo");
+        if (photoProblem) next.images = photoProblem;
         setErrors(next);
-        if (Object.keys(next).length === 0) setSent(true);
+        const documentProblem = checkFiles(documentFiles, "document");
+        setFormError(documentProblem ? "Registration document: " + documentProblem : "");
+        if (Object.keys(next).length > 0 || documentProblem || sending.current) return;
+        sending.current = true;
+        const result = await callAction(() => submitWebsiteForm("sell-vehicle", { ...form, imageCount: photoFiles.length, documentName: document[0] }));
+        if (!result.ok) {
+            sending.current = false;
+            const fieldErrors: Partial<Record<FieldKey | "images", string>> = {};
+            for (const [key, message] of Object.entries(result.fields)) if (key in emptyForm) fieldErrors[key as FieldKey] = message;
+            if (Object.keys(fieldErrors).length) setErrors(fieldErrors);
+            else setFormError(firstMessage(result));
+            return;
+        }
+        const photoUpload = await uploadFiles(result.uploadToken, photoFiles, "photo");
+        const documentUpload = await uploadFiles(result.uploadToken, documentFiles, "document");
+        sending.current = false;
+        setUploadNote([
+            uploadProblem(photoUpload.failed, photoFiles.length, "photo", photoUpload.message),
+            uploadProblem(documentUpload.failed, documentFiles.length, "document", documentUpload.message),
+        ].filter(Boolean).join(" "));
+        setSent(true);
     }
 
     const text = (key: FieldKey, placeholder = "", type = "text") => (
@@ -64,6 +95,7 @@ export default function SellCarForm() {
                 <div className="mt-7 rounded-[10px] border-[1.5px] border-[#e7e1d3] px-4 py-8 text-center min-[981px]:mt-11 min-[981px]:py-14">
                     <h2 className="mt-0 mb-2 text-lg font-bold text-gold min-[981px]:mb-3 min-[981px]:text-[28px]">Thank You!</h2>
                     <p className="m-0 text-[12.5px] leading-4.5 text-[#333] min-[981px]:text-base min-[981px]:leading-6.5"><strong>CHANGECARS</strong> will contact you shortly to arrange a free, no-obligation valuation.</p>
+                    {uploadNote && <p className="mx-auto mt-3 mb-0 max-w-150 text-[12px] leading-4.5 text-[#666] min-[981px]:text-sm">{uploadNote}</p>}
                 </div>
             </>
         )
@@ -180,6 +212,7 @@ export default function SellCarForm() {
                     </SellField>
                 </div>
 
+                <FormAlert message={formError} className="mt-6 min-[981px]:mt-10" />
                 <button type="submit" className="mt-6 h-10 w-full cursor-pointer rounded-md border-0 bg-gold text-[13.5px] font-bold min-[981px]:mt-10 min-[981px]:h-13 min-[981px]:text-lg text-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition hover:opacity-90">Submit</button>
             </form>
         </>

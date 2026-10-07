@@ -1,6 +1,10 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useRef, useState } from "react"
+import { submitWebsiteForm } from "../../../../lib/backend/actions"
+import { callAction, checkFiles, firstMessage, uploadFiles, uploadProblem } from "../../../../lib/backend/formFields"
+import { pickedPhotos } from "../../../../lib/backend/pickedPhotos"
+import FormAlert from "../../../../components/AppForm/FormAlert"
 import StepHeader from "./StepHeader"
 import DxSelect from "./DxSelect"
 import DxText from "./DxText"
@@ -50,6 +54,9 @@ export default function WeeleeForm() {
     const [about, setAbout] = useState(emptyAbout);
     const [submitTried, setSubmitTried] = useState(false);
     const [sent, setSent] = useState(false);
+    const sending = useRef(false);
+    const [formError, setFormError] = useState("");
+    const [uploadNote, setUploadNote] = useState("");
 
     const stateOf = (number: number) => (step === number ? "active" : step > number ? "done" : "idle");
     const setCarField = (field: keyof typeof emptyCar) => (value: string) => setCar((current) => ({ ...current, [field]: value }));
@@ -84,9 +91,28 @@ export default function WeeleeForm() {
         sellTime: !about.sellTime,
     };
 
-    function submit() {
+    async function submit() {
         setSubmitTried(true);
-        if (!Object.values(aboutInvalid).some(Boolean)) setSent(true);
+        if (Object.values(aboutInvalid).some(Boolean) || sending.current) return;
+        const photos = about.photos === "Upload Now" ? pickedPhotos.all() : [];
+        const photoProblem = checkFiles(photos, "photo");
+        if (photoProblem) {
+            setFormError(photoProblem);
+            return;
+        }
+        sending.current = true;
+        setFormError("");
+        const result = await callAction(() => submitWebsiteForm("sell-vehicle-site", { make, year, model, ...car, ...about, photoCount: photos.length }));
+        if (!result.ok) {
+            sending.current = false;
+            setFormError(firstMessage(result));
+            return;
+        }
+        const upload = await uploadFiles(result.uploadToken, photos, "photo");
+        sending.current = false;
+        pickedPhotos.clear();
+        setUploadNote(uploadProblem(upload.failed, photos.length, "photo", upload.message));
+        setSent(true);
     }
 
     const shown = (invalid: boolean) => submitTried && invalid;
@@ -227,6 +253,7 @@ export default function WeeleeForm() {
                                             <div className="py-6 text-center">
                                                 <Heading className="text-xl text-gold">Thank you!</Heading>
                                                 <p className="m-0">Your enquiry has been submitted. We will be in touch with you shortly.</p>
+                                                {uploadNote && <p className="mt-3 mb-0 text-sm text-[#555]">{uploadNote}</p>}
                                             </div>
                                         ) : (
                                             <>
@@ -271,6 +298,7 @@ export default function WeeleeForm() {
                                                     <MissingGlyph className="my-3 me-2 h-3 w-[9px] shrink-0" />
                                                     <span>Your privacy is important to us. Please refer our <a href="https://dhzc82x38ceu.cloudfront.net/Documents/Weelee+Privacy+Policy.pdf" target="_blank" className="text-[#0d6efd] underline hover:text-[#0a58ca]">privacy policy</a> which communicates how we process your personal information.</span>
                                                 </div>
+                                                <FormAlert message={formError} className="mt-4" />
                                                 <div className="mt-4 flex justify-center">
                                                     <DxButton onClick={submit} className="w-full pr-[18px] font-bold">Submit My Enquiry</DxButton>
                                                 </div>
