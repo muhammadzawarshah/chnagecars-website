@@ -1,0 +1,507 @@
+{
+ "INVALID_TOKEN": {
+  "status": 401,
+  "message": "Access token is invalid or expired",
+  "area": "guards"
+ },
+ "INVALID_IDEMPOTENCY_KEY": {
+  "status": 400,
+  "message": "Idempotency-Key is too long",
+  "area": "interceptors"
+ },
+ "IDEMPOTENCY_RETRY": {
+  "status": 409,
+  "message": "Please retry the request",
+  "area": "interceptors"
+ },
+ "IDEMPOTENCY_KEY_REUSED": {
+  "status": 422,
+  "message": "Idempotency-Key was already used with a different request",
+  "area": "interceptors"
+ },
+ "REQUEST_IN_PROGRESS": {
+  "status": 409,
+  "message": "A request with this Idempotency-Key is still being processed",
+  "area": "interceptors"
+ },
+ "SELF_MANAGEMENT": {
+  "status": 403,
+  "message": "You cannot change your own account here",
+  "area": "admin"
+ },
+ "SUPER_ADMIN_REQUIRED": {
+  "status": 403,
+  "message": "Only a super admin can manage administrators",
+  "area": "admin"
+ },
+ "DEALER_MEMBER": {
+  "status": 409,
+  "message": "Dealer staff roles are managed by their dealership",
+  "area": "admin"
+ },
+ "NOT_DEAD": {
+  "status": 409,
+  "message": "Only dead events can be retried",
+  "area": "admin"
+ },
+ "EMAIL_TAKEN": {
+  "status": 409,
+  "message": "An account with this email already exists",
+  "area": "auth"
+ },
+ "INVALID_CREDENTIALS": {
+  "status": 401,
+  "message": "Email or password is incorrect",
+  "area": "auth"
+ },
+ "ACCOUNT_DISABLED": {
+  "status": 403,
+  "message": "This account is not active",
+  "area": "auth"
+ },
+ "INVALID_REFRESH_TOKEN": {
+  "status": 401,
+  "message": "Refresh token is invalid",
+  "area": "auth"
+ },
+ "REFRESH_TOKEN_EXPIRED": {
+  "status": 401,
+  "message": "Session expired, please sign in again",
+  "area": "auth"
+ },
+ "INVALID_RESET_TOKEN": {
+  "status": 400,
+  "message": "This reset link is invalid or has expired",
+  "area": "auth"
+ },
+ "INVALID_CURRENT_PASSWORD": {
+  "status": 400,
+  "message": "Current password is incorrect",
+  "area": "auth"
+ },
+ "INVALID_WINDOW": {
+  "status": 400,
+  "message": "closesAt must be after opensAt and in the future",
+  "area": "bidding"
+ },
+ "WINDOW_TOO_LONG": {
+  "status": 400,
+  "message": "Bidding may run at most ${maxHours} hours",
+  "area": "bidding"
+ },
+ "NOT_ELIGIBLE": {
+  "status": 409,
+  "message": "A request that is ${request.status} cannot go to bidding",
+  "area": "bidding"
+ },
+ "BIDDING_IN_PROGRESS": {
+  "status": 409,
+  "message": "This vehicle already has an active bidding process",
+  "area": "bidding"
+ },
+ "CANNOT_REOPEN": {
+  "status": 409,
+  "message": "Only closed, un-awarded sessions can be reopened (status ${session.status})",
+  "area": "bidding"
+ },
+ "CANNOT_CANCEL": {
+  "status": 409,
+  "message": "Session is already ${session.status}",
+  "area": "bidding"
+ },
+ "BIDDING_CLOSED": {
+  "status": 409,
+  "message": "Bidding is not open for this vehicle",
+  "area": "bidding"
+ },
+ "BELOW_RESERVE": {
+  "status": 400,
+  "message": "Offers must be at least R${session.reservePrice.toLocaleString('en-ZA')}",
+  "area": "bidding"
+ },
+ "OFFER_FINAL": {
+  "status": 409,
+  "message": "Your offer is already ${existing.status}",
+  "area": "bidding"
+ },
+ "MODIFICATION_NOT_ALLOWED": {
+  "status": 409,
+  "message": "Bids cannot be modified in this bidding process (BR-08)",
+  "area": "bidding"
+ },
+ "STALE_VERSION": {
+  "status": 409,
+  "message": "Your offer changed meanwhile; reload and retry",
+  "area": "bidding"
+ },
+ "WITHDRAWAL_NOT_ALLOWED": {
+  "status": 409,
+  "message": "Bids cannot be withdrawn in this bidding process",
+  "area": "bidding"
+ },
+ "OFFER_NOT_ACTIVE": {
+  "status": 409,
+  "message": "Offer is ${offer.status}",
+  "area": "bidding"
+ },
+ "NO_OPEN_COUNTER": {
+  "status": 409,
+  "message": "There is no open counter-offer to respond to",
+  "area": "bidding"
+ },
+ "BIDDING_FINISHED": {
+  "status": 409,
+  "message": "This bidding process is finished",
+  "area": "bidding"
+ },
+ "COUNTER_NOT_ALLOWED": {
+  "status": 409,
+  "message": "Counter-offers are not enabled for this bidding process",
+  "area": "bidding"
+ },
+ "COUNTER_PENDING": {
+  "status": 409,
+  "message": "Wait for the dealer to answer your current counter-offer",
+  "area": "bidding"
+ },
+ "COUNTER_TOO_LOW": {
+  "status": 400,
+  "message": "A counter-offer must be higher than the current offer",
+  "area": "bidding"
+ },
+ "COMPARE_COUNT": {
+  "status": 400,
+  "message": "Compare between 2 and 4 variants",
+  "area": "catalogue"
+ },
+ "INVALID_YEAR_RANGE": {
+  "status": 400,
+  "message": "yearTo must be on or after yearFrom",
+  "area": "catalogue"
+ },
+ "GENERATION_MODEL_MISMATCH": {
+  "status": 400,
+  "message": "Generation does not belong to this model",
+  "area": "catalogue"
+ },
+ "INVALID_CONTENT_BLOCK": {
+  "status": 400,
+  "message": "Block ${index}: ${message}",
+  "area": "content"
+ },
+ "LEAD_NOT_ASSIGNED": {
+  "status": 403,
+  "message": "You can only manage leads assigned to you",
+  "area": "crm"
+ },
+ "INVALID_VEHICLE": {
+  "status": 400,
+  "message": "Vehicle does not belong to your dealership",
+  "area": "crm"
+ },
+ "INVALID_BRANCH": {
+  "status": 400,
+  "message": "Branch does not belong to your dealership",
+  "area": "crm"
+ },
+ "MISSING_DEALER_PERMISSION": {
+  "status": 403,
+  "message": "You cannot assign leads to others",
+  "area": "crm"
+ },
+ "REASON_REQUIRED": {
+  "status": 400,
+  "message": "lostReason is required when marking a lead as lost",
+  "area": "crm"
+ },
+ "CONCURRENT_UPDATE": {
+  "status": 409,
+  "message": "The lead changed meanwhile; reload and retry",
+  "area": "crm"
+ },
+ "INVALID_MEMBER": {
+  "status": 400,
+  "message": "Staff member not found in your dealership",
+  "area": "crm"
+ },
+ "LIMIT_REACHED": {
+  "status": 409,
+  "message": "You can keep up to ${MAX_SAVED_SEARCHES} saved searches",
+  "area": "customers"
+ },
+ "EMPTY_SEARCH": {
+  "status": 400,
+  "message": "Choose at least one filter to save a search",
+  "area": "customers"
+ },
+ "INVALID_PASSWORD": {
+  "status": 400,
+  "message": "Password is incorrect",
+  "area": "customers"
+ },
+ "DEALER_OWNER": {
+  "status": 409,
+  "message": "Dealership owners must contact support to close the dealership first",
+  "area": "customers"
+ },
+ "NOT_A_DEALER": {
+  "status": 403,
+  "message": "This action requires a dealership account",
+  "area": "dealers"
+ },
+ "DEALER_INACTIVE": {
+  "status": 403,
+  "message": "Dealership is ${dealer.dealerStatus.toLowerCase()}",
+  "area": "dealers"
+ },
+ "DEALER_NOT_APPROVED": {
+  "status": 403,
+  "message": "Your dealership must be approved before you can do this",
+  "area": "dealers"
+ },
+ "INVALID_STORAGE_KEY": {
+  "status": 403,
+  "message": "Storage key does not belong to this dealership",
+  "area": "dealers"
+ },
+ "UPLOAD_NOT_FOUND": {
+  "status": 400,
+  "message": "The file has not been uploaded yet",
+  "area": "dealers"
+ },
+ "FILE_TOO_LARGE": {
+  "status": 400,
+  "message": "Documents may be at most 20 MB",
+  "area": "dealers"
+ },
+ "BRANCH_EXISTS": {
+  "status": 409,
+  "message": "A branch with this name already exists",
+  "area": "dealers"
+ },
+ "HEAD_OFFICE_REQUIRED": {
+  "status": 400,
+  "message": "The head-office branch cannot be deactivated",
+  "area": "dealers"
+ },
+ "OWNER_IMMUTABLE": {
+  "status": 403,
+  "message": "The dealership owner cannot be changed here",
+  "area": "dealers"
+ },
+ "SELF_UPDATE": {
+  "status": 403,
+  "message": "You cannot change your own role or access",
+  "area": "dealers"
+ },
+ "INSUFFICIENT_ROLE": {
+  "status": 403,
+  "message": "Only the owner can manage managers",
+  "area": "dealers"
+ },
+ "CANNOT_GRANT": {
+  "status": 403,
+  "message": "You cannot grant permissions you do not have: ${missing.join(', ')}",
+  "area": "dealers"
+ },
+ "INVALID_STATUS_TRANSITION": {
+  "status": 409,
+  "message": "Cannot change dealer from ${before.status} to ${dto.status}",
+  "area": "dealers"
+ },
+ "VEHICLE_NOT_AVAILABLE": {
+  "status": 409,
+  "message": "This vehicle is no longer available for enquiries",
+  "area": "enquiries"
+ },
+ "INVALID_DEALER": {
+  "status": 400,
+  "message": "Dealer not found",
+  "area": "enquiries"
+ },
+ "MODEL_MAKE_MISMATCH": {
+  "status": 400,
+  "message": "Model does not belong to the selected make",
+  "area": "enquiries"
+ },
+ "VARIANT_MODEL_MISMATCH": {
+  "status": 400,
+  "message": "Variant does not belong to the selected model",
+  "area": "enquiries"
+ },
+ "ENQUIRY_CLOSED": {
+  "status": 409,
+  "message": "This enquiry is closed",
+  "area": "enquiries"
+ },
+ "ALREADY_ROUTED": {
+  "status": 409,
+  "message": "This enquiry is already assigned to a dealer",
+  "area": "enquiries"
+ },
+ "ENQUIRY_CANCELLED": {
+  "status": 409,
+  "message": "The customer cancelled this enquiry",
+  "area": "enquiries"
+ },
+ "DEPOSIT_TOO_HIGH": {
+  "status": 400,
+  "message": "Deposit cannot exceed the vehicle price",
+  "area": "finance"
+ },
+ "UNKNOWN_NOTIFICATION_TYPE": {
+  "status": 400,
+  "message": "Unknown notification type ${item.eventType}",
+  "area": "notifications"
+ },
+ "INVALID_MAKE": {
+  "status": 400,
+  "message": "Make not found",
+  "area": "selling"
+ },
+ "INVALID_RANGE": {
+  "status": 400,
+  "message": "Expected estimateLow ≤ estimateMid ≤ estimateHigh",
+  "area": "selling"
+ },
+ "SELL_REQUEST_CLOSED": {
+  "status": 409,
+  "message": "This request is closed",
+  "area": "selling"
+ },
+ "INVALID_STATE": {
+  "status": 409,
+  "message": "Offers cannot be requested while the request is ${request.status}",
+  "area": "selling"
+ },
+ "TOO_MANY_IMAGES": {
+  "status": 409,
+  "message": "At most ${MAX_SELL_IMAGES} photos",
+  "area": "selling"
+ },
+ "VEHICLE_LOCKED": {
+  "status": 409,
+  "message": "Photos cannot be changed while the vehicle is ${vehicle.status}",
+  "area": "vehicles"
+ },
+ "UNKNOWN_IMAGE": {
+  "status": 400,
+  "message": "One or more images do not belong to this vehicle",
+  "area": "vehicles"
+ },
+ "BRANCH_SCOPE": {
+  "status": 403,
+  "message": "You can only add vehicles to your own branch",
+  "area": "vehicles"
+ },
+ "SPEC_REQUIRED": {
+  "status": 400,
+  "message": "transmission and fuelType are required when no catalogue variant provides them",
+  "area": "vehicles"
+ },
+ "MATERIAL_CHANGE_REQUIRES_REVIEW": {
+  "status": 409,
+  "message": "Changing ${material.join(', ')} requires moving the vehicle back to draft and a new review",
+  "area": "vehicles"
+ },
+ "VEHICLE_NOT_EDITABLE": {
+  "status": 409,
+  "message": "A vehicle in ${current.status} cannot be edited",
+  "area": "vehicles"
+ },
+ "INVALID_SPECIAL_PRICE": {
+  "status": 400,
+  "message": "specialPrice must be lower than price",
+  "area": "vehicles"
+ },
+ "IMAGES_REQUIRED": {
+  "status": 422,
+  "message": "Upload at least one photo before submitting for review",
+  "area": "vehicles"
+ },
+ "ADMIN_SUSPENSION": {
+  "status": 403,
+  "message": "This listing was suspended by an administrator and can only be reinstated by one",
+  "area": "vehicles"
+ },
+ "INVALID_RESERVATION": {
+  "status": 400,
+  "message": "reservedUntil must be in the future",
+  "area": "vehicles"
+ },
+ "INVALID_CATEGORY": {
+  "status": 400,
+  "message": "One or more categories do not exist",
+  "area": "vehicles"
+ },
+ "OFFER_EXPIRED": {
+  "status": 409,
+  "message": "This offer has expired",
+  "area": "bidding"
+ },
+ "OFFER_WITHDRAWN": {
+  "status": 409,
+  "message": "The dealer withdrew this offer",
+  "area": "bidding"
+ },
+ "OFFER_REJECTED": {
+  "status": 409,
+  "message": "This offer was rejected",
+  "area": "bidding"
+ },
+ "OFFER_SUPERSEDED": {
+  "status": 409,
+  "message": "This offer was superseded",
+  "area": "bidding"
+ },
+ "ALREADY_AWARDED": {
+  "status": 409,
+  "message": "An offer has already been accepted for this vehicle",
+  "area": "bidding"
+ },
+ "BIDDING_CANCELLED": {
+  "status": 409,
+  "message": "This bidding process was cancelled",
+  "area": "bidding"
+ },
+ "VALIDATION_FAILED": {
+  "status": 400,
+  "message": "Request validation failed (details lists each problem)",
+  "area": "common"
+ },
+ "UNAUTHORIZED": {
+  "status": 401,
+  "message": "Authentication required",
+  "area": "common"
+ },
+ "FORBIDDEN": {
+  "status": 403,
+  "message": "You do not have permission to perform this action",
+  "area": "common"
+ },
+ "RATE_LIMITED": {
+  "status": 429,
+  "message": "Too many requests, please slow down",
+  "area": "common"
+ },
+ "UNIQUE_CONSTRAINT": {
+  "status": 409,
+  "message": "A record with these values already exists",
+  "area": "common"
+ },
+ "NOT_FOUND": {
+  "status": 404,
+  "message": "Record not found",
+  "area": "common"
+ },
+ "FOREIGN_KEY_CONSTRAINT": {
+  "status": 409,
+  "message": "Related record does not exist or is still referenced",
+  "area": "common"
+ },
+ "INTERNAL_ERROR": {
+  "status": 500,
+  "message": "An unexpected error occurred",
+  "area": "common"
+ }
+}

@@ -1,0 +1,6453 @@
+{
+ "source": "frontend/app/lib (sample data the website used before the API was connected)",
+ "cars": [
+  {
+   "id": "101",
+   "make": "Toyota",
+   "model": "Land Cruiser",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "year": 2009,
+   "price": 1699000,
+   "bodyType": "SUV",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X4",
+   "colour": "White",
+   "province": "Gauteng",
+   "engine": "4.6L",
+   "mileage": 99000,
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "featured": true,
+   "listedAt": "2026-08-01",
+   "gallery": [
+    "/img/featured-cars/toyota-land-cruiser.jpg",
+    "/img/featured-cars/toyota-land-cruiser.jpg",
+    "/img/featured-cars/toyota-land-cruiser.jpg",
+    "/img/featured-cars/toyota-land-cruiser.jpg",
+    "/img/featured-cars/toyota-land-cruiser.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  },
+  {
+   "id": "102",
+   "make": "Mercedes-Benz",
+   "model": "GLC-Class",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "year": 2021,
+   "price": 2399000,
+   "bodyType": "SUV",
+   "fuel": "Diesel",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "White",
+   "province": "Western Cape",
+   "engine": "2.0L",
+   "mileage": 74000,
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "featured": true,
+   "listedAt": "2026-08-02",
+   "gallery": [
+    "/img/featured-cars/mercedes-glc.jpg",
+    "/img/featured-cars/mercedes-glc.jpg",
+    "/img/featured-cars/mercedes-glc.jpg",
+    "/img/featured-cars/mercedes-glc.jpg",
+    "/img/featured-cars/mercedes-glc.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Western Cape"
+  },
+  {
+   "id": "103",
+   "make": "Honda",
+   "model": "CR-V",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "year": 2024,
+   "price": 1399000,
+   "bodyType": "SUV",
+   "fuel": "Hybrid",
+   "transmission": "Automatic",
+   "drive": "4X4",
+   "colour": "Blue",
+   "province": "Gauteng",
+   "engine": "2.0L",
+   "mileage": 50000,
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "featured": true,
+   "listedAt": "2026-08-03",
+   "gallery": [
+    "/img/featured-cars/honda-crv.jpg",
+    "/img/featured-cars/honda-crv.jpg",
+    "/img/featured-cars/honda-crv.jpg",
+    "/img/featured-cars/honda-crv.jpg",
+    "/img/featured-cars/honda-crv.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  },
+  {
+   "id": "104",
+   "make": "Hyundai",
+   "model": "i40",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "year": 2014,
+   "price": 339000,
+   "bodyType": "Hatchback",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "Grey",
+   "province": "KwaZulu-Natal",
+   "engine": "2.0L",
+   "mileage": 190000,
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "featured": true,
+   "listedAt": "2026-08-04",
+   "gallery": [
+    "/img/featured-cars/hyundai-i40.jpg",
+    "/img/featured-cars/hyundai-i40.jpg",
+    "/img/featured-cars/hyundai-i40.jpg",
+    "/img/featured-cars/hyundai-i40.jpg",
+    "/img/featured-cars/hyundai-i40.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, KwaZulu-Natal"
+  },
+  {
+   "id": "105",
+   "make": "Volvo",
+   "model": "XC60",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "year": 2017,
+   "price": 599000,
+   "bodyType": "SUV",
+   "fuel": "Diesel",
+   "transmission": "Automatic",
+   "drive": "4X4",
+   "colour": "Silver",
+   "province": "Western Cape",
+   "engine": "2.0L",
+   "mileage": 99000,
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "featured": true,
+   "listedAt": "2026-08-05",
+   "gallery": [
+    "/img/featured-cars/volvo-xc60.jpg",
+    "/img/featured-cars/volvo-xc60.jpg",
+    "/img/featured-cars/volvo-xc60.jpg",
+    "/img/featured-cars/volvo-xc60.jpg",
+    "/img/featured-cars/volvo-xc60.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Western Cape"
+  },
+  {
+   "id": "106",
+   "make": "Mitsubishi",
+   "model": "Triton",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "year": 2024,
+   "price": 779000,
+   "bodyType": "Double Cab Bakkie",
+   "fuel": "Diesel",
+   "transmission": "Automatic",
+   "drive": "4X4",
+   "colour": "White",
+   "province": "Gauteng",
+   "engine": "2.4L",
+   "mileage": 431,
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "featured": true,
+   "listedAt": "2026-08-06",
+   "gallery": [
+    "/img/featured-cars/mitsubishi-triton.jpg",
+    "/img/featured-cars/mitsubishi-triton.jpg",
+    "/img/featured-cars/mitsubishi-triton.jpg",
+    "/img/featured-cars/mitsubishi-triton.jpg",
+    "/img/featured-cars/mitsubishi-triton.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  },
+  {
+   "id": "201",
+   "make": "Toyota",
+   "model": "Camry",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "year": 2018,
+   "price": 717000,
+   "bodyType": "Sedan",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "Silver",
+   "province": "Gauteng",
+   "engine": "2.0L",
+   "mileage": 94000,
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "featured": false,
+   "listedAt": "2026-09-28",
+   "gallery": [
+    "/img/recent-cars/toyota-camry.jpg",
+    "/img/recent-cars/toyota-camry.jpg",
+    "/img/recent-cars/toyota-camry.jpg",
+    "/img/recent-cars/toyota-camry.jpg",
+    "/img/recent-cars/toyota-camry.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  },
+  {
+   "id": "202",
+   "make": "Toyota",
+   "model": "Yaris Ativ",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "year": 2022,
+   "price": 567000,
+   "bodyType": "Sedan",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "Red",
+   "province": "Free State",
+   "engine": "1.2L",
+   "mileage": 38000,
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "featured": false,
+   "listedAt": "2026-09-27",
+   "gallery": [
+    "/img/recent-cars/toyota-yaris-ativ.jpg",
+    "/img/recent-cars/toyota-yaris-ativ.jpg",
+    "/img/recent-cars/toyota-yaris-ativ.jpg",
+    "/img/recent-cars/toyota-yaris-ativ.jpg",
+    "/img/recent-cars/toyota-yaris-ativ.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Free State"
+  },
+  {
+   "id": "203",
+   "make": "BMW",
+   "model": "3 Series",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "year": 2017,
+   "price": 739000,
+   "bodyType": "Hatchback",
+   "fuel": "Diesel",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "White",
+   "province": "Western Cape",
+   "engine": "2.0L",
+   "mileage": 126000,
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "featured": false,
+   "listedAt": "2026-09-26",
+   "gallery": [
+    "/img/recent-cars/bmw-320d-gt.jpg",
+    "/img/recent-cars/bmw-320d-gt.jpg",
+    "/img/recent-cars/bmw-320d-gt.jpg",
+    "/img/recent-cars/bmw-320d-gt.jpg",
+    "/img/recent-cars/bmw-320d-gt.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Western Cape"
+  },
+  {
+   "id": "204",
+   "make": "BMW",
+   "model": "3 Series",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "year": 2014,
+   "price": 599000,
+   "bodyType": "Sedan",
+   "fuel": "Diesel",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "Black",
+   "province": "Gauteng",
+   "engine": "2.0L",
+   "mileage": 138000,
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "featured": false,
+   "listedAt": "2026-09-25",
+   "gallery": [
+    "/img/recent-cars/bmw-320d-f30.jpg",
+    "/img/recent-cars/bmw-320d-f30.jpg",
+    "/img/recent-cars/bmw-320d-f30.jpg",
+    "/img/recent-cars/bmw-320d-f30.jpg",
+    "/img/recent-cars/bmw-320d-f30.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  },
+  {
+   "id": "205",
+   "make": "Mercedes-Benz",
+   "model": "A-Class",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "year": 2020,
+   "price": 959000,
+   "bodyType": "Sedan",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "White",
+   "province": "KwaZulu-Natal",
+   "engine": "1.3L",
+   "mileage": 40000,
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "featured": false,
+   "listedAt": "2026-09-24",
+   "gallery": [
+    "/img/recent-cars/mercedes-a200.jpg",
+    "/img/recent-cars/mercedes-a200.jpg",
+    "/img/recent-cars/mercedes-a200.jpg",
+    "/img/recent-cars/mercedes-a200.jpg",
+    "/img/recent-cars/mercedes-a200.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, KwaZulu-Natal"
+  },
+  {
+   "id": "206",
+   "make": "Mercedes-Benz",
+   "model": "GLA-Class",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "year": 2023,
+   "price": 1199000,
+   "bodyType": "SUV",
+   "fuel": "Petrol",
+   "transmission": "Automatic",
+   "drive": "4X2",
+   "colour": "White",
+   "province": "Gauteng",
+   "engine": "1.3L",
+   "mileage": 89000,
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "featured": false,
+   "listedAt": "2026-09-23",
+   "gallery": [
+    "/img/recent-cars/mercedes-gla200.jpg",
+    "/img/recent-cars/mercedes-gla200.jpg",
+    "/img/recent-cars/mercedes-gla200.jpg",
+    "/img/recent-cars/mercedes-gla200.jpg",
+    "/img/recent-cars/mercedes-gla200.jpg"
+   ],
+   "photoCount": 18,
+   "dealer": {
+    "id": "1",
+    "name": "Dealer Name",
+    "hours": [
+     {
+      "day": "Monday to Friday",
+      "time": "08.00 – 17.00"
+     },
+     {
+      "day": "Saturdays",
+      "time": "08.30 – 13.00"
+     },
+     {
+      "day": "Sundays",
+      "time": "Closed"
+     },
+     {
+      "day": "Public holidays",
+      "time": "Closed"
+     }
+    ]
+   },
+   "location": "City, Gauteng"
+  }
+ ],
+ "articleCategories": [
+  {
+   "slug": "4x4-suv-reviews",
+   "name": "4x4/SUV Reviews"
+  },
+  {
+   "slug": "all-things-current",
+   "name": "All Things Current"
+  },
+  {
+   "slug": "atm-news",
+   "name": "ALL THINGS MOTORING News"
+  },
+  {
+   "slug": "atm-show",
+   "name": "ALL THINGS MOTORING Show"
+  },
+  {
+   "slug": "car-reviews",
+   "name": "Car Reviews"
+  },
+  {
+   "slug": "events",
+   "name": "Events"
+  },
+  {
+   "slug": "latest-launches",
+   "name": "Latest Launches"
+  },
+  {
+   "slug": "motor-matters",
+   "name": "Motor Matters"
+  },
+  {
+   "slug": "motoring-news",
+   "name": "Motoring News"
+  },
+  {
+   "slug": "retro-reviews",
+   "name": "RETRO REVIEWS"
+  },
+  {
+   "slug": "something-different",
+   "name": "Something Different"
+  }
+ ],
+ "articles": [
+  {
+   "slug": "road-review-mg-zs-pro",
+   "title": "Road Review - MG ZS Pro",
+   "publishedAt": "2026-09-28",
+   "category": "car-reviews",
+   "image": "/images/blogs/260928/20260912_060227.jpg",
+   "featured": true,
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "jetour-payload-saga-continues",
+   "title": "Jetour payload saga continues",
+   "publishedAt": "2026-09-28",
+   "category": "all-things-current",
+   "image": "/images/blogs/260928/1800IMG_1307.jpeg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "jimny-gathering-venue-announced",
+   "title": "Jimny Gathering venue announced",
+   "publishedAt": "2026-09-28",
+   "category": "all-things-current",
+   "image": "/images/blogs/260928/Lowveld-2.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "continental-expands-tyre-choice",
+   "title": "Continental expands tyre choice",
+   "publishedAt": "2026-09-25",
+   "category": "latest-launches",
+   "image": "/images/blogs/260925/3843SportContact7.jpeg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "Continental is broadening its range of ultra-high-performance tyres, those measuring 18 inches and above, and expects to add more than 650 new sizes across its tyre lines by the end of 2027. The expansion covers both original equipment fitments for new vehicles and the replacement market, and spans the core Continental brand along with secondary brands such as Semperit and Uniroyal."
+    },
+    {
+     "type": "paragraph",
+     "text": "The company says the move answers rising demand for tyres suited to larger, heavier and more powerful vehicles, including those with electrified drivetrains. Edwin Goudswaard, head of research and development for Continental's Tires group sector, says the enlarged range allows the company to offer customers more tailored solutions for safety, efficiency and driving dynamics."
+    },
+    {
+     "type": "paragraph",
+     "text": "High-performance tyres have taken on greater weight in Continental's passenger-car business in recent years. Between 2020 and 2025, their share of global passenger-car tyre sales across all brands climbed from 41% to 55%. The proportion reaches 70% in Asia-Pacific and 66% in the Americas, while in the EMEA region UHP tyres account for 43% of passenger-car tyre sales. For the Continental brand itself, the UHP share of global passenger-car tyre sales rose from about 49% in 2020 to roughly 62% in 2025."
+    },
+    {
+     "type": "image",
+     "src": "/images/blogs/content/kr4bEKutj0ms.jpeg"
+    },
+    {
+     "type": "link",
+     "text": "Safe and inexpensive cars for students - click here",
+     "href": "/cars?collection=student"
+    },
+    {
+     "type": "paragraph",
+     "text": "The shift towards larger tyres follows changes in the vehicle market. Cars have grown bigger, heavier and more powerful, with SUVs maintaining a long run of popularity. Electrification adds further mass through battery packs, while modern drivetrains produce torque levels once limited to high-performance sports cars."
+    },
+    {
+     "type": "paragraph",
+     "text": "These factors place greater demands on tyres, which must carry heavier loads while still delivering safety, efficiency and comfort. UHP tyres are designed to combine grip, short braking distances and precise handling with low rolling resistance and high mileage, and Continental develops them chiefly for wheel-and-tyre combinations of 18 inches and above, as well as for performance SUVs, premium sedans, sports cars and high-performance electric vehicles."
+    },
+    {
+     "type": "image",
+     "src": "/images/blogs/content/kQRjDcJL_Hr0.jpeg"
+    },
+    {
+     "type": "link",
+     "text": "Starting or expanding your business and in need of a bakkie – click here",
+     "href": "/cars?collection=bakkies"
+    },
+    {
+     "type": "paragraph",
+     "text": "Goudswaard notes as vehicles become larger, heavier and more powerful, tyres take on a more critical role. He describes them as more than the vehicle's connection to the road, calling them a prerequisite for safety, efficiency and driving dynamics. The UHP segment, he says, shows how capable modern tyres must be, with the difficulty lying in combining conflicting requirements at a high level."
+    },
+    {
+     "type": "paragraph",
+     "text": "The new sizes reflect a vehicle market that continues to diversify, with manufacturers offering models in more variants worldwide and requiring tyres matched to differing performance, efficiency and comfort needs."
+    },
+    {
+     "type": "paragraph",
+     "text": "Continental develops and tests UHP tyres through digital simulation, laboratory analysis, bench testing and driving tests across a range of temperatures, loads, speeds and road conditions. The High Performance Technology Center in Korbach serves as a hub for advancing manufacturing processes, and the findings feed into a global production network that builds UHP tyres up to 24 inches. Real-world testing takes place at tracks including the Contidrom near Hanover, as well as facilities in Arvidsjaur in Sweden and Uvalde in Texas, with attention on wet and dry braking, handling, high-speed capability, comfort and durability. The company also draws development input from tuning specialists ABT Sportsline and BRABUS, and from motorsport through its racing-tyre subsidiary Hoosier."
+    },
+    {
+     "type": "paragraph",
+     "text": "The SportContact 7 sits at the centre of Continental's UHP range and illustrates the performance of the portfolio. The summer tyre was developed for high-performance vehicles with combustion engines or electric motors and is available in sizes from 18 to 24 inches."
+    },
+    {
+     "type": "paragraph",
+     "text": "It has secured original-equipment approvals from manufacturers including Audi, BMW, BYD, Maserati, Mercedes-Benz, Polestar, Porsche, Volkswagen and Zeekr. Independent tests have also recognised its qualities: since launch, the SportContact 7 has placed in the top three in 27 of 29 international tyre tests, with reviewers pointing to short braking distances and balanced handling on dry and wet roads."
+    },
+    {
+     "type": "paragraph",
+     "text": "Colin Windell for Colin-on-Cars in association with"
+    },
+    {
+     "type": "paragraph",
+     "text": "proudly CHANGECARS"
+    }
+   ]
+  },
+  {
+   "slug": "time-for-a-jac-black",
+   "title": "Time for a JAC Black",
+   "publishedAt": "2026-09-25",
+   "category": "latest-launches",
+   "image": "/images/blogs/260925/960T9BlackEditionLead.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "road-review-omoda-c5-lux-x",
+   "title": "Road Review - Omoda C5 Lux X",
+   "publishedAt": "2026-09-24",
+   "category": "car-reviews",
+   "image": "/images/blogs/260924/Screenshot-2026-09-24-094107.png",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "citroen-heads-for-the-outdoor",
+   "title": "Citroen heads for the Outdoor",
+   "publishedAt": "2026-09-23",
+   "category": "all-things-current",
+   "image": "/images/blogs/260923/009.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "range-extender-from-icaur",
+   "title": "Range extender from iCAUR",
+   "publishedAt": "2026-09-22",
+   "category": "all-things-current",
+   "image": "/images/blogs/260922/icaur_south_africa_03t_reev_exterior-6-.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "tektonic-moves-from-nissan",
+   "title": "Tekton(ic) moves from Nissan",
+   "publishedAt": "2026-09-22",
+   "category": "all-things-current",
+   "image": "/images/blogs/260922/202600921_NISSANTEKTONPRESS-31.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "seven7-drive-gears-up",
+   "title": "Seven7 Drive gears up",
+   "publishedAt": "2026-09-20",
+   "category": "all-things-current",
+   "image": "/images/blogs/260920/Studio-5.jpeg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "apex-model-chery-tiggo-8",
+   "title": "Apex model Chery Tiggo 8",
+   "publishedAt": "2026-09-20",
+   "category": "latest-launches",
+   "image": "/images/blogs/260920/18002Image1.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "real-growth-in-vehicle-sales",
+   "title": "Real growth in vehicle sales",
+   "publishedAt": "2026-09-18",
+   "category": "all-things-current",
+   "image": "/images/blogs/260918/21401.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "new-outback-on-its-way",
+   "title": "New Outback on its way",
+   "publishedAt": "2026-09-18",
+   "category": "latest-launches",
+   "image": "/images/blogs/260918/18001Wilderness.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "extended-service-from-jac",
+   "title": "Extended service from JAC",
+   "publishedAt": "2026-09-18",
+   "category": "all-things-current",
+   "image": "/images/blogs/260918/869JACT9.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "free-armed-response-for-women",
+   "title": "Free armed response for women",
+   "publishedAt": "2026-09-17",
+   "category": "all-things-current",
+   "image": "/images/blogs/260917/1800AAWomen_Post1-2x-100.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "first-drive-gwm-tank-500-and-p500-diesel",
+   "title": "First Drive - GWM Tank 500 and P500 diesel",
+   "publishedAt": "2026-09-17",
+   "category": "car-reviews",
+   "image": "/images/blogs/260917/18003.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "road-review-toyota-rav4-gr-sport",
+   "title": "Road Review - Toyota RAV4 GR-Sport",
+   "publishedAt": "2026-09-15",
+   "category": "car-reviews",
+   "image": "/images/blogs/260915/2026-09-05-11.16.47.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "the-connected-ecosystem",
+   "title": "The connected ecosystem",
+   "publishedAt": "2026-09-15",
+   "category": "all-things-current",
+   "image": "/images/blogs/260915/Citroen-2-.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "changan-star-lcv-spread-launched",
+   "title": "Changan Star LCV spread launched",
+   "publishedAt": "2026-09-14",
+   "category": "latest-launches",
+   "image": "/images/blogs/260914/C3_05011.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "hybrid-jaecoo-joins-lineup",
+   "title": "Hybrid Jaecoo joins lineup",
+   "publishedAt": "2026-09-14",
+   "category": "latest-launches",
+   "image": "/images/blogs/260914/1800jaecoo_j5_shs_studio_image-14-.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  },
+  {
+   "slug": "managing-rising-prices",
+   "title": "Managing rising prices",
+   "publishedAt": "2026-09-13",
+   "category": "all-things-current",
+   "image": "/images/blogs/260913/ChangeCars-Filling-up-2-.jpg",
+   "body": [
+    {
+     "type": "paragraph",
+     "text": "This is sample article text. The full article will load from the backend once it is connected."
+    }
+   ]
+  }
+ ],
+ "dealers": [
+  {
+   "id": "d1",
+   "name": "Rivonia Auto House",
+   "contactName": "Thabo Nkosi",
+   "email": "sales@rivoniaautohouse.example",
+   "phone": "011 555 0101",
+   "city": "Sandton",
+   "province": "Gauteng",
+   "plan": "Gold",
+   "status": "active",
+   "joinedAt": "2024-03-12",
+   "rating": 4.8
+  },
+  {
+   "id": "d2",
+   "name": "Cape Coastal Motors",
+   "contactName": "Lauren Adams",
+   "email": "info@capecoastal.example",
+   "phone": "021 555 0102",
+   "city": "Cape Town",
+   "province": "Western Cape",
+   "plan": "Gold",
+   "status": "active",
+   "joinedAt": "2023-11-02",
+   "rating": 4.6
+  },
+  {
+   "id": "d3",
+   "name": "Durban North Car Centre",
+   "contactName": "Sipho Mthembu",
+   "email": "hello@dncarcentre.example",
+   "phone": "031 555 0103",
+   "city": "Durban",
+   "province": "KwaZulu-Natal",
+   "plan": "Silver",
+   "status": "active",
+   "joinedAt": "2024-06-20",
+   "rating": 4.4
+  },
+  {
+   "id": "d4",
+   "name": "Pretoria East Pre-Owned",
+   "contactName": "Annelie Botha",
+   "email": "sales@ptaeast.example",
+   "phone": "012 555 0104",
+   "city": "Pretoria",
+   "province": "Gauteng",
+   "plan": "Silver",
+   "status": "active",
+   "joinedAt": "2025-01-15",
+   "rating": 4.5
+  },
+  {
+   "id": "d5",
+   "name": "Bloem Family Motors",
+   "contactName": "Johan van Wyk",
+   "email": "info@bloemfamily.example",
+   "phone": "051 555 0105",
+   "city": "Bloemfontein",
+   "province": "Free State",
+   "plan": "Basic",
+   "status": "active",
+   "joinedAt": "2025-04-08",
+   "rating": 4.2
+  },
+  {
+   "id": "d6",
+   "name": "Mbombela Vehicle Hub",
+   "contactName": "Nomsa Dlamini",
+   "email": "sales@mbombelahub.example",
+   "phone": "013 555 0106",
+   "city": "Mbombela",
+   "province": "Mpumalanga",
+   "plan": "Basic",
+   "status": "pending",
+   "joinedAt": "2026-09-21",
+   "rating": 0
+  },
+  {
+   "id": "d7",
+   "name": "Gqeberha Auto Traders",
+   "contactName": "Kevin Pillay",
+   "email": "deals@gqautotraders.example",
+   "phone": "041 555 0107",
+   "city": "Gqeberha",
+   "province": "Eastern Cape",
+   "plan": "Silver",
+   "status": "active",
+   "joinedAt": "2024-09-30",
+   "rating": 4.3
+  },
+  {
+   "id": "d8",
+   "name": "Polokwane Drive Centre",
+   "contactName": "Lerato Mokoena",
+   "email": "info@pkdrive.example",
+   "phone": "015 555 0108",
+   "city": "Polokwane",
+   "province": "Limpopo",
+   "plan": "Basic",
+   "status": "suspended",
+   "joinedAt": "2024-12-04",
+   "rating": 3.6
+  },
+  {
+   "id": "d9",
+   "name": "Stellenbosch Prestige Cars",
+   "contactName": "Michael Fourie",
+   "email": "sales@stbprestige.example",
+   "phone": "021 555 0109",
+   "city": "Stellenbosch",
+   "province": "Western Cape",
+   "plan": "Gold",
+   "status": "active",
+   "joinedAt": "2023-08-17",
+   "rating": 4.9
+  },
+  {
+   "id": "d10",
+   "name": "Rustenburg Bakkie World",
+   "contactName": "Pieter Kruger",
+   "email": "info@rtbbakkies.example",
+   "phone": "014 555 0110",
+   "city": "Rustenburg",
+   "province": "North West",
+   "plan": "Basic",
+   "status": "pending",
+   "joinedAt": "2026-09-28",
+   "rating": 0
+  }
+ ],
+ "dealerStats": {
+  "d1": {
+   "soldThisMonth": 18,
+   "views": 5932,
+   "leads": 124,
+   "conversionRate": 0.14516129032258066,
+   "avgDaysToSell": 33,
+   "responseHours": 6.2,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 117
+    },
+    {
+     "month": "May",
+     "value": 130
+    },
+    {
+     "month": "Jun",
+     "value": 140
+    },
+    {
+     "month": "Jul",
+     "value": 126
+    },
+    {
+     "month": "Aug",
+     "value": 152
+    },
+    {
+     "month": "Sep",
+     "value": 124
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 5732
+    },
+    {
+     "month": "May",
+     "value": 5751
+    },
+    {
+     "month": "Jun",
+     "value": 6440
+    },
+    {
+     "month": "Jul",
+     "value": 6753
+    },
+    {
+     "month": "Aug",
+     "value": 7002
+    },
+    {
+     "month": "Sep",
+     "value": 5932
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 16
+    },
+    {
+     "month": "May",
+     "value": 12
+    },
+    {
+     "month": "Jun",
+     "value": 14
+    },
+    {
+     "month": "Jul",
+     "value": 15
+    },
+    {
+     "month": "Aug",
+     "value": 19
+    },
+    {
+     "month": "Sep",
+     "value": 18
+    }
+   ]
+  },
+  "d2": {
+   "soldThisMonth": 16,
+   "views": 7167,
+   "leads": 149,
+   "conversionRate": 0.10738255033557047,
+   "avgDaysToSell": 20,
+   "responseHours": 2,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 103
+    },
+    {
+     "month": "May",
+     "value": 100
+    },
+    {
+     "month": "Jun",
+     "value": 124
+    },
+    {
+     "month": "Jul",
+     "value": 122
+    },
+    {
+     "month": "Aug",
+     "value": 117
+    },
+    {
+     "month": "Sep",
+     "value": 149
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 5443
+    },
+    {
+     "month": "May",
+     "value": 5476
+    },
+    {
+     "month": "Jun",
+     "value": 5139
+    },
+    {
+     "month": "Jul",
+     "value": 5087
+    },
+    {
+     "month": "Aug",
+     "value": 6521
+    },
+    {
+     "month": "Sep",
+     "value": 7167
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 15
+    },
+    {
+     "month": "May",
+     "value": 15
+    },
+    {
+     "month": "Jun",
+     "value": 16
+    },
+    {
+     "month": "Jul",
+     "value": 16
+    },
+    {
+     "month": "Aug",
+     "value": 16
+    },
+    {
+     "month": "Sep",
+     "value": 16
+    }
+   ]
+  },
+  "d3": {
+   "soldThisMonth": 11,
+   "views": 3407,
+   "leads": 93,
+   "conversionRate": 0.11827956989247312,
+   "avgDaysToSell": 26,
+   "responseHours": 1.2,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 61
+    },
+    {
+     "month": "May",
+     "value": 60
+    },
+    {
+     "month": "Jun",
+     "value": 66
+    },
+    {
+     "month": "Jul",
+     "value": 68
+    },
+    {
+     "month": "Aug",
+     "value": 79
+    },
+    {
+     "month": "Sep",
+     "value": 93
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 2731
+    },
+    {
+     "month": "May",
+     "value": 2833
+    },
+    {
+     "month": "Jun",
+     "value": 3407
+    },
+    {
+     "month": "Jul",
+     "value": 3581
+    },
+    {
+     "month": "Aug",
+     "value": 3406
+    },
+    {
+     "month": "Sep",
+     "value": 3407
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 8
+    },
+    {
+     "month": "May",
+     "value": 8
+    },
+    {
+     "month": "Jun",
+     "value": 8
+    },
+    {
+     "month": "Jul",
+     "value": 10
+    },
+    {
+     "month": "Aug",
+     "value": 11
+    },
+    {
+     "month": "Sep",
+     "value": 11
+    }
+   ]
+  },
+  "d4": {
+   "soldThisMonth": 9,
+   "views": 4371,
+   "leads": 75,
+   "conversionRate": 0.12,
+   "avgDaysToSell": 25,
+   "responseHours": 4.6,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 74
+    },
+    {
+     "month": "May",
+     "value": 67
+    },
+    {
+     "month": "Jun",
+     "value": 81
+    },
+    {
+     "month": "Jul",
+     "value": 72
+    },
+    {
+     "month": "Aug",
+     "value": 84
+    },
+    {
+     "month": "Sep",
+     "value": 75
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 3448
+    },
+    {
+     "month": "May",
+     "value": 3621
+    },
+    {
+     "month": "Jun",
+     "value": 3103
+    },
+    {
+     "month": "Jul",
+     "value": 3439
+    },
+    {
+     "month": "Aug",
+     "value": 4246
+    },
+    {
+     "month": "Sep",
+     "value": 4371
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 8
+    },
+    {
+     "month": "May",
+     "value": 8
+    },
+    {
+     "month": "Jun",
+     "value": 8
+    },
+    {
+     "month": "Jul",
+     "value": 10
+    },
+    {
+     "month": "Aug",
+     "value": 10
+    },
+    {
+     "month": "Sep",
+     "value": 9
+    }
+   ]
+  },
+  "d5": {
+   "soldThisMonth": 6,
+   "views": 2184,
+   "leads": 44,
+   "conversionRate": 0.13636363636363635,
+   "avgDaysToSell": 44,
+   "responseHours": 4.1,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 43
+    },
+    {
+     "month": "May",
+     "value": 37
+    },
+    {
+     "month": "Jun",
+     "value": 49
+    },
+    {
+     "month": "Jul",
+     "value": 43
+    },
+    {
+     "month": "Aug",
+     "value": 43
+    },
+    {
+     "month": "Sep",
+     "value": 44
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 1664
+    },
+    {
+     "month": "May",
+     "value": 1995
+    },
+    {
+     "month": "Jun",
+     "value": 1903
+    },
+    {
+     "month": "Jul",
+     "value": 2029
+    },
+    {
+     "month": "Aug",
+     "value": 2036
+    },
+    {
+     "month": "Sep",
+     "value": 2184
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 4
+    },
+    {
+     "month": "May",
+     "value": 5
+    },
+    {
+     "month": "Jun",
+     "value": 5
+    },
+    {
+     "month": "Jul",
+     "value": 6
+    },
+    {
+     "month": "Aug",
+     "value": 6
+    },
+    {
+     "month": "Sep",
+     "value": 6
+    }
+   ]
+  },
+  "d6": {
+   "soldThisMonth": 0,
+   "views": 0,
+   "leads": 0,
+   "conversionRate": 0,
+   "avgDaysToSell": 0,
+   "responseHours": 0,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ]
+  },
+  "d7": {
+   "soldThisMonth": 11,
+   "views": 3713,
+   "leads": 80,
+   "conversionRate": 0.1375,
+   "avgDaysToSell": 23,
+   "responseHours": 5.8,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 68
+    },
+    {
+     "month": "May",
+     "value": 63
+    },
+    {
+     "month": "Jun",
+     "value": 68
+    },
+    {
+     "month": "Jul",
+     "value": 89
+    },
+    {
+     "month": "Aug",
+     "value": 94
+    },
+    {
+     "month": "Sep",
+     "value": 80
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 3164
+    },
+    {
+     "month": "May",
+     "value": 3657
+    },
+    {
+     "month": "Jun",
+     "value": 3844
+    },
+    {
+     "month": "Jul",
+     "value": 3410
+    },
+    {
+     "month": "Aug",
+     "value": 4038
+    },
+    {
+     "month": "Sep",
+     "value": 3713
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 9
+    },
+    {
+     "month": "May",
+     "value": 10
+    },
+    {
+     "month": "Jun",
+     "value": 10
+    },
+    {
+     "month": "Jul",
+     "value": 9
+    },
+    {
+     "month": "Aug",
+     "value": 10
+    },
+    {
+     "month": "Sep",
+     "value": 11
+    }
+   ]
+  },
+  "d8": {
+   "soldThisMonth": 5,
+   "views": 2474,
+   "leads": 48,
+   "conversionRate": 0.10416666666666667,
+   "avgDaysToSell": 27,
+   "responseHours": 3.9,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 39
+    },
+    {
+     "month": "May",
+     "value": 46
+    },
+    {
+     "month": "Jun",
+     "value": 40
+    },
+    {
+     "month": "Jul",
+     "value": 43
+    },
+    {
+     "month": "Aug",
+     "value": 46
+    },
+    {
+     "month": "Sep",
+     "value": 48
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 1959
+    },
+    {
+     "month": "May",
+     "value": 2186
+    },
+    {
+     "month": "Jun",
+     "value": 1989
+    },
+    {
+     "month": "Jul",
+     "value": 1920
+    },
+    {
+     "month": "Aug",
+     "value": 2106
+    },
+    {
+     "month": "Sep",
+     "value": 2474
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 5
+    },
+    {
+     "month": "May",
+     "value": 5
+    },
+    {
+     "month": "Jun",
+     "value": 5
+    },
+    {
+     "month": "Jul",
+     "value": 5
+    },
+    {
+     "month": "Aug",
+     "value": 5
+    },
+    {
+     "month": "Sep",
+     "value": 5
+    }
+   ]
+  },
+  "d9": {
+   "soldThisMonth": 17,
+   "views": 7040,
+   "leads": 123,
+   "conversionRate": 0.13821138211382114,
+   "avgDaysToSell": 39,
+   "responseHours": 5.4,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 112
+    },
+    {
+     "month": "May",
+     "value": 110
+    },
+    {
+     "month": "Jun",
+     "value": 120
+    },
+    {
+     "month": "Jul",
+     "value": 144
+    },
+    {
+     "month": "Aug",
+     "value": 117
+    },
+    {
+     "month": "Sep",
+     "value": 123
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 5169
+    },
+    {
+     "month": "May",
+     "value": 4719
+    },
+    {
+     "month": "Jun",
+     "value": 6179
+    },
+    {
+     "month": "Jul",
+     "value": 6415
+    },
+    {
+     "month": "Aug",
+     "value": 6873
+    },
+    {
+     "month": "Sep",
+     "value": 7040
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 12
+    },
+    {
+     "month": "May",
+     "value": 13
+    },
+    {
+     "month": "Jun",
+     "value": 14
+    },
+    {
+     "month": "Jul",
+     "value": 17
+    },
+    {
+     "month": "Aug",
+     "value": 15
+    },
+    {
+     "month": "Sep",
+     "value": 17
+    }
+   ]
+  },
+  "d10": {
+   "soldThisMonth": 0,
+   "views": 0,
+   "leads": 0,
+   "conversionRate": 0,
+   "avgDaysToSell": 0,
+   "responseHours": 0,
+   "monthlyLeads": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ],
+   "monthlyViews": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ],
+   "monthlySold": [
+    {
+     "month": "Apr",
+     "value": 0
+    },
+    {
+     "month": "May",
+     "value": 0
+    },
+    {
+     "month": "Jun",
+     "value": 0
+    },
+    {
+     "month": "Jul",
+     "value": 0
+    },
+    {
+     "month": "Aug",
+     "value": 0
+    },
+    {
+     "month": "Sep",
+     "value": 0
+    }
+   ]
+  }
+ },
+ "inventory": [
+  {
+   "id": "d1-l1",
+   "dealerId": "d1",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1676000,
+   "mileage": 87600,
+   "status": "sold",
+   "views": 1500,
+   "leads": 4,
+   "listedAt": "2026-07-19"
+  },
+  {
+   "id": "d1-l2",
+   "dealerId": "d1",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2616000,
+   "mileage": 64800,
+   "status": "active",
+   "views": 197,
+   "leads": 17,
+   "listedAt": "2026-07-04"
+  },
+  {
+   "id": "d1-l3",
+   "dealerId": "d1",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1264000,
+   "mileage": 44900,
+   "status": "active",
+   "views": 2213,
+   "leads": 16,
+   "listedAt": "2026-06-07"
+  },
+  {
+   "id": "d1-l4",
+   "dealerId": "d1",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 316000,
+   "mileage": 221700,
+   "status": "flagged",
+   "views": 2264,
+   "leads": 21,
+   "listedAt": "2026-07-08"
+  },
+  {
+   "id": "d1-l5",
+   "dealerId": "d1",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 584000,
+   "mileage": 86300,
+   "status": "sold",
+   "views": 2028,
+   "leads": 8,
+   "listedAt": "2026-09-03"
+  },
+  {
+   "id": "d1-l6",
+   "dealerId": "d1",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 672000,
+   "mileage": 400,
+   "status": "draft",
+   "views": 1791,
+   "leads": 11,
+   "listedAt": "2026-09-19"
+  },
+  {
+   "id": "d1-l7",
+   "dealerId": "d1",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 745000,
+   "mileage": 86400,
+   "status": "active",
+   "views": 2383,
+   "leads": 5,
+   "listedAt": "2026-09-23"
+  },
+  {
+   "id": "d1-l8",
+   "dealerId": "d1",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 529000,
+   "mileage": 37800,
+   "status": "active",
+   "views": 2344,
+   "leads": 17,
+   "listedAt": "2026-09-22"
+  },
+  {
+   "id": "d1-l9",
+   "dealerId": "d1",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 761000,
+   "mileage": 123100,
+   "status": "active",
+   "views": 1903,
+   "leads": 21,
+   "listedAt": "2026-08-19"
+  },
+  {
+   "id": "d1-l10",
+   "dealerId": "d1",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 683000,
+   "mileage": 127500,
+   "status": "active",
+   "views": 462,
+   "leads": 2,
+   "listedAt": "2026-09-26"
+  },
+  {
+   "id": "d1-l11",
+   "dealerId": "d1",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 865000,
+   "mileage": 32100,
+   "status": "active",
+   "views": 1429,
+   "leads": 8,
+   "listedAt": "2026-09-25"
+  },
+  {
+   "id": "d1-l12",
+   "dealerId": "d1",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1025000,
+   "mileage": 114000,
+   "status": "sold",
+   "views": 2128,
+   "leads": 7,
+   "listedAt": "2026-08-16"
+  },
+  {
+   "id": "d1-l13",
+   "dealerId": "d1",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1454000,
+   "mileage": 123400,
+   "status": "flagged",
+   "views": 2314,
+   "leads": 22,
+   "listedAt": "2026-06-27"
+  },
+  {
+   "id": "d1-l14",
+   "dealerId": "d1",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2713000,
+   "mileage": 72900,
+   "status": "active",
+   "views": 42,
+   "leads": 7,
+   "listedAt": "2026-08-26"
+  },
+  {
+   "id": "d1-l15",
+   "dealerId": "d1",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1423000,
+   "mileage": 40800,
+   "status": "active",
+   "views": 1212,
+   "leads": 28,
+   "listedAt": "2026-09-07"
+  },
+  {
+   "id": "d1-l16",
+   "dealerId": "d1",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 321000,
+   "mileage": 214100,
+   "status": "draft",
+   "views": 499,
+   "leads": 17,
+   "listedAt": "2026-09-02"
+  },
+  {
+   "id": "d1-l17",
+   "dealerId": "d1",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 608000,
+   "mileage": 77100,
+   "status": "sold",
+   "views": 1468,
+   "leads": 6,
+   "listedAt": "2026-07-10"
+  },
+  {
+   "id": "d1-l18",
+   "dealerId": "d1",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 700000,
+   "mileage": 500,
+   "status": "active",
+   "views": 178,
+   "leads": 11,
+   "listedAt": "2026-07-26"
+  },
+  {
+   "id": "d1-l19",
+   "dealerId": "d1",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 790000,
+   "mileage": 101900,
+   "status": "draft",
+   "views": 899,
+   "leads": 7,
+   "listedAt": "2026-07-07"
+  },
+  {
+   "id": "d1-l20",
+   "dealerId": "d1",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 491000,
+   "mileage": 29000,
+   "status": "flagged",
+   "views": 367,
+   "leads": 23,
+   "listedAt": "2026-09-04"
+  },
+  {
+   "id": "d1-l21",
+   "dealerId": "d1",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 665000,
+   "mileage": 101900,
+   "status": "active",
+   "views": 2176,
+   "leads": 2,
+   "listedAt": "2026-07-02"
+  },
+  {
+   "id": "d1-l22",
+   "dealerId": "d1",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 615000,
+   "mileage": 144500,
+   "status": "flagged",
+   "views": 897,
+   "leads": 14,
+   "listedAt": "2026-08-19"
+  },
+  {
+   "id": "d1-l23",
+   "dealerId": "d1",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 1067000,
+   "mileage": 40200,
+   "status": "active",
+   "views": 1587,
+   "leads": 21,
+   "listedAt": "2026-06-10"
+  },
+  {
+   "id": "d1-l24",
+   "dealerId": "d1",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1171000,
+   "mileage": 85000,
+   "status": "active",
+   "views": 438,
+   "leads": 10,
+   "listedAt": "2026-06-13"
+  },
+  {
+   "id": "d1-l25",
+   "dealerId": "d1",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1679000,
+   "mileage": 79500,
+   "status": "active",
+   "views": 662,
+   "leads": 19,
+   "listedAt": "2026-08-09"
+  },
+  {
+   "id": "d1-l26",
+   "dealerId": "d1",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2117000,
+   "mileage": 61500,
+   "status": "flagged",
+   "views": 2248,
+   "leads": 25,
+   "listedAt": "2026-08-06"
+  },
+  {
+   "id": "d1-l27",
+   "dealerId": "d1",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1311000,
+   "mileage": 46800,
+   "status": "flagged",
+   "views": 1364,
+   "leads": 9,
+   "listedAt": "2026-09-14"
+  },
+  {
+   "id": "d1-l28",
+   "dealerId": "d1",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 332000,
+   "mileage": 192300,
+   "status": "draft",
+   "views": 1830,
+   "leads": 5,
+   "listedAt": "2026-09-05"
+  },
+  {
+   "id": "d1-l29",
+   "dealerId": "d1",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 527000,
+   "mileage": 89600,
+   "status": "active",
+   "views": 347,
+   "leads": 0,
+   "listedAt": "2026-07-01"
+  },
+  {
+   "id": "d1-l30",
+   "dealerId": "d1",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 820000,
+   "mileage": 400,
+   "status": "active",
+   "views": 1431,
+   "leads": 2,
+   "listedAt": "2026-07-03"
+  },
+  {
+   "id": "d1-l31",
+   "dealerId": "d1",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 697000,
+   "mileage": 84800,
+   "status": "active",
+   "views": 1331,
+   "leads": 15,
+   "listedAt": "2026-09-12"
+  },
+  {
+   "id": "d1-l32",
+   "dealerId": "d1",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 557000,
+   "mileage": 29700,
+   "status": "draft",
+   "views": 1920,
+   "leads": 23,
+   "listedAt": "2026-08-09"
+  },
+  {
+   "id": "d1-l33",
+   "dealerId": "d1",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 792000,
+   "mileage": 143900,
+   "status": "active",
+   "views": 1712,
+   "leads": 19,
+   "listedAt": "2026-08-04"
+  },
+  {
+   "id": "d1-l34",
+   "dealerId": "d1",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 686000,
+   "mileage": 138600,
+   "status": "active",
+   "views": 1272,
+   "leads": 16,
+   "listedAt": "2026-08-27"
+  },
+  {
+   "id": "d1-l35",
+   "dealerId": "d1",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 928000,
+   "mileage": 37200,
+   "status": "draft",
+   "views": 2124,
+   "leads": 0,
+   "listedAt": "2026-09-16"
+  },
+  {
+   "id": "d1-l36",
+   "dealerId": "d1",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1080000,
+   "mileage": 79000,
+   "status": "flagged",
+   "views": 1411,
+   "leads": 23,
+   "listedAt": "2026-09-27"
+  },
+  {
+   "id": "d1-l37",
+   "dealerId": "d1",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1912000,
+   "mileage": 84800,
+   "status": "active",
+   "views": 1676,
+   "leads": 4,
+   "listedAt": "2026-07-19"
+  },
+  {
+   "id": "d1-l38",
+   "dealerId": "d1",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2344000,
+   "mileage": 89200,
+   "status": "active",
+   "views": 469,
+   "leads": 19,
+   "listedAt": "2026-09-22"
+  },
+  {
+   "id": "d1-l39",
+   "dealerId": "d1",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1287000,
+   "mileage": 50500,
+   "status": "active",
+   "views": 1221,
+   "leads": 4,
+   "listedAt": "2026-08-16"
+  },
+  {
+   "id": "d1-l40",
+   "dealerId": "d1",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 352000,
+   "mileage": 190900,
+   "status": "flagged",
+   "views": 875,
+   "leads": 12,
+   "listedAt": "2026-09-26"
+  },
+  {
+   "id": "d1-l41",
+   "dealerId": "d1",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 670000,
+   "mileage": 99300,
+   "status": "flagged",
+   "views": 2347,
+   "leads": 26,
+   "listedAt": "2026-06-05"
+  },
+  {
+   "id": "d1-l42",
+   "dealerId": "d1",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 793000,
+   "mileage": 400,
+   "status": "active",
+   "views": 1068,
+   "leads": 3,
+   "listedAt": "2026-08-04"
+  },
+  {
+   "id": "d2-l1",
+   "dealerId": "d2",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 373000,
+   "mileage": 197900,
+   "status": "active",
+   "views": 1435,
+   "leads": 5,
+   "listedAt": "2026-06-17"
+  },
+  {
+   "id": "d2-l2",
+   "dealerId": "d2",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 599000,
+   "mileage": 122000,
+   "status": "draft",
+   "views": 946,
+   "leads": 11,
+   "listedAt": "2026-09-09"
+  },
+  {
+   "id": "d2-l3",
+   "dealerId": "d2",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 750000,
+   "mileage": 400,
+   "status": "active",
+   "views": 491,
+   "leads": 18,
+   "listedAt": "2026-07-03"
+  },
+  {
+   "id": "d2-l4",
+   "dealerId": "d2",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 628000,
+   "mileage": 96300,
+   "status": "active",
+   "views": 708,
+   "leads": 7,
+   "listedAt": "2026-09-19"
+  },
+  {
+   "id": "d2-l5",
+   "dealerId": "d2",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 615000,
+   "mileage": 27600,
+   "status": "sold",
+   "views": 1576,
+   "leads": 5,
+   "listedAt": "2026-06-13"
+  },
+  {
+   "id": "d2-l6",
+   "dealerId": "d2",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 827000,
+   "mileage": 141300,
+   "status": "active",
+   "views": 234,
+   "leads": 22,
+   "listedAt": "2026-08-25"
+  },
+  {
+   "id": "d2-l7",
+   "dealerId": "d2",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 641000,
+   "mileage": 165900,
+   "status": "draft",
+   "views": 417,
+   "leads": 6,
+   "listedAt": "2026-07-05"
+  },
+  {
+   "id": "d2-l8",
+   "dealerId": "d2",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 1011000,
+   "mileage": 50100,
+   "status": "active",
+   "views": 1452,
+   "leads": 14,
+   "listedAt": "2026-07-02"
+  },
+  {
+   "id": "d2-l9",
+   "dealerId": "d2",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1337000,
+   "mileage": 83000,
+   "status": "active",
+   "views": 1052,
+   "leads": 11,
+   "listedAt": "2026-07-16"
+  },
+  {
+   "id": "d2-l10",
+   "dealerId": "d2",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1656000,
+   "mileage": 107200,
+   "status": "active",
+   "views": 1052,
+   "leads": 24,
+   "listedAt": "2026-09-12"
+  },
+  {
+   "id": "d2-l11",
+   "dealerId": "d2",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2170000,
+   "mileage": 94600,
+   "status": "flagged",
+   "views": 842,
+   "leads": 18,
+   "listedAt": "2026-07-01"
+  },
+  {
+   "id": "d2-l12",
+   "dealerId": "d2",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1367000,
+   "mileage": 56500,
+   "status": "draft",
+   "views": 1755,
+   "leads": 9,
+   "listedAt": "2026-09-11"
+  },
+  {
+   "id": "d2-l13",
+   "dealerId": "d2",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 324000,
+   "mileage": 169600,
+   "status": "active",
+   "views": 1404,
+   "leads": 13,
+   "listedAt": "2026-09-21"
+  },
+  {
+   "id": "d2-l14",
+   "dealerId": "d2",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 636000,
+   "mileage": 87600,
+   "status": "active",
+   "views": 985,
+   "leads": 12,
+   "listedAt": "2026-07-15"
+  },
+  {
+   "id": "d2-l15",
+   "dealerId": "d2",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 841000,
+   "mileage": 300,
+   "status": "active",
+   "views": 638,
+   "leads": 24,
+   "listedAt": "2026-07-11"
+  },
+  {
+   "id": "d2-l16",
+   "dealerId": "d2",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 619000,
+   "mileage": 70300,
+   "status": "active",
+   "views": 261,
+   "leads": 21,
+   "listedAt": "2026-09-04"
+  },
+  {
+   "id": "d2-l17",
+   "dealerId": "d2",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 643000,
+   "mileage": 48100,
+   "status": "active",
+   "views": 959,
+   "leads": 2,
+   "listedAt": "2026-07-21"
+  },
+  {
+   "id": "d2-l18",
+   "dealerId": "d2",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 787000,
+   "mileage": 144400,
+   "status": "active",
+   "views": 2398,
+   "leads": 8,
+   "listedAt": "2026-06-14"
+  },
+  {
+   "id": "d2-l19",
+   "dealerId": "d2",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 645000,
+   "mileage": 176100,
+   "status": "sold",
+   "views": 1130,
+   "leads": 24,
+   "listedAt": "2026-07-21"
+  },
+  {
+   "id": "d2-l20",
+   "dealerId": "d2",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 936000,
+   "mileage": 49400,
+   "status": "sold",
+   "views": 932,
+   "leads": 2,
+   "listedAt": "2026-08-25"
+  },
+  {
+   "id": "d2-l21",
+   "dealerId": "d2",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1160000,
+   "mileage": 90100,
+   "status": "flagged",
+   "views": 931,
+   "leads": 2,
+   "listedAt": "2026-09-11"
+  },
+  {
+   "id": "d2-l22",
+   "dealerId": "d2",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1511000,
+   "mileage": 70200,
+   "status": "active",
+   "views": 62,
+   "leads": 20,
+   "listedAt": "2026-07-25"
+  },
+  {
+   "id": "d2-l23",
+   "dealerId": "d2",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2640000,
+   "mileage": 93000,
+   "status": "draft",
+   "views": 759,
+   "leads": 11,
+   "listedAt": "2026-08-17"
+  },
+  {
+   "id": "d2-l24",
+   "dealerId": "d2",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1522000,
+   "mileage": 44900,
+   "status": "flagged",
+   "views": 2325,
+   "leads": 6,
+   "listedAt": "2026-07-09"
+  },
+  {
+   "id": "d2-l25",
+   "dealerId": "d2",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 381000,
+   "mileage": 241600,
+   "status": "active",
+   "views": 767,
+   "leads": 3,
+   "listedAt": "2026-09-24"
+  },
+  {
+   "id": "d2-l26",
+   "dealerId": "d2",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 563000,
+   "mileage": 85700,
+   "status": "active",
+   "views": 1213,
+   "leads": 13,
+   "listedAt": "2026-07-12"
+  },
+  {
+   "id": "d2-l27",
+   "dealerId": "d2",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 761000,
+   "mileage": 400,
+   "status": "draft",
+   "views": 1244,
+   "leads": 11,
+   "listedAt": "2026-07-06"
+  },
+  {
+   "id": "d2-l28",
+   "dealerId": "d2",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 744000,
+   "mileage": 106900,
+   "status": "sold",
+   "views": 2235,
+   "leads": 25,
+   "listedAt": "2026-08-05"
+  },
+  {
+   "id": "d2-l29",
+   "dealerId": "d2",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 578000,
+   "mileage": 31500,
+   "status": "active",
+   "views": 2276,
+   "leads": 2,
+   "listedAt": "2026-07-06"
+  },
+  {
+   "id": "d2-l30",
+   "dealerId": "d2",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 826000,
+   "mileage": 97000,
+   "status": "active",
+   "views": 2141,
+   "leads": 21,
+   "listedAt": "2026-07-12"
+  },
+  {
+   "id": "d2-l31",
+   "dealerId": "d2",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 655000,
+   "mileage": 150200,
+   "status": "active",
+   "views": 1813,
+   "leads": 21,
+   "listedAt": "2026-07-18"
+  },
+  {
+   "id": "d2-l32",
+   "dealerId": "d2",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 963000,
+   "mileage": 44700,
+   "status": "active",
+   "views": 1550,
+   "leads": 11,
+   "listedAt": "2026-08-27"
+  },
+  {
+   "id": "d2-l33",
+   "dealerId": "d2",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1300000,
+   "mileage": 85500,
+   "status": "draft",
+   "views": 1718,
+   "leads": 19,
+   "listedAt": "2026-06-17"
+  },
+  {
+   "id": "d2-l34",
+   "dealerId": "d2",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1549000,
+   "mileage": 108100,
+   "status": "flagged",
+   "views": 933,
+   "leads": 19,
+   "listedAt": "2026-06-12"
+  },
+  {
+   "id": "d2-l35",
+   "dealerId": "d2",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2268000,
+   "mileage": 54700,
+   "status": "active",
+   "views": 2025,
+   "leads": 17,
+   "listedAt": "2026-08-12"
+  },
+  {
+   "id": "d2-l36",
+   "dealerId": "d2",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1549000,
+   "mileage": 64000,
+   "status": "active",
+   "views": 921,
+   "leads": 14,
+   "listedAt": "2026-09-21"
+  },
+  {
+   "id": "d2-l37",
+   "dealerId": "d2",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 329000,
+   "mileage": 141500,
+   "status": "active",
+   "views": 1217,
+   "leads": 19,
+   "listedAt": "2026-09-25"
+  },
+  {
+   "id": "d2-l38",
+   "dealerId": "d2",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 680000,
+   "mileage": 112200,
+   "status": "active",
+   "views": 2276,
+   "leads": 13,
+   "listedAt": "2026-09-07"
+  },
+  {
+   "id": "d2-l39",
+   "dealerId": "d2",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 736000,
+   "mileage": 400,
+   "status": "flagged",
+   "views": 1314,
+   "leads": 26,
+   "listedAt": "2026-08-11"
+  },
+  {
+   "id": "d2-l40",
+   "dealerId": "d2",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 643000,
+   "mileage": 70800,
+   "status": "sold",
+   "views": 711,
+   "leads": 28,
+   "listedAt": "2026-09-05"
+  },
+  {
+   "id": "d2-l41",
+   "dealerId": "d2",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 646000,
+   "mileage": 41800,
+   "status": "active",
+   "views": 401,
+   "leads": 22,
+   "listedAt": "2026-09-07"
+  },
+  {
+   "id": "d2-l42",
+   "dealerId": "d2",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 638000,
+   "mileage": 119400,
+   "status": "active",
+   "views": 1018,
+   "leads": 4,
+   "listedAt": "2026-07-09"
+  },
+  {
+   "id": "d3-l1",
+   "dealerId": "d3",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 770000,
+   "mileage": 68300,
+   "status": "draft",
+   "views": 2284,
+   "leads": 19,
+   "listedAt": "2026-07-20"
+  },
+  {
+   "id": "d3-l2",
+   "dealerId": "d3",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 614000,
+   "mileage": 49300,
+   "status": "active",
+   "views": 576,
+   "leads": 26,
+   "listedAt": "2026-08-06"
+  },
+  {
+   "id": "d3-l3",
+   "dealerId": "d3",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 711000,
+   "mileage": 120000,
+   "status": "active",
+   "views": 1421,
+   "leads": 20,
+   "listedAt": "2026-07-09"
+  },
+  {
+   "id": "d3-l4",
+   "dealerId": "d3",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 621000,
+   "mileage": 102900,
+   "status": "flagged",
+   "views": 1745,
+   "leads": 8,
+   "listedAt": "2026-07-07"
+  },
+  {
+   "id": "d3-l5",
+   "dealerId": "d3",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 920000,
+   "mileage": 44000,
+   "status": "active",
+   "views": 222,
+   "leads": 4,
+   "listedAt": "2026-09-05"
+  },
+  {
+   "id": "d3-l6",
+   "dealerId": "d3",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1046000,
+   "mileage": 98200,
+   "status": "active",
+   "views": 2371,
+   "leads": 13,
+   "listedAt": "2026-08-13"
+  },
+  {
+   "id": "d3-l7",
+   "dealerId": "d3",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1863000,
+   "mileage": 126100,
+   "status": "sold",
+   "views": 874,
+   "leads": 17,
+   "listedAt": "2026-07-03"
+  },
+  {
+   "id": "d3-l8",
+   "dealerId": "d3",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2294000,
+   "mileage": 82400,
+   "status": "sold",
+   "views": 2344,
+   "leads": 17,
+   "listedAt": "2026-08-19"
+  },
+  {
+   "id": "d3-l9",
+   "dealerId": "d3",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1411000,
+   "mileage": 45500,
+   "status": "draft",
+   "views": 1306,
+   "leads": 25,
+   "listedAt": "2026-08-13"
+  },
+  {
+   "id": "d3-l10",
+   "dealerId": "d3",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 350000,
+   "mileage": 244500,
+   "status": "active",
+   "views": 366,
+   "leads": 12,
+   "listedAt": "2026-09-07"
+  },
+  {
+   "id": "d3-l11",
+   "dealerId": "d3",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 627000,
+   "mileage": 117400,
+   "status": "flagged",
+   "views": 654,
+   "leads": 14,
+   "listedAt": "2026-07-09"
+  },
+  {
+   "id": "d3-l12",
+   "dealerId": "d3",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 878000,
+   "mileage": 500,
+   "status": "active",
+   "views": 2286,
+   "leads": 24,
+   "listedAt": "2026-07-20"
+  },
+  {
+   "id": "d3-l13",
+   "dealerId": "d3",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 634000,
+   "mileage": 88300,
+   "status": "draft",
+   "views": 726,
+   "leads": 26,
+   "listedAt": "2026-06-11"
+  },
+  {
+   "id": "d3-l14",
+   "dealerId": "d3",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 623000,
+   "mileage": 30500,
+   "status": "draft",
+   "views": 501,
+   "leads": 0,
+   "listedAt": "2026-06-06"
+  },
+  {
+   "id": "d3-l15",
+   "dealerId": "d3",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 750000,
+   "mileage": 126500,
+   "status": "active",
+   "views": 983,
+   "leads": 8,
+   "listedAt": "2026-07-05"
+  },
+  {
+   "id": "d3-l16",
+   "dealerId": "d3",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 582000,
+   "mileage": 145200,
+   "status": "active",
+   "views": 1568,
+   "leads": 22,
+   "listedAt": "2026-07-20"
+  },
+  {
+   "id": "d3-l17",
+   "dealerId": "d3",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 817000,
+   "mileage": 31600,
+   "status": "flagged",
+   "views": 210,
+   "leads": 10,
+   "listedAt": "2026-08-10"
+  },
+  {
+   "id": "d3-l18",
+   "dealerId": "d3",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1210000,
+   "mileage": 107700,
+   "status": "flagged",
+   "views": 2286,
+   "leads": 7,
+   "listedAt": "2026-07-23"
+  },
+  {
+   "id": "d3-l19",
+   "dealerId": "d3",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1798000,
+   "mileage": 95300,
+   "status": "active",
+   "views": 1435,
+   "leads": 6,
+   "listedAt": "2026-06-27"
+  },
+  {
+   "id": "d3-l20",
+   "dealerId": "d3",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2173000,
+   "mileage": 69400,
+   "status": "active",
+   "views": 1959,
+   "leads": 26,
+   "listedAt": "2026-09-23"
+  },
+  {
+   "id": "d3-l21",
+   "dealerId": "d3",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1201000,
+   "mileage": 42300,
+   "status": "flagged",
+   "views": 1063,
+   "leads": 4,
+   "listedAt": "2026-09-02"
+  },
+  {
+   "id": "d3-l22",
+   "dealerId": "d3",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 336000,
+   "mileage": 163900,
+   "status": "sold",
+   "views": 775,
+   "leads": 18,
+   "listedAt": "2026-08-15"
+  },
+  {
+   "id": "d3-l23",
+   "dealerId": "d3",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 672000,
+   "mileage": 99100,
+   "status": "active",
+   "views": 1767,
+   "leads": 25,
+   "listedAt": "2026-06-05"
+  },
+  {
+   "id": "d3-l24",
+   "dealerId": "d3",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 705000,
+   "mileage": 400,
+   "status": "active",
+   "views": 1737,
+   "leads": 28,
+   "listedAt": "2026-07-16"
+  },
+  {
+   "id": "d3-l25",
+   "dealerId": "d3",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 656000,
+   "mileage": 96100,
+   "status": "sold",
+   "views": 103,
+   "leads": 19,
+   "listedAt": "2026-09-12"
+  },
+  {
+   "id": "d4-l1",
+   "dealerId": "d4",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 536000,
+   "mileage": 161300,
+   "status": "flagged",
+   "views": 1642,
+   "leads": 20,
+   "listedAt": "2026-08-15"
+  },
+  {
+   "id": "d4-l2",
+   "dealerId": "d4",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 1056000,
+   "mileage": 44600,
+   "status": "sold",
+   "views": 1801,
+   "leads": 3,
+   "listedAt": "2026-07-20"
+  },
+  {
+   "id": "d4-l3",
+   "dealerId": "d4",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1372000,
+   "mileage": 92700,
+   "status": "active",
+   "views": 1993,
+   "leads": 26,
+   "listedAt": "2026-07-13"
+  },
+  {
+   "id": "d4-l4",
+   "dealerId": "d4",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1575000,
+   "mileage": 81300,
+   "status": "active",
+   "views": 2198,
+   "leads": 14,
+   "listedAt": "2026-07-12"
+  },
+  {
+   "id": "d4-l5",
+   "dealerId": "d4",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2192000,
+   "mileage": 94100,
+   "status": "active",
+   "views": 1513,
+   "leads": 11,
+   "listedAt": "2026-08-01"
+  },
+  {
+   "id": "d4-l6",
+   "dealerId": "d4",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1352000,
+   "mileage": 37000,
+   "status": "draft",
+   "views": 206,
+   "leads": 5,
+   "listedAt": "2026-07-22"
+  },
+  {
+   "id": "d4-l7",
+   "dealerId": "d4",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 353000,
+   "mileage": 200400,
+   "status": "active",
+   "views": 1661,
+   "leads": 15,
+   "listedAt": "2026-09-02"
+  },
+  {
+   "id": "d4-l8",
+   "dealerId": "d4",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 548000,
+   "mileage": 119300,
+   "status": "active",
+   "views": 107,
+   "leads": 17,
+   "listedAt": "2026-07-17"
+  },
+  {
+   "id": "d4-l9",
+   "dealerId": "d4",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 663000,
+   "mileage": 400,
+   "status": "active",
+   "views": 1245,
+   "leads": 0,
+   "listedAt": "2026-07-17"
+  },
+  {
+   "id": "d4-l10",
+   "dealerId": "d4",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 728000,
+   "mileage": 89300,
+   "status": "active",
+   "views": 1036,
+   "leads": 10,
+   "listedAt": "2026-09-22"
+  },
+  {
+   "id": "d4-l11",
+   "dealerId": "d4",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 628000,
+   "mileage": 37200,
+   "status": "flagged",
+   "views": 608,
+   "leads": 0,
+   "listedAt": "2026-08-27"
+  },
+  {
+   "id": "d4-l12",
+   "dealerId": "d4",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 779000,
+   "mileage": 106400,
+   "status": "active",
+   "views": 705,
+   "leads": 27,
+   "listedAt": "2026-08-21"
+  },
+  {
+   "id": "d4-l13",
+   "dealerId": "d4",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 582000,
+   "mileage": 142800,
+   "status": "flagged",
+   "views": 1680,
+   "leads": 26,
+   "listedAt": "2026-08-21"
+  },
+  {
+   "id": "d4-l14",
+   "dealerId": "d4",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 976000,
+   "mileage": 37600,
+   "status": "active",
+   "views": 401,
+   "leads": 18,
+   "listedAt": "2026-06-02"
+  },
+  {
+   "id": "d4-l15",
+   "dealerId": "d4",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1242000,
+   "mileage": 96100,
+   "status": "sold",
+   "views": 1847,
+   "leads": 14,
+   "listedAt": "2026-08-11"
+  },
+  {
+   "id": "d4-l16",
+   "dealerId": "d4",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1915000,
+   "mileage": 80400,
+   "status": "active",
+   "views": 1637,
+   "leads": 14,
+   "listedAt": "2026-07-15"
+  },
+  {
+   "id": "d4-l17",
+   "dealerId": "d4",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2355000,
+   "mileage": 71100,
+   "status": "flagged",
+   "views": 139,
+   "leads": 21,
+   "listedAt": "2026-07-21"
+  },
+  {
+   "id": "d4-l18",
+   "dealerId": "d4",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1427000,
+   "mileage": 60100,
+   "status": "active",
+   "views": 813,
+   "leads": 10,
+   "listedAt": "2026-08-24"
+  },
+  {
+   "id": "d4-l19",
+   "dealerId": "d4",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 312000,
+   "mileage": 234600,
+   "status": "active",
+   "views": 1793,
+   "leads": 28,
+   "listedAt": "2026-09-15"
+  },
+  {
+   "id": "d4-l20",
+   "dealerId": "d4",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 673000,
+   "mileage": 75300,
+   "status": "active",
+   "views": 1271,
+   "leads": 4,
+   "listedAt": "2026-06-23"
+  },
+  {
+   "id": "d4-l21",
+   "dealerId": "d4",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 689000,
+   "mileage": 400,
+   "status": "active",
+   "views": 2295,
+   "leads": 19,
+   "listedAt": "2026-07-04"
+  },
+  {
+   "id": "d4-l22",
+   "dealerId": "d4",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 699000,
+   "mileage": 107900,
+   "status": "active",
+   "views": 2243,
+   "leads": 23,
+   "listedAt": "2026-08-26"
+  },
+  {
+   "id": "d4-l23",
+   "dealerId": "d4",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 632000,
+   "mileage": 35300,
+   "status": "active",
+   "views": 971,
+   "leads": 1,
+   "listedAt": "2026-08-12"
+  },
+  {
+   "id": "d4-l24",
+   "dealerId": "d4",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 685000,
+   "mileage": 108200,
+   "status": "active",
+   "views": 1456,
+   "leads": 22,
+   "listedAt": "2026-07-21"
+  },
+  {
+   "id": "d4-l25",
+   "dealerId": "d4",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 630000,
+   "mileage": 154200,
+   "status": "draft",
+   "views": 1540,
+   "leads": 1,
+   "listedAt": "2026-08-12"
+  },
+  {
+   "id": "d5-l1",
+   "dealerId": "d5",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1943000,
+   "mileage": 101400,
+   "status": "flagged",
+   "views": 612,
+   "leads": 1,
+   "listedAt": "2026-06-15"
+  },
+  {
+   "id": "d5-l2",
+   "dealerId": "d5",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2417000,
+   "mileage": 55400,
+   "status": "active",
+   "views": 288,
+   "leads": 26,
+   "listedAt": "2026-07-06"
+  },
+  {
+   "id": "d5-l3",
+   "dealerId": "d5",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1582000,
+   "mileage": 56400,
+   "status": "active",
+   "views": 2208,
+   "leads": 18,
+   "listedAt": "2026-07-12"
+  },
+  {
+   "id": "d5-l4",
+   "dealerId": "d5",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 306000,
+   "mileage": 168600,
+   "status": "draft",
+   "views": 2256,
+   "leads": 9,
+   "listedAt": "2026-09-28"
+  },
+  {
+   "id": "d5-l5",
+   "dealerId": "d5",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 578000,
+   "mileage": 105300,
+   "status": "sold",
+   "views": 1187,
+   "leads": 17,
+   "listedAt": "2026-07-27"
+  },
+  {
+   "id": "d5-l6",
+   "dealerId": "d5",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 857000,
+   "mileage": 400,
+   "status": "active",
+   "views": 1172,
+   "leads": 14,
+   "listedAt": "2026-08-26"
+  },
+  {
+   "id": "d5-l7",
+   "dealerId": "d5",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 649000,
+   "mileage": 69500,
+   "status": "active",
+   "views": 259,
+   "leads": 27,
+   "listedAt": "2026-09-21"
+  },
+  {
+   "id": "d5-l8",
+   "dealerId": "d5",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 565000,
+   "mileage": 34600,
+   "status": "sold",
+   "views": 1373,
+   "leads": 8,
+   "listedAt": "2026-08-18"
+  },
+  {
+   "id": "d5-l9",
+   "dealerId": "d5",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 835000,
+   "mileage": 141100,
+   "status": "active",
+   "views": 946,
+   "leads": 7,
+   "listedAt": "2026-06-15"
+  },
+  {
+   "id": "d5-l10",
+   "dealerId": "d5",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 634000,
+   "mileage": 112900,
+   "status": "flagged",
+   "views": 2143,
+   "leads": 5,
+   "listedAt": "2026-06-14"
+  },
+  {
+   "id": "d5-l11",
+   "dealerId": "d5",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 931000,
+   "mileage": 45100,
+   "status": "flagged",
+   "views": 166,
+   "leads": 19,
+   "listedAt": "2026-09-09"
+  },
+  {
+   "id": "d5-l12",
+   "dealerId": "d5",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1107000,
+   "mileage": 71100,
+   "status": "draft",
+   "views": 883,
+   "leads": 7,
+   "listedAt": "2026-08-20"
+  },
+  {
+   "id": "d5-l13",
+   "dealerId": "d5",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1608000,
+   "mileage": 102600,
+   "status": "active",
+   "views": 529,
+   "leads": 15,
+   "listedAt": "2026-09-23"
+  },
+  {
+   "id": "d5-l14",
+   "dealerId": "d5",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2487000,
+   "mileage": 62100,
+   "status": "active",
+   "views": 531,
+   "leads": 2,
+   "listedAt": "2026-06-19"
+  },
+  {
+   "id": "d5-l15",
+   "dealerId": "d5",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1534000,
+   "mileage": 44800,
+   "status": "draft",
+   "views": 2112,
+   "leads": 3,
+   "listedAt": "2026-07-08"
+  },
+  {
+   "id": "d7-l1",
+   "dealerId": "d7",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 782000,
+   "mileage": 77300,
+   "status": "flagged",
+   "views": 2172,
+   "leads": 18,
+   "listedAt": "2026-06-07"
+  },
+  {
+   "id": "d7-l2",
+   "dealerId": "d7",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 517000,
+   "mileage": 30000,
+   "status": "active",
+   "views": 1200,
+   "leads": 10,
+   "listedAt": "2026-07-02"
+  },
+  {
+   "id": "d7-l3",
+   "dealerId": "d7",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 645000,
+   "mileage": 133300,
+   "status": "draft",
+   "views": 1133,
+   "leads": 4,
+   "listedAt": "2026-09-20"
+  },
+  {
+   "id": "d7-l4",
+   "dealerId": "d7",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 639000,
+   "mileage": 127500,
+   "status": "active",
+   "views": 1144,
+   "leads": 4,
+   "listedAt": "2026-07-08"
+  },
+  {
+   "id": "d7-l5",
+   "dealerId": "d7",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 987000,
+   "mileage": 39700,
+   "status": "active",
+   "views": 1601,
+   "leads": 6,
+   "listedAt": "2026-08-10"
+  },
+  {
+   "id": "d7-l6",
+   "dealerId": "d7",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1078000,
+   "mileage": 71100,
+   "status": "flagged",
+   "views": 1738,
+   "leads": 25,
+   "listedAt": "2026-07-24"
+  },
+  {
+   "id": "d7-l7",
+   "dealerId": "d7",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1593000,
+   "mileage": 74900,
+   "status": "draft",
+   "views": 1853,
+   "leads": 4,
+   "listedAt": "2026-09-06"
+  },
+  {
+   "id": "d7-l8",
+   "dealerId": "d7",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2158000,
+   "mileage": 84700,
+   "status": "active",
+   "views": 1308,
+   "leads": 8,
+   "listedAt": "2026-08-19"
+  },
+  {
+   "id": "d7-l9",
+   "dealerId": "d7",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1436000,
+   "mileage": 37400,
+   "status": "sold",
+   "views": 1200,
+   "leads": 18,
+   "listedAt": "2026-06-02"
+  },
+  {
+   "id": "d7-l10",
+   "dealerId": "d7",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 383000,
+   "mileage": 144900,
+   "status": "active",
+   "views": 1749,
+   "leads": 24,
+   "listedAt": "2026-07-27"
+  },
+  {
+   "id": "d7-l11",
+   "dealerId": "d7",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 531000,
+   "mileage": 75600,
+   "status": "sold",
+   "views": 1003,
+   "leads": 16,
+   "listedAt": "2026-07-26"
+  },
+  {
+   "id": "d7-l12",
+   "dealerId": "d7",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 879000,
+   "mileage": 600,
+   "status": "active",
+   "views": 1008,
+   "leads": 26,
+   "listedAt": "2026-08-12"
+  },
+  {
+   "id": "d7-l13",
+   "dealerId": "d7",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 797000,
+   "mileage": 115000,
+   "status": "active",
+   "views": 464,
+   "leads": 26,
+   "listedAt": "2026-07-25"
+  },
+  {
+   "id": "d7-l14",
+   "dealerId": "d7",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 517000,
+   "mileage": 33800,
+   "status": "active",
+   "views": 622,
+   "leads": 18,
+   "listedAt": "2026-09-16"
+  },
+  {
+   "id": "d7-l15",
+   "dealerId": "d7",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 628000,
+   "mileage": 146000,
+   "status": "active",
+   "views": 416,
+   "leads": 27,
+   "listedAt": "2026-07-07"
+  },
+  {
+   "id": "d7-l16",
+   "dealerId": "d7",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 672000,
+   "mileage": 143600,
+   "status": "sold",
+   "views": 125,
+   "leads": 8,
+   "listedAt": "2026-08-20"
+  },
+  {
+   "id": "d7-l17",
+   "dealerId": "d7",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 977000,
+   "mileage": 33300,
+   "status": "active",
+   "views": 2007,
+   "leads": 4,
+   "listedAt": "2026-07-21"
+  },
+  {
+   "id": "d7-l18",
+   "dealerId": "d7",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1184000,
+   "mileage": 109600,
+   "status": "active",
+   "views": 1793,
+   "leads": 18,
+   "listedAt": "2026-08-04"
+  },
+  {
+   "id": "d7-l19",
+   "dealerId": "d7",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1795000,
+   "mileage": 77900,
+   "status": "active",
+   "views": 743,
+   "leads": 1,
+   "listedAt": "2026-09-19"
+  },
+  {
+   "id": "d7-l20",
+   "dealerId": "d7",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2226000,
+   "mileage": 83500,
+   "status": "flagged",
+   "views": 684,
+   "leads": 22,
+   "listedAt": "2026-08-22"
+  },
+  {
+   "id": "d7-l21",
+   "dealerId": "d7",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1337000,
+   "mileage": 41300,
+   "status": "active",
+   "views": 623,
+   "leads": 24,
+   "listedAt": "2026-07-24"
+  },
+  {
+   "id": "d7-l22",
+   "dealerId": "d7",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 345000,
+   "mileage": 144100,
+   "status": "active",
+   "views": 900,
+   "leads": 12,
+   "listedAt": "2026-08-09"
+  },
+  {
+   "id": "d7-l23",
+   "dealerId": "d7",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 686000,
+   "mileage": 88600,
+   "status": "flagged",
+   "views": 2312,
+   "leads": 21,
+   "listedAt": "2026-08-06"
+  },
+  {
+   "id": "d7-l24",
+   "dealerId": "d7",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 810000,
+   "mileage": 500,
+   "status": "active",
+   "views": 703,
+   "leads": 12,
+   "listedAt": "2026-08-21"
+  },
+  {
+   "id": "d7-l25",
+   "dealerId": "d7",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 730000,
+   "mileage": 116800,
+   "status": "active",
+   "views": 1855,
+   "leads": 9,
+   "listedAt": "2026-08-24"
+  },
+  {
+   "id": "d8-l1",
+   "dealerId": "d8",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 592000,
+   "mileage": 174900,
+   "status": "flagged",
+   "views": 1103,
+   "leads": 19,
+   "listedAt": "2026-07-24"
+  },
+  {
+   "id": "d8-l2",
+   "dealerId": "d8",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 856000,
+   "mileage": 35200,
+   "status": "active",
+   "views": 1740,
+   "leads": 6,
+   "listedAt": "2026-07-16"
+  },
+  {
+   "id": "d8-l3",
+   "dealerId": "d8",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1228000,
+   "mileage": 69100,
+   "status": "active",
+   "views": 2108,
+   "leads": 7,
+   "listedAt": "2026-08-13"
+  },
+  {
+   "id": "d8-l4",
+   "dealerId": "d8",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1489000,
+   "mileage": 115900,
+   "status": "flagged",
+   "views": 1498,
+   "leads": 8,
+   "listedAt": "2026-08-22"
+  },
+  {
+   "id": "d8-l5",
+   "dealerId": "d8",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2584000,
+   "mileage": 77600,
+   "status": "flagged",
+   "views": 1275,
+   "leads": 14,
+   "listedAt": "2026-08-09"
+  },
+  {
+   "id": "d8-l6",
+   "dealerId": "d8",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1409000,
+   "mileage": 62100,
+   "status": "draft",
+   "views": 800,
+   "leads": 20,
+   "listedAt": "2026-07-16"
+  },
+  {
+   "id": "d8-l7",
+   "dealerId": "d8",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 325000,
+   "mileage": 139100,
+   "status": "sold",
+   "views": 1626,
+   "leads": 20,
+   "listedAt": "2026-06-01"
+  },
+  {
+   "id": "d8-l8",
+   "dealerId": "d8",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 577000,
+   "mileage": 126100,
+   "status": "flagged",
+   "views": 2018,
+   "leads": 2,
+   "listedAt": "2026-06-02"
+  },
+  {
+   "id": "d8-l9",
+   "dealerId": "d8",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 760000,
+   "mileage": 500,
+   "status": "active",
+   "views": 765,
+   "leads": 22,
+   "listedAt": "2026-08-12"
+  },
+  {
+   "id": "d8-l10",
+   "dealerId": "d8",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 627000,
+   "mileage": 85900,
+   "status": "flagged",
+   "views": 1334,
+   "leads": 24,
+   "listedAt": "2026-07-06"
+  },
+  {
+   "id": "d8-l11",
+   "dealerId": "d8",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 551000,
+   "mileage": 48800,
+   "status": "draft",
+   "views": 2128,
+   "leads": 13,
+   "listedAt": "2026-07-22"
+  },
+  {
+   "id": "d8-l12",
+   "dealerId": "d8",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 779000,
+   "mileage": 151400,
+   "status": "active",
+   "views": 663,
+   "leads": 13,
+   "listedAt": "2026-07-07"
+  },
+  {
+   "id": "d8-l13",
+   "dealerId": "d8",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 568000,
+   "mileage": 135600,
+   "status": "active",
+   "views": 919,
+   "leads": 5,
+   "listedAt": "2026-08-14"
+  },
+  {
+   "id": "d8-l14",
+   "dealerId": "d8",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 815000,
+   "mileage": 28600,
+   "status": "active",
+   "views": 451,
+   "leads": 15,
+   "listedAt": "2026-08-28"
+  },
+  {
+   "id": "d8-l15",
+   "dealerId": "d8",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1211000,
+   "mileage": 93000,
+   "status": "draft",
+   "views": 2072,
+   "leads": 8,
+   "listedAt": "2026-07-19"
+  },
+  {
+   "id": "d9-l1",
+   "dealerId": "d9",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1795000,
+   "mileage": 101200,
+   "status": "active",
+   "views": 926,
+   "leads": 27,
+   "listedAt": "2026-06-15"
+  },
+  {
+   "id": "d9-l2",
+   "dealerId": "d9",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2301000,
+   "mileage": 74500,
+   "status": "draft",
+   "views": 2332,
+   "leads": 16,
+   "listedAt": "2026-08-02"
+  },
+  {
+   "id": "d9-l3",
+   "dealerId": "d9",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1269000,
+   "mileage": 64000,
+   "status": "active",
+   "views": 906,
+   "leads": 10,
+   "listedAt": "2026-07-02"
+  },
+  {
+   "id": "d9-l4",
+   "dealerId": "d9",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 388000,
+   "mileage": 148800,
+   "status": "flagged",
+   "views": 361,
+   "leads": 17,
+   "listedAt": "2026-06-13"
+  },
+  {
+   "id": "d9-l5",
+   "dealerId": "d9",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 669000,
+   "mileage": 84800,
+   "status": "active",
+   "views": 1069,
+   "leads": 10,
+   "listedAt": "2026-06-05"
+  },
+  {
+   "id": "d9-l6",
+   "dealerId": "d9",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 755000,
+   "mileage": 400,
+   "status": "flagged",
+   "views": 354,
+   "leads": 20,
+   "listedAt": "2026-08-15"
+  },
+  {
+   "id": "d9-l7",
+   "dealerId": "d9",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 763000,
+   "mileage": 92500,
+   "status": "active",
+   "views": 606,
+   "leads": 1,
+   "listedAt": "2026-09-06"
+  },
+  {
+   "id": "d9-l8",
+   "dealerId": "d9",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 507000,
+   "mileage": 32700,
+   "status": "active",
+   "views": 1372,
+   "leads": 25,
+   "listedAt": "2026-07-17"
+  },
+  {
+   "id": "d9-l9",
+   "dealerId": "d9",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 780000,
+   "mileage": 119000,
+   "status": "draft",
+   "views": 1966,
+   "leads": 27,
+   "listedAt": "2026-08-19"
+  },
+  {
+   "id": "d9-l10",
+   "dealerId": "d9",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 515000,
+   "mileage": 142200,
+   "status": "sold",
+   "views": 1294,
+   "leads": 20,
+   "listedAt": "2026-07-24"
+  },
+  {
+   "id": "d9-l11",
+   "dealerId": "d9",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 995000,
+   "mileage": 38100,
+   "status": "active",
+   "views": 2234,
+   "leads": 7,
+   "listedAt": "2026-08-13"
+  },
+  {
+   "id": "d9-l12",
+   "dealerId": "d9",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1107000,
+   "mileage": 71300,
+   "status": "active",
+   "views": 159,
+   "leads": 1,
+   "listedAt": "2026-07-16"
+  },
+  {
+   "id": "d9-l13",
+   "dealerId": "d9",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1760000,
+   "mileage": 85300,
+   "status": "active",
+   "views": 1673,
+   "leads": 2,
+   "listedAt": "2026-07-25"
+  },
+  {
+   "id": "d9-l14",
+   "dealerId": "d9",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2543000,
+   "mileage": 86300,
+   "status": "active",
+   "views": 2096,
+   "leads": 24,
+   "listedAt": "2026-06-16"
+  },
+  {
+   "id": "d9-l15",
+   "dealerId": "d9",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1243000,
+   "mileage": 35200,
+   "status": "sold",
+   "views": 2365,
+   "leads": 2,
+   "listedAt": "2026-06-23"
+  },
+  {
+   "id": "d9-l16",
+   "dealerId": "d9",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 337000,
+   "mileage": 207700,
+   "status": "draft",
+   "views": 230,
+   "leads": 11,
+   "listedAt": "2026-06-11"
+  },
+  {
+   "id": "d9-l17",
+   "dealerId": "d9",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 653000,
+   "mileage": 93200,
+   "status": "active",
+   "views": 1816,
+   "leads": 21,
+   "listedAt": "2026-08-25"
+  },
+  {
+   "id": "d9-l18",
+   "dealerId": "d9",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 679000,
+   "mileage": 400,
+   "status": "draft",
+   "views": 1246,
+   "leads": 21,
+   "listedAt": "2026-07-05"
+  },
+  {
+   "id": "d9-l19",
+   "dealerId": "d9",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 767000,
+   "mileage": 88900,
+   "status": "active",
+   "views": 743,
+   "leads": 4,
+   "listedAt": "2026-08-24"
+  },
+  {
+   "id": "d9-l20",
+   "dealerId": "d9",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 546000,
+   "mileage": 32000,
+   "status": "active",
+   "views": 1140,
+   "leads": 13,
+   "listedAt": "2026-09-14"
+  },
+  {
+   "id": "d9-l21",
+   "dealerId": "d9",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 783000,
+   "mileage": 154500,
+   "status": "sold",
+   "views": 2307,
+   "leads": 25,
+   "listedAt": "2026-07-15"
+  },
+  {
+   "id": "d9-l22",
+   "dealerId": "d9",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 564000,
+   "mileage": 125000,
+   "status": "sold",
+   "views": 1882,
+   "leads": 21,
+   "listedAt": "2026-08-13"
+  },
+  {
+   "id": "d9-l23",
+   "dealerId": "d9",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 843000,
+   "mileage": 42900,
+   "status": "draft",
+   "views": 340,
+   "leads": 2,
+   "listedAt": "2026-06-01"
+  },
+  {
+   "id": "d9-l24",
+   "dealerId": "d9",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1204000,
+   "mileage": 72200,
+   "status": "active",
+   "views": 1518,
+   "leads": 8,
+   "listedAt": "2026-07-26"
+  },
+  {
+   "id": "d9-l25",
+   "dealerId": "d9",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1892000,
+   "mileage": 79100,
+   "status": "draft",
+   "views": 119,
+   "leads": 18,
+   "listedAt": "2026-06-01"
+  },
+  {
+   "id": "d9-l26",
+   "dealerId": "d9",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2542000,
+   "mileage": 87100,
+   "status": "draft",
+   "views": 1929,
+   "leads": 1,
+   "listedAt": "2026-09-05"
+  },
+  {
+   "id": "d9-l27",
+   "dealerId": "d9",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1354000,
+   "mileage": 62700,
+   "status": "active",
+   "views": 173,
+   "leads": 11,
+   "listedAt": "2026-09-19"
+  },
+  {
+   "id": "d9-l28",
+   "dealerId": "d9",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 345000,
+   "mileage": 153500,
+   "status": "active",
+   "views": 1546,
+   "leads": 11,
+   "listedAt": "2026-06-09"
+  },
+  {
+   "id": "d9-l29",
+   "dealerId": "d9",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 571000,
+   "mileage": 83500,
+   "status": "active",
+   "views": 226,
+   "leads": 3,
+   "listedAt": "2026-07-14"
+  },
+  {
+   "id": "d9-l30",
+   "dealerId": "d9",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 841000,
+   "mileage": 300,
+   "status": "active",
+   "views": 1830,
+   "leads": 5,
+   "listedAt": "2026-07-26"
+  },
+  {
+   "id": "d9-l31",
+   "dealerId": "d9",
+   "title": "2018 Toyota Camry 2.0 G AT",
+   "image": "/img/recent-cars/toyota-camry.jpg",
+   "price": 772000,
+   "mileage": 101300,
+   "status": "flagged",
+   "views": 1027,
+   "leads": 25,
+   "listedAt": "2026-06-13"
+  },
+  {
+   "id": "d9-l32",
+   "dealerId": "d9",
+   "title": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "image": "/img/recent-cars/toyota-yaris-ativ.jpg",
+   "price": 640000,
+   "mileage": 45300,
+   "status": "active",
+   "views": 1774,
+   "leads": 15,
+   "listedAt": "2026-08-26"
+  },
+  {
+   "id": "d9-l33",
+   "dealerId": "d9",
+   "title": "2017 BMW 3 Series 320d GT SPORT F34",
+   "image": "/img/recent-cars/bmw-320d-gt.jpg",
+   "price": 668000,
+   "mileage": 147200,
+   "status": "flagged",
+   "views": 722,
+   "leads": 28,
+   "listedAt": "2026-08-22"
+  },
+  {
+   "id": "d9-l34",
+   "dealerId": "d9",
+   "title": "2014 BMW 3 Series 320d Luxury F30",
+   "image": "/img/recent-cars/bmw-320d-f30.jpg",
+   "price": 565000,
+   "mileage": 141900,
+   "status": "active",
+   "views": 200,
+   "leads": 9,
+   "listedAt": "2026-08-21"
+  },
+  {
+   "id": "d9-l35",
+   "dealerId": "d9",
+   "title": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-a200.jpg",
+   "price": 1031000,
+   "mileage": 36500,
+   "status": "active",
+   "views": 386,
+   "leads": 15,
+   "listedAt": "2026-07-07"
+  },
+  {
+   "id": "d9-l36",
+   "dealerId": "d9",
+   "title": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "image": "/img/recent-cars/mercedes-gla200.jpg",
+   "price": 1083000,
+   "mileage": 83800,
+   "status": "active",
+   "views": 2298,
+   "leads": 14,
+   "listedAt": "2026-06-13"
+  },
+  {
+   "id": "d9-l37",
+   "dealerId": "d9",
+   "title": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "image": "/img/featured-cars/toyota-land-cruiser.jpg",
+   "price": 1774000,
+   "mileage": 86600,
+   "status": "active",
+   "views": 1110,
+   "leads": 21,
+   "listedAt": "2026-08-20"
+  },
+  {
+   "id": "d9-l38",
+   "dealerId": "d9",
+   "title": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "image": "/img/featured-cars/mercedes-glc.jpg",
+   "price": 2413000,
+   "mileage": 81200,
+   "status": "active",
+   "views": 682,
+   "leads": 6,
+   "listedAt": "2026-07-13"
+  },
+  {
+   "id": "d9-l39",
+   "dealerId": "d9",
+   "title": "2024 Honda CR-V HEV RS 4WD AT",
+   "image": "/img/featured-cars/honda-crv.jpg",
+   "price": 1587000,
+   "mileage": 54700,
+   "status": "draft",
+   "views": 152,
+   "leads": 17,
+   "listedAt": "2026-08-22"
+  },
+  {
+   "id": "d9-l40",
+   "dealerId": "d9",
+   "title": "2014 Hyundai i40 2.0 AT",
+   "image": "/img/featured-cars/hyundai-i40.jpg",
+   "price": 300000,
+   "mileage": 195800,
+   "status": "active",
+   "views": 74,
+   "leads": 22,
+   "listedAt": "2026-06-23"
+  },
+  {
+   "id": "d9-l41",
+   "dealerId": "d9",
+   "title": "2017 Volvo XC60 D4 AWD",
+   "image": "/img/featured-cars/volvo-xc60.jpg",
+   "price": 687000,
+   "mileage": 92400,
+   "status": "draft",
+   "views": 2355,
+   "leads": 25,
+   "listedAt": "2026-09-11"
+  },
+  {
+   "id": "d9-l42",
+   "dealerId": "d9",
+   "title": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "image": "/img/featured-cars/mitsubishi-triton.jpg",
+   "price": 848000,
+   "mileage": 400,
+   "status": "flagged",
+   "views": 394,
+   "leads": 6,
+   "listedAt": "2026-06-20"
+  }
+ ],
+ "leads": [
+  {
+   "id": "d2-ld26",
+   "dealerId": "d2",
+   "customer": "Dineo Jacobs",
+   "phone": "082 565 1930",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-10-06T14:35"
+  },
+  {
+   "id": "d7-ld12",
+   "dealerId": "d7",
+   "customer": "Mpho Reddy",
+   "phone": "079 136 5414",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-10-06T13:05"
+  },
+  {
+   "id": "d9-ld12",
+   "dealerId": "d9",
+   "customer": "Hlengiwe Ndlovu",
+   "phone": "074 713 3741",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-06T11:50"
+  },
+  {
+   "id": "d3-ld18",
+   "dealerId": "d3",
+   "customer": "Owen Coetzee",
+   "phone": "079 197 2287",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-10-06T11:20"
+  },
+  {
+   "id": "d1-ld18",
+   "dealerId": "d1",
+   "customer": "Priya Reddy",
+   "phone": "066 321 7299",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-10-06T10:50"
+  },
+  {
+   "id": "d8-ld1",
+   "dealerId": "d8",
+   "customer": "Karabo Reddy",
+   "phone": "081 755 5893",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-06T10:35"
+  },
+  {
+   "id": "d9-ld20",
+   "dealerId": "d9",
+   "customer": "Bianca Smith",
+   "phone": "062 950 8106",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-10-06T08:05"
+  },
+  {
+   "id": "d4-ld13",
+   "dealerId": "d4",
+   "customer": "Tamsin Petersen",
+   "phone": "077 628 7186",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-05T16:20"
+  },
+  {
+   "id": "d5-ld10",
+   "dealerId": "d5",
+   "customer": "Hlengiwe Coetzee",
+   "phone": "069 334 6361",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-10-05T16:05"
+  },
+  {
+   "id": "d3-ld11",
+   "dealerId": "d3",
+   "customer": "Riaan Coetzee",
+   "phone": "084 277 3569",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Website form",
+   "status": "lost",
+   "createdAt": "2026-10-05T15:05"
+  },
+  {
+   "id": "d9-ld2",
+   "dealerId": "d9",
+   "customer": "Owen Naidoo",
+   "phone": "081 710 9181",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-10-05T15:05"
+  },
+  {
+   "id": "d1-ld30",
+   "dealerId": "d1",
+   "customer": "Gareth Smith",
+   "phone": "063 520 2618",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-10-05T14:20"
+  },
+  {
+   "id": "d2-ld24",
+   "dealerId": "d2",
+   "customer": "Imran Ndlovu",
+   "phone": "074 336 6634",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-10-05T13:35"
+  },
+  {
+   "id": "d2-ld16",
+   "dealerId": "d2",
+   "customer": "Imran Naidoo",
+   "phone": "081 519 8703",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-10-05T11:05"
+  },
+  {
+   "id": "d5-ld8",
+   "dealerId": "d5",
+   "customer": "Zanele Mahlangu",
+   "phone": "076 922 5743",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-10-05T09:50"
+  },
+  {
+   "id": "d9-ld13",
+   "dealerId": "d9",
+   "customer": "Hlengiwe Molefe",
+   "phone": "075 677 2968",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-10-04T17:50"
+  },
+  {
+   "id": "d1-ld6",
+   "dealerId": "d1",
+   "customer": "Dineo Jacobs",
+   "phone": "075 289 9137",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-10-04T17:35"
+  },
+  {
+   "id": "d8-ld9",
+   "dealerId": "d8",
+   "customer": "Liam Ndlovu",
+   "phone": "075 566 3883",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-10-04T17:05"
+  },
+  {
+   "id": "d5-ld6",
+   "dealerId": "d5",
+   "customer": "Ethan Naidoo",
+   "phone": "083 138 8393",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-10-04T13:50"
+  },
+  {
+   "id": "d2-ld13",
+   "dealerId": "d2",
+   "customer": "Fatima Jacobs",
+   "phone": "065 810 8402",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-10-04T12:20"
+  },
+  {
+   "id": "d2-ld18",
+   "dealerId": "d2",
+   "customer": "Ethan Mahlangu",
+   "phone": "080 401 6340",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-10-04T12:05"
+  },
+  {
+   "id": "d1-ld3",
+   "dealerId": "d1",
+   "customer": "Sanele Mahlangu",
+   "phone": "082 243 2019",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Call",
+   "status": "lost",
+   "createdAt": "2026-10-04T11:50"
+  },
+  {
+   "id": "d8-ld10",
+   "dealerId": "d8",
+   "customer": "Sanele Smith",
+   "phone": "065 261 5091",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-10-04T11:50"
+  },
+  {
+   "id": "d7-ld1",
+   "dealerId": "d7",
+   "customer": "Owen Smith",
+   "phone": "061 617 7139",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-10-04T11:35"
+  },
+  {
+   "id": "d3-ld2",
+   "dealerId": "d3",
+   "customer": "Karabo Molefe",
+   "phone": "077 729 9675",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-10-04T10:35"
+  },
+  {
+   "id": "d1-ld16",
+   "dealerId": "d1",
+   "customer": "Liam Jacobs",
+   "phone": "064 108 3661",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Website form",
+   "status": "lost",
+   "createdAt": "2026-10-03T14:20"
+  },
+  {
+   "id": "d2-ld23",
+   "dealerId": "d2",
+   "customer": "Tamsin Ndlovu",
+   "phone": "081 814 6033",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-10-03T11:20"
+  },
+  {
+   "id": "d5-ld1",
+   "dealerId": "d5",
+   "customer": "Liam Reddy",
+   "phone": "083 204 8847",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-10-03T10:05"
+  },
+  {
+   "id": "d2-ld20",
+   "dealerId": "d2",
+   "customer": "Liam Jacobs",
+   "phone": "070 697 2288",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-10-02T17:05"
+  },
+  {
+   "id": "d3-ld6",
+   "dealerId": "d3",
+   "customer": "Bianca Molefe",
+   "phone": "063 679 9197",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "won",
+   "createdAt": "2026-10-02T15:50"
+  },
+  {
+   "id": "d4-ld8",
+   "dealerId": "d4",
+   "customer": "Karabo Reddy",
+   "phone": "079 160 9004",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-10-02T15:35"
+  },
+  {
+   "id": "d4-ld4",
+   "dealerId": "d4",
+   "customer": "Hlengiwe Jacobs",
+   "phone": "064 886 8762",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-02T14:50"
+  },
+  {
+   "id": "d3-ld16",
+   "dealerId": "d3",
+   "customer": "Jessica Mahlangu",
+   "phone": "081 740 4092",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-10-02T13:20"
+  },
+  {
+   "id": "d2-ld15",
+   "dealerId": "d2",
+   "customer": "Zanele Naidoo",
+   "phone": "070 538 7904",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-02T12:05"
+  },
+  {
+   "id": "d7-ld7",
+   "dealerId": "d7",
+   "customer": "Jessica Reddy",
+   "phone": "066 872 6913",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-10-02T12:05"
+  },
+  {
+   "id": "d4-ld9",
+   "dealerId": "d4",
+   "customer": "Riaan Reddy",
+   "phone": "080 371 4304",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-10-02T11:05"
+  },
+  {
+   "id": "d9-ld14",
+   "dealerId": "d9",
+   "customer": "Fatima Reddy",
+   "phone": "072 690 6230",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Website form",
+   "status": "won",
+   "createdAt": "2026-10-02T10:20"
+  },
+  {
+   "id": "d3-ld10",
+   "dealerId": "d3",
+   "customer": "Zanele Smith",
+   "phone": "071 776 5059",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-10-02T09:50"
+  },
+  {
+   "id": "d2-ld4",
+   "dealerId": "d2",
+   "customer": "Chris Naidoo",
+   "phone": "069 213 7959",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-10-02T08:50"
+  },
+  {
+   "id": "d2-ld29",
+   "dealerId": "d2",
+   "customer": "Dineo Naidoo",
+   "phone": "078 352 6364",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-10-01T17:50"
+  },
+  {
+   "id": "d7-ld16",
+   "dealerId": "d7",
+   "customer": "Mpho Khumalo",
+   "phone": "084 295 1385",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-10-01T15:35"
+  },
+  {
+   "id": "d1-ld5",
+   "dealerId": "d1",
+   "customer": "Owen Molefe",
+   "phone": "071 307 8319",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-10-01T15:20"
+  },
+  {
+   "id": "d2-ld30",
+   "dealerId": "d2",
+   "customer": "Jessica Ndlovu",
+   "phone": "066 604 6057",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-10-01T14:05"
+  },
+  {
+   "id": "d4-ld6",
+   "dealerId": "d4",
+   "customer": "Ayanda Petersen",
+   "phone": "077 157 2291",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-10-01T12:05"
+  },
+  {
+   "id": "d2-ld8",
+   "dealerId": "d2",
+   "customer": "Zanele Ndlovu",
+   "phone": "064 166 1993",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-10-01T09:50"
+  },
+  {
+   "id": "d1-ld4",
+   "dealerId": "d1",
+   "customer": "Owen Molefe",
+   "phone": "077 481 7786",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-30T10:50"
+  },
+  {
+   "id": "d1-ld12",
+   "dealerId": "d1",
+   "customer": "Sanele Naidoo",
+   "phone": "073 462 5987",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-30T09:50"
+  },
+  {
+   "id": "d8-ld11",
+   "dealerId": "d8",
+   "customer": "Tamsin Khumalo",
+   "phone": "070 910 1084",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-30T09:50"
+  },
+  {
+   "id": "d2-ld14",
+   "dealerId": "d2",
+   "customer": "Tamsin Molefe",
+   "phone": "074 556 7012",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-30T09:20"
+  },
+  {
+   "id": "d2-ld12",
+   "dealerId": "d2",
+   "customer": "Riaan Molefe",
+   "phone": "075 136 5243",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-29T16:50"
+  },
+  {
+   "id": "d2-ld28",
+   "dealerId": "d2",
+   "customer": "Riaan Petersen",
+   "phone": "084 797 3502",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-29T11:35"
+  },
+  {
+   "id": "d7-ld10",
+   "dealerId": "d7",
+   "customer": "Chris Khumalo",
+   "phone": "077 658 4011",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-29T10:35"
+  },
+  {
+   "id": "d9-ld6",
+   "dealerId": "d9",
+   "customer": "Ethan Molefe",
+   "phone": "061 282 1414",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-29T10:20"
+  },
+  {
+   "id": "d1-ld22",
+   "dealerId": "d1",
+   "customer": "Liam Smith",
+   "phone": "077 271 1303",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-09-29T09:50"
+  },
+  {
+   "id": "d3-ld17",
+   "dealerId": "d3",
+   "customer": "Dineo Coetzee",
+   "phone": "082 458 3473",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-28T15:50"
+  },
+  {
+   "id": "d8-ld8",
+   "dealerId": "d8",
+   "customer": "Imran Jacobs",
+   "phone": "071 164 6192",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-28T15:05"
+  },
+  {
+   "id": "d2-ld17",
+   "dealerId": "d2",
+   "customer": "Hlengiwe Petersen",
+   "phone": "063 198 3314",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-28T14:20"
+  },
+  {
+   "id": "d3-ld5",
+   "dealerId": "d3",
+   "customer": "Bianca Smith",
+   "phone": "079 228 8348",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-28T12:05"
+  },
+  {
+   "id": "d7-ld11",
+   "dealerId": "d7",
+   "customer": "Ethan Ndlovu",
+   "phone": "064 425 1696",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-28T09:50"
+  },
+  {
+   "id": "d9-ld1",
+   "dealerId": "d9",
+   "customer": "Dineo Reddy",
+   "phone": "068 126 6490",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-27T14:20"
+  },
+  {
+   "id": "d4-ld2",
+   "dealerId": "d4",
+   "customer": "Owen Naidoo",
+   "phone": "076 113 6599",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Website form",
+   "status": "lost",
+   "createdAt": "2026-09-27T14:05"
+  },
+  {
+   "id": "d5-ld3",
+   "dealerId": "d5",
+   "customer": "Imran Mahlangu",
+   "phone": "071 203 5155",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Website form",
+   "status": "won",
+   "createdAt": "2026-09-27T12:35"
+  },
+  {
+   "id": "d2-ld1",
+   "dealerId": "d2",
+   "customer": "Hlengiwe Khumalo",
+   "phone": "068 771 6757",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Call",
+   "status": "won",
+   "createdAt": "2026-09-27T11:35"
+  },
+  {
+   "id": "d1-ld24",
+   "dealerId": "d1",
+   "customer": "Sanele Mahlangu",
+   "phone": "081 470 6400",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "won",
+   "createdAt": "2026-09-27T11:20"
+  },
+  {
+   "id": "d9-ld19",
+   "dealerId": "d9",
+   "customer": "Priya Coetzee",
+   "phone": "070 671 3490",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-27T11:05"
+  },
+  {
+   "id": "d2-ld2",
+   "dealerId": "d2",
+   "customer": "Sanele Molefe",
+   "phone": "068 693 5970",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-27T10:35"
+  },
+  {
+   "id": "d4-ld7",
+   "dealerId": "d4",
+   "customer": "Priya Smith",
+   "phone": "061 866 1342",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-26T16:35"
+  },
+  {
+   "id": "d5-ld5",
+   "dealerId": "d5",
+   "customer": "Jessica Molefe",
+   "phone": "065 913 9716",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Call",
+   "status": "lost",
+   "createdAt": "2026-09-26T15:35"
+  },
+  {
+   "id": "d2-ld19",
+   "dealerId": "d2",
+   "customer": "Dineo Smith",
+   "phone": "075 752 7598",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-26T13:50"
+  },
+  {
+   "id": "d9-ld11",
+   "dealerId": "d9",
+   "customer": "Tamsin Naidoo",
+   "phone": "080 447 4734",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-26T13:35"
+  },
+  {
+   "id": "d1-ld19",
+   "dealerId": "d1",
+   "customer": "Owen Khumalo",
+   "phone": "060 736 2464",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-26T09:50"
+  },
+  {
+   "id": "d1-ld15",
+   "dealerId": "d1",
+   "customer": "Priya Jacobs",
+   "phone": "074 389 9960",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-25T12:20"
+  },
+  {
+   "id": "d9-ld8",
+   "dealerId": "d9",
+   "customer": "Zanele Coetzee",
+   "phone": "064 589 3776",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-25T08:50"
+  },
+  {
+   "id": "d1-ld1",
+   "dealerId": "d1",
+   "customer": "Zanele Coetzee",
+   "phone": "082 239 3027",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Website form",
+   "status": "lost",
+   "createdAt": "2026-09-24T13:50"
+  },
+  {
+   "id": "d3-ld9",
+   "dealerId": "d3",
+   "customer": "Bianca Smith",
+   "phone": "076 215 9974",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-24T12:05"
+  },
+  {
+   "id": "d4-ld3",
+   "dealerId": "d4",
+   "customer": "Riaan Smith",
+   "phone": "074 980 5156",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-24T08:20"
+  },
+  {
+   "id": "d9-ld4",
+   "dealerId": "d9",
+   "customer": "Dineo Coetzee",
+   "phone": "072 342 6011",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-24T08:05"
+  },
+  {
+   "id": "d8-ld6",
+   "dealerId": "d8",
+   "customer": "Karabo Reddy",
+   "phone": "062 993 2553",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-23T17:05"
+  },
+  {
+   "id": "d1-ld2",
+   "dealerId": "d1",
+   "customer": "Hlengiwe Petersen",
+   "phone": "076 140 3593",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Website form",
+   "status": "won",
+   "createdAt": "2026-09-23T16:05"
+  },
+  {
+   "id": "d3-ld13",
+   "dealerId": "d3",
+   "customer": "Chris Jacobs",
+   "phone": "079 147 7714",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-23T14:50"
+  },
+  {
+   "id": "d2-ld10",
+   "dealerId": "d2",
+   "customer": "Bianca Ndlovu",
+   "phone": "080 131 6215",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-23T12:50"
+  },
+  {
+   "id": "d9-ld15",
+   "dealerId": "d9",
+   "customer": "Naledi Molefe",
+   "phone": "071 749 8709",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-23T11:20"
+  },
+  {
+   "id": "d9-ld3",
+   "dealerId": "d9",
+   "customer": "Mpho Petersen",
+   "phone": "067 870 9697",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-22T17:50"
+  },
+  {
+   "id": "d7-ld15",
+   "dealerId": "d7",
+   "customer": "Priya Naidoo",
+   "phone": "065 791 7460",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-22T14:50"
+  },
+  {
+   "id": "d1-ld20",
+   "dealerId": "d1",
+   "customer": "Ethan Ndlovu",
+   "phone": "065 927 7089",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Call",
+   "status": "lost",
+   "createdAt": "2026-09-22T13:20"
+  },
+  {
+   "id": "d1-ld10",
+   "dealerId": "d1",
+   "customer": "Riaan Mahlangu",
+   "phone": "074 797 4305",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-22T09:20"
+  },
+  {
+   "id": "d2-ld9",
+   "dealerId": "d2",
+   "customer": "Karabo Smith",
+   "phone": "064 743 6247",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-22T08:35"
+  },
+  {
+   "id": "d1-ld28",
+   "dealerId": "d1",
+   "customer": "Fatima Petersen",
+   "phone": "067 497 1494",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-21T15:20"
+  },
+  {
+   "id": "d5-ld9",
+   "dealerId": "d5",
+   "customer": "Owen Molefe",
+   "phone": "078 315 4423",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Website form",
+   "status": "lost",
+   "createdAt": "2026-09-21T15:20"
+  },
+  {
+   "id": "d3-ld8",
+   "dealerId": "d3",
+   "customer": "Tamsin Jacobs",
+   "phone": "068 989 6236",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-21T14:20"
+  },
+  {
+   "id": "d1-ld29",
+   "dealerId": "d1",
+   "customer": "Tamsin Ndlovu",
+   "phone": "066 159 1315",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-21T14:05"
+  },
+  {
+   "id": "d5-ld11",
+   "dealerId": "d5",
+   "customer": "Mpho Molefe",
+   "phone": "078 602 4685",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-21T08:20"
+  },
+  {
+   "id": "d9-ld5",
+   "dealerId": "d9",
+   "customer": "Jessica Mahlangu",
+   "phone": "068 718 8011",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Call",
+   "status": "won",
+   "createdAt": "2026-09-21T08:05"
+  },
+  {
+   "id": "d4-ld18",
+   "dealerId": "d4",
+   "customer": "Owen Petersen",
+   "phone": "083 666 9822",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-20T15:05"
+  },
+  {
+   "id": "d9-ld7",
+   "dealerId": "d9",
+   "customer": "Sanele Mahlangu",
+   "phone": "077 864 8000",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Website form",
+   "status": "won",
+   "createdAt": "2026-09-20T14:35"
+  },
+  {
+   "id": "d5-ld7",
+   "dealerId": "d5",
+   "customer": "Dineo Reddy",
+   "phone": "081 121 6040",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-20T12:05"
+  },
+  {
+   "id": "d8-ld5",
+   "dealerId": "d8",
+   "customer": "Chris Petersen",
+   "phone": "077 196 8498",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-19T14:35"
+  },
+  {
+   "id": "d9-ld17",
+   "dealerId": "d9",
+   "customer": "Mpho Jacobs",
+   "phone": "076 118 7316",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-19T14:35"
+  },
+  {
+   "id": "d4-ld1",
+   "dealerId": "d4",
+   "customer": "Fatima Khumalo",
+   "phone": "067 770 9361",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-19T08:50"
+  },
+  {
+   "id": "d1-ld9",
+   "dealerId": "d1",
+   "customer": "Fatima Petersen",
+   "phone": "074 286 6368",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-19T08:05"
+  },
+  {
+   "id": "d9-ld29",
+   "dealerId": "d9",
+   "customer": "Bianca Coetzee",
+   "phone": "062 853 6188",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-18T17:05"
+  },
+  {
+   "id": "d1-ld14",
+   "dealerId": "d1",
+   "customer": "Karabo Jacobs",
+   "phone": "061 947 5986",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-18T15:50"
+  },
+  {
+   "id": "d1-ld17",
+   "dealerId": "d1",
+   "customer": "Riaan Khumalo",
+   "phone": "062 781 5991",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-18T15:05"
+  },
+  {
+   "id": "d9-ld30",
+   "dealerId": "d9",
+   "customer": "Tamsin Ndlovu",
+   "phone": "080 493 1581",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-18T15:05"
+  },
+  {
+   "id": "d4-ld12",
+   "dealerId": "d4",
+   "customer": "Gareth Naidoo",
+   "phone": "068 521 2617",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-18T12:50"
+  },
+  {
+   "id": "d7-ld14",
+   "dealerId": "d7",
+   "customer": "Imran Molefe",
+   "phone": "079 607 9625",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-18T12:50"
+  },
+  {
+   "id": "d4-ld17",
+   "dealerId": "d4",
+   "customer": "Chris Coetzee",
+   "phone": "083 338 9562",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-18T09:05"
+  },
+  {
+   "id": "d4-ld14",
+   "dealerId": "d4",
+   "customer": "Hlengiwe Molefe",
+   "phone": "070 358 5055",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-17T12:05"
+  },
+  {
+   "id": "d7-ld8",
+   "dealerId": "d7",
+   "customer": "Gareth Ndlovu",
+   "phone": "075 186 5063",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Call",
+   "status": "won",
+   "createdAt": "2026-09-17T10:35"
+  },
+  {
+   "id": "d9-ld27",
+   "dealerId": "d9",
+   "customer": "Zanele Ndlovu",
+   "phone": "061 340 5066",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-16T17:20"
+  },
+  {
+   "id": "d4-ld15",
+   "dealerId": "d4",
+   "customer": "Tamsin Khumalo",
+   "phone": "079 154 3456",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-16T14:50"
+  },
+  {
+   "id": "d7-ld9",
+   "dealerId": "d7",
+   "customer": "Liam Jacobs",
+   "phone": "069 106 7553",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-16T11:35"
+  },
+  {
+   "id": "d9-ld24",
+   "dealerId": "d9",
+   "customer": "Riaan Coetzee",
+   "phone": "084 600 5710",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-16T10:35"
+  },
+  {
+   "id": "d7-ld5",
+   "dealerId": "d7",
+   "customer": "Jessica Coetzee",
+   "phone": "075 802 5837",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-16T09:50"
+  },
+  {
+   "id": "d1-ld13",
+   "dealerId": "d1",
+   "customer": "Riaan Reddy",
+   "phone": "070 125 3974",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "WhatsApp",
+   "status": "won",
+   "createdAt": "2026-09-15T15:35"
+  },
+  {
+   "id": "d9-ld21",
+   "dealerId": "d9",
+   "customer": "Karabo Reddy",
+   "phone": "067 448 4952",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-15T13:05"
+  },
+  {
+   "id": "d3-ld3",
+   "dealerId": "d3",
+   "customer": "Riaan Mahlangu",
+   "phone": "076 845 7844",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-15T12:50"
+  },
+  {
+   "id": "d7-ld3",
+   "dealerId": "d7",
+   "customer": "Tamsin Khumalo",
+   "phone": "083 887 5533",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Call",
+   "status": "lost",
+   "createdAt": "2026-09-14T17:35"
+  },
+  {
+   "id": "d1-ld26",
+   "dealerId": "d1",
+   "customer": "Jessica Khumalo",
+   "phone": "079 826 8807",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-14T17:05"
+  },
+  {
+   "id": "d9-ld28",
+   "dealerId": "d9",
+   "customer": "Chris Naidoo",
+   "phone": "069 408 9023",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-14T12:20"
+  },
+  {
+   "id": "d9-ld10",
+   "dealerId": "d9",
+   "customer": "Gareth Mahlangu",
+   "phone": "063 668 6069",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-14T09:20"
+  },
+  {
+   "id": "d1-ld11",
+   "dealerId": "d1",
+   "customer": "Dineo Smith",
+   "phone": "080 569 3964",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-13T08:20"
+  },
+  {
+   "id": "d3-ld15",
+   "dealerId": "d3",
+   "customer": "Fatima Jacobs",
+   "phone": "076 386 4782",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-12T15:05"
+  },
+  {
+   "id": "d2-ld27",
+   "dealerId": "d2",
+   "customer": "Dineo Mahlangu",
+   "phone": "061 903 5596",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-12T10:05"
+  },
+  {
+   "id": "d8-ld2",
+   "dealerId": "d8",
+   "customer": "Dineo Khumalo",
+   "phone": "074 893 5430",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-11T15:05"
+  },
+  {
+   "id": "d2-ld11",
+   "dealerId": "d2",
+   "customer": "Sanele Reddy",
+   "phone": "081 395 7407",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-09-11T14:50"
+  },
+  {
+   "id": "d2-ld25",
+   "dealerId": "d2",
+   "customer": "Priya Ndlovu",
+   "phone": "068 837 2726",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-11T14:50"
+  },
+  {
+   "id": "d9-ld26",
+   "dealerId": "d9",
+   "customer": "Zanele Petersen",
+   "phone": "074 272 7037",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-11T10:50"
+  },
+  {
+   "id": "d5-ld2",
+   "dealerId": "d5",
+   "customer": "Naledi Ndlovu",
+   "phone": "081 425 9271",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-10T17:35"
+  },
+  {
+   "id": "d9-ld9",
+   "dealerId": "d9",
+   "customer": "Mpho Ndlovu",
+   "phone": "066 277 7438",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-10T16:05"
+  },
+  {
+   "id": "d2-ld22",
+   "dealerId": "d2",
+   "customer": "Zanele Khumalo",
+   "phone": "062 647 4546",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-10T14:05"
+  },
+  {
+   "id": "d2-ld6",
+   "dealerId": "d2",
+   "customer": "Ethan Khumalo",
+   "phone": "074 918 2344",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-10T11:05"
+  },
+  {
+   "id": "d2-ld7",
+   "dealerId": "d2",
+   "customer": "Karabo Khumalo",
+   "phone": "061 808 3560",
+   "vehicle": "2024 Honda CR-V HEV RS 4WD AT",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-10T10:20"
+  },
+  {
+   "id": "d3-ld7",
+   "dealerId": "d3",
+   "customer": "Dineo Petersen",
+   "phone": "060 779 4128",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-09T17:50"
+  },
+  {
+   "id": "d4-ld11",
+   "dealerId": "d4",
+   "customer": "Naledi Khumalo",
+   "phone": "078 405 5610",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-09T15:50"
+  },
+  {
+   "id": "d9-ld16",
+   "dealerId": "d9",
+   "customer": "Sanele Mahlangu",
+   "phone": "081 515 4402",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-09T10:20"
+  },
+  {
+   "id": "d7-ld2",
+   "dealerId": "d7",
+   "customer": "Zanele Reddy",
+   "phone": "083 631 3801",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-09T09:20"
+  },
+  {
+   "id": "d1-ld8",
+   "dealerId": "d1",
+   "customer": "Naledi Smith",
+   "phone": "072 241 7877",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-08T16:50"
+  },
+  {
+   "id": "d1-ld27",
+   "dealerId": "d1",
+   "customer": "Chris Reddy",
+   "phone": "073 309 7608",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-08T16:20"
+  },
+  {
+   "id": "d7-ld6",
+   "dealerId": "d7",
+   "customer": "Ayanda Smith",
+   "phone": "077 472 4621",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-08T14:50"
+  },
+  {
+   "id": "d3-ld1",
+   "dealerId": "d3",
+   "customer": "Liam Jacobs",
+   "phone": "065 527 6838",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "Website form",
+   "status": "contacted",
+   "createdAt": "2026-09-08T09:50"
+  },
+  {
+   "id": "d8-ld7",
+   "dealerId": "d8",
+   "customer": "Gareth Naidoo",
+   "phone": "078 313 2200",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-07T13:20"
+  },
+  {
+   "id": "d4-ld16",
+   "dealerId": "d4",
+   "customer": "Jessica Reddy",
+   "phone": "080 596 4320",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Website form",
+   "status": "won",
+   "createdAt": "2026-09-07T12:50"
+  },
+  {
+   "id": "d5-ld4",
+   "dealerId": "d5",
+   "customer": "Fatima Reddy",
+   "phone": "069 571 9040",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-06T17:05"
+  },
+  {
+   "id": "d1-ld25",
+   "dealerId": "d1",
+   "customer": "Chris Smith",
+   "phone": "080 930 5391",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-06T15:20"
+  },
+  {
+   "id": "d4-ld10",
+   "dealerId": "d4",
+   "customer": "Chris Jacobs",
+   "phone": "072 112 4523",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Email",
+   "status": "lost",
+   "createdAt": "2026-09-06T09:35"
+  },
+  {
+   "id": "d2-ld21",
+   "dealerId": "d2",
+   "customer": "Tamsin Ndlovu",
+   "phone": "064 970 4885",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-06T09:20"
+  },
+  {
+   "id": "d3-ld12",
+   "dealerId": "d3",
+   "customer": "Jessica Mahlangu",
+   "phone": "083 357 2540",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-06T08:50"
+  },
+  {
+   "id": "d7-ld18",
+   "dealerId": "d7",
+   "customer": "Tamsin Naidoo",
+   "phone": "066 770 9889",
+   "vehicle": "2023 Mercedes-Benz GLA-Class GLA 200 AMG Dynamic",
+   "source": "Email",
+   "status": "won",
+   "createdAt": "2026-09-05T14:50"
+  },
+  {
+   "id": "d3-ld4",
+   "dealerId": "d3",
+   "customer": "Dineo Jacobs",
+   "phone": "069 969 5267",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-05T13:05"
+  },
+  {
+   "id": "d3-ld14",
+   "dealerId": "d3",
+   "customer": "Dineo Molefe",
+   "phone": "076 234 4260",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-05T10:20"
+  },
+  {
+   "id": "d7-ld13",
+   "dealerId": "d7",
+   "customer": "Mpho Reddy",
+   "phone": "069 646 6848",
+   "vehicle": "2024 Mitsubishi Triton 2.4 PLUS ULTRA",
+   "source": "Email",
+   "status": "contacted",
+   "createdAt": "2026-09-04T14:35"
+  },
+  {
+   "id": "d4-ld5",
+   "dealerId": "d4",
+   "customer": "Gareth Molefe",
+   "phone": "066 249 6580",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-04T13:05"
+  },
+  {
+   "id": "d8-ld4",
+   "dealerId": "d8",
+   "customer": "Naledi Naidoo",
+   "phone": "070 957 7737",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "WhatsApp",
+   "status": "new",
+   "createdAt": "2026-09-03T16:50"
+  },
+  {
+   "id": "d1-ld23",
+   "dealerId": "d1",
+   "customer": "Bianca Coetzee",
+   "phone": "072 909 4434",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-03T15:05"
+  },
+  {
+   "id": "d7-ld4",
+   "dealerId": "d7",
+   "customer": "Priya Reddy",
+   "phone": "067 443 6986",
+   "vehicle": "2017 Volvo XC60 D4 AWD",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-03T14:20"
+  },
+  {
+   "id": "d2-ld3",
+   "dealerId": "d2",
+   "customer": "Karabo Naidoo",
+   "phone": "081 342 4960",
+   "vehicle": "2022 Toyota Yaris Ativ 1.2 PREMIUM LUXURY",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-03T11:20"
+  },
+  {
+   "id": "d2-ld5",
+   "dealerId": "d2",
+   "customer": "Gareth Mahlangu",
+   "phone": "077 644 3742",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "contacted",
+   "createdAt": "2026-09-03T11:05"
+  },
+  {
+   "id": "d1-ld7",
+   "dealerId": "d1",
+   "customer": "Dineo Smith",
+   "phone": "075 817 6264",
+   "vehicle": "2009 Toyota Land Cruiser VX 200 Limited Edition",
+   "source": "WhatsApp",
+   "status": "lost",
+   "createdAt": "2026-09-02T16:20"
+  },
+  {
+   "id": "d7-ld17",
+   "dealerId": "d7",
+   "customer": "Owen Molefe",
+   "phone": "072 384 4778",
+   "vehicle": "2017 BMW 3 Series 320d GT SPORT F34",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-02T15:05"
+  },
+  {
+   "id": "d1-ld21",
+   "dealerId": "d1",
+   "customer": "Riaan Ndlovu",
+   "phone": "064 339 2123",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-02T13:50"
+  },
+  {
+   "id": "d9-ld22",
+   "dealerId": "d9",
+   "customer": "Karabo Naidoo",
+   "phone": "075 575 8758",
+   "vehicle": "2021 Mercedes-Benz GLC-Class GLC220d AMG Dynamic",
+   "source": "Email",
+   "status": "new",
+   "createdAt": "2026-09-02T10:35"
+  },
+  {
+   "id": "d9-ld23",
+   "dealerId": "d9",
+   "customer": "Fatima Jacobs",
+   "phone": "063 223 7231",
+   "vehicle": "2018 Toyota Camry 2.0 G AT",
+   "source": "Website form",
+   "status": "new",
+   "createdAt": "2026-09-02T09:05"
+  },
+  {
+   "id": "d8-ld3",
+   "dealerId": "d8",
+   "customer": "Tamsin Molefe",
+   "phone": "080 372 1423",
+   "vehicle": "2014 BMW 3 Series 320d Luxury F30",
+   "source": "Call",
+   "status": "contacted",
+   "createdAt": "2026-09-01T12:50"
+  },
+  {
+   "id": "d9-ld18",
+   "dealerId": "d9",
+   "customer": "Ethan Jacobs",
+   "phone": "082 261 5406",
+   "vehicle": "2020 Mercedes-Benz A-Class A200 AMG Dynamic",
+   "source": "WhatsApp",
+   "status": "won",
+   "createdAt": "2026-09-01T12:20"
+  },
+  {
+   "id": "d9-ld25",
+   "dealerId": "d9",
+   "customer": "Mpho Petersen",
+   "phone": "066 602 7454",
+   "vehicle": "2014 Hyundai i40 2.0 AT",
+   "source": "Call",
+   "status": "new",
+   "createdAt": "2026-09-01T09:35"
+  }
+ ],
+ "staff": [
+  {
+   "id": "s1",
+   "name": "Zawar Shah",
+   "email": "zawar@changecars.example",
+   "role": "super-admin",
+   "status": "active",
+   "lastActive": "2026-10-06T09:12"
+  },
+  {
+   "id": "s2",
+   "name": "Natasha Pillay",
+   "email": "natasha@changecars.example",
+   "role": "admin",
+   "status": "active",
+   "lastActive": "2026-10-06T08:40"
+  },
+  {
+   "id": "s3",
+   "name": "Ruan Visser",
+   "email": "ruan@changecars.example",
+   "role": "admin",
+   "status": "active",
+   "lastActive": "2026-10-05T16:03"
+  },
+  {
+   "id": "s4",
+   "name": "Lindiwe Zulu",
+   "email": "lindiwe@changecars.example",
+   "role": "admin",
+   "status": "invited",
+   "lastActive": ""
+  }
+ ]
+}

@@ -1,0 +1,1450 @@
+// ChangeCars — PostgreSQL schema (source of truth for all transactional data).
+// Connection URL lives in prisma.config.ts (Prisma 7). Raw SQL additions
+// (check constraints, partial/trigram indexes) live in the migrations folder.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  DEALER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum Province {
+  EASTERN_CAPE
+  FREE_STATE
+  GAUTENG
+  KWAZULU_NATAL
+  LIMPOPO
+  MPUMALANGA
+  NORTHERN_CAPE
+  NORTH_WEST
+  WESTERN_CAPE
+}
+
+enum DealerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum DealerPlan {
+  BASIC
+  SILVER
+  GOLD
+}
+
+enum DealerMemberRole {
+  OWNER
+  MANAGER
+  SALES
+  STAFF
+}
+
+enum DealerMemberStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum DealerPermission {
+  DEALER_PROFILE_MANAGE
+  BRANCHES_MANAGE
+  STAFF_MANAGE
+  INVENTORY_VIEW
+  INVENTORY_MANAGE
+  INVENTORY_PUBLISH
+  ENQUIRIES_VIEW
+  ENQUIRIES_RESPOND
+  LEADS_VIEW_ALL
+  LEADS_MANAGE_ALL
+  LEADS_MANAGE_ASSIGNED
+  LEADS_ASSIGN
+  BIDDING_VIEW
+  BIDDING_PARTICIPATE
+  REPORTS_VIEW
+}
+
+enum VehicleCondition {
+  NEW
+  USED
+  DEMO
+}
+
+enum VehicleStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  PUBLISHED
+  RESERVED
+  SOLD
+  SUSPENDED
+  ARCHIVED
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  HYBRID
+  PLUGIN_HYBRID
+  ELECTRIC
+  LPG
+  OTHER
+}
+
+enum Drivetrain {
+  FWD
+  RWD
+  AWD
+  FOUR_X_TWO
+  FOUR_X_FOUR
+}
+
+enum FeatureAvailability {
+  STANDARD
+  OPTIONAL
+}
+
+enum ImageStatus {
+  PENDING_UPLOAD
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum EnquiryType {
+  VEHICLE
+  QUOTE
+  BEAT_MY_QUOTE
+  TRADE_IN
+  CONCIERGE
+  HELP_ME_FIND
+  FINANCE
+  INSURANCE
+  TEST_DRIVE
+  GENERAL
+}
+
+enum EnquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  CLOSED
+  CANCELLED
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  NEGOTIATION
+  OFFER_SENT
+  WON
+  LOST
+}
+
+enum LeadSource {
+  WEBSITE_ENQUIRY
+  QUOTE_REQUEST
+  TRADE_IN
+  OFFER_ACCEPTED
+  PHONE
+  WHATSAPP
+  EMAIL
+  WALK_IN
+  OTHER
+}
+
+enum LeadActivityType {
+  NOTE
+  CALL
+  EMAIL
+  SMS
+  WHATSAPP
+  MEETING
+  STAGE_CHANGE
+  ASSIGNMENT
+  FOLLOW_UP_SET
+  SYSTEM
+}
+
+enum SellMediaKind {
+  PHOTO
+  REGISTRATION_DOCUMENT
+}
+
+enum SellRequestType {
+  SELL
+  VALUATION
+}
+
+enum SellRequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VALUED
+  BIDDING
+  OFFER_ACCEPTED
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum ConditionGrade {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ValuationMethod {
+  AUTOMATED
+  MANUAL
+}
+
+enum BiddingStatus {
+  SCHEDULED
+  OPEN
+  CLOSED
+  AWARDED
+  CANCELLED
+}
+
+enum OfferStatus {
+  SUBMITTED
+  PENDING
+  UPDATED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+  SUPERSEDED
+}
+
+enum CounterOfferStatus {
+  OPEN
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum DealStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+enum ArticleType {
+  NEWS
+  REVIEW
+  ADVICE
+  GUIDE
+  ARTICLE
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaType {
+  VIDEO
+  PODCAST
+}
+
+enum SubscriberStatus {
+  SUBSCRIBED
+  UNSUBSCRIBED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  DONE
+  DEAD
+}
+
+// ───────────────────────── Identity & access ─────────────────────────
+
+model User {
+  id               String     @id @default(uuid(7)) @db.Uuid
+  email            String     @unique
+  /// Optional public handle chosen on the website sign-up (stored lower case). Sign-in stays by email.
+  username         String?    @unique
+  phone            String?
+  passwordHash     String
+  firstName        String
+  lastName         String
+  role             UserRole   @default(CUSTOMER)
+  status           UserStatus @default(ACTIVE)
+  emailVerifiedAt  DateTime?
+  lastLoginAt      DateTime?
+  marketingConsent Boolean    @default(false)
+  termsAcceptedAt  DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  sessions                Session[]
+  passwordResetTokens     PasswordResetToken[]
+  dealerMember            DealerMember?
+  favourites              Favourite[]
+  savedSearches           SavedSearch[]
+  recentlyViewed          RecentlyViewed[]
+  enquiries               Enquiry[]                @relation("EnquiryCustomer")
+  sellRequests            SellRequest[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  articles                Article[]
+
+  @@index([role, status])
+  @@map("users")
+}
+
+/// Refresh-token session. Tokens are stored hashed and rotated on every refresh.
+model Session {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  userId       String    @db.Uuid
+  tokenHash    String    @unique
+  familyId     String    @db.Uuid
+  userAgent    String?
+  ip           String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?   @db.Uuid
+  lastUsedAt   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ───────────────────────── Dealers, branches, staff ─────────────────────────
+
+model Dealer {
+  id                  String       @id @default(uuid(7)) @db.Uuid
+  name                String
+  slug                String       @unique
+  legalName           String?
+  registrationNumber  String?
+  vatNumber           String?
+  dealerLicenceNumber String?
+  email               String
+  phone               String
+  website             String?
+  description         String?
+  logoUrl             String?
+  province            Province
+  city                String
+  address             String
+  status              DealerStatus @default(PENDING)
+  plan                DealerPlan   @default(BASIC)
+  biddingEnabled      Boolean      @default(true)
+  rating              Float?
+  approvedAt          DateTime?
+  approvedById        String?      @db.Uuid
+  rejectionReason     String?
+  suspensionReason    String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  branches       Branch[]
+  members        DealerMember[]
+  documents      DealerDocument[]
+  vehicles       Vehicle[]
+  enquiries      Enquiry[]
+  leads          Lead[]
+  offers         Offer[]
+  deals          Deal[]
+  biddingInvites BiddingInvite[]
+  promotions     Promotion[]
+
+  @@index([status])
+  @@index([province])
+  @@map("dealers")
+}
+
+model DealerDocument {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  dealerId    String   @db.Uuid
+  type        String
+  fileName    String
+  storageKey  String
+  contentType String
+  uploadedAt  DateTime @default(now())
+
+  dealer Dealer @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@index([dealerId])
+  @@map("dealer_documents")
+}
+
+model Branch {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  dealerId       String   @db.Uuid
+  name           String
+  slug           String
+  email          String?
+  phone          String?
+  address        String
+  city           String
+  province       Province
+  latitude       Float?
+  longitude      Float?
+  /// [{ day: "Mon", open: "08:00", close: "17:00", closed: false }]
+  operatingHours Json?
+  isHeadOffice   Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  dealer    Dealer         @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  members   DealerMember[]
+  vehicles  Vehicle[]
+  leads     Lead[]
+  enquiries Enquiry[]
+
+  @@unique([dealerId, slug])
+  @@index([dealerId])
+  @@map("branches")
+}
+
+/// A user's membership of a dealership. A user belongs to at most one dealer.
+/// Effective permissions = role defaults ∪ extraPermissions.
+model DealerMember {
+  id               String             @id @default(uuid(7)) @db.Uuid
+  dealerId         String             @db.Uuid
+  userId           String             @unique @db.Uuid
+  branchId         String?            @db.Uuid
+  role             DealerMemberRole   @default(STAFF)
+  status           DealerMemberStatus @default(ACTIVE)
+  extraPermissions DealerPermission[] @default([])
+  invitedById      String?            @db.Uuid
+  lastActiveAt     DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  dealer        Dealer  @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch        Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  assignedLeads Lead[]
+
+  @@index([dealerId])
+  @@index([branchId])
+  @@map("dealer_members")
+}
+
+// ───────────────────────── Vehicle catalogue ─────────────────────────
+// Make → Model → Generation → (Year range) → Variant → Specification
+
+model Make {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  country   String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  models             Model[]
+  vehicles           Vehicle[]
+  featureAssignments FeatureAssignment[]
+  enquiries          Enquiry[]
+  sellRequests       SellRequest[]
+
+  @@map("makes")
+}
+
+model Model {
+  id                String   @id @default(uuid(7)) @db.Uuid
+  makeId            String   @db.Uuid
+  name              String
+  slug              String
+  defaultCategoryId String?  @db.Uuid
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  make               Make                @relation(fields: [makeId], references: [id], onDelete: Restrict)
+  defaultCategory    Category?           @relation(fields: [defaultCategoryId], references: [id], onDelete: SetNull)
+  generations        Generation[]
+  variants           Variant[]
+  vehicles           Vehicle[]
+  featureAssignments FeatureAssignment[]
+  enquiries          Enquiry[]
+  sellRequests       SellRequest[]
+
+  @@unique([makeId, slug])
+  @@index([makeId])
+  @@map("models")
+}
+
+model Generation {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  modelId   String   @db.Uuid
+  name      String
+  slug      String
+  yearFrom  Int
+  yearTo    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  model              Model               @relation(fields: [modelId], references: [id], onDelete: Restrict)
+  variants           Variant[]
+  vehicles           Vehicle[]
+  featureAssignments FeatureAssignment[]
+
+  @@unique([modelId, slug])
+  @@index([modelId])
+  @@map("generations")
+}
+
+model Variant {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  modelId        String   @db.Uuid
+  generationId   String?  @db.Uuid
+  name           String
+  slug           String
+  yearFrom       Int
+  yearTo         Int?
+  bodyCategoryId String?  @db.Uuid
+  /// Manufacturer list price for new vehicles (FR-06), whole rand.
+  basePrice      Int?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  model              Model                 @relation(fields: [modelId], references: [id], onDelete: Restrict)
+  generation         Generation?           @relation(fields: [generationId], references: [id], onDelete: SetNull)
+  bodyCategory       Category?             @relation(fields: [bodyCategoryId], references: [id], onDelete: SetNull)
+  specification      VariantSpecification?
+  vehicles           Vehicle[]
+  featureAssignments FeatureAssignment[]
+  enquiries          Enquiry[]
+  sellRequests       SellRequest[]
+
+  @@unique([modelId, slug])
+  @@index([modelId])
+  @@index([generationId])
+  @@map("variants")
+}
+
+model VariantSpecification {
+  variantId           String        @id @db.Uuid
+  engine              String?
+  engineCapacityCc    Int?
+  cylinders           Int?
+  powerKw             Int?
+  torqueNm            Int?
+  transmission        Transmission?
+  gears               Int?
+  drivetrain          Drivetrain?
+  fuelType            FuelType?
+  fuelConsumptionL100 Float?
+  co2GKm              Int?
+  seats               Int?
+  doors               Int?
+  lengthMm            Int?
+  widthMm             Int?
+  heightMm            Int?
+  wheelbaseMm         Int?
+  bootLitres          Int?
+  kerbWeightKg        Int?
+  fuelTankLitres      Int?
+  topSpeedKmh         Int?
+  zeroTo100Sec        Float?
+  batteryKwh          Float?
+  electricRangeKm     Int?
+  warranty            String?
+  servicePlan         String?
+  safetyRating        String?
+  /// Additional technical specifications not covered by columns.
+  extra               Json?
+  updatedAt           DateTime      @updatedAt
+
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@map("variant_specifications")
+}
+
+model Category {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicles Vehicle[]
+  models   Model[]
+  variants Variant[]
+
+  @@map("categories")
+}
+
+model Feature {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String
+  slug        String   @unique
+  /// SAFETY | COMFORT | TECHNOLOGY | EXTERIOR | INTERIOR | PERFORMANCE | OTHER
+  group       String   @default("OTHER")
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignments FeatureAssignment[]
+
+  @@map("features")
+}
+
+/// Assigns a feature to exactly one of make / model / generation / variant / vehicle
+/// (enforced by a CHECK constraint in the migration).
+model FeatureAssignment {
+  id           String              @id @default(uuid(7)) @db.Uuid
+  featureId    String              @db.Uuid
+  availability FeatureAvailability @default(STANDARD)
+  makeId       String?             @db.Uuid
+  modelId      String?             @db.Uuid
+  generationId String?             @db.Uuid
+  variantId    String?             @db.Uuid
+  vehicleId    String?             @db.Uuid
+  createdAt    DateTime            @default(now())
+
+  feature    Feature     @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  make       Make?       @relation(fields: [makeId], references: [id], onDelete: Cascade)
+  model      Model?      @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  generation Generation? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  variant    Variant?    @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  vehicle    Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([featureId])
+  @@index([makeId])
+  @@index([modelId])
+  @@index([generationId])
+  @@index([variantId])
+  @@index([vehicleId])
+  @@map("feature_assignments")
+}
+
+// ───────────────────────── Inventory & listings ─────────────────────────
+
+model Vehicle {
+  id                 String           @id @default(uuid(7)) @db.Uuid
+  slug               String           @unique
+  dealerId           String           @db.Uuid
+  branchId           String?          @db.Uuid
+  makeId             String           @db.Uuid
+  modelId            String           @db.Uuid
+  generationId       String?          @db.Uuid
+  variantId          String?          @db.Uuid
+  stockNumber        String?
+  condition          VehicleCondition
+  status             VehicleStatus    @default(DRAFT)
+  title              String
+  description        String?
+  year               Int
+  mileage            Int
+  /// Whole rand.
+  price              Int
+  /// Promotional price shown when the vehicle is on special (FR-23).
+  specialPrice       Int?
+  isSpecial          Boolean          @default(false)
+  isFeatured         Boolean          @default(false)
+  promotionId        String?          @db.Uuid
+  transmission       Transmission
+  fuelType           FuelType
+  drivetrain         Drivetrain?
+  colour             String?
+  engineCapacityCc   Int?
+  powerKw            Int?
+  cylinders          Int?
+  seats              Int?
+  doors              Int?
+  /// Private — never exposed publicly.
+  vin                String?          @unique
+  /// Private — never exposed publicly.
+  registrationNumber String?
+  province           Province
+  city               String
+  latitude           Float?
+  longitude          Float?
+  primaryImageUrl    String?
+  imageCount         Int              @default(0)
+  viewCount          Int              @default(0)
+  enquiryCount       Int              @default(0)
+  favouriteCount     Int              @default(0)
+  popularityScore    Int              @default(0)
+  reviewNotes        String?
+  reservedUntil      DateTime?
+  submittedAt        DateTime?
+  approvedAt         DateTime?
+  publishedAt        DateTime?
+  reservedAt         DateTime?
+  soldAt             DateTime?
+  archivedAt         DateTime?
+  /// Optimistic-concurrency version, bumped on every write.
+  version            Int              @default(0)
+  createdById        String?          @db.Uuid
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  dealer             Dealer                 @relation(fields: [dealerId], references: [id], onDelete: Restrict)
+  branch             Branch?                @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  make               Make                   @relation(fields: [makeId], references: [id], onDelete: Restrict)
+  model              Model                  @relation(fields: [modelId], references: [id], onDelete: Restrict)
+  generation         Generation?            @relation(fields: [generationId], references: [id], onDelete: SetNull)
+  variant            Variant?               @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  promotion          Promotion?             @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  categories         Category[]
+  images             VehicleImage[]
+  featureAssignments FeatureAssignment[]
+  statusHistory      VehicleStatusHistory[]
+  priceHistory       VehiclePriceHistory[]
+  favourites         Favourite[]
+  recentlyViewed     RecentlyViewed[]
+  enquiries          Enquiry[]
+  leads              Lead[]
+  viewDays           VehicleViewDaily[]
+
+  @@unique([dealerId, stockNumber])
+  @@index([dealerId, status])
+  @@index([branchId])
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([status, price])
+  @@index([status, mileage])
+  @@index([status, year])
+  @@index([status, popularityScore(sort: Desc)])
+  @@index([makeId, modelId, status])
+  @@index([variantId])
+  @@index([province, status])
+  @@index([condition, status])
+  @@index([fuelType])
+  @@index([transmission])
+  @@index([promotionId])
+  /// pg_trgm index for ILIKE title search (extension created in migration)
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "vehicles_title_trgm_idx")
+  @@map("vehicles")
+}
+
+/// Views per vehicle per UTC day, written when the view buffer is flushed. Feeds dealer view charts.
+model VehicleViewDaily {
+  vehicleId String   @db.Uuid
+  day       DateTime @db.Date
+  views     Int      @default(0)
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@id([vehicleId, day])
+  @@index([day])
+  @@map("vehicle_view_daily")
+}
+
+model VehicleImage {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  vehicleId    String      @db.Uuid
+  storageKey   String      @unique
+  url          String?
+  thumbnailUrl String?
+  mediumUrl    String?
+  largeUrl     String?
+  contentType  String
+  sizeBytes    Int?
+  width        Int?
+  height       Int?
+  position     Int         @default(0)
+  isPrimary    Boolean     @default(false)
+  altText      String?
+  status       ImageStatus @default(PENDING_UPLOAD)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, position])
+  @@map("vehicle_images")
+}
+
+model VehicleStatusHistory {
+  id         String         @id @default(uuid(7)) @db.Uuid
+  vehicleId  String         @db.Uuid
+  fromStatus VehicleStatus?
+  toStatus   VehicleStatus
+  actorId    String?        @db.Uuid
+  reason     String?
+  createdAt  DateTime       @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, createdAt])
+  @@map("vehicle_status_history")
+}
+
+model VehiclePriceHistory {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  vehicleId   String   @db.Uuid
+  oldPrice    Int
+  newPrice    Int
+  changedById String?  @db.Uuid
+  createdAt   DateTime @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, createdAt])
+  @@map("vehicle_price_history")
+}
+
+model Promotion {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  title         String
+  slug          String    @unique
+  description   String?
+  bannerUrl     String?
+  /// PERCENT | AMOUNT | NONE
+  discountType  String    @default("NONE")
+  discountValue Int?
+  dealerId      String?   @db.Uuid
+  startsAt      DateTime
+  endsAt        DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  dealer   Dealer?   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  vehicles Vehicle[]
+
+  @@index([isActive, startsAt])
+  @@map("promotions")
+}
+
+// ───────────────────────── Customer activity ─────────────────────────
+
+model Favourite {
+  userId    String   @db.Uuid
+  vehicleId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, vehicleId])
+  @@index([vehicleId])
+  @@map("favourites")
+}
+
+model SavedSearch {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  userId        String    @db.Uuid
+  name          String
+  /// Same shape as the public search query (make, model, minPrice, ...).
+  criteria      Json
+  alertsEnabled Boolean   @default(true)
+  lastAlertedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([alertsEnabled])
+  @@map("saved_searches")
+}
+
+model RecentlyViewed {
+  userId    String   @db.Uuid
+  vehicleId String   @db.Uuid
+  viewedAt  DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, vehicleId])
+  @@index([userId, viewedAt(sort: Desc)])
+  @@map("recently_viewed")
+}
+
+// ───────────────────────── Enquiries & CRM ─────────────────────────
+
+model Enquiry {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  reference       String        @unique
+  type            EnquiryType
+  status          EnquiryStatus @default(NEW)
+  customerId      String?       @db.Uuid
+  name            String
+  email           String
+  phone           String?
+  message         String?
+  vehicleId       String?       @db.Uuid
+  dealerId        String?       @db.Uuid
+  branchId        String?       @db.Uuid
+  makeId          String?       @db.Uuid
+  modelId         String?       @db.Uuid
+  variantId       String?       @db.Uuid
+  /// Type-specific payload, validated per type at the API boundary.
+  details         Json?
+  source          String?
+  consentAt       DateTime?
+  assignedAdminId String?       @db.Uuid
+  closedAt        DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  customer  User?             @relation("EnquiryCustomer", fields: [customerId], references: [id], onDelete: SetNull)
+  vehicle   Vehicle?          @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  dealer    Dealer?           @relation(fields: [dealerId], references: [id], onDelete: SetNull)
+  branch    Branch?           @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  make      Make?             @relation(fields: [makeId], references: [id], onDelete: SetNull)
+  model     Model?            @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  variant   Variant?          @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  responses EnquiryResponse[]
+  lead      Lead?
+
+  @@index([dealerId, createdAt(sort: Desc)])
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([type, status])
+  @@index([email])
+  @@map("enquiries")
+}
+
+model EnquiryResponse {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  enquiryId  String   @db.Uuid
+  authorId   String?  @db.Uuid
+  /// DEALER | ADMIN | CUSTOMER
+  authorType String
+  message    String
+  createdAt  DateTime @default(now())
+
+  enquiry Enquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+
+  @@index([enquiryId, createdAt])
+  @@map("enquiry_responses")
+}
+
+model Lead {
+  id              String     @id @default(uuid(7)) @db.Uuid
+  dealerId        String     @db.Uuid
+  branchId        String?    @db.Uuid
+  assignedToId    String?    @db.Uuid
+  customerId      String?    @db.Uuid
+  enquiryId       String?    @unique @db.Uuid
+  vehicleId       String?    @db.Uuid
+  name            String
+  email           String?
+  phone           String?
+  source          LeadSource
+  stage           LeadStage  @default(NEW)
+  nextFollowUpAt  DateTime?
+  firstResponseAt DateTime?
+  lastContactedAt DateTime?
+  lostReason      String?
+  wonAt           DateTime?
+  lostAt          DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  dealer     Dealer         @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  branch     Branch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  assignedTo DealerMember?  @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  enquiry    Enquiry?       @relation(fields: [enquiryId], references: [id], onDelete: SetNull)
+  vehicle    Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  activities LeadActivity[]
+  deal       Deal?
+
+  @@index([dealerId, stage])
+  @@index([dealerId, createdAt(sort: Desc)])
+  @@index([assignedToId, stage])
+  @@index([branchId])
+  @@index([nextFollowUpAt])
+  @@map("leads")
+}
+
+/// Contact history + audit of lead stage changes (FR-43/44).
+model LeadActivity {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  leadId    String           @db.Uuid
+  actorId   String?          @db.Uuid
+  type      LeadActivityType
+  note      String?
+  fromStage LeadStage?
+  toStage   LeadStage?
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt])
+  @@map("lead_activities")
+}
+
+// ───────────────────────── Selling, valuation, bidding ─────────────────────────
+
+model SellRequest {
+  id                    String            @id @default(uuid(7)) @db.Uuid
+  reference             String            @unique
+  type                  SellRequestType
+  status                SellRequestStatus @default(SUBMITTED)
+  customerId            String?           @db.Uuid
+  name                  String
+  email                 String
+  phone                 String
+  province              Province
+  city                  String?
+  makeId                String?           @db.Uuid
+  modelId               String?           @db.Uuid
+  variantId             String?           @db.Uuid
+  makeName              String
+  modelName             String
+  variantName           String?
+  year                  Int
+  mileage               Int
+  condition             ConditionGrade
+  colour                String?
+  transmission          Transmission?
+  fuelType              FuelType?
+  registrationNumber    String?
+  vin                   String?
+  hasServiceHistory     Boolean?
+  hasAccidentHistory    Boolean?
+  hasOutstandingFinance Boolean?
+  askingPrice           Int?
+  notes                 String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  customer        User?              @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  make            Make?              @relation(fields: [makeId], references: [id], onDelete: SetNull)
+  model           Model?             @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  variant         Variant?           @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  images          SellRequestImage[]
+  valuations      Valuation[]
+  biddingSessions BiddingSession[]
+  deals           Deal[]
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([email])
+  @@map("sell_requests")
+}
+
+model SellRequestImage {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  sellRequestId String        @db.Uuid
+  /// PHOTO files are public media; REGISTRATION_DOCUMENT files are private (presigned download only).
+  kind          SellMediaKind @default(PHOTO)
+  storageKey    String        @unique
+  contentType   String
+  fileName      String?
+  sizeBytes     Int?
+  position      Int           @default(0)
+  createdAt     DateTime      @default(now())
+
+  sellRequest SellRequest @relation(fields: [sellRequestId], references: [id], onDelete: Cascade)
+
+  @@index([sellRequestId])
+  @@map("sell_request_images")
+}
+
+model Valuation {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  sellRequestId   String          @db.Uuid
+  method          ValuationMethod
+  estimateLow     Int
+  estimateMid     Int
+  estimateHigh    Int
+  comparableCount Int             @default(0)
+  notes           String?
+  valuedById      String?         @db.Uuid
+  createdAt       DateTime        @default(now())
+
+  sellRequest SellRequest @relation(fields: [sellRequestId], references: [id], onDelete: Cascade)
+
+  @@index([sellRequestId, createdAt(sort: Desc)])
+  @@map("valuations")
+}
+
+/// One dealer-bidding process for a customer's vehicle (FR-10, FR-52, BR-06..BR-09).
+model BiddingSession {
+  id                   String        @id @default(uuid(7)) @db.Uuid
+  sellRequestId        String        @db.Uuid
+  status               BiddingStatus @default(SCHEDULED)
+  opensAt              DateTime
+  closesAt             DateTime
+  allowBidModification Boolean       @default(true)
+  allowBidWithdrawal   Boolean       @default(true)
+  allowCounterOffers   Boolean       @default(true)
+  offerValidityHours   Int           @default(48)
+  reservePrice         Int?
+  /// Empty = all provinces.
+  eligibleProvinces    Province[]    @default([])
+  /// Set inside the acceptance transaction; UNIQUE guarantees one accepted offer per session.
+  acceptedOfferId      String?       @unique @db.Uuid
+  createdById          String?       @db.Uuid
+  closedAt             DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  sellRequest SellRequest     @relation(fields: [sellRequestId], references: [id], onDelete: Cascade)
+  invites     BiddingInvite[]
+  offers      Offer[]
+
+  @@index([status, closesAt])
+  @@index([sellRequestId])
+  @@map("bidding_sessions")
+}
+
+/// Optional explicit invite list. When a session has invites, only invited dealers may view/bid.
+model BiddingInvite {
+  sessionId String   @db.Uuid
+  dealerId  String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  dealer  Dealer         @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, dealerId])
+  @@index([dealerId])
+  @@map("bidding_invites")
+}
+
+model Offer {
+  id            String      @id @default(uuid(7)) @db.Uuid
+  sessionId     String      @db.Uuid
+  dealerId      String      @db.Uuid
+  submittedById String?     @db.Uuid
+  amount        Int
+  terms         String?
+  dealerNotes   String?
+  status        OfferStatus @default(SUBMITTED)
+  expiresAt     DateTime
+  respondedAt   DateTime?
+  version       Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  session       BiddingSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  dealer        Dealer          @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  revisions     OfferRevision[]
+  counterOffers CounterOffer[]
+  deal          Deal?
+
+  @@unique([sessionId, dealerId])
+  @@index([dealerId, status])
+  @@index([status, expiresAt])
+  @@map("offers")
+}
+
+/// Complete bid history (BR-08).
+model OfferRevision {
+  id          String      @id @default(uuid(7)) @db.Uuid
+  offerId     String      @db.Uuid
+  amount      Int
+  terms       String?
+  status      OfferStatus
+  changedById String?     @db.Uuid
+  reason      String?
+  createdAt   DateTime    @default(now())
+
+  offer Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([offerId, createdAt])
+  @@map("offer_revisions")
+}
+
+model CounterOffer {
+  id            String             @id @default(uuid(7)) @db.Uuid
+  offerId       String             @db.Uuid
+  amount        Int
+  message       String?
+  status        CounterOfferStatus @default(OPEN)
+  createdById   String?            @db.Uuid
+  respondedById String?            @db.Uuid
+  respondedAt   DateTime?
+  createdAt     DateTime           @default(now())
+
+  offer Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([offerId, createdAt])
+  @@map("counter_offers")
+}
+
+model Deal {
+  id            String     @id @default(uuid(7)) @db.Uuid
+  offerId       String     @unique @db.Uuid
+  sellRequestId String     @db.Uuid
+  dealerId      String     @db.Uuid
+  customerId    String?    @db.Uuid
+  leadId        String?    @unique @db.Uuid
+  amount        Int
+  status        DealStatus @default(OPEN)
+  completedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  offer       Offer       @relation(fields: [offerId], references: [id], onDelete: Restrict)
+  sellRequest SellRequest @relation(fields: [sellRequestId], references: [id], onDelete: Restrict)
+  dealer      Dealer      @relation(fields: [dealerId], references: [id], onDelete: Restrict)
+  lead        Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([dealerId, status])
+  @@map("deals")
+}
+
+// ───────────────────────── Notifications ─────────────────────────
+
+model Notification {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @db.Uuid
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id        String              @id @default(uuid(7)) @db.Uuid
+  userId    String              @db.Uuid
+  eventType String
+  channel   NotificationChannel
+  enabled   Boolean
+  updatedAt DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventType, channel])
+  @@map("notification_preferences")
+}
+
+// ───────────────────────── Content ─────────────────────────
+
+model ArticleCategory {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  articles Article[]
+
+  @@map("article_categories")
+}
+
+model Article {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  slug            String        @unique
+  title           String
+  excerpt         String?
+  /// Structured blocks [{type:"paragraph",text}|{type:"heading",text}|{type:"image",src,alt}|{type:"link",text,href}]
+  body            Json
+  type            ArticleType   @default(ARTICLE)
+  status          ContentStatus @default(DRAFT)
+  categoryId      String?       @db.Uuid
+  coverImageUrl   String?
+  authorId        String?       @db.Uuid
+  featured        Boolean       @default(false)
+  tags            String[]      @default([])
+  metaTitle       String?
+  metaDescription String?
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  category ArticleCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([categoryId, status])
+  @@index([type, status])
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "articles_title_trgm_idx")
+  @@map("articles")
+}
+
+model MediaItem {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  type         MediaType
+  title        String
+  slug         String        @unique
+  description  String?
+  url          String
+  embedUrl     String?
+  thumbnailUrl String?
+  durationSec  Int?
+  status       ContentStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([type, status, publishedAt(sort: Desc)])
+  @@map("media_items")
+}
+
+model Faq {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  question  String
+  answer    String
+  category  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, sortOrder])
+  @@map("faqs")
+}
+
+/// Static website pages: privacy policy, terms, insurance info (FR-30), EV & charging info (FR-31), etc.
+model StaticPage {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  slug            String        @unique
+  title           String
+  body            Json
+  status          ContentStatus @default(DRAFT)
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("static_pages")
+}
+
+model NewsletterSubscriber {
+  id               String           @id @default(uuid(7)) @db.Uuid
+  email            String           @unique
+  firstName        String?
+  lastName         String?
+  status           SubscriberStatus @default(SUBSCRIBED)
+  unsubscribeToken String           @unique
+  source           String?
+  userId           String?          @db.Uuid
+  consentAt        DateTime         @default(now())
+  unsubscribedAt   DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([status])
+  @@map("newsletter_subscribers")
+}
+
+// ───────────────────────── Platform infrastructure ─────────────────────────
+
+/// BR-13 audit trail.
+model AuditLog {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  actorId    String?  @db.Uuid
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String?
+  before     Json?
+  after      Json?
+  ip         String?
+  userAgent  String?
+  requestId  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+/// Transactional outbox: written in the same transaction as the business change,
+/// dispatched asynchronously by the worker (notifications, indexing, image processing...).
+model OutboxEvent {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  type          String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  maxAttempts   Int          @default(8)
+  availableAt   DateTime     @default(now())
+  lockedAt      DateTime?
+  lockedBy      String?
+  lastError     String?
+  processedAt   DateTime?
+  createdAt     DateTime     @default(now())
+
+  @@index([status, availableAt])
+  @@index([aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+/// Stored responses for retry-safe mutations sent with an Idempotency-Key header.
+model IdempotencyKey {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  key            String
+  userId         String   @db.Uuid
+  method         String
+  path           String
+  requestHash    String
+  responseStatus Int?
+  responseBody   Json?
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@unique([userId, key])
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}

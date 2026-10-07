@@ -1,0 +1,599 @@
+{
+ "register": {
+  "method": "POST",
+  "path": "/api/v1/auth/register",
+  "request": {
+   "email": "docs.1791308780443@example.com",
+   "password": "Secret123",
+   "firstName": "Sipho",
+   "lastName": "Dlamini",
+   "phone": "+27 82 555 0101",
+   "acceptTerms": true
+  },
+  "status": 201,
+  "response": {
+   "tokenType": "Bearer",
+   "accessToken": "<access token>",
+   "expiresIn": 900,
+   "refreshToken": "<refresh token>",
+   "refreshTokenExpiresAt": "2026-11-05T17:46:20.763Z",
+   "user": {
+    "id": "01a11252-d4d1-743d-bbbb-eca9ba449aaf",
+    "email": "docs.1791308780443@example.com",
+    "firstName": "Sipho",
+    "lastName": "Dlamini",
+    "phone": "+27 82 555 0101",
+    "role": "CUSTOMER"
+   }
+  }
+ },
+ "refresh": {
+  "method": "POST",
+  "path": "/api/v1/auth/refresh",
+  "request": {
+   "refreshToken": "<refresh token>"
+  },
+  "status": 200,
+  "response": {
+   "tokenType": "Bearer",
+   "accessToken": "<access token>",
+   "expiresIn": 900,
+   "refreshToken": "<refresh token>",
+   "refreshTokenExpiresAt": "2026-11-05T17:46:20.784Z",
+   "user": {
+    "id": "01a11252-d4d1-743d-bbbb-eca9ba449aaf",
+    "email": "docs.1791308780443@example.com",
+    "firstName": "Sipho",
+    "lastName": "Dlamini",
+    "phone": "+27 82 555 0101",
+    "role": "CUSTOMER"
+   }
+  }
+ },
+ "errorAuth": {
+  "method": "POST",
+  "path": "/api/v1/auth/login",
+  "request": {
+   "email": "docs.1791308780443@example.com",
+   "password": "wrong-pass1"
+  },
+  "status": 401,
+  "response": {
+   "statusCode": 401,
+   "code": "INVALID_CREDENTIALS",
+   "message": "Email or password is incorrect",
+   "requestId": "dfd5c749-d486-4e7b-a9f5-0386b66f882d",
+   "timestamp": "2026-10-06T17:46:21.048Z",
+   "path": "/api/v1/auth/login"
+  }
+ },
+ "errorValidation": {
+  "method": "POST",
+  "path": "/api/v1/auth/register",
+  "request": {
+   "email": "not-an-email",
+   "password": "short"
+  },
+  "status": 400,
+  "response": {
+   "statusCode": 400,
+   "code": "VALIDATION_FAILED",
+   "message": "Request validation failed",
+   "details": [
+    "email must be an email",
+    "Password must be 8-128 characters and contain at least one letter and one number"
+   ],
+   "requestId": "4face2e1-0957-4f95-96e7-8a4c1f819dac",
+   "timestamp": "2026-10-06T17:46:21.056Z",
+   "path": "/api/v1/auth/register"
+  }
+ },
+ "search": {
+  "method": "GET",
+  "path": "/api/v1/vehicles?make=toyota&fuelType=DIESEL&sort=price-asc&pageSize=1",
+  "request": null,
+  "status": 200,
+  "response": {
+   "data": [
+    {
+     "id": "01a11251-678a-706f-a432-6e6ba34717d4",
+     "slug": "2021-toyota-hilux-2-4-gd-6-raider-xtra-cab-demo3",
+     "title": "2021 Toyota Hilux 2.4 GD-6 Raider Xtra Cab",
+     "condition": "USED",
+     "status": "PUBLISHED",
+     "year": 2021,
+     "mileage": 92000,
+     "price": 409900,
+     "specialPrice": null,
+     "isSpecial": false,
+     "isFeatured": false,
+     "transmission": "MANUAL",
+     "fuelType": "DIESEL",
+     "drivetrain": "FOUR_X_TWO",
+     "colour": "Silver",
+     "engineCapacityCc": 2393,
+     "powerKw": 110,
+     "cylinders": 4,
+     "seats": 4,
+     "doors": 2,
+     "province": "GAUTENG",
+     "city": "Sandton",
+     "primaryImageUrl": null,
+     "imageCount": 0,
+     "viewCount": 42,
+     "publishedAt": "2026-10-03T17:44:47.240Z",
+     "reservedUntil": null,
+     "make": {
+      "id": "01a11251-658f-716c-9533-7f4bc1ad7b63",
+      "name": "Toyota",
+      "slug": "toyota"
+     },
+     "model": {
+      "id": "01a11251-6590-7519-b838-1d0c395b06c6",
+      "name": "Hilux",
+      "slug": "hilux"
+     },
+     "variant": {
+      "id": "01a11251-659a-753b-800c-4da549424b45",
+      "name": "2.4 GD-6 Raider Xtra Cab",
+      "slug": "2-4-gd-6-raider-xtra-cab-2021"
+     },
+     "dealer": {
+      "id": "01a11251-673d-7396-8b37-34ce4821d788",
+      "name": "Sandton Auto",
+      "slug": "sandton-auto",
+      "logoUrl": null,
+      "rating": 4.6,
+      "plan": "GOLD"
+     },
+     "branch": {
+      "id": "01a11251-6740-70e9-af43-3e258ad6ec2d",
+      "name": "Sandton Auto - Sandton",
+      "city": "Sandton",
+      "province": "GAUTENG"
+     },
+     "categories": [
+      {
+       "slug": "king-cabs",
+       "name": "King Cabs"
+      }
+     ],
+     "promotion": null,
+     "availability": "AVAILABLE",
+     "effectivePrice": 409900,
+     "discount": null
+    }
+   ],
+   "meta": {
+    "page": 1,
+    "pageSize": 1,
+    "total": 2,
+    "pageCount": 2
+   }
+  }
+ },
+ "detail": {
+  "method": "GET",
+  "path": "/api/v1/vehicles/2021-toyota-hilux-2-4-gd-6-raider-xtra-cab-demo3",
+  "request": null,
+  "status": 200,
+  "response": {
+   "id": "01a11251-678a-706f-a432-6e6ba34717d4",
+   "slug": "2021-toyota-hilux-2-4-gd-6-raider-xtra-cab-demo3",
+   "title": "2021 Toyota Hilux 2.4 GD-6 Raider Xtra Cab",
+   "condition": "USED",
+   "status": "PUBLISHED",
+   "year": 2021,
+   "mileage": 92000,
+   "price": 409900,
+   "specialPrice": null,
+   "isSpecial": false,
+   "isFeatured": false,
+   "transmission": "MANUAL",
+   "fuelType": "DIESEL",
+   "drivetrain": "FOUR_X_TWO",
+   "colour": "Silver",
+   "engineCapacityCc": 2393,
+   "powerKw": 110,
+   "cylinders": 4,
+   "seats": 4,
+   "doors": 2,
+   "province": "GAUTENG",
+   "city": "Sandton",
+   "primaryImageUrl": null,
+   "imageCount": 0,
+   "viewCount": 42,
+   "publishedAt": "2026-10-03T17:44:47.240Z",
+   "reservedUntil": null,
+   "make": {
+    "id": "01a11251-658f-716c-9533-7f4bc1ad7b63",
+    "name": "Toyota",
+    "slug": "toyota"
+   },
+   "model": {
+    "id": "01a11251-6590-7519-b838-1d0c395b06c6",
+    "name": "Hilux",
+    "slug": "hilux"
+   },
+   "variant": {
+    "id": "01a11251-659a-753b-800c-4da549424b45",
+    "name": "2.4 GD-6 Raider Xtra Cab",
+    "slug": "2-4-gd-6-raider-xtra-cab-2021",
+    "specification": {
+     "variantId": "01a11251-659a-753b-800c-4da549424b45",
+     "engine": "2.4L 4-cylinder turbo diesel",
+     "engineCapacityCc": 2393,
+     "cylinders": 4,
+     "powerKw": 110,
+     "torqueNm": 400,
+     "transmission": "MANUAL",
+     "gears": 6,
+     "drivetrain": "FOUR_X_TWO",
+     "fuelType": "DIESEL",
+     "fuelConsumptionL100": 7.1,
+     "co2GKm": null,
+     "seats": 4,
+     "doors": 2,
+     "lengthMm": 5325,
+     "widthMm": 1855,
+     "heightMm": 1800,
+     "wheelbaseMm": null,
+     "bootLitres": null,
+     "kerbWeightKg": null,
+     "fuelTankLitres": null,
+     "topSpeedKmh": null,
+     "zeroTo100Sec": null,
+     "batteryKwh": null,
+     "electricRangeKm": null,
+     "warranty": "3 years / 100 000 km",
+     "servicePlan": "6 services / 90 000 km",
+     "safetyRating": null,
+     "extra": null,
+     "updatedAt": "2026-10-06T17:44:46.746Z"
+    }
+   },
+   "dealer": {
+    "id": "01a11251-673d-7396-8b37-34ce4821d788",
+    "name": "Sandton Auto",
+    "slug": "sandton-auto",
+    "logoUrl": null,
+    "rating": 4.6,
+    "plan": "GOLD",
+    "phone": "+27 11 000 0000",
+    "email": "sales@sandtonauto.co.za",
+    "website": null,
+    "address": "1 Rivonia Road, Sandton",
+    "city": "Sandton",
+    "province": "GAUTENG"
+   },
+   "branch": {
+    "id": "01a11251-6740-70e9-af43-3e258ad6ec2d",
+    "name": "Sandton Auto - Sandton",
+    "address": "1 Rivonia Road, Sandton",
+    "city": "Sandton",
+    "province": "GAUTENG",
+    "phone": null,
+    "email": null,
+    "latitude": -26.1076,
+    "longitude": 28.0567,
+    "operatingHours": [
+     {
+      "day": "Mon",
+      "open": "08:00",
+      "close": "17:30"
+     },
+     {
+      "day": "Sat",
+      "open": "08:30",
+      "close": "13:00"
+     }
+    ]
+   },
+   "categories": [
+    {
+     "slug": "king-cabs",
+     "name": "King Cabs"
+    }
+   ],
+   "promotion": null,
+   "description": "2021 Toyota Hilux 2.4 GD-6 Raider Xtra Cab in Silver. Full s...",
+   "latitude": -26.1076,
+   "longitude": 28.0567,
+   "generation": {
+    "id": "01a11251-6592-70bd-9879-f7c5a7da3e38",
+    "name": "8th generation",
+    "yearFrom": 2016,
+    "yearTo": null
+   },
+   "images": [],
+   "availability": "AVAILABLE",
+   "effectivePrice": 409900,
+   "discount": null,
+   "features": [
+    {
+     "id": "01a11251-65cb-7658-8830-7db607694ba3",
+     "name": "ABS with EBD",
+     "slug": "abs-with-ebd",
+     "group": "SAFETY",
+     "availability": "STANDARD",
+     "source": "make"
+    },
+    {
+     "id": "01a11251-65cc-7568-83b7-e2b5f5b34c5a",
+     "name": "Driver and passenger airbags",
+     "slug": "driver-and-passenger-airbags",
+     "group": "SAFETY",
+     "availability": "STANDARD",
+     "source": "make"
+    }
+   ],
+   "finance": {
+    "vehiclePrice": 409900,
+    "deposit": 40990,
+    "financeAmount": 368910,
+    "balloonAmount": 0,
+    "termMonths": 72,
+    "annualInterestRate": 11.75,
+    "monthlyRepayment": 7164.39,
+    "totalRepayment": 515836.14,
+    "totalInterest": 146926.14
+   },
+   "canEnquire": true
+  }
+ },
+ "makes": {
+  "method": "GET",
+  "path": "/api/v1/catalogue/makes",
+  "request": null,
+  "status": 200,
+  "response": [
+   {
+    "id": "01a11251-6568-72ff-b69c-5aa58829742d",
+    "name": "BMW",
+    "slug": "bmw",
+    "logoUrl": null,
+    "country": "Germany"
+   },
+   {
+    "id": "01a11251-658f-716c-9533-7f4bc1ad7b63",
+    "name": "Toyota",
+    "slug": "toyota",
+    "logoUrl": null,
+    "country": "Japan"
+   }
+  ]
+ },
+ "finance": {
+  "method": "POST",
+  "path": "/api/v1/finance/repayment",
+  "request": {
+   "vehiclePrice": 400000,
+   "deposit": 40000,
+   "termMonths": 72,
+   "annualInterestRate": 11.75,
+   "balloonPercent": 0
+  },
+  "status": 200,
+  "response": {
+   "vehiclePrice": 400000,
+   "deposit": 40000,
+   "financeAmount": 360000,
+   "balloonAmount": 0,
+   "termMonths": 72,
+   "annualInterestRate": 11.75,
+   "monthlyRepayment": 6991.35,
+   "totalRepayment": 503377.55,
+   "totalInterest": 143377.55
+  }
+ },
+ "enquiry": {
+  "method": "POST",
+  "path": "/api/v1/enquiries/vehicle",
+  "request": {
+   "vehicleId": "01a11251-678a-706f-a432-6e6ba34717d4",
+   "name": "Sipho Dlamini",
+   "email": "docs.1791308780443@example.com",
+   "phone": "+27 82 555 0101",
+   "consent": true,
+   "message": "Is this still available?",
+   "interestedInFinance": true
+  },
+  "status": 201,
+  "response": {
+   "id": "01a11252-d6c9-720c-8ab6-34aac7a1153d",
+   "reference": "ENQ-CEGAWFE4",
+   "type": "VEHICLE",
+   "status": "NEW",
+   "createdAt": "2026-10-06T17:46:21.257Z",
+   "duplicate": false
+  }
+ },
+ "dashboard": {
+  "method": "GET",
+  "path": "/api/v1/me/dashboard",
+  "request": null,
+  "status": 200,
+  "response": {
+   "profile": {
+    "id": "01a11252-d4d1-743d-bbbb-eca9ba449aaf",
+    "email": "docs.1791308780443@example.com",
+    "firstName": "Sipho",
+    "lastName": "Dlamini",
+    "phone": "+27 82 555 0101",
+    "role": "CUSTOMER",
+    "marketingConsent": false,
+    "createdAt": "2026-10-06T17:46:20.753Z",
+    "lastLoginAt": null
+   },
+   "counts": {
+    "openEnquiries": 1,
+    "activeOffers": 0,
+    "favourites": 1,
+    "savedSearches": 0,
+    "unreadNotifications": 0
+   },
+   "latestEnquiries": [
+    {
+     "id": "01a11252-d6c9-720c-8ab6-34aac7a1153d",
+     "reference": "ENQ-CEGAWFE4",
+     "type": "VEHICLE",
+     "status": "NEW",
+     "createdAt": "2026-10-06T17:46:21.257Z",
+     "updatedAt": "2026-10-06T17:46:21.257Z",
+     "vehicle": {
+      "title": "2021 Toyota Hilux 2.4 GD-6 Raider Xtra Cab",
+      "slug": "2021-toyota-hilux-2-4-gd-6-raider-xtra-cab-demo3"
+     },
+     "dealer": {
+      "name": "Sandton Auto"
+     }
+    }
+   ],
+   "sellRequests": [],
+   "recentlyViewed": []
+  }
+ },
+ "sellRequest": {
+  "method": "POST",
+  "path": "/api/v1/sell-requests",
+  "request": {
+   "type": "SELL",
+   "name": "Sipho Dlamini",
+   "email": "docs.1791308780443@example.com",
+   "phone": "+27 82 555 0101",
+   "consent": true,
+   "province": "GAUTENG",
+   "makeName": "Volkswagen",
+   "modelName": "Polo",
+   "year": 2019,
+   "mileage": 85000,
+   "condition": "GOOD"
+  },
+  "status": 201,
+  "response": {
+   "id": "01a11252-d720-7343-9950-d760cb28f219",
+   "reference": "SELL-UG84JFQ4",
+   "type": "SELL",
+   "status": "SUBMITTED",
+   "createdAt": "2026-10-06T17:46:21.344Z"
+  }
+ },
+ "leads": {
+  "method": "GET",
+  "path": "/api/v1/dealer/leads?pageSize=1",
+  "request": null,
+  "status": 200,
+  "response": {
+   "data": [
+    {
+     "id": "01a11252-d6cd-71f3-9232-0aba3e9c7042",
+     "dealerId": "01a11251-673d-7396-8b37-34ce4821d788",
+     "branchId": "01a11251-6740-70e9-af43-3e258ad6ec2d",
+     "assignedToId": null,
+     "customerId": "01a11252-d4d1-743d-bbbb-eca9ba449aaf",
+     "enquiryId": "01a11252-d6c9-720c-8ab6-34aac7a1153d",
+     "vehicleId": "01a11251-678a-706f-a432-6e6ba34717d4",
+     "name": "Sipho Dlamini",
+     "email": "docs.1791308780443@example.com",
+     "phone": "+27 82 555 0101",
+     "source": "WEBSITE_ENQUIRY",
+     "stage": "NEW",
+     "nextFollowUpAt": null,
+     "firstResponseAt": null,
+     "lastContactedAt": null,
+     "lostReason": null,
+     "wonAt": null,
+     "lostAt": null,
+     "createdAt": "2026-10-06T17:46:21.261Z",
+     "updatedAt": "2026-10-06T17:46:21.261Z",
+     "vehicle": {
+      "id": "01a11251-678a-706f-a432-6e6ba34717d4",
+      "title": "2021 Toyota Hilux 2.4 GD-6 Raider Xtra Cab",
+      "slug": "2021-toyota-hilux-2-4-gd-6-raider-xtra-cab-demo3",
+      "primaryImageUrl": null,
+      "price": 409900
+     },
+     "assignedTo": null,
+     "branch": {
+      "id": "01a11251-6740-70e9-af43-3e258ad6ec2d",
+      "name": "Sandton Auto - Sandton"
+     }
+    }
+   ],
+   "meta": {
+    "page": 1,
+    "pageSize": 1,
+    "total": 1,
+    "pageCount": 1
+   }
+  }
+ },
+ "dealerMe": {
+  "method": "GET",
+  "path": "/api/v1/dealer/me",
+  "request": null,
+  "status": 200,
+  "response": {
+   "userId": "01a11251-6736-77aa-acbe-25e5a7fa3abf",
+   "memberId": "01a11251-6744-739d-bc77-d62986615b39",
+   "dealerId": "01a11251-673d-7396-8b37-34ce4821d788",
+   "dealerStatus": "APPROVED",
+   "role": "OWNER",
+   "branchId": null,
+   "permissions": [
+    "DEALER_PROFILE_MANAGE",
+    "BRANCHES_MANAGE"
+   ],
+   "wideScope": true
+  }
+ },
+ "errorNotFound": {
+  "method": "GET",
+  "path": "/api/v1/vehicles/does-not-exist",
+  "request": null,
+  "status": 404,
+  "response": {
+   "statusCode": 404,
+   "code": "VEHICLE_NOT_FOUND",
+   "message": "Vehicle not found",
+   "requestId": "e0ae3d1e-0ddb-4387-be6a-cd99af244014",
+   "timestamp": "2026-10-06T17:46:21.451Z",
+   "path": "/api/v1/vehicles/does-not-exist"
+  }
+ },
+ "errorTransition": {
+  "method": "POST",
+  "path": "/api/v1/dealer/vehicles/01a11251-678a-706f-a432-6e6ba34717d4/publish",
+  "request": null,
+  "status": 409,
+  "response": {
+   "statusCode": 409,
+   "code": "INVALID_STATUS_TRANSITION",
+   "message": "Cannot move a vehicle from PUBLISHED to PUBLISHED",
+   "details": {
+    "allowed": [
+     "DRAFT",
+     "RESERVED"
+    ]
+   },
+   "requestId": "48b7e6e3-9193-4fe2-8444-3e42448bca4d",
+   "timestamp": "2026-10-06T17:46:21.467Z",
+   "path": "/api/v1/dealer/vehicles/01a11251-678a-706f-a432-6e6ba34717d4/publish"
+  }
+ },
+ "notifications": {
+  "method": "GET",
+  "path": "/api/v1/me/notifications?pageSize=2",
+  "request": null,
+  "status": 200,
+  "response": {
+   "data": [],
+   "meta": {
+    "page": 1,
+    "pageSize": 2,
+    "total": 0,
+    "pageCount": 1
+   }
+  }
+ }
+}

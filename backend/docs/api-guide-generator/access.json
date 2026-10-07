@@ -1,0 +1,2849 @@
+{
+ "GET /api/v1/admin/stats": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/users": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/users/{id}": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/users/{id}/status": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/users/{id}/role": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "SUPER_ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/users": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "SUPER_ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/audit-logs": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/system/outbox": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/system/outbox/events": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/system/outbox/events/{id}/retry": {
+  "controller": "AdminController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/auth/register": {
+  "controller": "AuthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/auth/login": {
+  "controller": "AuthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/auth/refresh": {
+  "controller": "AuthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 30,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/auth/logout": {
+  "controller": "AuthController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/auth/logout-all": {
+  "controller": "AuthController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/auth/forgot-password": {
+  "controller": "AuthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 5,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/auth/reset-password": {
+  "controller": "AuthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/auth/change-password": {
+  "controller": "AuthController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/auth/me": {
+  "controller": "AuthController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/bidding-sessions": {
+  "controller": "AdminBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/sell-requests/{id}/bidding-sessions": {
+  "controller": "AdminBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/bidding-sessions/{id}/reopen": {
+  "controller": "AdminBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/bidding-sessions/{id}/cancel": {
+  "controller": "AdminBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/bidding/sessions": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_VIEW"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/bidding/sessions/{id}": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_VIEW"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/bidding/sessions/{id}/offers": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_PARTICIPATE"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/offers": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/offers/{id}": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_PARTICIPATE"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/offers/{id}/withdraw": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_PARTICIPATE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/offers/{id}/counter-response": {
+  "controller": "DealerBiddingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BIDDING_PARTICIPATE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/offers": {
+  "controller": "MyOffersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/offers/{id}/accept": {
+  "controller": "MyOffersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": true,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/offers/{id}/reject": {
+  "controller": "MyOffersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/offers/{id}/counter": {
+  "controller": "MyOffersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/catalogue/makes": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/makes/{makeSlug}/models": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/makes/{makeSlug}/models/{modelSlug}": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/variants/compare": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/variants/{id}": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/categories": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/catalogue/features": {
+  "controller": "CatalogueController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/admin/catalogue/makes": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/makes": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/makes/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/makes/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/catalogue/makes/{makeId}/models": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/models": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/models/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/models/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/generations": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/generations/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/generations/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/catalogue/models/{modelId}/variants": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/variants": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/variants/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/variants/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/catalogue/categories": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/categories": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/categories/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/categories/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/features": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/catalogue/features/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/features/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/catalogue/feature-assignments": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/catalogue/feature-assignments/{id}": {
+  "controller": "AdminCatalogueController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/content/articles": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/articles/{slug}": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/article-categories": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/media": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/media/{slug}": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/faqs": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/content/pages/{slug}": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/promotions": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/promotions/{slug}": {
+  "controller": "PublicContentController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/admin/articles": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/articles/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/articles": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/articles/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/articles/{id}/status": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/articles/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/article-categories": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/article-categories/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/media": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/media": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/media/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/media/{id}/status": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/media/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/faqs": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/faqs": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/faqs/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/faqs/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/pages": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/pages/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/pages": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/pages/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/pages/{id}/status": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/pages/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/promotions": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/promotions": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/promotions/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PUT /api/v1/admin/promotions/{id}/vehicles": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/admin/promotions/{id}": {
+  "controller": "AdminContentController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/leads": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_VIEW_ALL",
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/leads/stats": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_VIEW_ALL",
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/leads": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/leads/{id}": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_VIEW_ALL",
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/leads/{id}": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/leads/{id}/stage": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/leads/{id}/assign": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "LEADS_ASSIGN"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/leads/{id}/activities": {
+  "controller": "LeadsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "LEADS_MANAGE_ALL",
+    "LEADS_MANAGE_ASSIGNED"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/me": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/dashboard": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/sessions": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/me/sessions/{id}": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/favourites": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/favourites/ids": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PUT /api/v1/me/favourites/{vehicleId}": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/me/favourites/{vehicleId}": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/saved-searches": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/saved-searches": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/me/saved-searches/{id}": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/me/saved-searches/{id}": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/recently-viewed": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/me/recently-viewed": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/export": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/delete-account": {
+  "controller": "MeController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/dashboard": {
+  "controller": "DealerDashboardController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealers/register": {
+  "controller": "PublicDealersController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 5,
+   "ttlMs": 60000
+  },
+  "publicCache": 300
+ },
+ "GET /api/v1/dealers": {
+  "controller": "PublicDealersController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/dealers/{slug}": {
+  "controller": "PublicDealersController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 300
+ },
+ "GET /api/v1/dealer/profile": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/me": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/profile": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "DEALER_PROFILE_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/documents/upload-url": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "DEALER_PROFILE_MANAGE"
+   ],
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/documents": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "DEALER_PROFILE_MANAGE"
+   ],
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/documents": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "DEALER_PROFILE_MANAGE"
+   ],
+   "allowInactive": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/branches": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {},
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/branches": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BRANCHES_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/branches/{id}": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "BRANCHES_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/staff": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "anyPermission": [
+    "STAFF_MANAGE",
+    "LEADS_ASSIGN"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/staff": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "STAFF_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/staff/{memberId}": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "STAFF_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/staff/{memberId}/activity": {
+  "controller": "DealerPortalController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "STAFF_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/dealers": {
+  "controller": "AdminDealersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/dealers/{id}": {
+  "controller": "AdminDealersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/dealers/{id}/status": {
+  "controller": "AdminDealersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/dealers/{id}": {
+  "controller": "AdminDealersController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/vehicle": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/test-drive": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/quote": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/beat-my-quote": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/trade-in": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/concierge": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/help-me-find": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/finance": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/insurance": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/enquiries/contact": {
+  "controller": "PublicEnquiriesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "GET /api/v1/me/enquiries": {
+  "controller": "MyEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/enquiries/{id}": {
+  "controller": "MyEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/enquiries/{id}/reply": {
+  "controller": "MyEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/enquiries/{id}/cancel": {
+  "controller": "MyEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/enquiries": {
+  "controller": "DealerEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "ENQUIRIES_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/enquiries/{id}": {
+  "controller": "DealerEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "ENQUIRIES_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/enquiries/{id}/respond": {
+  "controller": "DealerEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "ENQUIRIES_RESPOND"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/enquiries": {
+  "controller": "AdminEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/enquiries/{id}": {
+  "controller": "AdminEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/enquiries/{id}/respond": {
+  "controller": "AdminEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/enquiries/{id}": {
+  "controller": "AdminEnquiriesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/finance/repayment": {
+  "controller": "FinanceController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/finance/affordability": {
+  "controller": "FinanceController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /health/live": {
+  "controller": "HealthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /health/ready": {
+  "controller": "HealthController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/newsletter/subscribe": {
+  "controller": "NewsletterController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 5,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "POST /api/v1/newsletter/unsubscribe": {
+  "controller": "NewsletterController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/newsletter/subscribers": {
+  "controller": "AdminNewsletterController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/newsletter/subscribers.csv": {
+  "controller": "AdminNewsletterController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/notifications": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/notifications/unread-count": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/notifications/{id}/read": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/notifications/read-all": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/notifications/preferences": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PUT /api/v1/me/notifications/preferences": {
+  "controller": "NotificationsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/sell-requests": {
+  "controller": "PublicSellingController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": {
+   "limit": 10,
+   "ttlMs": 60000
+  },
+  "publicCache": null
+ },
+ "GET /api/v1/me/sell-requests": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/me/sell-requests/{id}": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/sell-requests/{id}/request-offers": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/sell-requests/{id}/cancel": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/sell-requests/{id}/images/upload-url": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/me/sell-requests/{id}/images": {
+  "controller": "MySellRequestsController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/sell-requests": {
+  "controller": "AdminSellingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/sell-requests/{id}": {
+  "controller": "AdminSellingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/sell-requests/{id}/valuations": {
+  "controller": "AdminSellingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/sell-requests/{id}/status": {
+  "controller": "AdminSellingController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/seo/sitemap.xml": {
+  "controller": "SeoController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/seo/sitemap-static.xml": {
+  "controller": "SeoController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/seo/sitemap-vehicles-{page}.xml": {
+  "controller": "SeoController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/seo/vehicles/{slug}/structured-data": {
+  "controller": "SeoController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 3600
+ },
+ "GET /api/v1/vehicles": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/facets": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/specials": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/hot-sellers": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/compare": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/{slugOrId}": {
+  "controller": "PublicVehiclesController",
+  "public": false,
+  "optionalAuth": true,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/{id}/similar": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/{id}/dealer-vehicles": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/vehicles/{id}/market-price": {
+  "controller": "PublicVehiclesController",
+  "public": true,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": 60
+ },
+ "GET /api/v1/dealer/vehicles": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/vehicles/{id}": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/vehicles/{id}": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/submit": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/withdraw": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/edit": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/publish": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_PUBLISH"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/reserve": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/release": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/sell": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/suspend": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/unsuspend": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ],
+   "requireApproved": true
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/archive": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/dealer/vehicles/{id}/images": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_VIEW"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/images/upload-url": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/dealer/vehicles/{id}/images/{imageId}/complete": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PUT /api/v1/dealer/vehicles/{id}/images/order": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/dealer/vehicles/{id}/images/{imageId}": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "DELETE /api/v1/dealer/vehicles/{id}/images/{imageId}": {
+  "controller": "DealerVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": null,
+  "dealer": {
+   "permissions": [
+    "INVENTORY_MANAGE"
+   ]
+  },
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/vehicles": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/vehicles/review-queue": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "GET /api/v1/admin/vehicles/{id}": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/vehicles/{id}": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "PATCH /api/v1/admin/vehicles/{id}/flags": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/approve": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/reject": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/publish": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/suspend": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/unsuspend": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/archive": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ },
+ "POST /api/v1/admin/vehicles/{id}/relist": {
+  "controller": "AdminVehiclesController",
+  "public": false,
+  "optionalAuth": false,
+  "roles": [
+   "ADMIN"
+  ],
+  "dealer": null,
+  "idempotent": false,
+  "throttle": null,
+  "publicCache": null
+ }
+}
