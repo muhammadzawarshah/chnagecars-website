@@ -50,6 +50,11 @@ export const envSchema = z.object({
    * Shared secret between the Next.js website server and this API. When a request carries it
    * (X-Web-Adapter-Key), the throttler keys on X-Web-Client-Ip (the shopper) instead of the web server IP.
    */
+  /**
+   * The website's refresh endpoint (e.g. https://www.changecars.co.za/api/revalidate). When set, public
+   * data changes refresh the website's cached pages at once instead of after their cache expires.
+   */
+  WEB_REVALIDATE_URL: z.preprocess((value) => (value === '' ? undefined : value), z.string().url().optional()),
   WEB_ADAPTER_KEY: z.string().min(32, 'WEB_ADAPTER_KEY must be at least 32 characters').optional(),
 
   S3_ENDPOINT: z.string().optional(),
@@ -85,6 +90,13 @@ export function validateEnv(raw: Record<string, unknown>): Env {
   if (!parsed.success) {
     const issues = parsed.error.issues.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`).join('\n');
     throw new Error(`Invalid environment configuration:\n${issues}`);
+  }
+  // The example values in .env.example are public; refuse to run production with them.
+  if (parsed.data.NODE_ENV === 'production') {
+    const placeholders = (['JWT_ACCESS_SECRET', 'WEB_ADAPTER_KEY'] as const).filter((key) => parsed.data[key]?.includes('change-me'));
+    if (placeholders.length) {
+      throw new Error(`Invalid environment configuration:\n${placeholders.map((key) => `  - ${key}: still the example value; set a long random secret`).join('\n')}`);
+    }
   }
   return parsed.data;
 }

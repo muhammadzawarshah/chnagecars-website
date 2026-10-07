@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The API in backend/ (in the repository) has its own TypeScript setup.
+    "backend/**",
   ]),
 ]);
 

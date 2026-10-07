@@ -163,6 +163,15 @@ cd .. && npm install && npm run dev
 
 Without `API_URL` the website runs on its built-in sample data, as before.
 
+**Going live (the website shows live data only when all of this is set):**
+
+1. Run this API somewhere the website can reach over HTTPS (with PostgreSQL, ideally Redis, and S3 storage), run `npx prisma migrate deploy`, and start both `node dist/main.js` and `node dist/worker.js`.
+2. In the website's hosting settings (Vercel → Project → Settings → Environment Variables) set `API_URL=https://<api-host>/api/v1` and `WEB_ADAPTER_KEY=<the same secret as the API>`, then redeploy. If `API_URL` is missing the website keeps showing its sample cars.
+3. In the API's `.env` set `WEB_REVALIDATE_URL=https://<website>/api/revalidate` (same `WEB_ADAPTER_KEY`). Every change to cars, dealers, the catalogue or news then refreshes the website at once (well under a second in tests); without it, pages catch up within about a minute.
+4. Add the website's address to `CORS_ORIGINS` and `PUBLIC_WEB_URL`, and allow `PUT` from it in the storage bucket's CORS rules (photo uploads).
+
+- **Sync.** Public pages cache API data for up to 60 s (search 30 s) as a safety net. When data changes, the API calls the website's `/api/revalidate` (debounced, retried, protected by `WEB_ADAPTER_KEY`), which clears the `cars` or `articles` cache so the next visitor sees the change. Car pages and dashboards always read live data. Changes made directly in the database (not through the API) are only picked up when the cache expires.
+
 - **Uploads.** Sell forms and Beat My Quote return a 2-hour `uploadToken`. The browser uploads each file straight to storage with a presigned URL; photos land in `media/sell-requests/…` (public), registration documents and quotes in `private/…` (staff get short-lived signed links). Limits: JPG/PNG/WebP photos up to 10 MB and 20 per request, PDF/JPG/PNG documents up to 5 MB and 2 per request. **Production:** the bucket needs a CORS rule allowing `PUT` from the website origin.
 - **Errors.** Every failure reaches the visitor as a short message inside the form (never a pop-up or toast), with field messages under their inputs. Pages whose main data cannot load show a branded "Try again" page; extras (similar cars, latest news) are left out instead. API calls time out after 10 s (reads) or 20 s (writes), and server faults are logged with the API `requestId`.
 - **Privacy.** Website enquiries are processed because the visitor asked to be contacted (POPIA s11(1)(b)/(f)), recorded as `details.lawfulBasis`; marketing stays opt-in (newsletter forms and the enquiry form's newsletter box). Sign-up shows a notice linking the CHANGECARS Privacy Policy.
@@ -210,7 +219,8 @@ The "2 million concurrent users per second" target in the requirements must be t
 
 ## 6. Verification status
 
-- `npm test`: 50 unit tests pass. They cover lifecycle, lead stages, finance maths, valuation, bidding rules, the search matcher and builder, content XSS validation and the website adapter's mappings.
+- `npm test`: 53 unit tests pass. They cover lifecycle, lead stages, finance maths, valuation, bidding rules, the search matcher and builder, content XSS validation and the website adapter's mappings.
+- Website sync: a car published, re-priced, featured and sold through the API, an article published and a dealer suspended and reinstated all show on the production website within a second.
 - Website connection: 72 adapter checks, 25 upload checks, and browser runs of the real website on desktop and phone widths pass: every form, login, dealer approval, photo and document uploads, in-form error messages, the 404 and error pages, and behaviour with the API switched off.
 - `npm run test:smoke`: 116 end-to-end checks pass against PostgreSQL 18. They cover search and filters, auth with refresh-token reuse detection, RBAC and dealer isolation, the enquiry-to-lead-to-response flow, the full vehicle lifecycle, valuation, bidding with counter-offers, concurrent offer acceptance (exactly one wins), idempotent replay, offer expiry, notifications via the outbox, audit, sitemaps and cache headers.
 - **Not yet exercised against real services:** S3/MinIO uploads and `sharp` image processing, SMTP delivery, and Redis. The tests ran without Redis, using the in-memory fallback. Run the Docker stack to cover these.

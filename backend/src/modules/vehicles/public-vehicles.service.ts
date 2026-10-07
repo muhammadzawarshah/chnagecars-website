@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { Errors } from '../../common/errors/app-error';
 import { splitCsv } from '../../common/utils/strings';
@@ -16,9 +16,10 @@ const RECENTLY_VIEWED_LIMIT = 50;
 export const POPULARITY = { enquiry: 20, favourite: 10 } as const;
 
 @Injectable()
-export class PublicVehiclesService {
+export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PublicVehiclesService.name);
   private readonly memoryViews = new Map<string, number>();
+  private memoryFlushTimer: NodeJS.Timeout | undefined;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -26,6 +27,23 @@ export class PublicVehiclesService {
     private readonly catalogue: CatalogueService,
     @Inject(REDIS) private readonly redis: RedisClient,
   ) {}
+
+  /**
+   * Without Redis, views are counted in this process's memory, which a separate worker process
+   * cannot read. So the process that counted them saves them itself (with Redis the worker does it).
+   */
+  onModuleInit(): void {
+    if (this.redis) return;
+    this.memoryFlushTimer = setInterval(() => {
+      this.flushViews().catch((error) => this.logger.warn(`view flush failed: ${(error as Error).message}`));
+    }, 30_000);
+    this.memoryFlushTimer.unref();
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    clearInterval(this.memoryFlushTimer);
+    if (!this.redis) await this.flushViews().catch(() => undefined);
+  }
 
   /** FR-04 vehicle detail page. Accepts the SEO slug or the id. */
   async detail(slugOrId: string, viewerId?: string) {

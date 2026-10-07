@@ -766,6 +766,7 @@ model Vehicle {
   @@index([status, mileage])
   @@index([status, year])
   @@index([status, popularityScore(sort: Desc)])
+  @@index([modelId, status])
   @@index([makeId, modelId, status])
   @@index([variantId])
   @@index([province, status])
@@ -911,6 +912,7 @@ model RecentlyViewed {
 
   @@id([userId, vehicleId])
   @@index([userId, viewedAt(sort: Desc)])
+  @@index([vehicleId])
   @@map("recently_viewed")
 }
 
@@ -955,6 +957,7 @@ model Enquiry {
   @@index([customerId, createdAt(sort: Desc)])
   @@index([type, status])
   @@index([email])
+  @@index([vehicleId])
   @@map("enquiries")
 }
 
@@ -1008,6 +1011,7 @@ model Lead {
   @@index([assignedToId, stage])
   @@index([branchId])
   @@index([nextFollowUpAt])
+  @@index([vehicleId])
   @@map("leads")
 }
 
@@ -1239,6 +1243,7 @@ model Deal {
   lead        Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   @@index([dealerId, status])
+  @@index([sellRequestId])
   @@map("deals")
 }
 

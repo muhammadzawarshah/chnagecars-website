@@ -14,6 +14,7 @@ import { CacheHeadersInterceptor } from './common/interceptors/cache-headers.int
 import { IdempotencyInterceptor } from './common/interceptors/idempotency.interceptor';
 import { AuditModule } from './infrastructure/audit/audit.service';
 import { CacheModule } from './infrastructure/cache/cache.service';
+import { WebSyncModule } from './infrastructure/web-sync/web-sync.service';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { MessagingModule } from './infrastructure/messaging/messaging.module';
 import { OutboxModule } from './infrastructure/outbox/outbox.service';
@@ -59,6 +60,7 @@ export const INFRASTRUCTURE_MODULES = [
   }),
   DatabaseModule,
   RedisModule,
+  WebSyncModule,
   CacheModule,
   StorageModule,
   MessagingModule,

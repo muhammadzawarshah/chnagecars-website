@@ -19,6 +19,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# Generated Prisma client: the seed (`npx prisma db seed`) runs from source with tsx.
+COPY --from=build /app/src/generated ./src/generated
+COPY tsconfig.json ./
 COPY --from=build /app/package.json ./package.json
 COPY prisma ./prisma
 COPY prisma.config.ts ./

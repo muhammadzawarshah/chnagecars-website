@@ -15,6 +15,7 @@ import type { Db } from '../../infrastructure/database';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { OutboxEvents } from '../../infrastructure/outbox/outbox.events';
 import { OutboxService } from '../../infrastructure/outbox/outbox.service';
+import { WebSyncService } from '../../infrastructure/web-sync/web-sync.service';
 import { StorageService } from '../../infrastructure/storage/storage.service';
 import { AuthService } from '../auth/auth.service';
 import { DealerContext } from './dealer-access';
@@ -69,6 +70,7 @@ export class DealersService {
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
     private readonly storage: StorageService,
+    private readonly webSync: WebSyncService,
   ) {}
 
   // ───────────── registration (FR-11) ─────────────
@@ -164,11 +166,14 @@ export class DealersService {
 
   async updateProfile(ctx: DealerContext, dto: UpdateDealerProfileDto) {
     const before = await this.prisma.dealer.findUniqueOrThrow({ where: { id: ctx.dealerId } });
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const after = await tx.dealer.update({ where: { id: ctx.dealerId }, data: dto });
       await this.audit.record({ action: 'dealer.profile_update', entityType: 'dealer', entityId: ctx.dealerId, before, after }, tx);
       return after;
     });
+    // Dealer name, status, address and hours appear on public car pages.
+    this.webSync.changed('cars');
+    return result;
   }
 
   // ───────────── verification documents ─────────────
@@ -222,7 +227,7 @@ export class DealersService {
       throw Errors.badRequest('HEAD_OFFICE_REQUIRED', 'The head-office branch cannot be deactivated');
     }
     const { operatingHours, ...fields } = dto;
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const after = await tx.branch.update({
         where: { id: branchId },
         data: {
@@ -234,6 +239,9 @@ export class DealersService {
       await this.audit.record({ action: 'branch.update', entityType: 'branch', entityId: branchId, before, after }, tx);
       return after;
     });
+    // Dealer name, status, address and hours appear on public car pages.
+    this.webSync.changed('cars');
+    return result;
   }
 
   async ownBranch(dealerId: string, branchId: string) {
@@ -417,7 +425,7 @@ export class DealersService {
     if ((dto.status === DealerStatus.REJECTED || dto.status === DealerStatus.SUSPENDED) && !dto.reason) {
       throw Errors.badRequest('REASON_REQUIRED', 'A reason is required when rejecting or suspending a dealer');
     }
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const after = await tx.dealer.update({
         where: { id, status: before.status },
         data: {
@@ -436,15 +444,21 @@ export class DealersService {
       });
       return after;
     });
+    // Dealer name, status, address and hours appear on public car pages.
+    this.webSync.changed('cars');
+    return result;
   }
 
   async adminUpdate(id: string, dto: AdminUpdateDealerDto) {
     const before = await this.prisma.dealer.findUnique({ where: { id } });
     if (!before) throw Errors.notFound('Dealer');
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const after = await tx.dealer.update({ where: { id }, data: dto });
       await this.audit.record({ action: 'dealer.admin_update', entityType: 'dealer', entityId: id, before, after }, tx);
       return after;
     });
+    // Dealer name, status, address and hours appear on public car pages.
+    this.webSync.changed('cars');
+    return result;
   }
 }

@@ -1,5 +1,6 @@
 import { Global, Inject, Injectable, Logger, Module } from '@nestjs/common';
 import { REDIS, RedisClient } from '../redis/redis.module';
+import { WebSyncArea, WebSyncService } from '../web-sync/web-sync.service';
 
 /**
  * Cache-aside helper. Cache is never the source of truth: on authoritative updates
@@ -12,7 +13,10 @@ export class CacheService {
   private readonly memory = new Map<string, { value: string; expiresAt: number }>();
   private readonly prefix = 'cc:';
 
-  constructor(@Inject(REDIS) private readonly redis: RedisClient) {}
+  constructor(
+    @Inject(REDIS) private readonly redis: RedisClient,
+    private readonly webSync: WebSyncService,
+  ) {}
 
   async get<T>(key: string): Promise<T | undefined> {
     try {
@@ -64,6 +68,8 @@ export class CacheService {
   }
 
   async bump(...namespaces: string[]): Promise<void> {
+    // Every authoritative change to public data passes here, so the website is told at the same moment.
+    this.webSync.changed(...namespaces.map((namespace) => WEBSITE_AREAS[namespace]).filter((area): area is WebSyncArea => !!area));
     for (const namespace of namespaces) {
       const key = `ns:${namespace}`;
       try {
@@ -101,6 +107,9 @@ export const CacheNs = {
   catalogue: 'catalogue',
   content: 'content',
 } as const;
+
+/** Which website pages each cache namespace feeds. */
+const WEBSITE_AREAS: Record<string, WebSyncArea | undefined> = { vehicles: 'cars', catalogue: 'cars', content: 'articles' };
 
 @Global()
 @Module({ providers: [CacheService], exports: [CacheService] })
