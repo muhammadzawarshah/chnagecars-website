@@ -22,7 +22,12 @@
     "prisma:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "postinstall": "prisma generate",
-    "test:smoke": "node test/smoke.e2e.mjs"
+    "test:smoke": "node test/smoke.e2e.mjs",
+    "db:seed:fbook": "tsx prisma/seed-fbook.ts",
+    "feed:prepare": "python3 scripts/prepare-fbook.py --prepare-only",
+    "feed:images": "python3 scripts/prepare-fbook.py",
+    "feed:verify": "tsx prisma/verify-fbook.ts",
+    "feed:sync-images": "tsx prisma/sync-fbook-images.ts"
   },
   "engines": {
     "node": ">=20.19"

@@ -20,8 +20,8 @@ export interface VehicleSnapshot {
   branchId: string | null;
   categorySlugs: string[];
   price: number;
-  year: number;
-  mileage: number;
+  year: number | null;
+  mileage: number | null;
   engineCapacityCc: number | null;
   powerKw: number | null;
   seats: number | null;

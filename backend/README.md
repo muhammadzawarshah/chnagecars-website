@@ -246,3 +246,11 @@ These questions are open in the requirements. The current behaviour is noted for
 | Valuation form has no condition question | Decided: stored as "Good" with a note in the request, so the automated estimate stays neutral |
 | "Dealer" sign-up on the Register page (no dealership details asked) | Decided: a normal account is created and the team gets a dealer application to complete |
 | Terms of use link | The website has no CHANGECARS terms page yet; the sign-up notice links the Privacy Policy and mentions the terms of use. The website sell form still links WeeLee's own policy documents |
+
+## Full XML vehicle feed
+
+The user-provided `fbook.xml` export is preserved in
+[`prisma/fixtures/fbook/source.xml`](prisma/fixtures/fbook/source.xml).
+The repeatable Prisma import covers all 30,011 vehicles and 744 dealers, with
+resumable local image downloads and full source-field verification. See the
+[feed import guide](prisma/fixtures/fbook/README.md) for commands and reports.

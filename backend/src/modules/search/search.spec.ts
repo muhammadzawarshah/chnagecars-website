@@ -64,6 +64,13 @@ describe('search criteria', () => {
     expect(matchesCriteria({ ...hilux, status: 'SOLD' }, {}, now)).toBe(false);
   });
 
+  it('keeps listings with unknown year or mileage visible without range filters', () => {
+    const unknown = { ...hilux, year: null, mileage: null };
+    expect(matchesCriteria(unknown, {}, now)).toBe(true);
+    expect(matchesCriteria(unknown, { minYear: 2020 }, now)).toBe(false);
+    expect(matchesCriteria(unknown, { maxMileage: 100000 }, now)).toBe(false);
+  });
+
   it('always applies public visibility rules in SQL', () => {
     const where = buildWhere({}) as { AND: unknown[] };
     expect(where.AND).toEqual(

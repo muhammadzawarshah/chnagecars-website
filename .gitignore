@@ -45,3 +45,10 @@ next-env.d.ts
 
 # example settings for connecting to the backend
 !.env.example
+
+# Downloaded feed media and generated import reports
+/public/media/fbook/
+/backend/prisma/fixtures/fbook/listings.json
+/backend/prisma/fixtures/fbook/images.json
+/backend/prisma/fixtures/fbook/*-report.json
+/backend/prisma/fixtures/fbook/curl-downloads.conf

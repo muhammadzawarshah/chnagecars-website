@@ -115,7 +115,7 @@ export default function DealerStock({ cars, dealer, dealerFont, top }: DealerSto
                                     <li className="mb-3.75 h-12 overflow-hidden text-xl leading-5.75 font-bold tracking-[0.03em] text-ink">{car.title}</li>
                                     <li className="mb-5 h-7.5 border-t border-[#7c7c7c] pt-3.75">
                                         <ul className="m-0 mb-3.75 flex list-none justify-between p-0">
-                                            <li className={`${spec} bg-[url(/img/car-detail/orig/icon-cal.svg)] bg-size-[13px_auto]`}>{car.year}</li>
+                                            <li className={`${spec} bg-[url(/img/car-detail/orig/icon-cal.svg)] bg-size-[13px_auto]`}>{car.year || "Unknown"}</li>
                                             <li className={`${spec} bg-[url(/img/car-detail/orig/icon-km.svg)] bg-size-[15px_auto]`}>{car.mileage.toLocaleString("en-US").replace(/,/g, " ")} KM</li>
                                             <li className={`${spec} bg-[url(/img/car-detail/orig/icon-tran.svg)] bg-size-[10px_auto]`}>{car.transmission}</li>
                                             <li className={`${spec} bg-[url(/img/car-detail/orig/icon-fuel.svg)] bg-size-[13px_auto]`}>{car.fuel}</li>

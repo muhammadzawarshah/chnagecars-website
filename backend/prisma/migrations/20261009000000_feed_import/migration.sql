@@ -1,0 +1,3 @@
+ALTER TYPE "Transmission" ADD VALUE 'UNKNOWN';
+ALTER TABLE "vehicles" ALTER COLUMN "year" DROP NOT NULL;
+ALTER TABLE "vehicles" ADD COLUMN "sourceData" JSONB;

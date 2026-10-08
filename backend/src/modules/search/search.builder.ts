@@ -5,7 +5,7 @@ import { Collection, SearchCriteriaDto, SortKey } from './dto/search.dto';
 const ENUMS = {
   condition: ['NEW', 'USED', 'DEMO'],
   fuelType: ['PETROL', 'DIESEL', 'HYBRID', 'PLUGIN_HYBRID', 'ELECTRIC', 'LPG', 'OTHER'],
-  transmission: ['MANUAL', 'AUTOMATIC'],
+  transmission: ['UNKNOWN', 'MANUAL', 'AUTOMATIC'],
   drivetrain: ['FWD', 'RWD', 'AWD', 'FOUR_X_TWO', 'FOUR_X_FOUR'],
   province: ['EASTERN_CAPE', 'FREE_STATE', 'GAUTENG', 'KWAZULU_NATAL', 'LIMPOPO', 'MPUMALANGA', 'NORTHERN_CAPE', 'NORTH_WEST', 'WESTERN_CAPE'],
 } as const;

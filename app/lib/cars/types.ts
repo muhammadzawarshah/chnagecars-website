@@ -21,7 +21,7 @@ export type Car = {
     bodyType: string
     fuel: string
     transmission: string
-    drive: "4X2" | "4X4"
+    drive: "4X2" | "4X4" | "Unknown"
     colour: string
     engine: string
     mileage: number

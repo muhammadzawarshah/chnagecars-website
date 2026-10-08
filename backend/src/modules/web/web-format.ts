@@ -95,7 +95,7 @@ export function fuelsFromLabel(label: string): FuelType[] {
   return (Object.entries(FUEL_LABELS) as [FuelType, string][]).filter(([value, name]) => slugify(name) === slug || slugify(value) === slug).map(([value]) => value);
 }
 
-export const TRANSMISSION_LABELS: Record<Transmission, string> = { MANUAL: 'Manual', AUTOMATIC: 'Automatic' };
+export const TRANSMISSION_LABELS: Record<Transmission, string> = { UNKNOWN: 'Unknown', MANUAL: 'Manual', AUTOMATIC: 'Automatic' };
 
 export function transmissionFromLabel(label: string): Transmission | undefined {
   const slug = slugify(label);
@@ -105,7 +105,7 @@ export function transmissionFromLabel(label: string): Transmission | undefined {
 const FOUR_BY_FOUR: Drivetrain[] = [Drivetrain.FOUR_X_FOUR, Drivetrain.AWD];
 const FOUR_BY_TWO: Drivetrain[] = [Drivetrain.FWD, Drivetrain.RWD, Drivetrain.FOUR_X_TWO];
 
-export const driveLabel = (drivetrain: Drivetrain | null): '4X2' | '4X4' => (drivetrain && FOUR_BY_FOUR.includes(drivetrain) ? '4X4' : '4X2');
+export const driveLabel = (drivetrain: Drivetrain | null): '4X2' | '4X4' | 'Unknown' => (drivetrain === null ? 'Unknown' : FOUR_BY_FOUR.includes(drivetrain) ? '4X4' : '4X2');
 
 export function drivetrainsFromLabel(label: string): Drivetrain[] {
   const value = label.trim().toUpperCase();

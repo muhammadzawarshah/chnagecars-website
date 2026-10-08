@@ -6,6 +6,7 @@ export function formatRand(value: number, separator = ",") {
 }
 
 export function formatKm(value: number, separator = ",") {
+    if (value < 0) return "Unknown";
     return `${value.toLocaleString("en-US").replace(/,/g, separator)} km`;
 }
 

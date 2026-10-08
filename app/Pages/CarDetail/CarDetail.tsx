@@ -37,12 +37,13 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
     const address = car.dealer.address ?? car.location;
     const message = encodeURIComponent(`Hi, I'm interested in the ${car.title} on CHANGECARS.`);
     const whatsapp = `https://wa.me/27861248248?text=${message}`;
-    const specs = [["icon-cal.svg", String(car.year)], ["icon-km.svg", formatKm(car.mileage, " ").toUpperCase()], ["icon-tran.svg", car.transmission], ["icon-fuel.svg", car.fuel]];
+    const specs = [["icon-cal.svg", car.year ? String(car.year) : "Unknown"], ["icon-km.svg", formatKm(car.mileage, " ").toUpperCase()], ["icon-tran.svg", car.transmission], ["icon-fuel.svg", car.fuel]];
 
     const difference = marketPrice === undefined ? undefined : marketPrice - car.price;
     const differenceText = difference === undefined ? "" : `R${Math.abs(difference).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, " ")}`;
     const expectedMileage = Math.max(1, new Date().getFullYear() - car.year + 1) * 15000;
     const mileageAbove = car.mileage > expectedMileage;
+    const canCompareMileage = car.year > 0 && car.mileage >= 0;
     const days = daysListed(car.listedAt);
     const lifespan = days < 7 ? "7 days" : days < 45 ? "45 days" : `${days} days`;
     const views = car.views ?? 0;
@@ -134,7 +135,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                         <div className="mb-6.5">
                             <h3 className={`${heading} mb-3.75`}>Technical specifications</h3>
                             <SpecAccordion groups={[
-                                { icon: `${icon}/icon-general.svg`, title: "General", rows: [["Body Type", car.bodyType], ["Colour", car.colour], ["Year", String(car.year)], ["Mileage", formatKm(car.mileage, " ")]] },
+                                { icon: `${icon}/icon-general.svg`, title: "General", rows: [["Body Type", car.bodyType], ["Colour", car.colour], ["Year", car.year ? String(car.year) : "Unknown"], ["Mileage", formatKm(car.mileage, " ")]] },
                                 { icon: `${icon}/icon-engine.svg`, title: "Engine", rows: [["Engine Capacity", car.engine], ["Fuel Type", car.fuel]] },
                                 { icon: `${icon}/icon-handling.svg`, title: "Handling", rows: [["Transmission", car.transmission], ["Drive", car.drive]] },
                                 { icon: `${icon}/icon-extra.svg`, title: "Extras", rows: [["Extras", "Contact the dealer"]] },
@@ -199,8 +200,8 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-mileage.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Mileage</h4>
-                                    <p>{mileageAbove ? "Above" : "Below"} market average</p>
-                                    <p>This vehicle&apos;s mileage is <span>{mileageAbove ? "above" : "below"} average</span>, compared to vehicles of similar age and specification</p>
+                                    <p>{canCompareMileage ? `${mileageAbove ? "Above" : "Below"} market average` : "Mileage comparison unavailable"}</p>
+                                    {canCompareMileage && <p>This vehicle&apos;s mileage is <span>{mileageAbove ? "above" : "below"} average</span>, compared to vehicles of similar age and specification</p>}
                                 </div>
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-listing-lifespan.svg`} alt="" className="inline h-6 align-baseline" />

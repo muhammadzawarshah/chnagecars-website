@@ -22,7 +22,7 @@ export default function FeaturedCarDetail({ car, dealerCars, similarCars }: CarD
     const [shared, setShared] = useState(false);
 
     const { bodyType, fuel, transmission, engine, price } = car;
-    const year = String(car.year);
+    const year = car.year ? String(car.year) : "Unknown";
     const mileage = formatKm(car.mileage);
 
     async function share() {

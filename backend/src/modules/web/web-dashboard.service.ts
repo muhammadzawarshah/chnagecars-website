@@ -170,7 +170,7 @@ export class WebDashboardService {
       title: row.title,
       image: row.primaryImageUrl ?? '/img/success-car.png',
       price: row.price,
-      mileage: row.mileage,
+      mileage: row.mileage ?? -1,
       status: LISTING_STATUS_LABELS[row.status],
       views: row.viewCount,
       leads: row._count.leads,

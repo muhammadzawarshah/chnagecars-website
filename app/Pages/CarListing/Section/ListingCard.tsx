@@ -7,7 +7,7 @@ import CompareButton from "../../../components/Compare/CompareButton"
 export default function ListingCard({ car }: { car: Car }) {
 
     const href = carHref(car);
-    const specs = [["/img/car-detail/cal.svg", String(car.year)], ["/img/car-detail/km.svg", formatKm(car.mileage, " ").toUpperCase()], ["/img/car-detail/tran.svg", car.transmission], ["/img/car-detail/fuel.svg", car.fuel]];
+    const specs = [["/img/car-detail/cal.svg", car.year ? String(car.year) : "Unknown"], ["/img/car-detail/km.svg", formatKm(car.mileage, " ").toUpperCase()], ["/img/car-detail/tran.svg", car.transmission], ["/img/car-detail/fuel.svg", car.fuel]];
     const imageButton = "absolute right-2.5 z-2 flex h-6.5 items-center gap-1.25 rounded-[5px] px-2.5 text-xs no-underline shadow-[0.67px_5.87px_23px_rgba(0,0,0,0.1)]";
 
     return (

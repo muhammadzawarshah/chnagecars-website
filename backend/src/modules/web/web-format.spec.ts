@@ -24,7 +24,7 @@ describe('website adapter vocabulary', () => {
     expect(provinceFromName('Atlantis')).toBeUndefined();
     expect(fuelsFromLabel('Hybrid')).toEqual(['HYBRID', 'PLUGIN_HYBRID']);
     expect(driveLabel('AWD')).toBe('4X4');
-    expect(driveLabel(null)).toBe('4X2');
+    expect(driveLabel(null)).toBe('Unknown');
     expect(bodyTypeSlugs('Extended Cab')).toEqual(['king-cabs', 'super-cabs']);
     expect(bodyTypeLabel(['electric-vehicles', 'crossovers'])).toBe('SUV');
     expect(bodyTypeLabel([])).toBe('Other');

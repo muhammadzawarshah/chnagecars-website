@@ -138,7 +138,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { modelId: true, year: true, price: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const stats = await this.prisma.replica.vehicle.aggregate({
-      where: { id: { not: id }, modelId: base.modelId, year: { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES } },
+      where: { id: { not: id }, modelId: base.modelId, year: base.year === null ? undefined : { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES } },
       _avg: { price: true },
       _min: { price: true },
       _max: { price: true },

@@ -102,6 +102,7 @@ enum VehicleStatus {
 }
 
 enum Transmission {
+  UNKNOWN
   MANUAL
   AUTOMATIC
 }
@@ -690,12 +691,14 @@ model Vehicle {
   generationId       String?          @db.Uuid
   variantId          String?          @db.Uuid
   stockNumber        String?
+  /// Original feed fields, retained without inventing missing specifications.
+  sourceData         Json?
   condition          VehicleCondition
   status             VehicleStatus    @default(DRAFT)
   title              String
   description        String?
-  year               Int
-  mileage            Int
+  year               Int?
+  mileage            Int?
   /// Whole rand.
   price              Int
   /// Promotional price shown when the vehicle is on special (FR-23).

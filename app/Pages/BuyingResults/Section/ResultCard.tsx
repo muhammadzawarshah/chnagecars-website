@@ -63,7 +63,7 @@ export default function ResultCard({ car }: { car: Car }) {
 
                 <div className="flex flex-col gap-3.5 bg-white px-2 py-3 text-[12.5px] leading-4 text-[#a3a3a3] min-[982px]:px-3 min-[982px]:text-[13px]">
                     <div className="flex overflow-hidden whitespace-nowrap">
-                        <Spec icon={<YearIcon />}>{car.year}</Spec>
+                        <Spec icon={<YearIcon />}>{car.year || "Unknown"}</Spec>
                         <Spec icon={<MileageIcon />}>{formatKm(car.mileage)}</Spec>
                         <Spec icon={<FuelIcon />} last>{car.fuel}</Spec>
                     </div>
