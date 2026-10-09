@@ -27,7 +27,8 @@
     "feed:prepare": "python3 scripts/prepare-fbook.py --prepare-only",
     "feed:images": "python3 scripts/prepare-fbook.py",
     "feed:verify": "tsx prisma/verify-fbook.ts",
-    "feed:sync-images": "tsx prisma/sync-fbook-images.ts"
+    "feed:sync-images": "tsx prisma/sync-fbook-images.ts",
+    "feed:locations": "tsx prisma/sync-locations.ts"
   },
   "engines": {
     "node": ">=20.19"

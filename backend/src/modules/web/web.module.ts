@@ -60,7 +60,7 @@ export class WebContentController {
   }
 
   @Get('cars/featured')
-  @PublicCache(60)
+  @ApiOperation({ summary: 'Featured cars, shuffled on every call (not cached)' })
   featured(@Query('limit') limit?: string) {
     return this.cars.featured(limitOf(limit));
   }

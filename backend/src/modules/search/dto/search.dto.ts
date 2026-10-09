@@ -14,6 +14,7 @@ export const SORT_KEYS = [
   'year-desc',
   'year-asc',
   'popular',
+  'nearest',
 ] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 
@@ -65,7 +66,7 @@ export class SearchCriteriaDto {
 }
 
 export class SearchVehiclesQueryDto extends SearchCriteriaDto {
-  @ApiPropertyOptional({ enum: SORT_KEYS, default: 'recent' }) @IsOptional() @IsIn(SORT_KEYS) sort?: SortKey;
+  @ApiPropertyOptional({ enum: SORT_KEYS, default: 'recent', description: 'nearest needs lat and lng' }) @IsOptional() @IsIn(SORT_KEYS) sort?: SortKey;
   @ApiPropertyOptional({ default: 1 }) @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(500) page?: number;
   @ApiPropertyOptional({ default: 20, maximum: 50 }) @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(50) pageSize?: number;
 }

@@ -34,6 +34,18 @@ export const WEB_PAGE_SIZE = 20;
 const NO_IMAGE = '/img/success-car.png';
 const MAX_ALL_CARS = 1000;
 const MAX_LIMIT = 48;
+/** Featured cars the random pick is drawn from. */
+const MAX_FEATURED_POOL = 500;
+
+/** Fisher–Yates shuffle into a new array. */
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 const SORTS = ['recent', 'price-asc', 'price-desc', 'mileage-asc', 'mileage-desc', 'year-asc', 'year-desc'] as const;
 type SortKey = (typeof SORTS)[number];
@@ -197,9 +209,10 @@ const ORDER: Record<SortKey, Prisma.VehicleOrderByWithRelationInput[]> = {
   'price-asc': [{ price: 'asc' }, { id: 'asc' }],
   'price-desc': [{ price: 'desc' }, { id: 'desc' }],
   'mileage-asc': [{ mileage: 'asc' }, { id: 'asc' }],
-  'mileage-desc': [{ mileage: 'desc' }, { id: 'desc' }],
+  // Unknown mileage/year go last, not first (PostgreSQL puts NULLs first when descending).
+  'mileage-desc': [{ mileage: { sort: 'desc', nulls: 'last' } }, { id: 'desc' }],
   'year-asc': [{ year: 'asc' }, { id: 'asc' }],
-  'year-desc': [{ year: 'desc' }, { id: 'desc' }],
+  'year-desc': [{ year: { sort: 'desc', nulls: 'last' } }, { id: 'desc' }],
 };
 
 const CYLINDER_RANGES: Record<string, [number, number]> = { '1-2': [1, 2], '3-5': [3, 5], '6-8': [6, 8], '10-12': [10, 12] };
@@ -248,14 +261,13 @@ export class WebCarsService {
     return rows.map(toWebCar);
   }
 
+  /** A fresh random pick and order on every call, so each hit shows the featured cars shuffled. */
   async featured(limit?: number) {
-    const rows = await this.db.vehicle.findMany({
-      where: this.publicWhere({ isFeatured: true }),
-      select: carSelect,
-      orderBy: [{ popularityScore: 'desc' }, { publishedAt: 'desc' }],
-      take: clampLimit(limit, 6),
-    });
-    return rows.map(toWebCar);
+    const candidates = await this.db.vehicle.findMany({ where: this.publicWhere({ isFeatured: true }), select: { id: true }, take: MAX_FEATURED_POOL });
+    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, clampLimit(limit, 6));
+    const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
   async recent(limit?: number) {
