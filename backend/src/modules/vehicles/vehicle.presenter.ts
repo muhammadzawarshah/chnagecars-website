@@ -71,11 +71,21 @@ export function effectivePrice(vehicle: { price: number; specialPrice: number | 
   return vehicle.isSpecial && vehicle.specialPrice ? vehicle.specialPrice : vehicle.price;
 }
 
+/** Standard monthly installment calculation (72 months, 12.5% annual rate, 0 deposit). */
+export function monthlyPayment(principal: number, months = 72, rate = 0.125): number {
+  const r = rate / 12;
+  return principal <= 0 ? 0 : Math.round((principal * r) / (1 - Math.pow(1 + r, -months)));
+}
+
 export function withAvailability<T extends { status: VehicleStatus; price: number; specialPrice: number | null; isSpecial: boolean }>(vehicle: T) {
+  const effPrice = effectivePrice(vehicle);
+  const monthly = monthlyPayment(effPrice);
   return {
     ...vehicle,
     availability: availabilityOf(vehicle.status),
-    effectivePrice: effectivePrice(vehicle),
+    effectivePrice: effPrice,
+    monthlyPrice: monthly,
+    formattedMonthlyPrice: `R ${monthly.toLocaleString('en-US').replace(/,/g, ' ')} pm`,
     discount: vehicle.isSpecial && vehicle.specialPrice && vehicle.specialPrice < vehicle.price ? vehicle.price - vehicle.specialPrice : null,
   };
 }

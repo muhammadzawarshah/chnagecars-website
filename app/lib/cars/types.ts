@@ -18,6 +18,8 @@ export type Car = {
     model: string
     year: number
     price: number
+    monthlyPrice?: number
+    formattedMonthlyPrice?: string
     bodyType: string
     fuel: string
     transmission: string

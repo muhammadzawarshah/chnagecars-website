@@ -1429,7 +1429,7 @@ Compare 2-4 vehicles: price, engine, performance, consumption, dimensions, featu
 
 ### `GET /api/v1/vehicles/{slugOrId}`
 
-Vehicle detail page (FR-04). Signed-in viewers get it added to recently viewed (FR-41).
+Vehicle detail page (FR-04). Signed-in viewers get it added to recently viewed (FR-41). Returns vehicle specs, pricing, `monthlyPrice`, `formattedMonthlyPrice`, photos, dealer contacts, features, and finance breakdown. See [car-details-api.md](car-details-api.md) for full guide.
 
 **Access:** Optional authentication.
 

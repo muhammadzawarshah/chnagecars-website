@@ -1,8 +1,9 @@
 import { Car } from "./types"
+import { formatRand, monthlyPayment } from "./format"
 
 // Sample listings used until the backend is connected. Only api.ts reads this file.
 
-type MockInput = Omit<Car, "gallery" | "photoCount" | "dealer" | "location">
+type MockInput = Omit<Car, "gallery" | "photoCount" | "dealer" | "location" | "monthlyPrice" | "formattedMonthlyPrice">
 
 const dealer = {
     id: "1",
@@ -17,7 +18,16 @@ const dealer = {
 
 // Real listings will send their own gallery; repeat the cover so the gallery grid shows.
 function mock(car: MockInput): Car {
-    return { ...car, gallery: Array(5).fill(car.image), photoCount: 18, dealer, location: `City, ${car.province}` };
+    const monthly = Math.round(monthlyPayment(car.price));
+    return {
+        ...car,
+        monthlyPrice: monthly,
+        formattedMonthlyPrice: `${formatRand(monthly, " ")} pm`,
+        gallery: Array(5).fill(car.image),
+        photoCount: 18,
+        dealer,
+        location: `City, ${car.province}`,
+    };
 }
 
 export const mockCars: Car[] = [
