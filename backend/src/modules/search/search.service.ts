@@ -87,6 +87,23 @@ export class SearchService {
     return toPage(data, ordered.length, page, pageSize);
   }
 
+  /**
+   * Fast count of vehicles matching search criteria (FR-02, FR-05) for dynamic hero/filter counters.
+   * Returns total matching rows without loading individual vehicle data.
+   */
+  async count(criteria: SearchCriteriaDto) {
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `count:${criteriaKey(criteria)}`);
+    return this.cache.wrap(key, SEARCH_TTL_SECONDS, async () => {
+      const where = buildWhere(criteria);
+      const total = await this.prisma.replica.vehicle.count({ where });
+      return {
+        total,
+        count: total,
+        formatted: total.toLocaleString('en-US').replace(/,/g, ' '),
+      };
+    });
+  }
+
   /** Filter counts for the current search (FR-05 "filter based on available criteria"). */
   async facets(criteria: SearchCriteriaDto) {
     const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:${criteriaKey(criteria)}`);

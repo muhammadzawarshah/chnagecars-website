@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { appTotalCars } from "../../Data/appSearch"
 import HeroAd from "../HeroAd"
 import PaymentToggle from "./PaymentToggle"
 import AppField from "./AppField"
@@ -11,7 +10,7 @@ import useAppFilters, { rangeKeys } from "./useAppFilters"
 
 export default function AppSearch() {
 
-    const { t, monthly, setMonthly, values, extraFilters, openSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets } = useAppFilters();
+    const { t, monthly, setMonthly, values, extraFilters, openSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets, matchingCount } = useAppFilters();
     const [showMore, setShowMore] = useState(false);
 
     function choiceField(key: string, wide: boolean) {
@@ -51,7 +50,7 @@ export default function AppSearch() {
                         <span className="ml-[9.33px]">{t.moreFilters}</span>
                     </button>
                     <a href={searchUrl()} className="flex h-10 min-w-[min(31vw,190px)] items-center justify-center rounded bg-[#957e4e] px-2.5 text-sm whitespace-nowrap text-white no-underline max-[251px]:h-auto max-[251px]:min-h-10 max-[251px]:py-2 max-[251px]:text-center max-[251px]:whitespace-normal">
-                        {t.searchCars.replace("{count}", appTotalCars)}
+                        {t.searchCars.replace("{count}", matchingCount)}
                     </a>
                     <button onClick={clearSearch} className="cursor-pointer border-0 bg-transparent p-0 pl-[9.34px] text-[13.8px] text-white">{t.clearSearch}</button>
                 </div>

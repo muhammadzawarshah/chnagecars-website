@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CarSearch, filterValues, slugify } from "@/app/lib/cars/search"
 import { makes } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
+import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import { additionalFilters, findFilter } from "../../Data/additionalFilters"
 import { buildSearchUrl } from "../../Data/searchUrl"
 import OptionSheet from "./OptionSheet"
@@ -101,6 +101,55 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
     const [values, setValues] = useState<AppValues>(() => valuesFrom(initial));
     const [sheet, setSheet] = useState<string | null>(null);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>(() => extrasFrom(initial));
+    const [matchingCount, setMatchingCount] = useState<string>(appTotalCars);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        const hasFilters = values.minPrice !== null || values.maxPrice !== null || values.minYear !== null || values.maxYear !== null || values.minMileage !== null || values.maxMileage !== null || values.bodyTypes.length > 0 || values.makes.length > 0 || Object.values(extraFilters).some((arr) => arr.length > 0);
+
+        const timer = setTimeout(async () => {
+            if (!hasFilters) {
+                setMatchingCount(appTotalCars);
+                return;
+            }
+            try {
+                const body: Record<string, unknown> = {};
+                if (values.minPrice !== null) body.minPrice = values.minPrice;
+                if (values.maxPrice !== null) body.maxPrice = values.maxPrice;
+                if (values.minYear !== null) body.minYear = values.minYear;
+                if (values.maxYear !== null) body.maxYear = values.maxYear;
+                if (values.minMileage !== null) body.minMileage = values.minMileage;
+                if (values.maxMileage !== null) body.maxMileage = values.maxMileage;
+                if (values.bodyTypes.length) body.bodyType = values.bodyTypes.join(",");
+                if (values.makes.length) {
+                    body.make = values.makes.map((m) => m.replace(/\|/g, ":")).join(",");
+                }
+                for (const [k, v] of Object.entries(extraFilters)) {
+                    if (v?.length) body[k] = v.join(",");
+                }
+
+                const response = await fetch("/api/vehicles/count", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                    signal: controller.signal,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data?.formatted !== undefined) {
+                        setMatchingCount(String(data.formatted));
+                    }
+                }
+            } catch {
+                // Aborted or error: retain current count
+            }
+        }, 200);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [values, extraFilters]);
 
     function updateRange(key: RangeKey, value: number | null) {
         const pairs: Partial<Record<RangeKey, RangeKey>> = { minPrice: "maxPrice", maxPrice: "minPrice", minYear: "maxYear", maxYear: "minYear", minMileage: "maxMileage", maxMileage: "minMileage" };
@@ -146,6 +195,7 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
     function reset() {
         setValues(emptyValues);
         setExtraFilters({});
+        setMatchingCount(appTotalCars);
     }
 
     function searchUrl() {
@@ -185,5 +235,5 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
         </>
     );
 
-    return { t, monthly, setMonthly, values, extraFilters, openSheet: setSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets }
+    return { t, monthly, setMonthly, values, extraFilters, openSheet: setSheet, rangeLabel, makesLabel, bodyTypesLabel, choiceLabel, reset, searchUrl, sheets, matchingCount }
 }

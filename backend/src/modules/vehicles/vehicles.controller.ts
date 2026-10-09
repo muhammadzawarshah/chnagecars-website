@@ -50,6 +50,21 @@ export class PublicVehiclesController {
   }
 
   @Public()
+  @Get('count')
+  @ApiOperation({ summary: 'Count listed vehicles matching filter criteria (GET query params)' })
+  count(@Query() query: SearchCriteriaDto) {
+    return this.search.count(query);
+  }
+
+  @Public()
+  @Post('count')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Count listed vehicles matching filter criteria (POST JSON body)' })
+  countPost(@Body() body: SearchCriteriaDto) {
+    return this.search.count(body);
+  }
+
+  @Public()
   @Get('specials')
   @ApiOperation({ summary: 'Vehicles on special (FR-23)' })
   specials(@Query() query: SearchVehiclesQueryDto) {
