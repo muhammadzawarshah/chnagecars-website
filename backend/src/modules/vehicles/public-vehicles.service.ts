@@ -58,17 +58,43 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
         select: publicVehicleDetailSelect,
       });
       if (!row) return null;
-      const features = await this.catalogue.resolveFeatures({
-        makeId: row.makeId,
-        modelId: row.modelId,
-        generationId: row.generationId,
-        variantId: row.variantId,
-        vehicleId: row.id,
-      });
+      const [features, moreFromThisDealer, youMightLike] = await Promise.all([
+        this.catalogue.resolveFeatures({
+          makeId: row.makeId,
+          modelId: row.modelId,
+          generationId: row.generationId,
+          variantId: row.variantId,
+          vehicleId: row.id,
+        }),
+        this.fromSameDealer(row.id),
+        this.similar(row.id),
+      ]);
       const { makeId, modelId, generationId, variantId, dealerId, ...rest } = row;
+      const location = {
+        city: row.city,
+        province: row.province,
+        address: row.branch?.address ?? row.dealer.address,
+        latitude: row.latitude ?? row.branch?.latitude ?? null,
+        longitude: row.longitude ?? row.branch?.longitude ?? null,
+        country: 'South Africa',
+      };
+      const mapQuery = encodeURIComponent(
+        location.latitude !== null && location.longitude !== null
+          ? `${location.latitude},${location.longitude}`
+          : location.address || `${location.city}, South Africa`,
+      );
       return {
         ...withAvailability(rest),
         features,
+        location,
+        mapDetails: {
+          ...location,
+          googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${mapQuery}`,
+          embedUrl: `https://maps.google.com/maps?q=${mapQuery}&output=embed`,
+        },
+        additionalInformation: row.description ?? null,
+        moreFromThisDealer,
+        youMightLike,
         finance: row.status === VehicleStatus.SOLD ? null : financeExample(effectivePrice(row)),
         canEnquire: row.status !== VehicleStatus.SOLD,
       };
@@ -105,27 +131,36 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       select: { id: true, modelId: true, price: true, categories: { select: { id: true } } },
     });
     if (!base) throw Errors.notFound('Vehicle');
-    const where: Prisma.VehicleWhereInput = {
+    const visible: Prisma.VehicleWhereInput = {
       id: { not: id },
       status: { in: PUBLIC_SEARCH_STATUSES },
       dealer: { status: 'APPROVED' },
-      OR: [
-        { modelId: base.modelId },
-        {
-          categories: { some: { id: { in: base.categories.map((category) => category.id) } } },
-          price: { gte: Math.round(base.price * 0.75), lte: Math.round(base.price * 1.25) },
-        },
-      ],
     };
-    const rows = await this.prisma.replica.vehicle.findMany({ where, select: publicVehicleSelect, orderBy: { popularityScore: 'desc' }, take: limit });
-    return rows.map(withAvailability);
+    const sameModel = await this.prisma.replica.vehicle.findMany({
+      where: { ...visible, modelId: base.modelId },
+      select: publicVehicleSelect,
+      orderBy: [{ popularityScore: 'desc' }, { id: 'asc' }],
+      take: limit,
+    });
+    const fallback = sameModel.length < limit ? await this.prisma.replica.vehicle.findMany({
+      where: {
+        ...visible,
+        id: { notIn: [id, ...sameModel.map((vehicle) => vehicle.id)] },
+        categories: { some: { id: { in: base.categories.map((category) => category.id) } } },
+        price: { gte: Math.round(base.price * 0.75), lte: Math.round(base.price * 1.25) },
+      },
+      select: publicVehicleSelect,
+      orderBy: [{ popularityScore: 'desc' }, { id: 'asc' }],
+      take: limit - sameModel.length,
+    }) : [];
+    return [...sameModel, ...fallback].map(withAvailability);
   }
 
   async fromSameDealer(id: string, limit = 6) {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { dealerId: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const rows = await this.prisma.replica.vehicle.findMany({
-      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES } },
+      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' } },
       select: publicVehicleSelect,
       orderBy: { publishedAt: 'desc' },
       take: limit,
