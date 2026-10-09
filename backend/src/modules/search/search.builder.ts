@@ -55,6 +55,14 @@ export function makeModelGroups(makeRaw?: string, modelRaw?: string) {
   return { makes, scoped, plain };
 }
 
+export function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 /** Approximate bounding box for a radius search (exact distance is checked by the matcher). */
 export function boundingBox(lat: number, lng: number, radiusKm: number) {
   const dLat = radiusKm / 111.32;
@@ -179,10 +187,13 @@ export function buildOrderBy(sort: SortKey | undefined, collection?: Collection)
     'price-asc': [{ price: 'asc' }],
     'price-desc': [{ price: 'desc' }],
     'mileage-asc': [{ mileage: 'asc' }],
-    'mileage-desc': [{ mileage: 'desc' }],
-    'year-desc': [{ year: 'desc' }, { publishedAt: 'desc' }],
+    // Unknown mileage/year go last, not first (PostgreSQL puts NULLs first when descending).
+    'mileage-desc': [{ mileage: { sort: 'desc', nulls: 'last' } }],
+    'year-desc': [{ year: { sort: 'desc', nulls: 'last' } }, { publishedAt: 'desc' }],
     'year-asc': [{ year: 'asc' }, { publishedAt: 'desc' }],
     popular: [{ popularityScore: 'desc' }],
+    // Distance order is applied by SearchService; this is the order for vehicles without a location.
+    nearest: [{ publishedAt: 'desc' }],
   };
   return [...primary[key], { id: 'desc' }];
 }

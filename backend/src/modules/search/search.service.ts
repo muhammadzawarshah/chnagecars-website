@@ -1,6 +1,7 @@
 import { Injectable, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { VehicleStatus } from '../../generated/prisma/client';
 import { toPage } from '../../common/dto/pagination.dto';
+import { Errors } from '../../common/errors/app-error';
 import { CacheNs, CacheService } from '../../infrastructure/cache/cache.service';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { OutboxEvents } from '../../infrastructure/outbox/outbox.events';
@@ -9,7 +10,7 @@ import { NotificationTypes } from '../notifications/notification-types';
 import { NotificationsService } from '../notifications/notifications.service';
 import { publicVehicleSelect, withAvailability } from '../vehicles/vehicle.presenter';
 import { SearchCriteriaDto, SearchVehiclesQueryDto } from './dto/search.dto';
-import { buildOrderBy, buildWhere, criteriaKey } from './search.builder';
+import { buildOrderBy, buildWhere, criteriaKey, haversineKm } from './search.builder';
 import { matchesCriteria, VehicleSnapshot } from './search.matcher';
 
 const SEARCH_TTL_SECONDS = 30;
@@ -34,6 +35,10 @@ export class SearchService {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
     const key = await this.cache.versionedKey(CacheNs.vehicles, `search:${criteriaKey(query)}`);
+    if (query.sort === 'nearest') {
+      if (query.lat === undefined || query.lng === undefined) throw Errors.badRequest('VALIDATION_FAILED', 'Request validation failed', ['sort=nearest needs lat and lng']);
+      return this.cache.wrap(key, SEARCH_TTL_SECONDS, () => this.searchNearest(query, query.lat!, query.lng!, page, pageSize));
+    }
     return this.cache.wrap(key, SEARCH_TTL_SECONDS, async () => {
       const where = buildWhere(query);
       const [rows, total] = await Promise.all([
@@ -48,6 +53,38 @@ export class SearchService {
       ]);
       return toPage(rows.map(withAvailability), total, page, pageSize);
     });
+  }
+
+  /**
+   * "Near Me": closest first by straight-line distance, each result carrying `distanceKm`.
+   * With radiusKm only vehicles inside the exact radius are returned; without it, vehicles
+   * with no location follow the located ones, newest first.
+   */
+  private async searchNearest(query: SearchVehiclesQueryDto, lat: number, lng: number, page: number, pageSize: number) {
+    const where = buildWhere(query);
+    const points = await this.prisma.replica.vehicle.findMany({ where, select: { id: true, latitude: true, longitude: true }, orderBy: buildOrderBy('nearest') });
+    const located: { id: string; distanceKm: number }[] = [];
+    const unlocated: string[] = [];
+    for (const point of points) {
+      if (point.latitude === null || point.longitude === null) {
+        if (!query.radiusKm) unlocated.push(point.id);
+        continue;
+      }
+      const distanceKm = haversineKm(lat, lng, point.latitude, point.longitude);
+      if (!query.radiusKm || distanceKm <= query.radiusKm) located.push({ id: point.id, distanceKm });
+    }
+    located.sort((a, b) => a.distanceKm - b.distanceKm || b.id.localeCompare(a.id));
+
+    const ordered = [...located.map((item) => item.id), ...unlocated];
+    const pageIds = ordered.slice((page - 1) * pageSize, page * pageSize);
+    const rows = await this.prisma.replica.vehicle.findMany({ where: { id: { in: pageIds } }, select: publicVehicleSelect });
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    const distances = new Map(located.map((item) => [item.id, Math.round(item.distanceKm * 10) / 10]));
+    const data = pageIds.flatMap((id) => {
+      const row = byId.get(id);
+      return row ? [{ ...withAvailability(row), distanceKm: distances.get(id) ?? null }] : [];
+    });
+    return toPage(data, ordered.length, page, pageSize);
   }
 
   /** Filter counts for the current search (FR-05 "filter based on available criteria"). */
