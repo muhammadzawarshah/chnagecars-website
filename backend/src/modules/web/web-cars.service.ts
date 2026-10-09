@@ -164,13 +164,18 @@ export function toWebCar(row: CarRow) {
   const gallery = row.images.map((image) => image.largeUrl ?? image.url ?? image.mediumUrl).filter((url): url is string => !!url);
   const image = row.primaryImageUrl ?? gallery[0] ?? NO_IMAGE;
   const province = PROVINCE_NAMES[row.province];
+  const effPrice = effectivePrice(row);
+  const r = 0.125 / 12;
+  const monthly = effPrice <= 0 ? 0 : Math.round((effPrice * r) / (1 - Math.pow(1 + r, -72)));
   return {
     id: toWebId(row.id),
     title: row.title,
     make: row.make.name,
     model: row.model.name,
     year: row.year ?? 0,
-    price: effectivePrice(row),
+    price: effPrice,
+    monthlyPrice: monthly,
+    formattedMonthlyPrice: `R ${monthly.toLocaleString('en-US').replace(/,/g, ' ')} pm`,
     bodyType: bodyTypeLabel(slugs),
     fuel: FUEL_LABELS[row.fuelType],
     transmission: TRANSMISSION_LABELS[row.transmission],
