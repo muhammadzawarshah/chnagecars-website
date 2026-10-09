@@ -195,6 +195,25 @@ export async function searchCars(search: CarSearch): Promise<CarSearchResult<Car
     return { cars: matches.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), total: matches.length, page, pageCount };
 }
 
+export type CarCountResult = {
+    total: number
+    count: number
+    formatted: string
+}
+
+export async function countCars(search: CarSearch): Promise<CarCountResult> {
+    if (backendEnabled()) {
+        const result = await softly("car count", async () => (await publicGet<CarCountResult>(`/web/cars/count${queryString(search)}`, { revalidate: 30 })), undefined);
+        if (result) return result;
+    }
+    const result = await searchCars({ ...search, page: 1 });
+    return {
+        total: result.total,
+        count: result.total,
+        formatted: result.total.toLocaleString("en-US").replace(/,/g, " "),
+    };
+}
+
 export async function getPremiumCars(limit = 12): Promise<Car[]> {
     if (backendEnabled()) return softly("premium cars", async () => (await publicGet<Car[]>(`/web/cars/premium?limit=${limit}`)) ?? [], []);
     return mockCars.filter((car) => car.featured).slice(0, limit);

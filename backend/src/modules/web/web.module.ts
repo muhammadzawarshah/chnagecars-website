@@ -52,6 +52,20 @@ export class WebContentController {
     return this.cars.search(parseWebCarSearch(query));
   }
 
+  @Get('cars/count')
+  @PublicCache(30)
+  @ApiOperation({ summary: 'Count cars matching website CarSearch filters (GET query params)' })
+  count(@Query() query: Record<string, unknown>) {
+    return this.cars.count(parseWebCarSearch(query));
+  }
+
+  @Post('cars/count')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Count cars matching website CarSearch filters (POST JSON body)' })
+  countPost(@Body() body: Record<string, unknown>) {
+    return this.cars.count(parseWebCarSearch(body));
+  }
+
   @Get('cars/all')
   @PublicCache(60)
   @ApiOperation({ summary: 'Every listed car, newest first (capped at 1000)' })

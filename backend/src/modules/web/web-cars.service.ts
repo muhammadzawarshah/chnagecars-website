@@ -256,6 +256,16 @@ export class WebCarsService {
     return { cars: rows.map(toWebCar), total, page, pageCount };
   }
 
+  async count(search: WebCarSearch) {
+    const where = this.publicWhere({ AND: this.filters(search) });
+    const total = await this.db.vehicle.count({ where });
+    return {
+      total,
+      count: total,
+      formatted: total.toLocaleString('en-US').replace(/,/g, ' '),
+    };
+  }
+
   async all(limit = MAX_ALL_CARS) {
     const rows = await this.db.vehicle.findMany({ where: this.publicWhere(), select: carSelect, orderBy: ORDER.recent, take: Math.min(Math.max(limit, 1), MAX_ALL_CARS) });
     return rows.map(toWebCar);

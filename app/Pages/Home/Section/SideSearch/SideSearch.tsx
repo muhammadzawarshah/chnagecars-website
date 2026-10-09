@@ -47,6 +47,7 @@ export default function SideSearch() {
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
+    const [matchingCount, setMatchingCount] = useState<string>(totalCars);
     const priceOptions: AppOption[] = cashPrices.map((price, index) => ({
         value: price,
         label: monthly
@@ -74,6 +75,54 @@ export default function SideSearch() {
         document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        const hasFilters = filters.minPrice !== null || filters.maxPrice !== null || filters.minYear !== null || filters.maxYear !== null || filters.minMileage !== null || filters.maxMileage !== null || filters.bodyTypes.length > 0 || filters.makes.length > 0 || Object.values(extraFilters).some((arr) => arr.length > 0);
+
+        const timer = setTimeout(async () => {
+            if (!hasFilters) {
+                setMatchingCount(totalCars);
+                return;
+            }
+            try {
+                const body: Record<string, unknown> = {};
+                if (filters.minPrice !== null) body.minPrice = filters.minPrice;
+                if (filters.maxPrice !== null) body.maxPrice = filters.maxPrice;
+                if (filters.minYear !== null) body.minYear = filters.minYear;
+                if (filters.maxYear !== null) body.maxYear = filters.maxYear;
+                if (filters.minMileage !== null) body.minMileage = filters.minMileage;
+                if (filters.maxMileage !== null) body.maxMileage = filters.maxMileage;
+                if (filters.bodyTypes.length) body.bodyType = filters.bodyTypes.join(",");
+                if (filters.makes.length) {
+                    body.make = filters.makes.map((m) => m.replace(/\|/g, ":")).join(",");
+                }
+                for (const [k, v] of Object.entries(extraFilters)) {
+                    if (v?.length) body[k] = v.join(",");
+                }
+
+                const response = await fetch("/api/vehicles/count", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                    signal: controller.signal,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data?.formatted !== undefined) {
+                        setMatchingCount(String(data.formatted));
+                    }
+                }
+            } catch {
+                // Aborted or network error: retain current count
+            }
+        }, 200);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [filters, extraFilters]);
 
     function listLabel(values: string[], fallback: string) {
         return values.length ? values.map((item) => item.split("|").join(" ")).join(", ") : fallback;
@@ -147,6 +196,7 @@ export default function SideSearch() {
     function resetFilters() {
         setFilters(emptyFilters);
         setExtraFilters({});
+        setMatchingCount(totalCars);
         setOpen(null);
     }
 
@@ -174,6 +224,7 @@ export default function SideSearch() {
 
     function clearSearch() {
         setMonthly(false);
+        setMatchingCount(totalCars);
         resetFilters();
     }
 
@@ -215,7 +266,7 @@ export default function SideSearch() {
                             <span className="ml-[9.33px]">{t.moreFilters}</span>
                         </button>
                         <a href={searchUrl()} className="flex h-10 items-center rounded bg-[#957e4e] px-3.5 text-sm whitespace-nowrap text-white no-underline transition duration-100 hover:opacity-80">
-                            {t.searchCars.replace("{count}", totalCars)}
+                            {t.searchCars.replace("{count}", matchingCount)}
                         </a>
                         <button onClick={clearSearch} className="cursor-pointer border-0 bg-transparent p-0 text-[13.8px] text-white hover:underline">{t.clearSearch}</button>
                     </div>
