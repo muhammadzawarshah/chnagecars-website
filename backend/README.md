@@ -254,3 +254,16 @@ The user-provided `fbook.xml` export is preserved in
 The repeatable Prisma import covers all 30,011 vehicles and 744 dealers, with
 resumable local image downloads and full source-field verification. See the
 [feed import guide](prisma/fixtures/fbook/README.md) for commands and reports.
+
+### Mobile vehicle detail sections
+
+`GET /api/v1/vehicles/:uuid-or-slug` includes `location` (city, province enum,
+address, latitude, longitude, country), `moreFromThisDealer`, and `youMightLike`.
+Each related list contains up to six public vehicle cards and excludes the
+current car. Recommendations prioritize the same model, then the same category
+within 25% of the asking price. Only published/reserved stock from approved
+dealers is included. Lists are empty when no matches exist.
+
+Detail responses also include `mapDetails` (location fields plus `googleMapsUrl`
+and `embedUrl`) and `additionalInformation` (the dealer-provided description,
+or null when missing). Map links use available coordinates, otherwise address.
