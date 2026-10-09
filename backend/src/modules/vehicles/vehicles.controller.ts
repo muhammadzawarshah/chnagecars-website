@@ -50,6 +50,62 @@ export class PublicVehiclesController {
   }
 
   @Public()
+  @Get('filters/colours')
+  @ApiOperation({ summary: 'colours options and counts for active search filters' })
+  async filterColour(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: facets.colour };
+  }
+
+  @Public()
+  @Get('filters/makes')
+  @ApiOperation({ summary: 'makes options and counts for active search filters' })
+  async filterMakes(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: facets.makes };
+  }
+
+  @Public()
+  @Get('filters/models')
+  @ApiOperation({ summary: 'models options and counts for active search filters' })
+  async filterModels(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: facets.models };
+  }
+
+  @Public()
+  @Get('filters/variants')
+  @ApiOperation({ summary: 'variants options and counts for active search filters' })
+  async filterVariants(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: facets.variants };
+  }
+
+  @Public()
+  @Get('filters/transmissions')
+  @ApiOperation({ summary: 'transmissions options and counts for active search filters' })
+  async filterTransmission(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: ['AUTOMATIC', 'MANUAL', 'UNKNOWN'].map((value) => ({ value, count: facets.transmission.find((option) => option.value === value)?.count ?? 0 })) };
+  }
+
+  @Public()
+  @Get('filters/fuel-types')
+  @ApiOperation({ summary: 'fuel-types options and counts for active search filters' })
+  async filterFueltype(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: ['PETROL', 'DIESEL', 'HYBRID', 'PLUGIN_HYBRID', 'ELECTRIC', 'LPG', 'OTHER'].map((value) => ({ value, count: facets.fuelType.find((option) => option.value === value)?.count ?? 0 })) };
+  }
+
+  @Public()
+  @Get('filters/drives')
+  @ApiOperation({ summary: 'drives options and counts for active search filters' })
+  async filterDrivetrain(@Query() query: SearchCriteriaDto) {
+    const facets = await this.search.facets(query);
+    return { total: facets.total, options: ['FOUR_X_FOUR', 'FOUR_X_TWO', 'AWD', 'FWD', 'RWD'].map((value) => ({ value, count: facets.drivetrain.find((option) => option.value === value)?.count ?? 0 })) };
+  }
+
+  @Public()
   @Get('count')
   @ApiOperation({ summary: 'Count listed vehicles matching filter criteria (GET query params)' })
   count(@Query() query: SearchCriteriaDto) {

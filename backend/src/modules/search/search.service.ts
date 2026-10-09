@@ -110,7 +110,7 @@ export class SearchService {
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       const where = buildWhere(criteria);
       const db = this.prisma.replica;
-      const [makes, fuel, transmission, province, condition, ranges, categories] = await Promise.all([
+      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total] = await Promise.all([
         db.vehicle.groupBy({ by: ['makeId'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['fuelType'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['transmission'], where, _count: { _all: true } }),
@@ -118,8 +118,23 @@ export class SearchService {
         db.vehicle.groupBy({ by: ['condition'], where, _count: { _all: true } }),
         db.vehicle.aggregate({ where, _min: { price: true, year: true, mileage: true }, _max: { price: true, year: true, mileage: true } }),
         db.category.findMany({ where: { isActive: true }, select: { id: true, slug: true, name: true }, orderBy: { sortOrder: 'asc' } }),
+        db.vehicle.groupBy({ by: ['modelId'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['variantId'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['colour'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['city'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['drivetrain'], where, _count: { _all: true } }),
+        db.vehicle.count({ where }),
       ]);
       const makeRows = await db.make.findMany({ where: { id: { in: makes.map((row) => row.makeId) } }, select: { id: true, slug: true, name: true } });
+      const [modelRows, variantRows] = await Promise.all([
+        db.model.findMany({ where: { id: { in: models.map((row) => row.modelId) } }, select: { id: true, slug: true, name: true, make: { select: { slug: true } } } }),
+        db.variant.findMany({ where: { id: { in: variants.flatMap((row) => row.variantId ? [row.variantId] : []) } }, select: { id: true, slug: true, name: true, model: { select: { slug: true, make: { select: { slug: true } } } } } }),
+      ]);
+      const colourCounts = new Map<string, number>();
+      for (const row of colours) {
+        const value = row.colour?.trim().toLowerCase();
+        if (value) colourCounts.set(value, (colourCounts.get(value) ?? 0) + row._count._all);
+      }
       const categoryCounts = await Promise.all(
         categories.map(async (category) => ({
           slug: category.slug,
@@ -128,6 +143,18 @@ export class SearchService {
         })),
       );
       return {
+        total,
+        models: models.flatMap((row) => {
+          const model = modelRows.find((item) => item.id === row.modelId);
+          return model ? [{ slug: model.slug, name: model.name, make: model.make.slug, value: `${model.make.slug}:${model.slug}`, count: row._count._all }] : [];
+        }).sort((a, b) => a.name.localeCompare(b.name)),
+        variants: variants.flatMap((row) => {
+          const variant = variantRows.find((item) => item.id === row.variantId);
+          return variant ? [{ slug: variant.slug, name: variant.name, make: variant.model.make.slug, model: variant.model.slug, count: row._count._all }] : [];
+        }).sort((a, b) => a.name.localeCompare(b.name)),
+        colour: [...colourCounts].map(([value, count]) => ({ value, name: value.replace(/\b\w/g, (letter) => letter.toUpperCase()), count })).sort((a, b) => a.name.localeCompare(b.name)),
+        city: cities.filter((row) => row.city).map((row) => ({ value: row.city, count: row._count._all })),
+        drivetrain: drives.filter((row) => row.drivetrain).map((row) => ({ value: row.drivetrain, count: row._count._all })),
         makes: makes
           .map((row) => {
             const make = makeRows.find((item) => item.id === row.makeId);

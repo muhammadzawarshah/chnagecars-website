@@ -1,0 +1,1567 @@
+{
+  "info": {
+    "name": "ChangeCars - Multi Filter Tests",
+    "description": "Run the collection to test single filters, AND combinations, OR choices, scoped models and counts. Results requests also call count and facets automatically to check totals. baseUrl defaults to online Railway; change to http://localhost:4000/api/v1 for local tests. New facets fields require commit 4bc24ba or later deployed. A zero result is valid, especially for fuel/transmission missing from imported source data. Facets include all supplied filters.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://chnagecars-website-production.up.railway.app/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - All cars (baseline)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?pageSize=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "pageSize",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - One filter: Audi",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=audi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.make.slug).to.equal('audi'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - One filter: Ferrari",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=ferrari",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "ferrari"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.make.slug).to.equal('ferrari'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - One filter: Black",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?colour=Black",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "colour",
+              "value": "Black"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.colour.toLowerCase()).to.equal('black'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Two filters: Audi + Black",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=audi&colour=Black",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "colour",
+              "value": "Black"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.colour.toLowerCase()).to.equal('black'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Three filters: Audi + Black + max price",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=audi&colour=Black&maxPrice=500000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "colour",
+              "value": "Black"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.colour.toLowerCase()).to.equal('black'); pm.expect(car.price).to.be.at.most(500000); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Multiple choices: Audi OR BMW; Black OR White",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=audi,bmw&colour=Black,White",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi,bmw"
+            },
+            {
+              "key": "colour",
+              "value": "Black,White"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(['audi','bmw']).to.include(car.make.slug); pm.expect(['black','white']).to.include(car.colour.toLowerCase()); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Make + scoped model: Audi Q3",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?make=audi&model=audi:q3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "model",
+              "value": "audi:q3"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Body + province + mileage",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?category=suvs&province=GAUTENG&maxMileage=100000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "suvs"
+            },
+            {
+              "key": "province",
+              "value": "GAUTENG"
+            },
+            {
+              "key": "maxMileage",
+              "value": "100000"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.categories.some(c => c.slug === 'suvs')).to.equal(true); pm.expect(car.province).to.equal('GAUTENG'); pm.expect(car.mileage).to.be.a('number').at.most(100000); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Price, year and mileage ranges",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?minPrice=100000&maxPrice=500000&minYear=2018&maxYear=2026&minMileage=0&maxMileage=100000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "minPrice",
+              "value": "100000"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            },
+            {
+              "key": "minYear",
+              "value": "2018"
+            },
+            {
+              "key": "maxYear",
+              "value": "2026"
+            },
+            {
+              "key": "minMileage",
+              "value": "0"
+            },
+            {
+              "key": "maxMileage",
+              "value": "100000"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.price).to.be.within(100000,500000); pm.expect(car.year).to.be.within(2018,2026); pm.expect(car.mileage).to.be.within(0,100000); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Fuel + transmission (may return zero)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?fuelType=DIESEL&transmission=AUTOMATIC",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "fuelType",
+              "value": "DIESEL"
+            },
+            {
+              "key": "transmission",
+              "value": "AUTOMATIC"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.fuelType).to.equal('DIESEL'); pm.expect(car.transmission).to.equal('AUTOMATIC'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Featured + available only",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?featured=true&availableOnly=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "featured",
+              "value": "true"
+            },
+            {
+              "key": "availableOnly",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.isFeatured).to.equal(true); pm.expect(car.status).to.equal('PUBLISHED'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Specials only (may return zero)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?onSpecial=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "onSpecial",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Every returned car matches filters', () => body.data.forEach(car => { pm.expect(car.isSpecial).to.equal(true); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - All dropdown counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": []
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Dropdown fields and counts exist', () => {",
+              "  pm.expect(body.total).to.be.a('number');",
+              "  ['makes','models','variants','colour','categories','fuelType','transmission','province','condition','city','drivetrain'].forEach(key => {",
+              "    pm.expect(body[key], key).to.be.an('array');",
+              "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Audi models and colour counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Dropdown fields and counts exist', () => {",
+              "  pm.expect(body.total).to.be.a('number');",
+              "  ['makes','models','variants','colour','categories','fuelType','transmission','province','condition','city','drivetrain'].forEach(key => {",
+              "    pm.expect(body[key], key).to.be.an('array');",
+              "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "  });",
+              "});",
+              "pm.test('Only Audi models', () => body.models.forEach(model => pm.expect(model.make).to.equal('audi')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Audi Q3 variants and dropdown counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&model=audi:q3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "model",
+              "value": "audi:q3"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Dropdown fields and counts exist', () => {",
+              "  pm.expect(body.total).to.be.a('number');",
+              "  ['makes','models','variants','colour','categories','fuelType','transmission','province','condition','city','drivetrain'].forEach(key => {",
+              "    pm.expect(body[key], key).to.be.an('array');",
+              "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "  });",
+              "});",
+              "pm.test('Only Audi Q3 models', () => body.models.forEach(model => { pm.expect(model.make).to.equal('audi'); pm.expect(model.slug).to.equal('q3'); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Ferrari body and colour counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=ferrari",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "ferrari"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Dropdown fields and counts exist', () => {",
+              "  pm.expect(body.total).to.be.a('number');",
+              "  ['makes','models','variants','colour','categories','fuelType','transmission','province','condition','city','drivetrain'].forEach(key => {",
+              "    pm.expect(body[key], key).to.be.an('array');",
+              "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Combined dropdown counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&colour=Black,White&maxPrice=500000&minYear=2018",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "colour",
+              "value": "Black,White"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            },
+            {
+              "key": "minYear",
+              "value": "2018"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Dropdown fields and counts exist', () => {",
+              "  pm.expect(body.total).to.be.a('number');",
+              "  ['makes','models','variants','colour','categories','fuelType','transmission','province','condition','city','drivetrain'].forEach(key => {",
+              "    pm.expect(body[key], key).to.be.an('array');",
+              "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "  });",
+              "});",
+              "pm.test('Only selected colours', () => body.colour.forEach(option => pm.expect(['black','white']).to.include(option.value)));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: colours",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/colours",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "colours"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: colours - {'make': 'audi'}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/colours?make=audi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "colours"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: makes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/makes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "makes"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: models - {'make': 'audi'}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/models?make=audi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "models"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: variants - {'make': 'audi', 'model': 'audi:q3'}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/variants?make=audi&model=audi:q3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "variants"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "model",
+              "value": "audi:q3"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: transmissions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/transmissions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "transmissions"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: fuel-types",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/fuel-types",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "fuel-types"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: drives",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/drives",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "drives"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Separate dropdown: colours - {'make': 'audi', 'transmission': 'AUTOMATIC', 'fuelType': 'DIESEL'}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/filters/colours?make=audi&transmission=AUTOMATIC&fuelType=DIESEL",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "filters",
+            "colours"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "transmission",
+              "value": "AUTOMATIC"
+            },
+            {
+              "key": "fuelType",
+              "value": "DIESEL"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Options have counts', () => {",
+              " pm.expect(body.total).to.be.a('number');",
+              " pm.expect(body.options).to.be.an('array');",
+              " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
+              "});",
+              "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
