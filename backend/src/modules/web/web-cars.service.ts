@@ -294,8 +294,25 @@ export class WebCarsService {
   async get(webId: string, viewerId?: string) {
     const row = await this.findRow(webId, PUBLIC_DETAIL_STATUSES);
     if (!row) return null;
-    this.publicVehicles.trackView(row.id, viewerId);
-    return toWebCar(row);
+    const detail = await this.publicVehicles.detail(row.id, viewerId);
+    const ids = [...new Set([...detail.moreFromThisDealer, ...detail.youMightLike].map((car) => car.id))];
+    const relatedRows = ids.length ? await this.db.vehicle.findMany({
+      where: this.publicWhere({ id: { in: ids } }),
+      select: carSelect,
+    }) : [];
+    const cards = new Map(relatedRows.map((car) => [car.id, toWebCar(car)]));
+    const section = (items: { id: string }[]) => items.flatMap((car) => {
+      const card = cards.get(car.id);
+      return card ? [card] : [];
+    });
+    return {
+      ...toWebCar(row),
+      description: detail.description,
+      additionalInformation: detail.additionalInformation,
+      mapDetails: detail.mapDetails,
+      moreFromThisDealer: section(detail.moreFromThisDealer),
+      youMightLike: section(detail.youMightLike),
+    };
   }
 
   async dealerCars(webId: string, limit?: number) {
