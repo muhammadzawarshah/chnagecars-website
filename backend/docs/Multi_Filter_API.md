@@ -26,3 +26,19 @@ Supported filters: `q`, `make`, `model`, `variant`, `category`, `transmission`, 
 The `/web/cars` website adapter has a different query contract (`fuel`, `drive`, `bodyType`, etc.). Do not send this mobile filter contract to that endpoint.
 
 Missing source information is not inferred: imported cars with UNKNOWN transmission or OTHER fuel appear under those values; a filter for AUTOMATIC/DIESEL will not include them. Variants are empty when listings have no stored variant.
+
+## Separate dropdown APIs
+
+All routes below accept the same active filter query parameters and return `{ "total": 123, "options": [...] }`. Each option includes `count`. Counts reflect the supplied filters; no matches returns `total: 0`; transmission, fuel and drive endpoints retain allowed options with zero counts, while other dropdowns return an empty options array. UNKNOWN transmission and OTHER fuel are included when present in source data. Missing variants have no selectable option; known drive choices remain available with zero counts.
+
+| Dropdown | Endpoint |
+|---|---|
+| Colours | `GET /api/v1/vehicles/filters/colours` |
+| Makes | `GET /api/v1/vehicles/filters/makes` |
+| Models for Audi | `GET /api/v1/vehicles/filters/models?make=audi` |
+| Variants for Audi Q3 | `GET /api/v1/vehicles/filters/variants?make=audi&model=audi:q3` |
+| Transmission and counts | `GET /api/v1/vehicles/filters/transmissions` |
+| Fuel types and counts | `GET /api/v1/vehicles/filters/fuel-types` |
+| Drive and counts | `GET /api/v1/vehicles/filters/drives` |
+
+Selecting one filter or many uses the same Apply endpoint: `GET /api/v1/vehicles` with selected query parameters. Example: `?make=audi&model=audi:q3&colour=Black,White&transmission=AUTOMATIC&fuelType=DIESEL&drivetrain=AWD`. Refresh dropdowns by sending those same active parameters to their routes. Counts before Apply: `GET /api/v1/vehicles/count` with those parameters. Reset removes parameters.
