@@ -639,7 +639,7 @@ export class WebFormsService {
           dealership: { name: dealerName, email, phone, province: province!, city: cityFromAddress(address), address },
         });
         await this.saveUsername(email, username);
-        return { ok: true, account: 'dealer', dealerStatus: 'pending' };
+        return { ok: true, account: 'dealer', dealerStatus: 'approved' };
       }
 
       const user = await this.prisma.$transaction(async (tx) => {

@@ -82,7 +82,7 @@ export class DealersService {
         data: {
           ...dto.dealership,
           slug: await this.uniqueDealerSlug(tx, dto.dealership.name),
-          status: DealerStatus.PENDING,
+          status: DealerStatus.APPROVED,
         },
       });
       const branch = await tx.branch.create({

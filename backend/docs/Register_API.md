@@ -77,4 +77,4 @@ The same five identity fields remain required. Send optional `accountType` as `P
 }
 ```
 
-`accountType` is the user's category, not an authorization role. Selecting DEALER here creates a normal user account with dealer intent; it does not create a dealership, membership or approval. Full dealership registration remains `POST /dealers/register` with owner and dealership details, which creates a PENDING dealership and returns tokens. That endpoint creates a new owner account, so use it instead of `/auth/register` for full dealer onboarding; do not register the same email twice. Converting an existing account into a dealership requires a separate onboarding flow.
+Selecting `DEALER` creates a dealer-role account immediately with no approval step. For a complete dealership with branch and owner membership, use `POST /dealers/register` with owner and dealership details instead; that dealership is immediately `APPROVED`. Do not register the same email twice. A five-field account alone has no dealership/branch metadata; dealership-scoped APIs still require membership. Existing suspended/rejected dealerships are not changed by this registration behavior.
