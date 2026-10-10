@@ -936,6 +936,9 @@
               "    pm.expect(body[key], key).to.be.an('array');",
               "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "  });",
+              "});",
+              "pm.test(\"Advanced options and counts exist\", () => {",
+              " ['seats','engineCapacityCc','powerKw','dealerships'].forEach(key => { pm.expect(body[key], key).to.be.an('array'); body[key].forEach(option => pm.expect(option.count).to.be.a('number').above(0)); });",
               "});"
             ]
           }
@@ -985,7 +988,10 @@
               "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "  });",
               "});",
-              "pm.test('Only Audi models', () => body.models.forEach(model => pm.expect(model.make).to.equal('audi')));"
+              "pm.test('Only Audi models', () => body.models.forEach(model => pm.expect(model.make).to.equal('audi')));",
+              "pm.test(\"Advanced options and counts exist\", () => {",
+              " ['seats','engineCapacityCc','powerKw','dealerships'].forEach(key => { pm.expect(body[key], key).to.be.an('array'); body[key].forEach(option => pm.expect(option.count).to.be.a('number').above(0)); });",
+              "});"
             ]
           }
         }
@@ -1038,7 +1044,10 @@
               "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "  });",
               "});",
-              "pm.test('Only Audi Q3 models', () => body.models.forEach(model => { pm.expect(model.make).to.equal('audi'); pm.expect(model.slug).to.equal('q3'); }));"
+              "pm.test('Only Audi Q3 models', () => body.models.forEach(model => { pm.expect(model.make).to.equal('audi'); pm.expect(model.slug).to.equal('q3'); }));",
+              "pm.test(\"Advanced options and counts exist\", () => {",
+              " ['seats','engineCapacityCc','powerKw','dealerships'].forEach(key => { pm.expect(body[key], key).to.be.an('array'); body[key].forEach(option => pm.expect(option.count).to.be.a('number').above(0)); });",
+              "});"
             ]
           }
         }
@@ -1086,6 +1095,9 @@
               "    pm.expect(body[key], key).to.be.an('array');",
               "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "  });",
+              "});",
+              "pm.test(\"Advanced options and counts exist\", () => {",
+              " ['seats','engineCapacityCc','powerKw','dealerships'].forEach(key => { pm.expect(body[key], key).to.be.an('array'); body[key].forEach(option => pm.expect(option.count).to.be.a('number').above(0)); });",
               "});"
             ]
           }
@@ -1147,7 +1159,10 @@
               "    body[key].forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "  });",
               "});",
-              "pm.test('Only selected colours', () => body.colour.forEach(option => pm.expect(['black','white']).to.include(option.value)));"
+              "pm.test('Only selected colours', () => body.colour.forEach(option => pm.expect(['black','white']).to.include(option.value)));",
+              "pm.test(\"Advanced options and counts exist\", () => {",
+              " ['seats','engineCapacityCc','powerKw','dealerships'].forEach(key => { pm.expect(body[key], key).to.be.an('array'); body[key].forEach(option => pm.expect(option.count).to.be.a('number').above(0)); });",
+              "});"
             ]
           }
         }
@@ -1558,6 +1573,270 @@
               " body.options.forEach(option => pm.expect(option.count).to.be.a('number').at.least(0));",
               "});",
               "console.log('Matching total:', body.total, 'Options:', body.options);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Additional filter: Seats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?seats=5,7",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "seats",
+              "value": "5,7"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Returned cars match additional filter', () => body.data.forEach(car => { pm.expect([5,7]).to.include(car.seats); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Additional filter: Engine capacity",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?minEngineCc=1000&maxEngineCc=3000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "minEngineCc",
+              "value": "1000"
+            },
+            {
+              "key": "maxEngineCc",
+              "value": "3000"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Returned cars match additional filter', () => body.data.forEach(car => { pm.expect(car.engineCapacityCc).to.be.within(1000,3000); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Additional filter: Power kW",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?minPowerKw=50&maxPowerKw=200",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "minPowerKw",
+              "value": "50"
+            },
+            {
+              "key": "maxPowerKw",
+              "value": "200"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Returned cars match additional filter', () => body.data.forEach(car => { pm.expect(car.powerKw).to.be.within(50,200); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Additional filter: Dealership",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/vehicles?dealer=morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles"
+          ],
+          "query": [
+            {
+              "key": "dealer",
+              "value": "morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26"
+            }
+          ]
+        },
+        "description": "GET query parameters; no request body. Open Tests results and Postman Console for counts. Empty matching results are valid; no minimum count is assumed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Results and pagination exist', () => {",
+              "  pm.expect(body.data).to.be.an('array');",
+              "  pm.expect(body.meta.total).to.be.a('number');",
+              "  pm.expect(body.data.length).to.be.at.most(50);",
+              "});",
+              "const criteria = pm.request.url.query.all().filter(q => !q.disabled && !['page','pageSize','sort'].includes(q.key));",
+              "const qs = criteria.map(q => encodeURIComponent(q.key)+'='+encodeURIComponent(q.value)).join('&');",
+              "const base = pm.variables.get('baseUrl').replace(/\\/$/, '');",
+              "pm.sendRequest(base+'/vehicles/count?'+qs, (error, response) => {",
+              "  pm.test('Count API matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "pm.sendRequest(base+'/vehicles/facets?'+qs, (error, response) => {",
+              "  pm.test('Dropdown total matches results total', () => {",
+              "    pm.expect(error).to.equal(null);",
+              "    pm.expect(response.code).to.equal(200);",
+              "    pm.expect(response.json().total).to.equal(body.meta.total);",
+              "  });",
+              "});",
+              "console.log('Matching cars:', body.meta.total);",
+              "pm.test('Returned cars match additional filter', () => body.data.forEach(car => { pm.expect(car.dealer.slug).to.equal('morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26'); }));"
             ]
           }
         }

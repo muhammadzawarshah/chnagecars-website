@@ -42,3 +42,47 @@ All routes below accept the same active filter query parameters and return `{ "t
 | Drive and counts | `GET /api/v1/vehicles/filters/drives` |
 
 Selecting one filter or many uses the same Apply endpoint: `GET /api/v1/vehicles` with selected query parameters. Example: `?make=audi&model=audi:q3&colour=Black,White&transmission=AUTOMATIC&fuelType=DIESEL&drivetrain=AWD`. Refresh dropdowns by sending those same active parameters to their routes. Counts before Apply: `GET /api/v1/vehicles/count` with those parameters. Reset removes parameters.
+
+
+## Seats, engine, kW and dealership filters
+
+These filters already exist on the mobile `/vehicles`, `/vehicles/count`, `/vehicles/facets` and separate dropdown endpoints. Mobile parameter names differ from the website adapter:
+
+| Filter | Mobile parameter | Example |
+|---|---|---|
+| Seats | `seats` | `5,7` or `8+` (encode plus as `%2B`) |
+| Minimum engine capacity in cc | `minEngineCc` | `1000` |
+| Maximum engine capacity in cc | `maxEngineCc` | `3000` |
+| Minimum power in kW | `minPowerKw` | `50` |
+| Maximum power in kW | `maxPowerKw` | `200` |
+| Dealership | `dealer` | Dealer slug returned in `data[].dealer.slug` |
+
+```http
+GET /vehicles?seats=5,7
+GET /vehicles?minEngineCc=1000&maxEngineCc=3000
+GET /vehicles?minPowerKw=50&maxPowerKw=200
+GET /vehicles?dealer=morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26
+GET /vehicles?make=audi&seats=5&minEngineCc=1000&maxPowerKw=200
+```
+
+Response car fields are `seats`, `engineCapacityCc`, `powerKw` and `dealer`. On imported feed listings, missing specifications are `null`; filtering by these specifications excludes missing values. Live checks returned zero for seats/engine/kW examples and 81 cars for the example dealership (counts may change). This is missing source data, not an absent API filter. Seats/engine/kW/dealership options and counts are included in the combined `/vehicles/facets` response.
+
+The website adapter uses `minEngine`, `maxEngine`, `minKw`, `maxKw`, and `dealership`; use the mobile names above with `/vehicles`.
+
+
+## Complete dependent advanced filters
+
+`GET /api/v1/vehicles/facets` also returns `seats`, `engineCapacityCc`, `powerKw` and `dealerships`. Every group uses all supplied filters; null values are omitted, so missing specification data produces empty arrays. Numeric options are sorted ascending.
+
+Illustrative response fields:
+
+```json
+{
+  "seats": [{"value": 5, "count": 12}],
+  "engineCapacityCc": [{"value": 1400, "count": 4}],
+  "powerKw": [{"value": 110, "count": 4}],
+  "dealerships": [{"slug": "dealer-one", "name": "Dealer One", "count": 12}]
+}
+```
+
+Use seats values as `seats`, engine values as `minEngineCc`/`maxEngineCc`, power values as `minPowerKw`/`maxPowerKw` and dealership slugs as `dealer`. Engine units are cc, not litres. All counts reflect current filter combinations. Send the same criteria to `/vehicles` to Apply.
