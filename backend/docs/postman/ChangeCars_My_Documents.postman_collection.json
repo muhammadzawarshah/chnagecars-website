@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "ChangeCars - My Documents",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Use a test account. Set email/password and documentType/fileName/contentType/fileSize. fileSize must be the exact selected file size in bytes. Run requests manually in order: request 04 requires selecting a real file in Body > binary. Private storage must be configured/running. Requests 11-12 delete the document created by this flow. Storage requests intentionally send no API Bearer token. Types: DRIVING_LICENSE, VEHICLE_REGISTRATION, INSURANCE, WARRANTY, FINES, SERVICE_REPAIRS. PDF/JPEG/PNG, max 15 MiB. See ../My_Documents_API.md."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "documentType",
+      "value": "DRIVING_LICENSE",
+      "type": "string"
+    },
+    {
+      "key": "fileName",
+      "value": "driving-license.pdf",
+      "type": "string"
+    },
+    {
+      "key": "contentType",
+      "value": "application/pdf",
+      "type": "string"
+    },
+    {
+      "key": "fileSize",
+      "value": "12345",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "uploadUrl",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "downloadUrl",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Login",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login successful', () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) { const b=pm.response.json(); pm.collectionVariables.set('accessToken',b.accessToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 My Documents - all six categories",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/documents",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('List successful', () => pm.response.to.have.status(200));",
+              "if(pm.response.code===200) pm.test('Six categories',()=>pm.expect(pm.response.json().categories.length).to.equal(6));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Create upload URL",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/me/documents/upload-url",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"{{documentType}}\",\n  \"fileName\": \"{{fileName}}\",\n  \"contentType\": \"{{contentType}}\",\n  \"size\": {{fileSize}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Upload created', () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201){ const b=pm.response.json(); pm.collectionVariables.set('documentId',b.documentId); pm.collectionVariables.set('uploadUrl',b.uploadUrl); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Upload binary file - select file in Body",
+      "request": {
+        "method": "PUT",
+        "url": "{{uploadUrl}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "{{contentType}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "file",
+          "file": {}
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Storage upload successful',()=>pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Complete upload",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/me/documents/{{documentId}}/complete",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Upload complete',()=>pm.response.to.have.status(201));",
+              "if(pm.response.code===201) pm.test('Uploaded status',()=>pm.expect(pm.response.json().status).to.equal('UPLOADED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Refresh My Documents",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/documents",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Can submit',()=>{pm.response.to.have.status(200);pm.expect(pm.response.json().canSubmit).to.equal(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 View - obtain private download URL",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/documents/{{documentId}}/view",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('View successful',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code===200) pm.collectionVariables.set('downloadUrl',pm.response.json().downloadUrl);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Download document",
+      "request": {
+        "method": "GET",
+        "url": "{{downloadUrl}}",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Download successful',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Submit documents",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/me/documents/submit",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Submitted',()=>{pm.response.to.have.status(201);pm.expect(pm.response.json().submitted).to.equal(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 List submitted documents",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/documents",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Submitted document listed',()=>{pm.response.to.have.status(200);const rows=pm.response.json().categories.flatMap(c=>c.documents);const doc=rows.find(d=>d.id===pm.collectionVariables.get('documentId'));pm.expect(doc).to.exist;pm.expect(doc.status).to.equal('SUBMITTED');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Delete test document",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/me/documents/{{documentId}}",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Deleted',()=>{pm.response.to.have.status(200);pm.expect(pm.response.json().deleted).to.equal(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Verify deleted document",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/documents/{{documentId}}/view",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Deleted document unavailable',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

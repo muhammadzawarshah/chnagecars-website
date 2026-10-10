@@ -8,11 +8,11 @@ Local base URL: `http://localhost:4000/api/v1`.
 
 ```json
 {
+  "username": "app_user",
   "email": "customer@example.com",
   "password": "Example123!",
   "firstName": "App",
-  "lastName": "User",
-  "acceptTerms": true
+  "lastName": "User"
 }
 ```
 

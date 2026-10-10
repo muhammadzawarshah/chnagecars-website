@@ -4,6 +4,7 @@ import { CurrentUser } from '../../common/decorators/auth.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
 import type { AuthUser } from '../../common/types/auth-user';
 import { CustomersService } from './customers.service';
+import { CustomerDocumentsController, CustomerDocumentsService } from './customer-documents';
 import { CreateSavedSearchDto, DeleteAccountDto, UpdateProfileDto, UpdateSavedSearchDto } from './dto/customer.dto';
 
 @ApiTags('Customer: account & dashboard')
@@ -112,8 +113,8 @@ export class MeController {
 }
 
 @Module({
-  controllers: [MeController],
-  providers: [CustomersService],
+  controllers: [MeController, CustomerDocumentsController],
+  providers: [CustomersService, CustomerDocumentsService],
   exports: [CustomersService],
 })
 export class CustomersModule {}

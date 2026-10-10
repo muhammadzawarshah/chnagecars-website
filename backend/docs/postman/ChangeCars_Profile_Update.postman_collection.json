@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "ChangeCars - Profile Update",
+    "description": "Set email/password for a test account, then login, fetch and update profile. Review sample update fields before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "vehicleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Auth success', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+              "if (pm.response.code < 300) { const b=pm.response.json(); pm.collectionVariables.set('accessToken', b.accessToken); pm.collectionVariables.set('refreshToken', b.refreshToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get profile fields",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Profile response',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code===200) pm.test('Screen fields exist',()=>['email','phone','youtubeProfileUrl','facebookProfileUrl','instagramProfileUrl','linkedInProfileUrl'].forEach(k=>pm.expect(pm.response.json()).to.have.property(k)));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update profile fields",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+27821234567\",\n  \"youtubeProfileUrl\": \"https://www.youtube.com/@example\",\n  \"facebookProfileUrl\": \"https://www.facebook.com/example\",\n  \"instagramProfileUrl\": \"https://www.instagram.com/example/\",\n  \"linkedInProfileUrl\": \"https://www.linkedin.com/in/example/\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Profile response',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code===200) pm.test('Screen fields exist',()=>['email','phone','youtubeProfileUrl','facebookProfileUrl','instagramProfileUrl','linkedInProfileUrl'].forEach(k=>pm.expect(pm.response.json()).to.have.property(k)));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verify saved profile",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Profile response',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code===200) pm.test('Screen fields exist',()=>['email','phone','youtubeProfileUrl','facebookProfileUrl','instagramProfileUrl','linkedInProfileUrl'].forEach(k=>pm.expect(pm.response.json()).to.have.property(k)));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

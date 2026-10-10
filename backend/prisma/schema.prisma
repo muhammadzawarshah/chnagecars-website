@@ -301,6 +301,7 @@ model User {
   id               String     @id @default(uuid(7)) @db.Uuid
   email            String     @unique
   /// Optional public handle chosen on the website sign-up (stored lower case). Sign-in stays by email.
+  accountType      String     @default("PRIVATE_SELLER")
   username         String?    @unique
   phone            String?
   passwordHash     String
@@ -308,6 +309,10 @@ model User {
   lastName         String
   role             UserRole   @default(CUSTOMER)
   status           UserStatus @default(ACTIVE)
+  youtubeProfileUrl   String?
+  facebookProfileUrl  String?
+  instagramProfileUrl String?
+  linkedInProfileUrl  String?
   emailVerifiedAt  DateTime?
   lastLoginAt      DateTime?
   marketingConsent Boolean    @default(false)
@@ -319,6 +324,7 @@ model User {
   sessions                Session[]
   passwordResetTokens     PasswordResetToken[]
   dealerMember            DealerMember?
+  documents               CustomerDocument[]
   favourites              Favourite[]
   savedSearches           SavedSearch[]
   recentlyViewed          RecentlyViewed[]
@@ -1455,4 +1461,34 @@ model IdempotencyKey {
   @@unique([userId, key])
   @@index([expiresAt])
   @@map("idempotency_keys")
+}
+
+// Private documents uploaded by registered customers.
+model CustomerDocument {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  userId      String   @db.Uuid
+  type        String
+  fileName    String
+  contentType String
+  size        Int
+  storageKey  String   @unique
+  status      String   @default("PENDING")
+  submittedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("customer_documents")
+}
+
+model VehicleFilterSnapshot {
+  revision        String   @id
+  total           Int
+  sha256          String
+  compressedBytes Int
+  content         Bytes
+  generatedAt     DateTime @default(now())
+
+  @@map("vehicle_filter_snapshots")
 }

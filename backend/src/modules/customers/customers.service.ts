@@ -36,12 +36,20 @@ export class CustomersService {
 
   async profile(userId: string) {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
-    return { ...toPublicUser(user), marketingConsent: user.marketingConsent, createdAt: user.createdAt, lastLoginAt: user.lastLoginAt };
+    return { ...toPublicUser(user), youtubeProfileUrl: user.youtubeProfileUrl, facebookProfileUrl: user.facebookProfileUrl, instagramProfileUrl: user.instagramProfileUrl, linkedInProfileUrl: user.linkedInProfileUrl, marketingConsent: user.marketingConsent, createdAt: user.createdAt, lastLoginAt: user.lastLoginAt };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const before = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
-    const after = await this.prisma.user.update({ where: { id: userId }, data: dto });
+    let after;
+    try {
+      after = await this.prisma.user.update({ where: { id: userId }, data: {
+        ...dto, ...(dto.email !== undefined && dto.email !== before.email ? { emailVerifiedAt: null } : {}),
+      } });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2002') throw Errors.conflict('EMAIL_IN_USE', 'This email is already registered');
+      throw error;
+    }
     await this.audit.record({
       action: 'user.profile_update',
       entityType: 'user',
@@ -226,6 +234,7 @@ export class CustomersService {
           firstName: 'Deleted',
           lastName: 'User',
           phone: null,
+          youtubeProfileUrl: null, facebookProfileUrl: null, instagramProfileUrl: null, linkedInProfileUrl: null,
           passwordHash: await bcrypt.hash(randomToken(), 10),
           status: UserStatus.DELETED,
           deletedAt: new Date(),

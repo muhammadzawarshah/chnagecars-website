@@ -2,7 +2,7 @@
 
 Create a customer account. No authentication required.
 
-**Method:** `POST`  
+**Method:** `POST`
 **Local URL:** `http://localhost:4000/api/v1/auth/register`
 
 ## Headers
@@ -16,25 +16,21 @@ Accept: application/json
 
 ```json
 {
+  "username": "app_user",
   "email": "customer@example.com",
   "password": "Example123!",
   "firstName": "App",
-  "lastName": "User",
-  "phone": "+27 82 123 4567",
-  "marketingConsent": false,
-  "acceptTerms": true
+  "lastName": "User"
 }
 ```
 
 | Field | Required | Validation |
 | --- | --- | --- |
+| `username` | Yes | Unique; 3–30 letters, numbers, dots, underscores or hyphens; starts with a letter/number; lowercased. |
 | `email` | Yes | Valid email, maximum 254 characters; trimmed and lowercased. |
 | `password` | Yes | 8–128 characters with at least one letter and one number. |
 | `firstName` | Yes | 1–80 characters after trimming. |
 | `lastName` | Yes | 1–80 characters after trimming. |
-| `phone` | No | 7–20 characters: digits, spaces, parentheses or hyphens, with an optional leading `+`. |
-| `marketingConsent` | No | Boolean; defaults to false. |
-| `acceptTerms` | Yes | Must be `true`. |
 
 ## Success response — 201 Created
 
@@ -65,3 +61,20 @@ Registration signs the user in automatically. Store the returned access and refr
 - [Login and token refresh](Login_API.md)
 - [User favourites](Favourites_API.md)
 - [Postman collection](postman/ChangeCars_Login_Favourites.postman_collection.json): set `baseUrl`, `email` and `password`, then run **Register a NEW test account (optional)**. The request saves the returned tokens automatically.
+
+## Dealer and private seller accounts
+
+The same five identity fields remain required. Send optional `accountType` as `PRIVATE_SELLER` (default) or `DEALER` to save the selected account category. It is returned in registration, login and profile `user` data.
+
+```json
+{
+  "username": "dealer_user",
+  "email": "dealer@example.com",
+  "firstName": "App",
+  "lastName": "User",
+  "password": "Example123!",
+  "accountType": "DEALER"
+}
+```
+
+`accountType` is the user's category, not an authorization role. Selecting DEALER here creates a normal user account with dealer intent; it does not create a dealership, membership or approval. Full dealership registration remains `POST /dealers/register` with owner and dealership details, which creates a PENDING dealership and returns tokens. That endpoint creates a new owner account, so use it instead of `/auth/register` for full dealer onboarding; do not register the same email twice. Converting an existing account into a dealership requires a separate onboarding flow.
