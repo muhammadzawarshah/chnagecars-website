@@ -76,7 +76,7 @@ export class CustomersService {
       this.prisma.favourite.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take, include: { vehicle: { select: publicVehicleSelect } } }),
       this.prisma.favourite.count({ where }),
     ]);
-    return toPage(rows.map((row) => ({ savedAt: row.createdAt, vehicle: withAvailability(row.vehicle) })), total, page, pageSize);
+    return toPage(rows.map((row) => ({ savedAt: row.createdAt, vehicle: { ...withAvailability(row.vehicle), isFavourite: true } })), total, page, pageSize);
   }
 
   async favouriteIds(userId: string): Promise<string[]> {

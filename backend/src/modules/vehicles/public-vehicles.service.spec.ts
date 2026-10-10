@@ -13,6 +13,18 @@ function setup() {
 }
 
 describe('vehicle detail recommendations', () => {
+  it('overlays favourites per user without modifying shared cards', async () => {
+    const findMany = jest.fn().mockResolvedValueOnce([{ vehicleId: 'base' }]).mockResolvedValueOnce([]);
+    const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null);
+    const shared = [card('base'), card('other')];
+    expect((await service.withFavouriteFlags(shared, 'user-a')).map(row => row.isFavourite)).toEqual([true, false]);
+    expect((await service.withFavouriteFlags(shared, 'user-b')).map(row => row.isFavourite)).toEqual([false, false]);
+    expect(findMany.mock.calls[0][0].where).toEqual({ userId: 'user-a', vehicleId: { in: ['base', 'other'] } });
+    expect(shared[0]).not.toHaveProperty('isFavourite');
+    expect((await service.withFavouriteFlags(shared)).every(row => !row.isFavourite)).toBe(true);
+    expect(findMany).toHaveBeenCalledTimes(2);
+  });
+
   it('includes location and both related sections without nesting detail responses', async () => {
     const { service, vehicle } = setup();
     vehicle.findFirst.mockResolvedValue({ ...card('base'), description: 'Full dealer information', city: 'Bethlehem', province: 'FREE_STATE', latitude: null, longitude: null, dealer: { address: 'Dealer address' }, branch: { address: 'Branch address', latitude: -28, longitude: 28 }, makeId: 'make', modelId: 'model', dealerId: 'dealer' });

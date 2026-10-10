@@ -45,6 +45,16 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     if (!this.redis) await this.flushViews().catch(() => undefined);
   }
 
+  /** Overlay user state after shared caching, reading primary for immediate save/remove visibility. */
+  async withFavouriteFlags<T extends { id: string }>(rows: T[], userId?: string) {
+    const saved = userId && rows.length ? await this.prisma.favourite.findMany({
+      where: { userId, vehicleId: { in: [...new Set(rows.map((row) => row.id))] } },
+      select: { vehicleId: true },
+    }) : [];
+    const ids = new Set(saved.map((row) => row.vehicleId));
+    return rows.map((row) => ({ ...row, isFavourite: ids.has(row.id) }));
+  }
+
   /** FR-04 vehicle detail page. Accepts the SEO slug or the id. */
   async detail(slugOrId: string, viewerId?: string) {
     const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:${slugOrId}`);
@@ -102,7 +112,13 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     if (!vehicle) throw Errors.notFound('Vehicle');
 
     this.recordView(vehicle.id, viewerId).catch((error) => this.logger.warn(`view tracking failed: ${error.message}`));
-    return vehicle;
+    const flagged = await this.withFavouriteFlags([vehicle, ...vehicle.moreFromThisDealer, ...vehicle.youMightLike], viewerId);
+    return {
+      ...vehicle,
+      isFavourite: flagged[0].isFavourite,
+      moreFromThisDealer: flagged.slice(1, 1 + vehicle.moreFromThisDealer.length),
+      youMightLike: flagged.slice(1 + vehicle.moreFromThisDealer.length),
+    };
   }
 
   /** FR-17 compare 2-4 listed vehicles side by side. */
