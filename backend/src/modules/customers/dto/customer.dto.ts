@@ -1,13 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsEmail, IsUrl, MaxLength, IsOptional, IsString, Length, Matches, ValidateIf, ValidateNested } from 'class-validator';
+import { IsBoolean, IsUrl, MaxLength, IsOptional, IsString, Length, Matches, ValidateIf, ValidateNested } from 'class-validator';
 import { PHONE_RULE } from '../../auth/dto/auth.dto';
 import { SearchCriteriaDto } from '../../search/dto/search.dto';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 
 export class UpdateProfileDto {
-  @ApiPropertyOptional() @ValidateIf((_, value) => value !== undefined) @Transform(({ value }) => typeof value === 'string' ? value.trim().toLowerCase() : value) @IsEmail() @MaxLength(254) email?: string;
   @ApiPropertyOptional({ nullable: true }) @IsOptional() @Transform(trim) @IsUrl({ protocols: ['http', 'https'], require_protocol: true }) @MaxLength(2048) youtubeProfileUrl?: string | null;
   @ApiPropertyOptional({ nullable: true }) @IsOptional() @Transform(trim) @IsUrl({ protocols: ['http', 'https'], require_protocol: true }) @MaxLength(2048) facebookProfileUrl?: string | null;
   @ApiPropertyOptional({ nullable: true }) @IsOptional() @Transform(trim) @IsUrl({ protocols: ['http', 'https'], require_protocol: true }) @MaxLength(2048) instagramProfileUrl?: string | null;
