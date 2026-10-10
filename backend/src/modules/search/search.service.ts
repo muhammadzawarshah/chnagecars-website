@@ -1,4 +1,5 @@
 import { Injectable, Logger, Module, OnModuleInit } from '@nestjs/common';
+import { randomInt } from 'node:crypto';
 import { VehicleStatus } from '../../generated/prisma/client';
 import { toPage } from '../../common/dto/pagination.dto';
 import { Errors } from '../../common/errors/app-error';
@@ -28,12 +29,14 @@ const DEFAULT_PAGE_SIZE = 20;
  */
 @Injectable()
 export class SearchService {
+  private lastRandomDealerId?: string;
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
   ) {}
 
   async search(query: SearchVehiclesQueryDto) {
+    if (!query.dealer && !query.branchId && !query.sort) return this.searchRandomDealer(query);
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
     const key = await this.cache.versionedKey(CacheNs.vehicles, `search:${criteriaKey(query)}`);
@@ -55,6 +58,28 @@ export class SearchService {
       ]);
       return toPage(rows.map(withAvailability), total, page, pageSize);
     });
+  }
+
+  /** A fresh dealer on each browse request; pin its slug to paginate its stock. */
+  private async searchRandomDealer(query: SearchVehiclesQueryDto) {
+    const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
+    const where = buildWhere(query);
+    const dealers = await this.prisma.replica.vehicle.groupBy({
+      by: ['dealerId'], where, _count: { _all: true },
+    });
+    if (!dealers.length) return { ...toPage([], 0, 1, pageSize), selectedDealer: null };
+    const alternatives = dealers.filter((dealer) => dealer.dealerId !== this.lastRandomDealerId);
+    const candidates = alternatives.length ? alternatives : dealers;
+    const selected = candidates[randomInt(candidates.length)];
+    this.lastRandomDealerId = selected.dealerId;
+    const rows = await this.prisma.replica.vehicle.findMany({
+      where: { AND: [where, { dealerId: selected.dealerId }] },
+      select: publicVehicleSelect, orderBy: buildOrderBy('recent'), take: pageSize,
+    });
+    return {
+      ...toPage(rows.map(withAvailability), selected._count._all, 1, pageSize),
+      selectedDealer: rows[0]?.dealer ?? null,
+    };
   }
 
   /**
