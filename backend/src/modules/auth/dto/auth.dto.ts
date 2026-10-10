@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { Equals, IsBoolean, IsEmail, IsOptional, IsString, Length, Matches, MaxLength } from 'class-validator';
+import { Equals, IsBoolean, IsIn, IsEmail, IsOptional, IsString, Length, Matches, MaxLength } from 'class-validator';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 const lower = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value);
@@ -98,4 +98,14 @@ export class ChangePasswordDto {
   @IsString()
   @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE })
   newPassword: string;
+}
+
+/** Mobile customer registration: exactly five required fields. */
+export class CustomerRegisterDto {
+  @ApiPropertyOptional({ enum: ['PRIVATE_SELLER', 'DEALER'], default: 'PRIVATE_SELLER' }) @IsOptional() @IsIn(['PRIVATE_SELLER', 'DEALER']) accountType?: 'PRIVATE_SELLER' | 'DEALER';
+  @ApiProperty({ example: 'app_user' }) @Transform(lower) @IsString() @Matches(/^[a-z0-9][a-z0-9._-]{2,29}$/, { message: 'Username must be 3-30 letters, numbers, dots, underscores or hyphens' }) username: string;
+  @ApiProperty({ example: 'customer@example.com' }) @Transform(lower) @IsEmail() @MaxLength(254) email: string;
+  @ApiProperty() @Transform(trim) @IsString() @Length(1, 80) firstName: string;
+  @ApiProperty() @Transform(trim) @IsString() @Length(1, 80) lastName: string;
+  @ApiProperty() @IsString() @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE }) password: string;
 }

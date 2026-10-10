@@ -17,6 +17,8 @@ import { ChangePasswordDto, RegisterDto, ResetPasswordDto } from './dto/auth.dto
 
 export interface PublicUser {
   id: string;
+  username: string | null;
+  accountType: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -35,6 +37,8 @@ export interface AuthTokens {
 
 export const toPublicUser = (user: User): PublicUser => ({
   id: user.id,
+  username: user.username,
+  accountType: user.accountType,
   email: user.email,
   firstName: user.firstName,
   lastName: user.lastName,
@@ -65,23 +69,39 @@ export class AuthService {
   /** Creates a user row (used by customer sign-up and dealer registration). */
   async createUser(
     db: Db,
-    input: Omit<RegisterDto, 'acceptTerms'> & { role?: UserRole },
+    input: Pick<RegisterDto, 'email' | 'password' | 'firstName' | 'lastName'> & { username?: string; accountType?: 'PRIVATE_SELLER' | 'DEALER'; acceptTerms?: boolean; phone?: string; marketingConsent?: boolean; role?: UserRole },
   ): Promise<User> {
     const email = normalizeEmail(input.email);
     const existing = await db.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) throw Errors.conflict('EMAIL_TAKEN', 'An account with this email already exists');
-    const user = await db.user.create({
+    if (input.username) {
+      const taken = await db.user.findUnique({ where: { username: input.username.trim().toLowerCase() }, select: { id: true } });
+      if (taken) throw Errors.conflict('USERNAME_TAKEN', 'This username is already taken');
+    }
+    let user: User;
+    try {
+      user = await db.user.create({
       data: {
         email,
+        username: input.username?.trim().toLowerCase(),
+        accountType: input.role === UserRole.DEALER ? 'DEALER' : input.accountType ?? 'PRIVATE_SELLER',
         passwordHash: await this.hashPassword(input.password),
         firstName: input.firstName,
         lastName: input.lastName,
         phone: input.phone,
         role: input.role ?? UserRole.CUSTOMER,
         marketingConsent: input.marketingConsent ?? false,
-        termsAcceptedAt: new Date(),
+        termsAcceptedAt: input.acceptTerms ? new Date() : null,
       },
     });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2002') {
+        const target = (error as { meta?: { target?: string[] } }).meta?.target ?? [];
+        if (target.includes('username')) throw Errors.conflict('USERNAME_TAKEN', 'This username is already taken');
+        throw Errors.conflict('EMAIL_TAKEN', 'An account with this email already exists');
+      }
+      throw error;
+    }
     await this.outbox.enqueue(db, {
       type: OutboxEvents.UserRegistered,
       aggregateType: 'user',
@@ -91,7 +111,7 @@ export class AuthService {
     return user;
   }
 
-  async register(dto: RegisterDto): Promise<AuthTokens> {
+  async register(dto: import('./dto/auth.dto').CustomerRegisterDto): Promise<AuthTokens> {
     const user = await this.prisma.$transaction(async (tx) => {
       const created = await this.createUser(tx, dto);
       await this.audit.record({ action: 'auth.register', entityType: 'user', entityId: created.id, actorId: created.id, actorRole: created.role }, tx);

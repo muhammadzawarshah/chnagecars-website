@@ -13,6 +13,7 @@ import { SearchCriteriaDto, SearchVehiclesQueryDto } from './dto/search.dto';
 import { buildOrderBy, buildWhere, criteriaKey, haversineKm } from './search.builder';
 import { matchesCriteria, VehicleSnapshot } from './search.matcher';
 import { buildFilterData, filterVehicleSelect } from './filter-data';
+import { FilterSnapshotsController, FilterSnapshotsService } from './filter-snapshots';
 
 const SEARCH_TTL_SECONDS = 30;
 const FACETS_TTL_SECONDS = 120;
@@ -315,7 +316,8 @@ export class SearchAlertHandlers implements OnModuleInit {
 }
 
 @Module({
-  providers: [SearchService, SearchAlertHandlers],
+  controllers: [FilterSnapshotsController],
+  providers: [SearchService, SearchAlertHandlers, FilterSnapshotsService],
   exports: [SearchService],
 })
 export class SearchModule {}

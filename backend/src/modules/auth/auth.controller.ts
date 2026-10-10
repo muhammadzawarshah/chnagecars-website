@@ -5,7 +5,7 @@ import { CurrentUser, Public } from '../../common/decorators/auth.decorators';
 import type { AuthUser } from '../../common/types/auth-user';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { AuthService, toPublicUser } from './auth.service';
-import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RefreshTokenDto, RegisterDto, ResetPasswordDto } from './dto/auth.dto';
+import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RefreshTokenDto, CustomerRegisterDto, ResetPasswordDto } from './dto/auth.dto';
 
 /** Strict limits on credential endpoints (NFR-04, brief section 11). */
 const AUTH_LIMIT = { default: { limit: 10, ttl: 60_000 } };
@@ -22,7 +22,7 @@ export class AuthController {
   @Throttle(AUTH_LIMIT)
   @Post('register')
   @ApiOperation({ summary: 'Create a customer account (FR-01)' })
-  register(@Body() dto: RegisterDto) {
+  register(@Body() dto: CustomerRegisterDto) {
     return this.auth.register(dto);
   }
 

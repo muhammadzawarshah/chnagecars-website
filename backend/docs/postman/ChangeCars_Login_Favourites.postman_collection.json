@@ -34,6 +34,16 @@
       "key": "vehicleId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accountType",
+      "value": "PRIVATE_SELLER",
+      "type": "string"
     }
   ],
   "item": [
@@ -60,7 +70,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"firstName\": \"App\",\n  \"lastName\": \"Tester\",\n  \"acceptTerms\": true\n}",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"firstName\": \"App\",\n  \"lastName\": \"Tester\",\n  \"username\": \"{{username}}\",\n  \"accountType\": \"{{accountType}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
