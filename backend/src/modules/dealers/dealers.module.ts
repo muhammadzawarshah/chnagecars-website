@@ -28,8 +28,8 @@ class DealerNotifications implements OnModuleInit {
       await this.notifications.notify({
         userIds: await this.notifications.adminRecipients(),
         type: NotificationTypes.DealerApplication,
-        title: 'New dealer application',
-        body: `${dealer.name} (${dealer.city}) registered and is awaiting review.`,
+        title: 'New dealer registered',
+        body: `${dealer.name} (${dealer.city}) registered and is active.`,
         data: { dealerId: dealer.id },
       });
     });

@@ -113,7 +113,7 @@ export class AuthService {
 
   async register(dto: import('./dto/auth.dto').CustomerRegisterDto): Promise<AuthTokens> {
     const user = await this.prisma.$transaction(async (tx) => {
-      const created = await this.createUser(tx, dto);
+      const created = await this.createUser(tx, { ...dto, role: dto.accountType === 'DEALER' ? UserRole.DEALER : UserRole.CUSTOMER });
       await this.audit.record({ action: 'auth.register', entityType: 'user', entityId: created.id, actorId: created.id, actorRole: created.role }, tx);
       return created;
     });
