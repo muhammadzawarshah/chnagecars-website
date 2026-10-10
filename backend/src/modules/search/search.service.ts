@@ -110,7 +110,7 @@ export class SearchService {
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       const where = buildWhere(criteria);
       const db = this.prisma.replica;
-      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total] = await Promise.all([
+      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total, seats, engines, powers, dealers] = await Promise.all([
         db.vehicle.groupBy({ by: ['makeId'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['fuelType'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['transmission'], where, _count: { _all: true } }),
@@ -124,12 +124,17 @@ export class SearchService {
         db.vehicle.groupBy({ by: ['city'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['drivetrain'], where, _count: { _all: true } }),
         db.vehicle.count({ where }),
+        db.vehicle.groupBy({ by: ['seats'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['engineCapacityCc'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['powerKw'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['dealerId'], where, _count: { _all: true } }),
       ]);
       const makeRows = await db.make.findMany({ where: { id: { in: makes.map((row) => row.makeId) } }, select: { id: true, slug: true, name: true } });
       const [modelRows, variantRows] = await Promise.all([
         db.model.findMany({ where: { id: { in: models.map((row) => row.modelId) } }, select: { id: true, slug: true, name: true, make: { select: { slug: true } } } }),
         db.variant.findMany({ where: { id: { in: variants.flatMap((row) => row.variantId ? [row.variantId] : []) } }, select: { id: true, slug: true, name: true, model: { select: { slug: true, make: { select: { slug: true } } } } } }),
       ]);
+      const dealerRows = await db.dealer.findMany({ where: { id: { in: dealers.map((row) => row.dealerId) } }, select: { id: true, slug: true, name: true } });
       const colourCounts = new Map<string, number>();
       for (const row of colours) {
         const value = row.colour?.trim().toLowerCase();
@@ -144,6 +149,13 @@ export class SearchService {
       );
       return {
         total,
+        seats: seats.flatMap((row) => row.seats === null ? [] : [{ value: row.seats, count: row._count._all }]).sort((a, b) => a.value - b.value),
+        engineCapacityCc: engines.flatMap((row) => row.engineCapacityCc === null ? [] : [{ value: row.engineCapacityCc, count: row._count._all }]).sort((a, b) => a.value - b.value),
+        powerKw: powers.flatMap((row) => row.powerKw === null ? [] : [{ value: row.powerKw, count: row._count._all }]).sort((a, b) => a.value - b.value),
+        dealerships: dealers.flatMap((row) => {
+          const dealer = dealerRows.find((item) => item.id === row.dealerId);
+          return dealer ? [{ slug: dealer.slug, name: dealer.name, count: row._count._all }] : [];
+        }).sort((a, b) => a.name.localeCompare(b.name)),
         models: models.flatMap((row) => {
           const model = modelRows.find((item) => item.id === row.modelId);
           return model ? [{ slug: model.slug, name: model.name, make: model.make.slug, value: `${model.make.slug}:${model.slug}`, count: row._count._all }] : [];
