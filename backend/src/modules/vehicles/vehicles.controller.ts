@@ -35,11 +35,12 @@ export class PublicVehiclesController {
     private readonly vehicles: PublicVehiclesService,
   ) {}
 
-  @Public()
+  @OptionalAuth()
   @Get()
   @ApiOperation({ summary: 'Search, filter and sort listed vehicles (FR-02, FR-03, FR-05, FR-06, FR-07, FR-27)' })
-  searchVehicles(@Query() query: SearchVehiclesQueryDto) {
-    return this.search.search(query);
+  async searchVehicles(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
+    const result = await this.search.search(query);
+    return { ...result, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
   }
 
   @Public()
@@ -127,18 +128,20 @@ export class PublicVehiclesController {
     return this.search.count(body);
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('specials')
   @ApiOperation({ summary: 'Vehicles on special (FR-23)' })
-  specials(@Query() query: SearchVehiclesQueryDto) {
-    return this.search.search({ ...query, collection: 'specials' });
+  async specials(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
+    const result = await this.search.search({ ...query, collection: 'specials' });
+    return { ...result, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('hot-sellers')
   @ApiOperation({ summary: 'Popular, high-demand vehicles (FR-24)' })
-  hotSellers(@Query() query: SearchVehiclesQueryDto) {
-    return this.search.search({ ...query, collection: 'hot-sellers' });
+  async hotSellers(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
+    const result = await this.search.search({ ...query, collection: 'hot-sellers' });
+    return { ...result, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
   }
 
   @Public()
