@@ -37,6 +37,7 @@ export class PublicVehiclesController {
 
   @OptionalAuth()
   @Get()
+  @PublicCache(0)
   @ApiOperation({ summary: 'Search, filter and sort listed vehicles (FR-02, FR-03, FR-05, FR-06, FR-07, FR-27)' })
   async searchVehicles(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
     const result = await this.search.search(query);
