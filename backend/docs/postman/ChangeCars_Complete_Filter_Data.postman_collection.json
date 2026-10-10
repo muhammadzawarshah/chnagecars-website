@@ -1,0 +1,48 @@
+{
+  "info": {
+    "name": "ChangeCars - Complete App Filter Data",
+    "description": "One unpaginated public snapshot for storing and filtering at app level. Start the local backend or change baseUrl after deploying. No auth required.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get complete filter dataset",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/vehicles/filters/all"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Complete snapshot', () => { pm.expect(body.schemaVersion).to.equal(1); pm.expect(body.vehicles).to.be.an('array'); pm.expect(body.total).to.equal(body.vehicles.length); pm.expect(Date.parse(body.generatedAt)).not.to.be.NaN; });",
+              "pm.test('All filter groups exist', () => { ['makes','models','variants','dealerships','branches','categories','colour','city','province','condition','fuelType','transmission','drivetrain','seats','engineCapacityCc','powerKw'].forEach(key => pm.expect(body.options[key]).to.be.an('array')); });",
+              "pm.test('Public rows and scoped relationships', () => body.vehicles.forEach(car => { pm.expect(['PUBLISHED','RESERVED']).to.include(car.status); pm.expect(car.model.value).to.equal(car.make.slug+':'+car.model.slug); pm.expect(car).not.to.have.property('vin'); pm.expect(car).not.to.have.property('registration'); pm.expect(car).not.to.have.property('popularityScore'); }));",
+              "pm.test('Initial make counts cover complete data', () => { pm.expect(body.options.makes.reduce((sum, item) => sum+item.count, 0)).to.equal(body.total); body.options.makes.forEach(item => pm.expect(item.count).to.equal(body.vehicles.filter(car => car.make.slug === item.slug).length)); });",
+              "pm.test('Null specifications omitted from options', () => ['seats','engineCapacityCc','powerKw','drivetrain'].forEach(key => body.options[key].forEach(item => pm.expect(item.value).not.to.equal(null))));",
+              "pm.test('Ranges match rows', () => ['price','year','mileage','engineCapacityCc','powerKw'].forEach(key => { const values = body.vehicles.map(car => car[key]).filter(value => value !== null); const sorted = values.sort((a,b) => a-b); pm.expect(body.ranges[key]).to.eql({ min: sorted.length ? sorted[0] : null, max: sorted.length ? sorted[sorted.length-1] : null }); }));",
+              "pm.test('App can filter locally', () => { if (!body.vehicles.length) return; const make = body.vehicles[0].make.slug; const matches = body.vehicles.filter(car => car.make.slug === make); pm.expect(matches.length).to.equal(body.options.makes.find(item => item.slug === make).count); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

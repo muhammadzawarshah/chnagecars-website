@@ -50,6 +50,13 @@ export class PublicVehiclesController {
   }
 
   @Public()
+  @Get('filters/all')
+  @ApiOperation({ summary: 'Complete filter options and unpaginated public vehicle filter snapshot for app-side filtering' })
+  allFilterData() {
+    return this.search.allFilterData();
+  }
+
+  @Public()
   @Get('filters/colours')
   @ApiOperation({ summary: 'colours options and counts for active search filters' })
   async filterColour(@Query() query: SearchCriteriaDto) {
