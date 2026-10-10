@@ -12,6 +12,7 @@ import { publicVehicleSelect, withAvailability } from '../vehicles/vehicle.prese
 import { SearchCriteriaDto, SearchVehiclesQueryDto } from './dto/search.dto';
 import { buildOrderBy, buildWhere, criteriaKey, haversineKm } from './search.builder';
 import { matchesCriteria, VehicleSnapshot } from './search.matcher';
+import { buildFilterData, filterVehicleSelect } from './filter-data';
 
 const SEARCH_TTL_SECONDS = 30;
 const FACETS_TTL_SECONDS = 120;
@@ -101,6 +102,19 @@ export class SearchService {
         count: total,
         formatted: total.toLocaleString('en-US').replace(/,/g, ' '),
       };
+    });
+  }
+
+  /** Complete unpaginated public snapshot for app-side dependent filtering. */
+  async allFilterData() {
+    const key = await this.cache.versionedKey(CacheNs.vehicles, 'filters:all:v1');
+    return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
+      const rows = await this.prisma.replica.vehicle.findMany({
+        where: buildWhere({}),
+        select: filterVehicleSelect,
+        orderBy: { id: 'asc' },
+      });
+      return buildFilterData(rows);
     });
   }
 
