@@ -41,15 +41,10 @@ export class CustomersService {
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const before = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
-    let after;
-    try {
-      after = await this.prisma.user.update({ where: { id: userId }, data: {
-        ...dto, ...(dto.email !== undefined && dto.email !== before.email ? { emailVerifiedAt: null } : {}),
-      } });
-    } catch (error) {
-      if ((error as { code?: string }).code === 'P2002') throw Errors.conflict('EMAIL_IN_USE', 'This email is already registered');
-      throw error;
+    if (Object.prototype.hasOwnProperty.call(dto, 'email')) {
+      throw Errors.badRequest('EMAIL_NOT_EDITABLE', 'Email cannot be changed through profile updates');
     }
+    const after = await this.prisma.user.update({ where: { id: userId }, data: dto });
     await this.audit.record({
       action: 'user.profile_update',
       entityType: 'user',

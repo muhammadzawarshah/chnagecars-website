@@ -186,6 +186,44 @@
           }
         }
       ]
+    },
+    {
+      "name": "Reject email change (400)",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"changed@example.com\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Email is read only',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

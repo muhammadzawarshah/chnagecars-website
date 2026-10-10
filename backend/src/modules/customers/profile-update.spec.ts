@@ -4,20 +4,21 @@ import { UpdateProfileDto } from './dto/customer.dto';
 import { CustomersService } from './customers.service';
 
 describe('profile update', () => {
-  it('normalizes email, accepts URL clearing and rejects invalid URLs and null email', async () => {
-    const dto = plainToInstance(UpdateProfileDto, { email: ' Test@Example.com ', youtubeProfileUrl: 'https://youtube.com/@test', instagramProfileUrl: null });
-    expect(await validate(dto)).toEqual([]);
-    expect(dto.email).toBe('test@example.com');
-    expect((await validate(plainToInstance(UpdateProfileDto, { email: null }))).length).toBeGreaterThan(0);
-    expect((await validate(plainToInstance(UpdateProfileDto, { facebookProfileUrl: 'javascript:alert(1)' }))).length).toBeGreaterThan(0);
+  it('accepts social URL updates and clearing but rejects any email field', async () => {
+    const options = { whitelist: true, forbidNonWhitelisted: true };
+    expect(await validate(plainToInstance(UpdateProfileDto, { youtubeProfileUrl: 'https://youtube.com/@test', instagramProfileUrl: null }), options)).toEqual([]);
+    for (const email of ['new@example.com', null]) {
+      expect((await validate(plainToInstance(UpdateProfileDto, { email }), options)).some(error => error.property === 'email')).toBe(true);
+    }
+    expect((await validate(plainToInstance(UpdateProfileDto, { facebookProfileUrl: 'javascript:alert(1)' }), options)).length).toBeGreaterThan(0);
   });
-  it('updates only current user fields and resets verification when email changes', async () => {
+  it('blocks email even for internal calls and still updates the remaining fields', async () => {
     const old = { id: 'u', email: 'old@example.com', youtubeProfileUrl: null };
     const user = { findUniqueOrThrow: jest.fn().mockResolvedValue(old), update: jest.fn().mockResolvedValue(old) };
     const service = new CustomersService({ user } as any, { record: jest.fn() } as any);
-    await service.updateProfile('u', { email: 'new@example.com', youtubeProfileUrl: 'https://youtube.com/@test' });
-    expect(user.update).toHaveBeenCalledWith({ where: { id: 'u' }, data: { email: 'new@example.com', youtubeProfileUrl: 'https://youtube.com/@test', emailVerifiedAt: null } });
-    user.update.mockRejectedValue({ code: 'P2002' });
-    await expect(service.updateProfile('u', { email: 'duplicate@example.com' })).rejects.toThrow('already registered');
+    await expect(service.updateProfile('u', { email: 'new@example.com' } as any)).rejects.toThrow('Email cannot be changed');
+    expect(user.update).not.toHaveBeenCalled();
+    await service.updateProfile('u', { firstName: 'Updated', youtubeProfileUrl: 'https://youtube.com/@test' });
+    expect(user.update).toHaveBeenCalledWith({ where: { id: 'u' }, data: { firstName: 'Updated', youtubeProfileUrl: 'https://youtube.com/@test' } });
   });
 });
