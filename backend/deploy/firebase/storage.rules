@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Firebase Storage rules for STORAGE_DRIVER=firebase.
+// The API uses a service account and presigned URLs, which do not go through these rules.
+// These rules only control direct Firebase SDK / download-URL access:
+//   media/**  public listing photos and image renditions: anyone may read
+//   anything else (private/**, uploads/**: documents, raw uploads): no direct access
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /media/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
