@@ -42,10 +42,10 @@ Allowed types: PDF, JPEG and PNG. `size` is the actual file size in bytes, maxim
 }
 ```
 
-2. PUT the raw file bytes to `uploadUrl` using the returned `Content-Type`. Do not send JSON, multipart or the API Bearer token to storage.
+2. PUT the raw file bytes to `uploadUrl` using the returned `method` and `headers` (`Content-Type`). Do not send JSON, multipart or the API Bearer token to storage. **Use `uploadUrl` exactly as returned:** with Firebase Storage it is a `https://storage.googleapis.com/...` signed URL, and the host is part of the signature, so changing or "rewriting" the host or any query parameter makes storage reject the upload. Success is HTTP 200 with an empty or XML body.
 3. Call `POST /me/documents/{documentId}/complete`, no body. The API checks storage metadata before marking it `UPLOADED`. Refresh the screen after success.
 
-Files stay under the private storage prefix, not publicly accessible vehicle media. Configure S3/MinIO credentials, bucket and app upload CORS before using uploads. The storage bucket must deny anonymous access to `private/*`. Upload URL generation alone does not upload a file.
+Files stay under the private storage prefix, not publicly accessible vehicle media. Production uses Firebase Storage (`STORAGE_DRIVER=firebase`, see `Firebase_Storage_Setup.md`); local development can use S3/MinIO. The storage bucket must deny anonymous access to `private/*`. Upload URL generation alone does not upload a file.
 
 ## Screen response
 

@@ -57,13 +57,19 @@ export const envSchema = z.object({
   WEB_REVALIDATE_URL: z.preprocess((value) => (value === '' ? undefined : value), z.string().url().optional()),
   WEB_ADAPTER_KEY: z.string().min(32, 'WEB_ADAPTER_KEY must be at least 32 characters').optional(),
 
+  /** "s3" (AWS S3, R2, MinIO) or "firebase" (Firebase Storage via a service account). */
+  STORAGE_DRIVER: z.enum(['s3', 'firebase']).default('s3'),
+  /** Firebase Storage bucket, e.g. my-project.firebasestorage.app. Required when STORAGE_DRIVER=firebase. */
+  FIREBASE_STORAGE_BUCKET: z.preprocess((value) => (value === '' ? undefined : value), z.string().optional()),
+  /** Service account key JSON (or its base64) with access to the bucket. Required when STORAGE_DRIVER=firebase. */
+  FIREBASE_SERVICE_ACCOUNT: z.preprocess((value) => (value === '' ? undefined : value), z.string().optional()),
   S3_ENDPOINT: z.string().optional(),
   S3_REGION: z.string().default('af-south-1'),
   S3_BUCKET: z.string().default('changecars-media'),
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: bool.default(false),
-  /** Public base URL for media (CDN in front of the bucket). */
+  /** Public base URL for media (CDN in front of the bucket). S3 driver only. */
   MEDIA_PUBLIC_BASE_URL: z.string().default('http://localhost:9000/changecars-media'),
   MEDIA_MAX_IMAGE_BYTES: z.coerce.number().int().positive().default(15 * 1024 * 1024),
   MEDIA_MAX_IMAGES_PER_VEHICLE: z.coerce.number().int().positive().default(40),
@@ -90,6 +96,12 @@ export function validateEnv(raw: Record<string, unknown>): Env {
   if (!parsed.success) {
     const issues = parsed.error.issues.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`).join('\n');
     throw new Error(`Invalid environment configuration:\n${issues}`);
+  }
+  if (parsed.data.STORAGE_DRIVER === 'firebase') {
+    const missing = (['FIREBASE_STORAGE_BUCKET', 'FIREBASE_SERVICE_ACCOUNT'] as const).filter((key) => !parsed.data[key]);
+    if (missing.length) {
+      throw new Error(`Invalid environment configuration:\n${missing.map((key) => `  - ${key}: required when STORAGE_DRIVER=firebase`).join('\n')}`);
+    }
   }
   // The example values in .env.example are public; refuse to run production with them.
   if (parsed.data.NODE_ENV === 'production') {

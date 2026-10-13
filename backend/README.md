@@ -1,6 +1,6 @@
 # ChangeCars Backend
 
-NestJS 11 · Prisma 7 · PostgreSQL · Redis · S3-compatible object storage.
+NestJS 11 · Prisma 7 · PostgreSQL · Redis · S3-compatible or Firebase object storage.
 
 This is a modular backend for the ChangeCars marketplace. It implements the platform requirements (FR-01 to FR-57, NFR-01 to NFR-17, BR-01 to BR-14) and follows the Backend Architecture & Implementation Brief.
 
@@ -94,7 +94,7 @@ src/
   core.module.ts        infrastructure + HTTP cross-cutting concerns
   config/               zod-validated environment
   common/               errors, guards, decorators, interceptors, pagination, utils
-  infrastructure/       database (Prisma), redis, cache, storage (S3), messaging (email/SMS), outbox, audit
+  infrastructure/       database (Prisma), redis, cache, storage (S3 or Firebase), messaging (email/SMS), outbox, audit
   modules/              one folder per domain (see below)
   generated/prisma/     generated Prisma client (git-ignored)
 test/smoke.e2e.mjs      end-to-end checks
@@ -168,7 +168,7 @@ Without `API_URL` the website runs on its built-in sample data, as before.
 1. Run this API somewhere the website can reach over HTTPS (with PostgreSQL, ideally Redis, and S3 storage), run `npx prisma migrate deploy`, and start both `node dist/main.js` and `node dist/worker.js`.
 2. In the website's hosting settings (Vercel → Project → Settings → Environment Variables) set `API_URL=https://<api-host>/api/v1` and `WEB_ADAPTER_KEY=<the same secret as the API>`, then redeploy. If `API_URL` is missing the website keeps showing its sample cars.
 3. In the API's `.env` set `WEB_REVALIDATE_URL=https://<website>/api/revalidate` (same `WEB_ADAPTER_KEY`). Every change to cars, dealers, the catalogue or news then refreshes the website at once (well under a second in tests); without it, pages catch up within about a minute.
-4. Add the website's address to `CORS_ORIGINS` and `PUBLIC_WEB_URL`, and allow `PUT` from it in the storage bucket's CORS rules (photo uploads).
+4. Add the website's address to `CORS_ORIGINS` and `PUBLIC_WEB_URL`, and allow `PUT` from it in the storage bucket's CORS rules (photo uploads). With Firebase Storage, `npx tsx scripts/firebase-storage-cors.ts` does this; see `docs/Firebase_Storage_Setup.md`.
 
 - **Sync.** Public pages cache API data for up to 60 s (search 30 s) as a safety net. When data changes, the API calls the website's `/api/revalidate` (debounced, retried, protected by `WEB_ADAPTER_KEY`), which clears the `cars` or `articles` cache so the next visitor sees the change. Car pages and dashboards always read live data. Changes made directly in the database (not through the API) are only picked up when the cache expires.
 
