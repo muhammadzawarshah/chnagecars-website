@@ -52,3 +52,8 @@ next-env.d.ts
 /backend/prisma/fixtures/fbook/images.json
 /backend/prisma/fixtures/fbook/*-report.json
 /backend/prisma/fixtures/fbook/curl-downloads.conf
+/backend/.local/
+/public/media/dealertrade/
+
+# Service account keys (never commit)
+/backend/.secrets/

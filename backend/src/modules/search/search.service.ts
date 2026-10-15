@@ -342,7 +342,7 @@ export class SearchAlertHandlers implements OnModuleInit {
 @Module({
   controllers: [FilterSnapshotsController],
   providers: [SearchService, SearchAlertHandlers, FilterSnapshotsService],
-  exports: [SearchService],
+  exports: [SearchService, FilterSnapshotsService],
 })
 export class SearchModule {}
 

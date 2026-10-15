@@ -22,7 +22,7 @@ export function buildSearchUrl(values: SearchValues, extra: Record<string, strin
     const models = picks.filter((pick) => pick[1]).map(([make, model]) => `${slugify(make)}:${slugify(model)}`);
     const variants = picks.filter((pick) => pick[1] && pick[2]).map(([make, model, variant]) => `${slugify(make)}:${slugify(model)}:${slugify(variant)}`);
     const quantity = (key: string) => {
-        const value = all(key)?.[0];
+        const value = all(key);
         const parsed = value ? Number.parseInt(value, 10) : NaN;
         return Number.isFinite(parsed) ? parsed : undefined;
     };

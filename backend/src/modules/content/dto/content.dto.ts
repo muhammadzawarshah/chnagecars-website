@@ -13,6 +13,7 @@ import {
   IsUrl,
   IsUUID,
   Length,
+  Matches,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -42,7 +43,7 @@ export class ArticleDto extends SeoDto {
   @ApiProperty({ type: 'array', items: { type: 'object' } }) @IsArray() @ArrayMaxSize(500) body: ContentBlock[];
   @ApiPropertyOptional({ enum: ArticleType }) @IsOptional() @IsEnum(ArticleType) type?: ArticleType;
   @ApiPropertyOptional() @IsOptional() @IsUUID() categoryId?: string;
-  @ApiPropertyOptional() @IsOptional() @IsUrl({ require_protocol: true }) coverImageUrl?: string;
+  @ApiPropertyOptional({ description: 'https URL or a path on the website, e.g. /img/blog.jpg' }) @IsOptional() @Matches(/^(https:\/\/|\/)[^\s<>"']*$/i, { message: 'coverImageUrl must be an https URL or a path starting with /' }) @MaxLength(1000) coverImageUrl?: string;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() featured?: boolean;
   @ApiPropertyOptional({ type: [String] }) @IsOptional() @IsArray() @ArrayMaxSize(20) @IsString({ each: true }) tags?: string[];
 }

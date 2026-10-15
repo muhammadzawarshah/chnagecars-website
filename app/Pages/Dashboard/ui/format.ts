@@ -43,6 +43,7 @@ export const table = {
 export const button = {
     gold: "inline-flex h-9.5 cursor-pointer items-center gap-2 rounded-lg border-0 bg-gold px-4 text-sm font-bold whitespace-nowrap text-white no-underline transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40",
     outline: "inline-flex h-9.5 cursor-pointer items-center gap-2 rounded-lg border border-[#d9d4c8] bg-white px-4 text-sm font-bold whitespace-nowrap text-ink no-underline transition hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-40",
+    danger: "inline-flex h-9.5 cursor-pointer items-center gap-2 rounded-lg border-0 bg-[#b42318] px-4 text-sm font-bold whitespace-nowrap text-white no-underline transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40",
     small: "inline-flex h-7.5 cursor-pointer items-center gap-1.5 rounded-md border border-[#d9d4c8] bg-white px-2.5 text-xs font-bold whitespace-nowrap text-ink no-underline transition hover:border-gold hover:text-gold",
 }
 

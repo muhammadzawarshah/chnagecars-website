@@ -48,7 +48,7 @@ export default function CompareDealers({ selected, options, base }: CompareDeale
 
     return (
         <>
-            <PageHeader title="Compare dealers" subtitle="September 2026 (last full month) · pick 2 to 4 dealers" actions={<Link href={`${base}/dealers`} className={button.outline}><Icon name="back" size={16} />All dealers</Link>} />
+            <PageHeader title="Compare dealers" subtitle="Last 30 days · pick 2 to 4 dealers" actions={<Link href={`${base}/dealers`} className={button.outline}><Icon name="back" size={16} />All dealers</Link>} />
 
             <Card className="mb-4">
                 <ComparePicker base={base} selected={colored.map(({ dealer, color }) => ({ id: dealer.id, name: dealer.name, color }))} options={options.map((dealer) => ({ id: dealer.id, name: dealer.name }))} />

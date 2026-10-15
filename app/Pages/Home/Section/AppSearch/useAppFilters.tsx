@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { CarSearch, filterValues, slugify } from "@/app/lib/cars/search"
-import { makes } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import { AppOption, appMileages, appTotalCars, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
+import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
 import { additionalFilters, findFilter } from "../../Data/additionalFilters"
 import { buildSearchUrl } from "../../Data/searchUrl"
+import useDependentFilters from "./useDependentFilters"
 import OptionSheet from "./OptionSheet"
 import BodyTypeSheet from "./BodyTypeSheet"
 import MakesSheet from "./MakesSheet"
@@ -40,22 +40,15 @@ function isRange(key: string): key is RangeKey {
 function valuesFrom(search: CarSearch): AppValues {
     const picked: string[] = [];
     const models = filterValues(search.model);
-    for (const makeSlug of filterValues(search.make)) {
-        const make = makes.find((item) => slugify(item.name) === makeSlug);
-        if (!make) continue;
-        const chosen = make.models.filter((model) => models.some((item) => {
-            const value = item.split(":").pop()!;
-            const normalize = (text: string) => slugify(text).replace(/-class$/, "");
-            return normalize(value) === normalize(model.name) || (normalize(value).startsWith(`${normalize(model.name)}-`) && normalize(value).split("-").filter((part) => part !== "series").every((part) => slugify(model.name).includes(part) || part === normalize(model.name).split("-").at(-1)));
-        }));
-        if (chosen.length) chosen.forEach((model) => {
-            picked.push(`${make.name}|${model.name}`);
-            for (const selected of filterValues(search.variant)) {
-                const parts = selected.split(":");
-                if (parts.length > 2 && parts[0] === makeSlug && parts[1] === slugify(model.name)) picked.push(`${make.name}|${model.name}|${parts.at(-1)}`);
-            }
-        });
-        else picked.push(make.name);
+    for (const make of filterValues(search.make)) {
+        const selectedModels = models.filter(model => !model.includes(":") || model.startsWith(make + ":"));
+        if (!selectedModels.length) picked.push(make);
+        for (const model of selectedModels) {
+            const modelSlug = model.split(":").at(-1)!;
+            const variants = filterValues(search.variant).filter(variant => variant.startsWith(`${make}:${modelSlug}:`));
+            if (variants.length) variants.forEach(variant => picked.push(variant.split(":").join("|")));
+            else picked.push(`${make}|${modelSlug}`);
+        }
     }
     return {
         minPrice: search.minPrice ?? null,
@@ -101,55 +94,8 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
     const [values, setValues] = useState<AppValues>(() => valuesFrom(initial));
     const [sheet, setSheet] = useState<string | null>(null);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>(() => extrasFrom(initial));
-    const [matchingCount, setMatchingCount] = useState<string>(appTotalCars);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        const hasFilters = values.minPrice !== null || values.maxPrice !== null || values.minYear !== null || values.maxYear !== null || values.minMileage !== null || values.maxMileage !== null || values.bodyTypes.length > 0 || values.makes.length > 0 || Object.values(extraFilters).some((arr) => arr.length > 0);
-
-        const timer = setTimeout(async () => {
-            if (!hasFilters) {
-                setMatchingCount(appTotalCars);
-                return;
-            }
-            try {
-                const body: Record<string, unknown> = {};
-                if (values.minPrice !== null) body.minPrice = values.minPrice;
-                if (values.maxPrice !== null) body.maxPrice = values.maxPrice;
-                if (values.minYear !== null) body.minYear = values.minYear;
-                if (values.maxYear !== null) body.maxYear = values.maxYear;
-                if (values.minMileage !== null) body.minMileage = values.minMileage;
-                if (values.maxMileage !== null) body.maxMileage = values.maxMileage;
-                if (values.bodyTypes.length) body.bodyType = values.bodyTypes.join(",");
-                if (values.makes.length) {
-                    body.make = values.makes.map((m) => m.replace(/\|/g, ":")).join(",");
-                }
-                for (const [k, v] of Object.entries(extraFilters)) {
-                    if (v?.length) body[k] = v.join(",");
-                }
-
-                const response = await fetch("/api/vehicles/count", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                    signal: controller.signal,
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data?.formatted !== undefined) {
-                        setMatchingCount(String(data.formatted));
-                    }
-                }
-            } catch {
-                // Aborted or error: retain current count
-            }
-        }, 200);
-
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [values, extraFilters]);
+    const dependent = useDependentFilters(values, extraFilters, preset);
+    const matchingCount = dependent.total === undefined ? (dependent.error ? "Unavailable" : "…") : formatNumber(dependent.total);
 
     function updateRange(key: RangeKey, value: number | null) {
         const pairs: Partial<Record<RangeKey, RangeKey>> = { minPrice: "maxPrice", maxPrice: "minPrice", minYear: "maxYear", maxYear: "minYear", minMileage: "maxMileage", maxMileage: "minMileage" };
@@ -195,7 +141,7 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
     function reset() {
         setValues(emptyValues);
         setExtraFilters({});
-        setMatchingCount(appTotalCars);
+
     }
 
     function searchUrl() {
@@ -207,7 +153,8 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
             {sheet && additionalFilters.some((filter) => filter.key === sheet) && (
                 <ChoiceSheet
                     title={findFilter(sheet).label}
-                    options={findFilter(sheet).options}
+                    options={dependent.choices(sheet).map(o=>o.value)}
+                    counts={Object.fromEntries(dependent.choices(sheet).map(o=>[o.value,o.count]))}
                     selected={extraFilters[sheet] ?? []}
                     multiple={findFilter(sheet).multiple}
                     info={findFilter(sheet).info}
@@ -219,7 +166,7 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
             {sheet && isRange(sheet) && (
                 <OptionSheet
                     title={ranges[sheet].title}
-                    options={ranges[sheet].options}
+                    options={dependent.rangeOptions(sheet,ranges[sheet].options)}
                     selected={values[sheet]}
                     fallback={ranges[sheet].fallback}
                     onSelect={(value) => { updateRange(sheet, value); setSheet(null); }}
@@ -227,10 +174,10 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
                 />
             )}
             {sheet === "bodyTypes" && (
-                <BodyTypeSheet selected={values.bodyTypes} onApply={(bodyTypes) => { setValues({ ...values, bodyTypes }); setSheet(null); }} onClose={() => setSheet(null)} />
+                <BodyTypeSheet options={dependent.bodyOptions} selected={values.bodyTypes} onApply={(bodyTypes) => { setValues({ ...values, bodyTypes }); setSheet(null); }} onClose={() => setSheet(null)} />
             )}
             {sheet === "makes" && (
-                <MakesSheet selected={values.makes} onApply={(selected) => { setValues({ ...values, makes: selected }); setSheet(null); }} onClose={() => setSheet(null)} />
+                <MakesSheet query={dependent.query} options={dependent.makeOptions} selected={values.makes} onApply={(selected) => { setValues({ ...values, makes: selected }); setSheet(null); }} onClose={() => setSheet(null)} />
             )}
         </>
     );

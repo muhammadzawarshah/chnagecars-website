@@ -1,5 +1,5 @@
 import { mockCars } from "../cars/mockCars"
-import { Activity, Dealer, DealerStats, InventoryItem, Lead, LeadSource, LeadStatus, ListingStatus, MonthlyPoint, StaffUser } from "./types"
+import { Activity, Dealer, DealerStats, InventoryItem, Lead, LeadSource, LeadStatus, ListingStatus, MonthlyPoint } from "./types"
 
 // Sample dashboard data used until the backend is connected. Only api.ts reads this file.
 // Generated from a fixed seed so numbers are stable between reloads and server/client renders.
@@ -99,13 +99,6 @@ export const mockDealerStats: Record<string, Omit<DealerStats, "activeListings" 
         monthlySold,
     }];
 }));
-
-export const mockStaff: StaffUser[] = [
-    { id: "s1", name: "Zawar Shah", email: "zawar@changecars.example", role: "super-admin", status: "active", lastActive: "2026-10-06T09:12" },
-    { id: "s2", name: "Natasha Pillay", email: "natasha@changecars.example", role: "admin", status: "active", lastActive: "2026-10-06T08:40" },
-    { id: "s3", name: "Ruan Visser", email: "ruan@changecars.example", role: "admin", status: "active", lastActive: "2026-10-05T16:03" },
-    { id: "s4", name: "Lindiwe Zulu", email: "lindiwe@changecars.example", role: "admin", status: "invited", lastActive: "" },
-];
 
 export const mockActivity: Activity[] = [
     { id: "a1", actor: "Natasha Pillay", action: "flagged a listing from", target: "Polokwane Drive Centre", at: "2026-10-06T08:55" },

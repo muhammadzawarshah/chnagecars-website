@@ -1,5 +1,5 @@
-import { Activity, Dealer, DealerStats, DealerStatus, DealerSummary, InventoryItem, Lead, PlatformOverview, StaffUser } from "./types"
-import { mockActivity, mockDealerStats, mockDealers, mockInventory, mockLeads, mockStaff, months } from "./mockData"
+import { Activity, Dealer, DealerStats, DealerStatus, DealerSummary, InventoryItem, Lead, PlatformOverview } from "./types"
+import { mockActivity, mockDealerStats, mockDealers, mockInventory, mockLeads, months } from "./mockData"
 import { authGet, backendEnabled, backendPost, queryString } from "../backend/client"
 
 // Every dashboard screen gets its data from here. With API_URL set, each function reads the
@@ -42,11 +42,6 @@ export async function getLeads(dealerId?: string): Promise<Lead[]> {
     return mockLeads.filter((lead) => !dealerId || lead.dealerId === dealerId);
 }
 
-export async function getStaff(): Promise<StaffUser[]> {
-    if (backendEnabled()) return (await authGet<StaffUser[]>("/web/dashboard/staff")) ?? [];
-    return mockStaff;
-}
-
 export async function getActivity(): Promise<Activity[]> {
     if (backendEnabled()) return (await authGet<Activity[]>("/web/dashboard/activity")) ?? [];
     return mockActivity;
@@ -56,6 +51,7 @@ export async function getPlatformOverview(): Promise<PlatformOverview> {
     if (backendEnabled()) {
         const overview = await authGet<PlatformOverview>("/web/dashboard/overview");
         if (overview) return overview;
+        throw new Error("Platform overview is unavailable for this account.");
     }
     const dealers = await getDealers();
     const sumMonthly = (key: "monthlyLeads" | "monthlySold") => months.map((month, index) => ({

@@ -1,4 +1,5 @@
 "use client"
+import DealerLogo from "../ui/DealerLogo"
 
 import Link from "next/link"
 import { useState, useTransition } from "react"
@@ -91,10 +92,15 @@ export default function DealersTable({ dealers, base, canManage, canCompare, can
                                             </td>
                                         )}
                                         <td className={table.cell}>
+                                            <div className="flex items-center gap-3">
+                                            <DealerLogo name={dealer.name} src={dealer.logoUrl} />
+                                            <div>
                                             {canViewAs && dealer.status !== "pending"
                                                 ? <Link href={viewAsHref(dealer.id)} className="font-bold text-ink no-underline hover:text-gold">{dealer.name}</Link>
                                                 : <span className="font-bold">{dealer.name}</span>}
                                             <p className="m-0 text-xs whitespace-nowrap text-[#6b6862]"><span className={`font-bold ${dealer.plan === "Gold" ? "text-gold" : ""}`}>{dealer.plan}</span> · {dealer.city}, {dealer.province} · {dealer.contactName}</p>
+                                            </div>
+                                            </div>
                                         </td>
                                         <td className={table.cell}><StatusBadge status={dealer.status} /></td>
                                         <td className={`${table.cell} tabular-nums`}>{formatNumber(dealer.stats.activeListings)}</td>

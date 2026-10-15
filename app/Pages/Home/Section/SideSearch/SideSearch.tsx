@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
-import { bodyTypes, totalCars } from "../../Data/search"
 import { filterRows, findFilter } from "../../Data/additionalFilters"
 import { buildSearchUrl } from "../../Data/searchUrl"
 import { AppOption, appMileages, appYears, cashPrices, formatNumber, monthlyPrices } from "../../Data/appSearch"
+import useDependentFilters from "../AppSearch/useDependentFilters"
 import PaymentToggle from "../AppSearch/PaymentToggle"
 import SelectField from "./SelectField"
 import FilterSelect from "./FilterSelect"
@@ -47,7 +47,8 @@ export default function SideSearch() {
     const [filters, setFilters] = useState<Filters>(emptyFilters);
     const [showMore, setShowMore] = useState(false);
     const [extraFilters, setExtraFilters] = useState<Record<string, string[]>>({});
-    const [matchingCount, setMatchingCount] = useState<string>(totalCars);
+    const dependent = useDependentFilters(filters, extraFilters);
+    const matchingCount = dependent.total === undefined ? (dependent.error ? "Unavailable" : "…") : formatNumber(dependent.total);
     const priceOptions: AppOption[] = cashPrices.map((price, index) => ({
         value: price,
         label: monthly
@@ -76,53 +77,7 @@ export default function SideSearch() {
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-    useEffect(() => {
-        const controller = new AbortController();
-        const hasFilters = filters.minPrice !== null || filters.maxPrice !== null || filters.minYear !== null || filters.maxYear !== null || filters.minMileage !== null || filters.maxMileage !== null || filters.bodyTypes.length > 0 || filters.makes.length > 0 || Object.values(extraFilters).some((arr) => arr.length > 0);
 
-        const timer = setTimeout(async () => {
-            if (!hasFilters) {
-                setMatchingCount(totalCars);
-                return;
-            }
-            try {
-                const body: Record<string, unknown> = {};
-                if (filters.minPrice !== null) body.minPrice = filters.minPrice;
-                if (filters.maxPrice !== null) body.maxPrice = filters.maxPrice;
-                if (filters.minYear !== null) body.minYear = filters.minYear;
-                if (filters.maxYear !== null) body.maxYear = filters.maxYear;
-                if (filters.minMileage !== null) body.minMileage = filters.minMileage;
-                if (filters.maxMileage !== null) body.maxMileage = filters.maxMileage;
-                if (filters.bodyTypes.length) body.bodyType = filters.bodyTypes.join(",");
-                if (filters.makes.length) {
-                    body.make = filters.makes.map((m) => m.replace(/\|/g, ":")).join(",");
-                }
-                for (const [k, v] of Object.entries(extraFilters)) {
-                    if (v?.length) body[k] = v.join(",");
-                }
-
-                const response = await fetch("/api/vehicles/count", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                    signal: controller.signal,
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data?.formatted !== undefined) {
-                        setMatchingCount(String(data.formatted));
-                    }
-                }
-            } catch {
-                // Aborted or network error: retain current count
-            }
-        }, 200);
-
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [filters, extraFilters]);
 
     function listLabel(values: string[], fallback: string) {
         return values.length ? values.map((item) => item.split("|").join(" ")).join(", ") : fallback;
@@ -138,7 +93,7 @@ export default function SideSearch() {
     }
 
     function rangeItems(key: RangeKey): MenuItem[] {
-        return ranges[key].options.map((option) => ({
+        return dependent.rangeOptions(key,ranges[key].options).map((option) => ({
             id: String(option.value),
             label: option.label,
             selected: filters[key] === option.value,
@@ -147,7 +102,7 @@ export default function SideSearch() {
     }
 
     function bodyTypeItems(): MenuItem[] {
-        return bodyTypes.map((type) => {
+        return dependent.bodyOptions.map((type) => {
             const selected = filters.bodyTypes.includes(type.name);
             return {
                 id: type.name,
@@ -162,10 +117,10 @@ export default function SideSearch() {
         const current = extraFilters[key] ?? [];
         const multiple = !!findFilter(key).multiple;
         const anyItem: MenuItem = { id: "any", label: t.any, selected: current.length === 0, onSelect: () => selectChoice(key, [], true) };
-        return [anyItem, ...findFilter(key).options.map((option) => {
+        return [anyItem, ...dependent.choices(key).map(({value: option, count}) => {
             const selected = current.includes(option);
             const next = multiple ? (selected ? current.filter((item) => item !== option) : [...current, option]) : (selected ? [] : [option]);
-            return { id: option, label: option, selected, onSelect: () => selectChoice(key, next, !multiple) };
+            return { id: option, label: `${option} (${count})`, selected, onSelect: () => selectChoice(key, next, !multiple) };
         })];
     }
 
@@ -196,7 +151,7 @@ export default function SideSearch() {
     function resetFilters() {
         setFilters(emptyFilters);
         setExtraFilters({});
-        setMatchingCount(totalCars);
+
         setOpen(null);
     }
 
@@ -224,7 +179,7 @@ export default function SideSearch() {
 
     function clearSearch() {
         setMonthly(false);
-        setMatchingCount(totalCars);
+
         resetFilters();
     }
 
@@ -254,7 +209,7 @@ export default function SideSearch() {
                             <OptionMenu items={bodyTypeItems()} />
                         </SelectField>
                         <SelectField wide label={listLabel(filters.makes, t.makesModels)} open={open === "make"} onToggle={() => toggle("make")}>
-                            {open === "make" && <MakeModelSelect selected={filters.makes} onChange={(value) => update("makes", value)} />}
+                            {open === "make" && <MakeModelSelect query={dependent.query} options={dependent.makeOptions} selected={filters.makes} onChange={(value) => update("makes", value)} />}
                         </SelectField>
                     </div>
 

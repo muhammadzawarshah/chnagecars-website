@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { ReactNode, useState } from "react"
 import Icon from "../ui/Icon"
@@ -22,7 +23,7 @@ export default function DashboardShell({ nav, roleLabel, userName, subtitle, ban
     const [open, setOpen] = useState(false);
     const initials = userName.split(" ").map((part) => part[0]).join("").slice(0, 2);
 
-    const isActive = (item: NavItem) => item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const isActive = (item: NavItem) => item.exact ? pathname === item.href : [item.href, ...(item.activePaths ?? [])].some(path => pathname === path || pathname.startsWith(`${path}/`));
 
     return (
         <>
@@ -32,7 +33,7 @@ export default function DashboardShell({ nav, roleLabel, userName, subtitle, ban
                 <aside className={`fixed inset-y-0 left-0 z-50 flex w-66 flex-col bg-ink text-white transition-transform duration-300 min-[1024px]:sticky min-[1024px]:top-0 min-[1024px]:h-screen min-[1024px]:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
                     <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
                         <Link href="/" aria-label="CHANGECARS website" className="block w-40">
-                            <img src="/img/site_logo.svg" alt="CHANGECARS" className="block w-full" />
+                            <Image src="/img/site_logo.svg" alt="CHANGECARS" width={560} height={119} className="block h-auto w-full" />
                         </Link>
                         <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="flex size-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-white min-[1024px]:hidden"><Icon name="close" /></button>
                     </div>
@@ -72,7 +73,10 @@ export default function DashboardShell({ nav, roleLabel, userName, subtitle, ban
                     {banner}
                     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#ebe8e1] bg-white/95 px-6 backdrop-blur max-[600px]:px-4">
                         <button type="button" onClick={() => setOpen(true)} aria-label="Open menu" className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-[#e3dfd6] bg-white text-ink min-[1024px]:hidden"><Icon name="menu" /></button>
-                        <p className="m-0 hidden text-sm text-[#6b6862] min-[700px]:block">Welcome back, <strong className="text-ink">{userName.split(" ")[0]}</strong></p>
+                        <Link href="/" aria-label="CHANGECARS website" className="block w-32 shrink-0 min-[1024px]:hidden">
+                            <Image src="/img/site_logo_dark.svg" alt="CHANGECARS" width={560} height={119} className="block h-auto w-full" />
+                        </Link>
+                        <p className="m-0 hidden text-sm text-[#6b6862] min-[1024px]:block">Welcome back, <strong className="text-ink">{userName.split(" ")[0]}</strong></p>
                         <div className="ml-auto flex items-center gap-3">
                             <div className="text-right max-[480px]:hidden">
                                 <p className="m-0 text-sm font-bold">{userName}</p>

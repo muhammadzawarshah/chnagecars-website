@@ -28,7 +28,19 @@
     "feed:images": "python3 scripts/prepare-fbook.py",
     "feed:verify": "tsx prisma/verify-fbook.ts",
     "feed:sync-images": "tsx prisma/sync-fbook-images.ts",
-    "feed:locations": "tsx prisma/sync-locations.ts"
+    "feed:locations": "tsx prisma/sync-locations.ts",
+    "dealertrade:fetch": "python3 scripts/fetch-dealertrade.py",
+    "dealertrade:images": "python3 scripts/download-dealertrade.py",
+    "dealertrade:import": "tsx prisma/import-dealertrade.ts",
+    "dealertrade:enrich": "tsx prisma/enrich-dealertrade.ts",
+    "dealertrade:sync-images": "tsx prisma/sync-dealertrade-images.ts",
+    "dealertrade:verify": "tsx prisma/verify-dealertrade.ts",
+    "dealertrade:audit": "tsx prisma/audit-dealertrade.ts",
+    "dealertrade:reconcile:fetch": "python3 scripts/fetch-dealertrade-reconcile.py",
+    "dealertrade:reconcile:plan": "node --import tsx prisma/reconcile-dealertrade.ts --plan",
+    "dealertrade:reconcile:apply": "node --import tsx prisma/reconcile-dealertrade.ts --apply",
+    "dealertrade:reconcile:verify": "node --import tsx prisma/reconcile-dealertrade.ts --verify",
+    "dealertrade:reconcile:test": "node --import tsx --test prisma/dealertrade-reconcile-policy.spec.ts"
   },
   "engines": {
     "node": ">=20.19"

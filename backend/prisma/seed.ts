@@ -364,6 +364,9 @@ async function seedSuperAdmin() {
   const email = (process.env.SEED_ADMIN_EMAIL ?? 'admin@changecars.co.za').toLowerCase();
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return;
+  // The platform has exactly one super admin.
+  const current = await prisma.user.findFirst({ where: { role: UserRole.SUPER_ADMIN, deletedAt: null }, select: { email: true } });
+  if (current) return console.log(`Super admin already exists (${current.email}); not creating ${email}`);
   const password = process.env.SEED_ADMIN_PASSWORD ?? randomBytes(12).toString('base64url');
   await prisma.user.create({
     data: { email, passwordHash: await bcrypt.hash(password, 12), firstName: 'Platform', lastName: 'Admin', role: UserRole.SUPER_ADMIN, termsAcceptedAt: new Date() },

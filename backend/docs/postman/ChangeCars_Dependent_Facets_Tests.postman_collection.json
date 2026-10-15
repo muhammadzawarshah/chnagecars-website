@@ -1,0 +1,3677 @@
+{
+  "info": {
+    "name": "ChangeCars - Complete Dependent Facets Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order. 43 cases covering active filters, OR selections, nested models, specifications, empty results, validation and reset. Each valid request also verifies count/list totals. Requires advanced facets deployed (aa7d239 or later). Empty spec groups are valid if source specs are missing. Reset comparison assumes stable database. Counts across calls can differ if inventory changes during the run. Run with 500ms delay to reduce rate limiting. No request bodies or auth required. This collection is generated and syntax-checked; not executed in Postman here."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://chnagecars-website-production.up.railway.app/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "frontendUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Baseline",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);",
+              "",
+              "pm.collectionVariables.set('baselineTotal', String(body.total));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audi",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ferrari",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=ferrari",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "ferrari"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chevrolet",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=chevrolet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "chevrolet"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ferrari OR Chevrolet",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=ferrari,chevrolet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "ferrari,chevrolet"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audi Q3",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&model=audi:q3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "model",
+              "value": "audi:q3"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Generic model Q3",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?model=q3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "model",
+              "value": "q3"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Black",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?colour=Black",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "colour",
+              "value": "Black"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Black OR White",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?colour=Black,White",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "colour",
+              "value": "Black,White"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Price ceiling",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?maxPrice=500000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Price range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minPrice=100000&maxPrice=500000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minPrice",
+              "value": "100000"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Year range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minYear=2018&maxYear=2026",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minYear",
+              "value": "2018"
+            },
+            {
+              "key": "maxYear",
+              "value": "2026"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mileage range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minMileage=0&maxMileage=100000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minMileage",
+              "value": "0"
+            },
+            {
+              "key": "maxMileage",
+              "value": "100000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Automatic",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?transmission=AUTOMATIC",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "transmission",
+              "value": "AUTOMATIC"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manual",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?transmission=MANUAL",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "transmission",
+              "value": "MANUAL"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown transmission",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?transmission=UNKNOWN",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "transmission",
+              "value": "UNKNOWN"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Diesel",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?fuelType=DIESEL",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "fuelType",
+              "value": "DIESEL"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fuel OR",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?fuelType=PETROL,DIESEL",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "fuelType",
+              "value": "PETROL,DIESEL"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AWD",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?drivetrain=AWD",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "drivetrain",
+              "value": "AWD"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drive OR",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?drivetrain=AWD,FWD",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "drivetrain",
+              "value": "AWD,FWD"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SUV",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?category=suvs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "suvs"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gauteng",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?province=GAUTENG",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "province",
+              "value": "GAUTENG"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pretoria",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?city=Pretoria",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "city",
+              "value": "Pretoria"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Used",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?condition=USED",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "condition",
+              "value": "USED"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Featured",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?featured=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "featured",
+              "value": "true"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Specials",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?onSpecial=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "onSpecial",
+              "value": "true"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Available only",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?availableOnly=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "availableOnly",
+              "value": "true"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seats OR",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?seats=5,7",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "seats",
+              "value": "5,7"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seats eight plus",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?seats=8%2B",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "seats",
+              "value": "8%2B"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Engine range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minEngineCc=1000&maxEngineCc=3000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minEngineCc",
+              "value": "1000"
+            },
+            {
+              "key": "maxEngineCc",
+              "value": "3000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Power range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minPowerKw=50&maxPowerKw=200",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minPowerKw",
+              "value": "50"
+            },
+            {
+              "key": "maxPowerKw",
+              "value": "200"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dealer",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?dealer=morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "dealer",
+              "value": "morgan-motor-group-bethlehem-nissan-jetour-suzuki-byd-fbook-26"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Free text",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?q=ranger%20wildtrak",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "ranger wildtrak"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Two fields",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&colour=Black",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "colour",
+              "value": "Black"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Three fields",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&colour=Black,White&maxPrice=500000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "colour",
+              "value": "Black,White"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Many fields",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=audi&model=audi:q3&colour=Black,White&maxPrice=500000&minYear=2018&province=GAUTENG",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "audi"
+            },
+            {
+              "key": "model",
+              "value": "audi:q3"
+            },
+            {
+              "key": "colour",
+              "value": "Black,White"
+            },
+            {
+              "key": "maxPrice",
+              "value": "500000"
+            },
+            {
+              "key": "minYear",
+              "value": "2018"
+            },
+            {
+              "key": "province",
+              "value": "GAUTENG"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "All spec fields",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?seats=5&minEngineCc=1000&maxEngineCc=3000&minPowerKw=50&maxPowerKw=200&transmission=AUTOMATIC&fuelType=DIESEL&drivetrain=AWD",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "seats",
+              "value": "5"
+            },
+            {
+              "key": "minEngineCc",
+              "value": "1000"
+            },
+            {
+              "key": "maxEngineCc",
+              "value": "3000"
+            },
+            {
+              "key": "minPowerKw",
+              "value": "50"
+            },
+            {
+              "key": "maxPowerKw",
+              "value": "200"
+            },
+            {
+              "key": "transmission",
+              "value": "AUTOMATIC"
+            },
+            {
+              "key": "fuelType",
+              "value": "DIESEL"
+            },
+            {
+              "key": "drivetrain",
+              "value": "AWD"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Nonexistent make yields zero",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?make=no-such-make-test-zz",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "make",
+              "value": "no-such-make-test-zz"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);",
+              "",
+              "pm.test('Unknown make has zero cars', () => pm.expect(body.total).to.equal(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Swapped price range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minPrice=500000&maxPrice=100000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minPrice",
+              "value": "500000"
+            },
+            {
+              "key": "maxPrice",
+              "value": "100000"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reset baseline",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);",
+              "",
+              "pm.test('Reset restores baseline (stable dataset)', () => pm.expect(body.total).to.equal(Number(pm.collectionVariables.get('baselineTotal'))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Negative price rejected",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minPrice=-1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minPrice",
+              "value": "-1"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Invalid input is rejected', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Non-numeric year rejected",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?minYear=abc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "minYear",
+              "value": "abc"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Invalid input is rejected', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid boolean text currently coerces false",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/facets?featured=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "vehicles",
+            "facets"
+          ],
+          "query": [
+            {
+              "key": "featured",
+              "value": "false"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "const groups = ['makes','models','variants','colour','city','drivetrain','fuelType','transmission','province','condition','categories','seats','engineCapacityCc','powerKw','dealerships'];",
+              "pm.test('Complete dependent dropdown response', () => {",
+              " pm.expect(body.total).to.be.a('number').at.least(0);",
+              " groups.forEach(key => {",
+              "  pm.expect(body[key], key).to.be.an('array');",
+              "  body[key].forEach(option => { pm.expect(option.count).to.be.a('number').above(0); pm.expect(option.count).to.be.at.most(body.total); });",
+              " });",
+              "});",
+              "pm.test('Zero matches omit all options', () => { if (body.total === 0) groups.forEach(key => pm.expect(body[key]).to.have.lengthOf(0)); });",
+              "pm.test('Numeric options omit null and sort ascending', () => {",
+              " ['seats','engineCapacityCc','powerKw'].forEach(key => {",
+              "  const values = body[key].map(o => o.value);",
+              "  values.forEach(value => pm.expect(value).to.be.a('number'));",
+              "  pm.expect(values).to.deep.equal([...values].sort((a,b) => a-b));",
+              " });",
+              "});",
+              "const params = pm.request.url.query.all().filter(p => !p.disabled);",
+              "const query = Object.fromEntries(params.map(p => [p.key,p.value]));",
+              "const csv = value => value.split(',').map(s => s.trim().toLowerCase());",
+              "pm.test('Selected options respect active filters', () => {",
+              " if (query.make && !query.model?.includes(':')) body.makes.forEach(o => pm.expect(csv(query.make)).to.include(o.slug));",
+              " if (query.make && !query.model) body.models.forEach(o => pm.expect(csv(query.make)).to.include(o.make));",
+              " if (query.colour) body.colour.forEach(o => pm.expect(csv(query.colour)).to.include(o.value.toLowerCase()));",
+              " ['transmission','fuelType','drivetrain','province','condition'].forEach(key => { if(query[key]) body[key].forEach(o => pm.expect(csv(query[key])).to.include(o.value.toLowerCase())); });",
+              " if(query.dealer) body.dealerships.forEach(o => pm.expect(o.slug).to.equal(query.dealer));",
+              " if(query.model?.includes(':') && !query.model.includes(',')) body.models.forEach(o => pm.expect(o.value).to.equal(query.model));",
+              "});",
+              "pm.test('Nested model/variant identity is usable', () => {",
+              " body.models.forEach(o => pm.expect(o.value).to.equal(o.make+':'+o.slug));",
+              " body.variants.forEach(o => { pm.expect(o.make).to.be.a('string'); pm.expect(o.model).to.be.a('string'); pm.expect(o.slug).to.be.a('string'); });",
+              "});",
+              "const qs=params.map(p=>encodeURIComponent(p.key)+'='+encodeURIComponent(p.value)).join('&');",
+              "const base=pm.variables.get('baseUrl').replace(/\\/$/,'');",
+              "['count',''].forEach(route => pm.sendRequest(base+'/vehicles'+(route?'/'+route:'')+'?'+qs, (error,response) => {",
+              " pm.test('Facets total matches '+(route||'results'), () => {",
+              "  pm.expect(error).to.equal(null); pm.expect(response.code).to.equal(200);",
+              "  const data=response.json(); pm.expect(route?data.total:data.meta.total).to.equal(body.total);",
+              " });",
+              "}));",
+              "console.log(pm.info.requestName, 'matching total', body.total, body);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Model and variant matching car names",
+      "item": [
+        {
+          "name": "Model car names - Audi Q3",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicles?make=audi&model=audi:q3&page=1&pageSize=10",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body=pm.response.json();",
+                  "pm.test('Matching model car names', () => {",
+                  " pm.expect(body.data).to.be.an('array'); pm.expect(body.meta.total).to.be.a('number');",
+                  " body.data.forEach(car => {pm.expect(car.title).to.be.a('string').and.not.empty; pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3');});",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Model car names with active price/year",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicles?make=audi&model=audi:q3&maxPrice=500000&minYear=2018&pageSize=10",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body=pm.response.json();",
+                  "pm.test('Matching model car names', () => {",
+                  " pm.expect(body.data).to.be.an('array'); pm.expect(body.meta.total).to.be.a('number');",
+                  " body.data.forEach(car => {pm.expect(car.title).to.be.a('string').and.not.empty; pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3');});",
+                  "});",
+                  "pm.test('Price and year preserved',()=>body.data.forEach(car=>{pm.expect(car.price).to.be.at.most(500000);pm.expect(car.year).to.be.at.least(2018);}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Car names pagination - page 1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicles?make=audi&model=audi:q3&page=1&pageSize=10",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body=pm.response.json();",
+                  "pm.test('Matching model car names', () => {",
+                  " pm.expect(body.data).to.be.an('array'); pm.expect(body.meta.total).to.be.a('number');",
+                  " body.data.forEach(car => {pm.expect(car.title).to.be.a('string').and.not.empty; pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3');});",
+                  "});",
+                  "pm.collectionVariables.set('firstPageCarIds',JSON.stringify(body.data.map(car=>car.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Car names pagination - page 2",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicles?make=audi&model=audi:q3&page=2&pageSize=10",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body=pm.response.json();",
+                  "pm.test('Matching model car names', () => {",
+                  " pm.expect(body.data).to.be.an('array'); pm.expect(body.meta.total).to.be.a('number');",
+                  " body.data.forEach(car => {pm.expect(car.title).to.be.a('string').and.not.empty; pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3');});",
+                  "});",
+                  "pm.test('Pages do not overlap (stable data)',()=>{const first=JSON.parse(pm.collectionVariables.get('firstPageCarIds')||'[]');body.data.forEach(car=>pm.expect(first).not.to.include(car.id));});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Discover variant then verify its car names",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicles/facets",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const body=pm.response.json(); const variant=body.variants[0];",
+                  "if(!variant) { pm.test.skip('Variant car names - no stored variants in this dataset',()=>{}); }",
+                  "else {",
+                  " const qs='make='+encodeURIComponent(variant.make)+'&model='+encodeURIComponent(variant.make+':'+variant.model)+'&variant='+encodeURIComponent(variant.slug);",
+                  " pm.sendRequest(pm.variables.get('baseUrl')+'/vehicles?'+qs,(error,response)=>{",
+                  "  pm.test('Variant car names and count',()=>{pm.expect(error).to.equal(null);pm.expect(response.code).to.equal(200);const data=response.json();pm.expect(data.meta.total).to.equal(variant.count);data.data.forEach(car=>{pm.expect(car.title).to.be.a('string');pm.expect(car.variant.slug).to.equal(variant.slug);});});",
+                  " });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Local frontend proxies",
+      "item": [
+        {
+          "name": "Frontend dependent dropdowns",
+          "request": {
+            "method": "GET",
+            "url": "{{frontendUrl}}/api/vehicles/facets?make=audi",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));const body=pm.response.json();pm.test('Dropdowns exist',()=>{pm.expect(body.models).to.be.an('array');pm.expect(body.total).to.be.a('number');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Frontend model car names",
+          "request": {
+            "method": "GET",
+            "url": "{{frontendUrl}}/api/vehicles/filter-cars?make=audi&model=audi:q3&pageSize=10",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body=pm.response.json();",
+                  "pm.test('Matching model car names', () => {",
+                  " pm.expect(body.data).to.be.an('array'); pm.expect(body.meta.total).to.be.a('number');",
+                  " body.data.forEach(car => {pm.expect(car.title).to.be.a('string').and.not.empty; pm.expect(car.make.slug).to.equal('audi'); pm.expect(car.model.slug).to.equal('q3');});",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

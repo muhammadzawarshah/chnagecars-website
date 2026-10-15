@@ -34,8 +34,8 @@ export class UserStatusDto {
 }
 
 export class UserRoleDto {
-  @ApiProperty({ enum: [UserRole.CUSTOMER, UserRole.ADMIN, UserRole.SUPER_ADMIN] })
-  @IsIn([UserRole.CUSTOMER, UserRole.ADMIN, UserRole.SUPER_ADMIN])
+  @ApiProperty({ enum: [UserRole.CUSTOMER, UserRole.ADMIN], description: 'The platform has exactly one super admin, so SUPER_ADMIN cannot be assigned' })
+  @IsIn([UserRole.CUSTOMER, UserRole.ADMIN], { message: 'role must be CUSTOMER or ADMIN; the platform has exactly one super admin' })
   role: UserRole;
 }
 
@@ -43,7 +43,10 @@ export class CreateAdminDto {
   @ApiProperty() @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value)) @IsEmail() email: string;
   @ApiProperty() @IsString() @Length(1, 80) firstName: string;
   @ApiProperty() @IsString() @Length(1, 80) lastName: string;
-  @ApiProperty({ enum: [UserRole.ADMIN, UserRole.SUPER_ADMIN] }) @IsIn([UserRole.ADMIN, UserRole.SUPER_ADMIN]) role: UserRole;
+  @ApiPropertyOptional({ enum: [UserRole.ADMIN], default: UserRole.ADMIN, description: 'The platform has exactly one super admin, so only admins are invited' })
+  @IsOptional()
+  @IsIn([UserRole.ADMIN], { message: 'Only admins can be invited; the platform has exactly one super admin' })
+  role?: UserRole;
 }
 
 export class AuditQueryDto extends PaginationQueryDto {
@@ -139,6 +142,9 @@ export class AdminService {
     if (!target || target.status === UserStatus.DELETED) throw Errors.notFound('User');
     this.assertCanManage(actor, target);
     if (target.dealerMember) throw Errors.conflict('DEALER_MEMBER', 'Dealer staff roles are managed by their dealership');
+    if (dto.role === UserRole.SUPER_ADMIN || target.role === UserRole.SUPER_ADMIN) {
+      throw Errors.conflict('SINGLE_SUPER_ADMIN', 'The platform has exactly one super admin; that role cannot be given or taken away');
+    }
     return this.prisma.$transaction(async (tx) => {
       const after = await tx.user.update({ where: { id }, data: { role: dto.role }, omit: { passwordHash: true } });
       await this.auth.logoutAll(id, tx); // new role takes effect on next sign-in
@@ -151,7 +157,8 @@ export class AdminService {
   async createAdmin(dto: CreateAdminDto) {
     const token = randomToken();
     const user = await this.prisma.$transaction(async (tx) => {
-      const created = await this.auth.createUser(tx, { email: dto.email, password: randomToken(24) + 'a1', firstName: dto.firstName, lastName: dto.lastName, role: dto.role });
+      // The platform has exactly one super admin, so invitations always create admins.
+      const created = await this.auth.createUser(tx, { email: dto.email, password: randomToken(24) + 'a1', firstName: dto.firstName, lastName: dto.lastName, role: UserRole.ADMIN });
       await tx.passwordResetToken.create({ data: { userId: created.id, tokenHash: sha256(token), expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 86_400_000) } });
       await this.outbox.enqueue(tx, {
         type: OutboxEvents.PasswordResetRequested,

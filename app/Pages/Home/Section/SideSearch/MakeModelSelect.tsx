@@ -1,17 +1,20 @@
 "use client"
 
+import FilterCars from "../AppSearch/FilterCars"
 import { useState } from "react"
-import { makes } from "../../Data/makes"
+import { Make } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import CircleCheck from "../AppSearch/CircleCheck"
 import ExpandLink from "../AppSearch/ExpandLink"
 
 type MakeModelSelectProps = {
+    query: string
+    options: Make[]
     selected: string[]
     onChange: (selected: string[]) => void
 }
 
-export default function MakeModelSelect({ selected, onChange }: MakeModelSelectProps) {
+export default function MakeModelSelect({ query, options: makes, selected, onChange }: MakeModelSelectProps) {
 
     const { t } = useLanguage();
     const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -33,7 +36,7 @@ export default function MakeModelSelect({ selected, onChange }: MakeModelSelectP
             <div className="max-h-62.5 overflow-y-auto [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9d885c] [&::-webkit-scrollbar-track]:bg-[#f4f4f4]">
                 <ul className="m-0 list-none p-0">
                     {makes.map((make) => {
-                        const makeKey = make.name;
+                        const makeKey = make.slug;
                         const makeOpen = openKeys.includes(makeKey);
                         return (
                             <li key={make.slug + make.count}>
@@ -50,7 +53,7 @@ export default function MakeModelSelect({ selected, onChange }: MakeModelSelectP
                                             <span className="ml-3 text-[13px] text-black">{t.all}</span>
                                         </li>
                                         {make.models.map((model) => {
-                                            const modelKey = `${makeKey}|${model.name}`;
+                                            const modelKey = `${makeKey}|${model.slug}`;
                                             const modelOpen = openKeys.includes(modelKey);
                                             return (
                                                 <li key={model.slug + model.count}>
@@ -58,16 +61,22 @@ export default function MakeModelSelect({ selected, onChange }: MakeModelSelectP
                                                         <CircleCheck checked={selected.includes(modelKey) || selected.includes(makeKey)} />
                                                         <span className="ml-3 text-[13px] text-black">{model.name}</span>
                                                         <span className="ml-2.25 text-[13px] text-[#757575]">({model.count})</span>
-                                                        {model.variants.length > 0 && <ExpandLink textClass="text-[13px]" label={t.variants} open={modelOpen} onToggle={() => toggleOpen(modelKey)} />}
+                                                        {<ExpandLink textClass="text-[13px]" label={model.variants.length ? t.variants : "Cars"} open={modelOpen} onToggle={() => toggleOpen(modelKey)} />}
                                                     </div>
                                                     {modelOpen && (
                                                         <ul className="m-0 list-none p-0">
+                                                            {!model.variants.length && <>
+                                                                <li className="px-5 py-2 text-xs text-[#757575]">Variant information is unavailable for these listings.</li>
+                                                                <FilterCars key={query + modelKey} query={query} make={make.slug} model={model.slug} />
+                                                            </>}
                                                             {model.variants.map((variant) => {
                                                                 const variantKey = `${modelKey}|${variant}`;
                                                                 return (
                                                                     <li key={variant} onClick={() => toggleSelect(variantKey)} className="flex h-10 cursor-pointer items-center pl-21">
                                                                         <CircleCheck checked={selected.includes(variantKey) || selected.includes(modelKey) || selected.includes(makeKey)} />
                                                                         <span className="ml-3 text-[13px] text-black">{variant}</span>
+                                                                        <ExpandLink label="Cars" open={openKeys.includes(variantKey)} onToggle={() => toggleOpen(variantKey)} />
+                                                                        {openKeys.includes(variantKey) && <FilterCars query={query} make={make.slug} model={model.slug} variant={variant} />}
                                                                     </li>
                                                                 )
                                                             })}

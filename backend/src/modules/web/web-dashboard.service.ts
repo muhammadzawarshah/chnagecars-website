@@ -303,6 +303,7 @@ export class WebDashboardService {
       return {
         id: row.id,
         name: row.name,
+        logoUrl: row.logoUrl,
         contactName: owner ? `${owner.user.firstName} ${owner.user.lastName}`.trim() : '',
         email: row.email,
         phone: localPhone(row.phone),
@@ -383,6 +384,7 @@ export class WebDashboardService {
 }
 
 const dealerSelect = {
+  logoUrl: true,
   id: true,
   name: true,
   email: true,
