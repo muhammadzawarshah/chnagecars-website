@@ -9,6 +9,7 @@ import CircleCheck from "./CircleCheck"
 type ChoiceSheetProps = {
     title: string
     options: string[]
+    counts?: Record<string,number>
     selected: string[]
     multiple?: boolean
     info?: string
@@ -17,7 +18,7 @@ type ChoiceSheetProps = {
     onClose: () => void
 }
 
-export default function ChoiceSheet({ title, options, selected, multiple = false, info, searchable = false, onApply, onClose }: ChoiceSheetProps) {
+export default function ChoiceSheet({ title, options, counts, selected, multiple = false, info, searchable = false, onApply, onClose }: ChoiceSheetProps) {
 
     const { t } = useLanguage();
     const [draft, setDraft] = useState(selected);
@@ -62,7 +63,7 @@ export default function ChoiceSheet({ title, options, selected, multiple = false
                     {visible.map((option) => (
                         <li key={option} onClick={() => toggle(option)} className="flex h-12 cursor-pointer items-center pl-5">
                             <CircleCheck checked={draft.includes(option)} />
-                            <span className={`ml-[12.67px] text-[15.2px] ${draft.includes(option) ? "text-[#957e4e]" : "text-black"}`}>{option}</span>
+                            <span className={`ml-[12.67px] text-[15.2px] ${draft.includes(option) ? "text-[#957e4e]" : "text-black"}`}>{option}{counts?.[option] !== undefined && ` (${counts[option]})`}</span>
                         </li>
                     ))}
                 </ul>

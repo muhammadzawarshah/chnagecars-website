@@ -146,7 +146,11 @@ export async function seedWebsiteDemo(prisma: PrismaClient, fixture: WebsiteFixt
   const now = Date.now();
 
   // ── staff (console users) ──
+  // The platform has exactly one super admin: the demo "super-admin" only gets that role when none exists yet.
+  let hasSuperAdmin = !!(await prisma.user.findFirst({ where: { role: UserRole.SUPER_ADMIN, deletedAt: null }, select: { id: true } }));
   for (const person of fixture.staff) {
+    const superAdmin = person.role === 'super-admin' && !hasSuperAdmin;
+    if (superAdmin) hasSuperAdmin = true;
     const { firstName, lastName } = splitName(person.name);
     await prisma.user.upsert({
       where: { email: person.email },
@@ -155,7 +159,7 @@ export async function seedWebsiteDemo(prisma: PrismaClient, fixture: WebsiteFixt
         passwordHash,
         firstName,
         lastName,
-        role: person.role === 'super-admin' ? UserRole.SUPER_ADMIN : UserRole.ADMIN,
+        role: superAdmin ? UserRole.SUPER_ADMIN : UserRole.ADMIN,
         termsAcceptedAt: new Date(),
         lastLoginAt: person.lastActive ? utc(person.lastActive) : null,
       },

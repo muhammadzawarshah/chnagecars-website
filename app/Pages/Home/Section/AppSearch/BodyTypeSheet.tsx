@@ -1,19 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { bodyTypes } from "../../Data/search"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import BottomSheet from "./BottomSheet"
 import SheetFooter from "./SheetFooter"
 import CircleCheck from "./CircleCheck"
 
 type BodyTypeSheetProps = {
+    options: {name: string; count: number}[]
     selected: string[]
     onApply: (selected: string[]) => void
     onClose: () => void
 }
 
-export default function BodyTypeSheet({ selected, onApply, onClose }: BodyTypeSheetProps) {
+export default function BodyTypeSheet({ options: bodyTypes, selected, onApply, onClose }: BodyTypeSheetProps) {
 
     const { t } = useLanguage();
     const [draft, setDraft] = useState(selected);

@@ -1,4 +1,5 @@
 import { AdminModule } from './admin/admin.module';
+import { ConsoleModule } from './admin/console.module';
 import { AuthModule } from './auth/auth.module';
 import { ContentModule } from './content/content.module';
 import { CustomersModule } from './customers/customers.module';
@@ -42,6 +43,7 @@ export const FEATURE_MODULES = [
   NewsletterModule,
   DealerDashboardModule,
   AdminModule,
+  ConsoleModule,
   SeoModule,
   WebModule,
 ];

@@ -1,46 +1,52 @@
 import { SearchService } from './search.service';
+import { interleaveDealers } from './dealer-order';
 
-describe('random dealer browse', () => {
-  function setup(dealers = ['a', 'b']) {
+const points = [
+  { id: 'a1', dealerId: 'a' }, { id: 'a2', dealerId: 'a' },
+  { id: 'b1', dealerId: 'b' }, { id: 'a3', dealerId: 'a' },
+  { id: 'c1', dealerId: 'c' }, { id: 'b2', dealerId: 'b' },
+];
+
+describe('stable mixed dealer browse', () => {
+  function setup() {
     const vehicle = {
-      groupBy: jest.fn().mockResolvedValue(dealers.map(dealerId => ({ dealerId, _count: { _all: 25 } }))),
-      findMany: jest.fn().mockImplementation(async ({ where }) => {
-        const id = where.AND[1].dealerId;
-        return [{ id: `${id}-car`, status: 'PUBLISHED', price: 100000, specialPrice: null, isSpecial: false,
-          dealer: { id, slug: id, name: id } }];
+      findMany: jest.fn().mockImplementation(async ({ select, where }) => {
+        if (select.dealerId) return points;
+        const ids = where.AND[1].id.in;
+        return [...ids].reverse().map((id: string) => ({ id, status: 'PUBLISHED', price: 100000,
+          specialPrice: null, isSpecial: false, dealer: { id: id[0] } }));
       }),
       count: jest.fn().mockResolvedValue(0),
     };
     const cache = { versionedKey: jest.fn().mockResolvedValue('key'), wrap: jest.fn().mockImplementation((_k, _t, fn) => fn()) };
-    return { service: new SearchService({ replica: { vehicle } } as any, cache as any), vehicle, cache };
+    return { service: new SearchService({ replica: { vehicle } } as any, cache as any), vehicle };
   }
 
-  it('changes dealer on consecutive requests and returns only the selected dealer stock without caching', async () => {
-    const { service, vehicle, cache } = setup();
-    const first = await service.search({ make: 'toyota', pageSize: 5 });
-    const second = await service.search({ make: 'toyota', pageSize: 5 });
-    expect(first.data[0].dealer.id).not.toBe(second.data[0].dealer.id);
-    expect(first.meta).toEqual({ page: 1, pageSize: 5, total: 25, pageCount: 5 });
-    expect(vehicle.findMany.mock.calls[0][0]).toMatchObject({ take: 5, where: { AND: [{}, { dealerId: first.data[0].dealer.id }] } });
-    expect(JSON.stringify(vehicle.groupBy.mock.calls[0][0].where)).toContain('toyota');
-    expect(cache.wrap).not.toHaveBeenCalled();
+  it('interleaves unequal dealer inventories without dropping or duplicating cars', () => {
+    expect(interleaveDealers(points)).toEqual(['a1', 'b1', 'c1', 'a2', 'b2', 'a3']);
+    expect(interleaveDealers([])).toEqual([]);
+    expect(interleaveDealers(points.filter(p => p.dealerId === 'a'))).toEqual(['a1', 'a2', 'a3']);
   });
 
-  it('handles one eligible dealer and no eligible dealers', async () => {
-    const single = setup(['a']);
-    expect((await single.service.search({})).data).toHaveLength(1);
-    expect((await single.service.search({})).data).toHaveLength(1);
-    const empty = setup([]);
-    expect(await empty.service.search({})).toMatchObject({ data: [], meta: { total: 0 }, selectedDealer: null });
-    expect(empty.vehicle.findMany).not.toHaveBeenCalled();
+  it.each([undefined, 'recent' as const])('keeps repeated pages stable and pages disjoint for sort %s', async sort => {
+    const { service, vehicle } = setup();
+    const query = { sort, make: 'toyota', pageSize: 3 };
+    const first = await service.search(query);
+    const repeated = await service.search(query);
+    const second = await service.search({ ...query, page: 2 });
+    expect(first.data.map(x => x.id)).toEqual(['a1', 'b1', 'c1']);
+    expect(repeated.data.map(x => x.id)).toEqual(first.data.map(x => x.id));
+    expect(second.data.map(x => x.id)).toEqual(['a2', 'b2', 'a3']);
+    expect(second.meta).toEqual({ page: 2, pageSize: 3, total: 6, pageCount: 2 });
+    expect(JSON.stringify(vehicle.findMany.mock.calls[0][0].where)).toContain('toyota');
+    expect((await service.search({ ...query, page: 3 })).data).toEqual([]);
   });
 
-  it.each([{ dealer: 'a', page: 2 }, { sort: 'recent' as const }, { branchId: 'branch' }])('preserves explicit dealer, sort and branch searches: %j', async query => {
-    const { service, vehicle, cache } = setup();
+  it.each([{ dealer: 'a', page: 2 }, { sort: 'price-asc' as const }, { branchId: 'branch' }, { collection: 'hot-sellers' as const }])('preserves dealer/branch and other sorting: %j', async query => {
+    const { service, vehicle } = setup();
     vehicle.findMany.mockResolvedValue([]);
     await service.search(query);
-    expect(vehicle.groupBy).not.toHaveBeenCalled();
-    expect(cache.wrap).toHaveBeenCalled();
+    expect(vehicle.findMany.mock.calls[0][0].select).not.toHaveProperty('dealerId');
     if ('page' in query) expect(vehicle.findMany.mock.calls[0][0].skip).toBe(20);
   });
 });

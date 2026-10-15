@@ -7,16 +7,26 @@ export type NavItem = {
     label: string
     icon: IconName
     exact?: boolean
+    activePaths?: string[]
 }
 
 type NavDefinition = Omit<NavItem, "href"> & { path: string, permission: Permission }
 
 const consoleItems: NavDefinition[] = [
     { path: "", label: "Overview", icon: "overview", exact: true, permission: "platform.view" },
-    { path: "/dealers", label: "Dealers", icon: "dealers", permission: "dealers.view" },
+    { path: "/dealers", activePaths: ["/manage/dealers"], label: "Dealers", icon: "dealers", permission: "dealers.view" },
     { path: "/compare", label: "Compare dealers", icon: "compare", permission: "dealers.compare" },
-    { path: "/listings", label: "Listings", icon: "listings", permission: "listings.moderate" },
+    { path: "/listings", activePaths: ["/manage/vehicles"], label: "Listings", icon: "listings", permission: "listings.moderate" },
     { path: "/staff", label: "Admins & staff", icon: "staff", permission: "staff.manage" },
+    ...[
+        // Leads & enquiries is hidden for now; the page still works at /leads.
+        ["customers", "Customers", "staff"], ["blogs", "Blogs", "blog"],
+        ["catalogue", "Catalogue", "listings"], ["quality", "Data quality", "check"],
+        // Feed imports, App snapshots and Background processing are developer tools: still
+        // reachable by URL (/imports, /snapshots, /system) but kept out of the menu.
+        ["content", "Content", "website"], ["reports", "Reports", "compare"],
+        ["audit", "Audit trail", "eye"], ["settings", "Settings", "menu"],
+    ].map(([path, label, icon]) => ({ path: `/${path}`, label, icon: icon as IconName, permission: "console.manage" as Permission })),
 ];
 
 const dealerItems: NavDefinition[] = [
@@ -26,7 +36,9 @@ const dealerItems: NavDefinition[] = [
 ];
 
 function build(items: NavDefinition[], role: Role, base: string): NavItem[] {
-    return items.filter((item) => can(role, item.permission)).map(({ path, permission: _permission, ...item }) => ({ ...item, href: `${base}${path}` }));
+    return items.filter((item) => can(role, item.permission)).map((item) => ({
+        label: item.label, icon: item.icon, exact: item.exact, href: `${base}${item.path}`, activePaths: item.activePaths?.map(path => `${base}${path}`),
+    }));
 }
 
 // Admin and super admin share one console; the menu shows only what the role may use.

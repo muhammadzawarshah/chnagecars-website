@@ -687,6 +687,18 @@ model FeatureAssignment {
 
 // ───────────────────────── Inventory & listings ─────────────────────────
 
+/// Auditable external feed snapshots, including rows that cannot be safely published.
+model SourceFeedRecord {
+  source     String
+  kind       String
+  externalId String
+  payload    Json
+  fetchedAt  DateTime @default(now())
+
+  @@id([source, kind, externalId])
+  @@map("source_feed_records")
+}
+
 model Vehicle {
   id                 String           @id @default(uuid(7)) @db.Uuid
   slug               String           @unique
@@ -767,7 +779,8 @@ model Vehicle {
   leads              Lead[]
   viewDays           VehicleViewDaily[]
 
-  @@unique([dealerId, stockNumber])
+  /// Upstream dealers can reuse a stock code for distinct source vehicle IDs.
+  @@index([dealerId, stockNumber])
   @@index([dealerId, status])
   @@index([branchId])
   @@index([status, publishedAt(sort: Desc)])

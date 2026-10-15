@@ -34,7 +34,10 @@ export const dashboardHome: Record<Role, string> = {
 // `role` is the dashboard being opened. A user who may not open it is sent to their own
 // dashboard (a super admin may also use the admin console); visitors without a dashboard go home.
 export async function getDashboardUser(role: Role): Promise<DashboardUser> {
-    if (!backendEnabled()) return demoUsers[role];
+    if (!backendEnabled()) {
+        if (role === "super-admin") throw new Error("Configure API_URL to connect the super admin console to real data.");
+        return demoUsers[role];
+    }
     const me = await authGet<ApiUser>("/auth/me");
     if (!me) redirect("/login");
     const actual = roles[me.role];

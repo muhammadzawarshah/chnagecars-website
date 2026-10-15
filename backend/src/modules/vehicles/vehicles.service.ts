@@ -126,7 +126,10 @@ export class VehiclesService {
   }
 
   async getForAdmin(id: string) {
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id }, include: this.fullInclude() });
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: { id },
+      include: { ...this.fullInclude(), dealer: { select: { id: true, name: true, slug: true, email: true, phone: true, city: true, status: true, plan: true, logoUrl: true } } },
+    });
     if (!vehicle) throw Errors.notFound('Vehicle');
     return { ...vehicle, availability: availabilityOf(vehicle.status), allowedTargets: allowedTargets(vehicle.status, 'admin') };
   }

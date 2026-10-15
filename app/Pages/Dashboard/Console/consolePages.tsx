@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { getActivity, getDealers, getDealersById, getInventory, getPlatformOverview, getStaff } from "@/app/lib/dashboard/api"
+import { getActivity, getDealers, getDealersById, getInventory, getPlatformOverview } from "@/app/lib/dashboard/api"
 import { can, roleLabels } from "@/app/lib/dashboard/permissions"
 import { Role } from "@/app/lib/dashboard/types"
 import PageHeader from "../ui/PageHeader"
@@ -7,7 +7,6 @@ import DealerInventory from "../Dealer/DealerInventory"
 import ConsoleOverview from "./ConsoleOverview"
 import DealersTable from "./DealersTable"
 import CompareDealers from "./CompareDealers"
-import StaffTable from "./StaffTable"
 
 // Admin and super admin screens. Each one checks the role's permissions, so the same
 // code serves both and a missing right hides the feature (or 404s the page).
@@ -52,17 +51,6 @@ export async function ListingsPage({ role }: { role: ConsoleRole }) {
         <>
             <PageHeader title="Listings" subtitle={`${items.length} listings across all dealers · check the flagged tab first`} />
             <DealerInventory items={items} dealerNames={dealerNames} />
-        </>
-    );
-}
-
-export async function StaffPage({ role }: { role: ConsoleRole }) {
-    if (!can(role, "staff.manage")) notFound();
-    const staff = await getStaff();
-    return (
-        <>
-            <PageHeader title="Admins & staff" subtitle="Who can sign in to the CHANGECARS console." />
-            <StaffTable staff={staff} />
         </>
     );
 }

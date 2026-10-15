@@ -12,6 +12,8 @@ const statusTone: Record<string, keyof typeof tones> = {
     pending: "warning", new: "warning", invited: "warning", draft: "neutral",
     suspended: "critical", lost: "critical", flagged: "critical", disabled: "critical",
     contacted: "info",
+    published: "good", approved: "good", "pending review": "warning", reserved: "info",
+    rejected: "critical", archived: "neutral",
 }
 
 export default function StatusBadge({ status }: { status: string }) {

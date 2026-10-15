@@ -3,6 +3,7 @@ import { Role } from "./types"
 // What each role may do. Screens and navigation check permissions, never role names,
 // so adding a role or moving a right is a one-line change here.
 export type Permission =
+    | "console.manage"
     | "platform.view"
     | "dealers.view"
     | "dealers.manage"
@@ -14,7 +15,7 @@ export type Permission =
     | "leads.own"
 
 const allPermissions: Permission[] = [
-    "platform.view", "dealers.view", "dealers.manage", "dealers.compare", "dealers.viewAs",
+    "console.manage", "platform.view", "dealers.view", "dealers.manage", "dealers.compare", "dealers.viewAs",
     "listings.moderate", "staff.manage", "inventory.own", "leads.own",
 ];
 

@@ -1,0 +1,115 @@
+name: changecars-superadmin-review
+
+x-api-env: &api-env
+  NODE_ENV: production
+  PORT: 4000
+  DATABASE_URL: postgresql://review:${POSTGRES_PASSWORD:?Run node scripts/setup.mjs first}@postgres:5432/superadmin?schema=public
+  REDIS_URL: redis://redis:6379
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Run node scripts/setup.mjs first}
+  WEB_ADAPTER_KEY: ${WEB_ADAPTER_KEY:?Run node scripts/setup.mjs first}
+  PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:3000}
+  CORS_ORIGINS: ${PUBLIC_WEB_URL:-http://localhost:3000}
+  S3_ENDPOINT: http://minio:9000
+  S3_PUBLIC_ENDPOINT: ${S3_PUBLIC_ENDPOINT:-http://localhost:9000}
+  S3_REGION: us-east-1
+  S3_BUCKET: changecars-media
+  S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-review-storage}
+  S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?Run node scripts/setup.mjs first}
+  S3_FORCE_PATH_STYLE: "true"
+  MEDIA_PUBLIC_BASE_URL: ${MEDIA_PUBLIC_BASE_URL:-http://localhost:9000/changecars-media}
+  SMTP_URL: smtp://mailpit:1025
+  RUN_WORKER_IN_API: "false"
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: review
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run node scripts/setup.mjs first}
+      POSTGRES_DB: superadmin
+      TZ: UTC
+      PGTZ: UTC
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U review -d superadmin]
+      interval: 3s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes", --maxmemory-policy, noeviction]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 3s
+      retries: 30
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-review-storage}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run node scripts/setup.mjs first}
+    ports:
+      - "${STORAGE_PORT:-9000}:9000"
+      - "127.0.0.1:${STORAGE_CONSOLE_PORT:-9001}:9001"
+    volumes: [media:/data]
+  minio-init:
+    image: minio/mc:latest
+    depends_on: [minio]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-review-storage}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run node scripts/setup.mjs first}
+    entrypoint: [/bin/sh, -c]
+    command:
+      - |
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 1; done
+        mc mb --ignore-existing local/changecars-media
+        mc anonymous set download local/changecars-media/media
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["127.0.0.1:${MAIL_PORT:-8025}:8025"]
+  init:
+    build: ./backend
+    environment:
+      <<: *api-env
+      # Only the isolated seed process uses development mode for review fixtures.
+      NODE_ENV: development
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Run node scripts/setup.mjs first}
+      SEED_DEMO: ${SEED_REVIEW_DEMO:-true}
+      SEED_WEBSITE_DEMO: ${SEED_REVIEW_DEMO:-true}
+    command: [sh, -c, "npx prisma migrate deploy && npm run db:seed"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  api:
+    build: ./backend
+    environment: *api-env
+    command: [node, dist/main.js]
+    ports: ["${API_PORT:-4000}:4000"]
+    depends_on:
+      init: { condition: service_completed_successfully }
+      minio-init: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      mailpit: { condition: service_started }
+  worker:
+    build: ./backend
+    environment: *api-env
+    command: [node, dist/worker.js]
+    depends_on:
+      api: { condition: service_healthy }
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+    environment:
+      API_URL: http://api:4000/api/v1
+      WEB_ADAPTER_KEY: ${WEB_ADAPTER_KEY:?Run node scripts/setup.mjs first}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+    ports: ["${WEB_PORT:-3000}:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  redisdata:
+  media:

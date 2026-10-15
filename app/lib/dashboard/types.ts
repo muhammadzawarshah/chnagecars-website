@@ -13,6 +13,7 @@ export type MonthlyPoint = {
 export type Dealer = {
     id: string
     name: string
+    logoUrl?: string | null
     contactName: string
     email: string
     phone: string
@@ -67,15 +68,6 @@ export type Lead = {
     source: LeadSource
     status: LeadStatus
     createdAt: string
-}
-
-export type StaffUser = {
-    id: string
-    name: string
-    email: string
-    role: Exclude<Role, "dealer">
-    status: "active" | "invited" | "disabled"
-    lastActive: string
 }
 
 export type Activity = {

@@ -6,6 +6,7 @@ import Icon from "@/app/Pages/Dashboard/ui/Icon";
 import { getDealer } from "@/app/lib/dashboard/api";
 import { can, roleLabels } from "@/app/lib/dashboard/permissions";
 import { getDashboardUser } from "@/app/lib/dashboard/session";
+import { consoleWrite } from "@/app/lib/dashboard/console";
 
 // A super admin sees the dealer's own dashboard, with a banner making clear whose account it is.
 export default async function ViewAsDealerLayout({ children, params }: { children: React.ReactNode, params: Promise<{ id: string }> }) {
@@ -14,6 +15,7 @@ export default async function ViewAsDealerLayout({ children, params }: { childre
   if (!can(user.role, "dealers.viewAs")) notFound();
   const dealer = await getDealer(id);
   if (!dealer) notFound();
+  await consoleWrite(`/admin/console/dealers/${id}/view`, "POST", {});
 
   const banner = (
     <div className="flex flex-wrap items-center justify-between gap-2 bg-gold px-6 py-2.5 text-sm text-white max-[600px]:px-4">
