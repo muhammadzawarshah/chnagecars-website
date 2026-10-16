@@ -145,11 +145,11 @@ export class SearchService {
 
   /** Filter counts for the current search (FR-05 "filter based on available criteria"). */
   async facets(criteria: SearchCriteriaDto) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:${criteriaKey(criteria)}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:v2:${criteriaKey(criteria)}`);
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       const where = buildWhere(criteria);
       const db = this.prisma.replica;
-      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total, seats, engines, powers, dealers] = await Promise.all([
+      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total, seats, engines, powers, dealers, cylinders] = await Promise.all([
         db.vehicle.groupBy({ by: ['makeId'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['fuelType'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['transmission'], where, _count: { _all: true } }),
@@ -167,6 +167,7 @@ export class SearchService {
         db.vehicle.groupBy({ by: ['engineCapacityCc'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['powerKw'], where, _count: { _all: true } }),
         db.vehicle.groupBy({ by: ['dealerId'], where, _count: { _all: true } }),
+        db.vehicle.groupBy({ by: ['cylinders'], where, _count: { _all: true } }),
       ]);
       const makeRows = await db.make.findMany({ where: { id: { in: makes.map((row) => row.makeId) } }, select: { id: true, slug: true, name: true } });
       const [modelRows, variantRows] = await Promise.all([
@@ -188,6 +189,7 @@ export class SearchService {
       );
       return {
         total,
+        cylinders: cylinders.flatMap((row) => row.cylinders === null || row.cylinders <= 0 ? [] : [{ value: row.cylinders, count: row._count._all }]).sort((a, b) => a.value - b.value),
         seats: seats.flatMap((row) => row.seats === null ? [] : [{ value: row.seats, count: row._count._all }]).sort((a, b) => a.value - b.value),
         engineCapacityCc: engines.flatMap((row) => row.engineCapacityCc === null ? [] : [{ value: row.engineCapacityCc, count: row._count._all }]).sort((a, b) => a.value - b.value),
         powerKw: powers.flatMap((row) => row.powerKw === null ? [] : [{ value: row.powerKw, count: row._count._all }]).sort((a, b) => a.value - b.value),
