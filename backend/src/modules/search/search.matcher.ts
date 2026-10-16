@@ -1,6 +1,6 @@
 import { splitCsv } from '../../common/utils/strings';
 import { SearchCriteriaDto } from './dto/search.dto';
-import { COLLECTION_RULES, enumValues, haversineKm, makeModelGroups, seatFilter } from './search.builder';
+import { COLLECTION_RULES, cylinderValues, enumValues, haversineKm, makeModelGroups, seatFilter } from './search.builder';
 
 /** Everything the matcher needs to know about one vehicle. */
 export interface VehicleSnapshot {
@@ -25,6 +25,7 @@ export interface VehicleSnapshot {
   engineCapacityCc: number | null;
   powerKw: number | null;
   seats: number | null;
+  cylinders: number | null;
   isSpecial: boolean;
   isFeatured: boolean;
   popularityScore: number;
@@ -93,7 +94,10 @@ export function matchesCriteria(vehicle: VehicleSnapshot, criteria: SearchCriter
     if (!ok) return false;
   }
 
-  if (criteria.onSpecial && !vehicle.isSpecial) return false;
+  if (criteria.cylinders !== undefined) {
+    if (vehicle.cylinders === null || !cylinderValues(criteria.cylinders).includes(vehicle.cylinders)) return false;
+  }
+  if (criteria.onSpecial !== undefined && vehicle.isSpecial !== criteria.onSpecial) return false;
   if (criteria.featured && !vehicle.isFeatured) return false;
 
   if (criteria.lat !== undefined && criteria.lng !== undefined && criteria.radiusKm) {

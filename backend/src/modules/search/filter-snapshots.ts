@@ -18,6 +18,12 @@ const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).
 const label = (code: string) => code.toLowerCase().replace(/_/g, '-');
 
 export function snapshotPayload(rows: any[]) {
+  const cylinderCounts = new Map<number, number>();
+  for (const row of rows) {
+    if (row.cylinders != null && row.cylinders > 0) {
+      cylinderCounts.set(row.cylinders, (cylinderCounts.get(row.cylinders) ?? 0) + 1);
+    }
+  }
   const dictionaries: Record<string, Record<string, unknown>> = Object.fromEntries(
     ['make', 'model', 'variant', 'body_type', 'fuel_type', 'transmission', 'drivetrain', 'color', 'condition', 'availability', 'province', 'city', 'dealer'].map(key => [key, {}]),
   );
@@ -46,12 +52,13 @@ export function snapshotPayload(rows: any[]) {
       province: scalar('province', province), city,
       dealer: scalar('dealer', row.dealer.slug, row.dealer.name),
       price: row.price, sale_price: row.isSpecial && row.specialPrice ? row.specialPrice : row.price,
-      year: row.year, mileage: row.mileage, seats: row.seats,
+      year: row.year, mileage: row.mileage, seats: row.seats, cylinders: row.cylinders ?? null,
       engine_capacity_cc: row.engineCapacityCc, power_kw: row.powerKw,
       is_special: row.isSpecial, is_featured: row.isFeatured,
     };
   });
-  return { schema_version: 1, total: vehicles.length, dictionaries, vehicles };
+  const cylinders = [...cylinderCounts].sort(([a], [b]) => a - b).map(([value, count]) => ({ value, count }));
+  return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders }, vehicles };
 }
 
 @Injectable()
@@ -60,7 +67,7 @@ export class FilterSnapshotsService {
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService, private readonly config: AppConfig) {}
 
   async manifest() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v1');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v2');
     const cached = await this.cache.get<any>(key);
     if (cached) return cached;
     if (this.generating) return this.generating;

@@ -43,6 +43,12 @@ describe('complete local filter snapshot', () => {
     for (const range of Object.values(result.ranges)) expect(range).toEqual({ min: null, max: null });
   });
 
+  it('counts positive cylinder options, sorts numerically and preserves missing vehicle data', () => {
+    const result = buildFilterData([12, 4, 4, 0, null].map((cylinders, index) => ({ ...row, id: String(index), cylinders })) as never);
+    expect(result.options.cylinders).toEqual([{ value: 4, count: 2 }, { value: 12, count: 1 }]);
+    expect(result.vehicles[4].cylinders).toBeNull();
+  });
+
   it('loads all publicly visible listings without pagination or selected filters and uses versioned caching', async () => {
     const findMany = jest.fn(async () => [row]);
     const cache = { versionedKey: jest.fn(async () => 'snapshot-key'), wrap: jest.fn(async (_key, _ttl, loader) => loader()) };

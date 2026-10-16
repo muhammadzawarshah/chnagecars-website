@@ -4,6 +4,11 @@ import { FilterSnapshotsService, snapshotPayload } from './filter-snapshots';
 
 const row = { id: 'uuid', make: { slug: 'ford', name: 'Ford' }, model: { slug: 'ranger', name: 'Ranger' }, variant: null, province: 'FREE_STATE', city: 'Bethlehem', categories: [{ slug: 'bakkies', name: 'Bakkies', isActive: true }], fuelType: null, transmission: 'UNKNOWN', drivetrain: null, colour: ' White ', condition: 'USED', status: 'PUBLISHED', dealer: { slug: 'dealer', name: 'Dealer' }, price: 100, specialPrice: null, isSpecial: false, isFeatured: false, year: 2020, mileage: null, seats: null, engineCapacityCc: null, powerKw: null };
 describe('immutable filter snapshots', () => {
+  it('includes cylinder values and counts without zero or missing options', () => {
+    const result = snapshotPayload([12, 4, 4, 0, null].map((cylinders, index) => ({ ...row, id: String(index), cylinders })));
+    expect(result.options.cylinders).toEqual([{ value: 4, count: 2 }, { value: 12, count: 1 }]);
+    expect(result.vehicles[4].cylinders).toBeNull();
+  });
   it('preserves nulls and scopes relationships to dictionary entries', () => {
     const result = snapshotPayload([row]);
     expect(result.vehicles[0]).toMatchObject({ id: 'uuid', model: 'ford:ranger', city: 'free-state:bethlehem', fuel_type: null, mileage: null });
