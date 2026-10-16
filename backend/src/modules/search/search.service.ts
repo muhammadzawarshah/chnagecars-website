@@ -132,7 +132,7 @@ export class SearchService {
 
   /** Complete unpaginated public snapshot for app-side dependent filtering. */
   async allFilterData() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'filters:all:v1');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, 'filters:all:v2');
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       const rows = await this.prisma.replica.vehicle.findMany({
         where: buildWhere({}),

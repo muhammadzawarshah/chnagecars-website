@@ -6,7 +6,7 @@ const labelSelect = { slug: true, name: true } as const;
 /** Only public fields needed to filter locally; no images or private listing data. */
 export const filterVehicleSelect = {
   id: true, slug: true, title: true, status: true,
-  price: true, year: true, mileage: true, seats: true,
+  price: true, year: true, mileage: true, seats: true, cylinders: true,
   engineCapacityCc: true, powerKw: true, colour: true,
   condition: true, transmission: true, fuelType: true, drivetrain: true,
   province: true, city: true, branchId: true,
@@ -72,6 +72,7 @@ export function buildFilterData(rows: FilterRow[]) {
       colour: scalar('colour'), city: scalar('city'), province: scalar('province'),
       condition: scalar('condition'), fuelType: scalar('fuelType'), transmission: scalar('transmission'),
       drivetrain: scalar('drivetrain'), seats: scalar('seats'), engineCapacityCc: scalar('engineCapacityCc'), powerKw: scalar('powerKw'),
+      cylinders: options(vehicles.flatMap((row) => row.cylinders != null && row.cylinders > 0 ? [{ value: row.cylinders }] : []), (item) => String(item.value)).sort((a, b) => a.value - b.value),
     },
     ranges: { price: range('price'), year: range('year'), mileage: range('mileage'), engineCapacityCc: range('engineCapacityCc'), powerKw: range('powerKw') },
     vehicles,
