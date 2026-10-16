@@ -121,8 +121,8 @@ enum Drivetrain {
   FWD
   RWD
   AWD
-  FOUR_X_TWO
-  FOUR_X_FOUR
+  FOUR_X_TWO  @map("4x2")
+  FOUR_X_FOUR @map("4x4")
 }
 
 enum FeatureAvailability {

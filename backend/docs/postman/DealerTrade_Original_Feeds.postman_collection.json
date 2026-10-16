@@ -1,0 +1,155 @@
+{
+  "info": {
+    "name": "DealerTrade - Original Documented Feeds",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Original DealerTrade source API from the supplied documentation. These POST endpoints read feeds. Set token in collection variables to the supplied bearer token. Start page at 1 and increment to retrieve subsequent pages. Inspect total and last_page in each response. Source data is separate from the ChangeCars backend. Token is intentionally not embedded in this shareable file."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://dealertrade.co.za"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Dealers feed",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sources\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/apk/dealers?page={{page}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "apk",
+            "dealers"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{page}}"
+            }
+          ]
+        },
+        "description": "Original documented dealer feed. Response is paginated."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  console.log(\"Total:\", body.total, \"Page:\", body.current_page, \"Last page:\", body.last_page);",
+              "  pm.test(\"Paginated data\", function () { pm.expect(body.data).to.be.an(\"array\"); });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Vehicle stock feed",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/apk/stock/by-dealers?page={{page}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "apk",
+            "stock",
+            "by-dealers"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{page}}"
+            }
+          ]
+        },
+        "description": "Original documented stock feed. Response includes total, current_page, last_page and data. Featured is a field on stock records; this request does not apply a featured filter."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  console.log(\"Total:\", body.total, \"Page:\", body.current_page, \"Last page:\", body.last_page);",
+              "  pm.test(\"Paginated data\", function () { pm.expect(body.data).to.be.an(\"array\"); });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "response": []
+    }
+  ]
+}
