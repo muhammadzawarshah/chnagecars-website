@@ -25,6 +25,11 @@ export const COLLECTION_RULES = {
   bakkieCategories: ['bakkies', 'super-cabs', 'king-cabs', 'double-cabs'],
 } as const;
 
+/** "3,4,5" → [3, 4, 5]; anything that is not a positive whole number is dropped. */
+export function cylinderValues(raw?: string): number[] {
+  return [...new Set(splitCsv(raw).map(Number).filter((value) => Number.isInteger(value) && value > 0))];
+}
+
 /** Parses "8+" style seat filters into a predicate shape. */
 export function seatFilter(raw?: string): { exact: number[]; atLeast?: number } {
   const exact: number[] = [];
@@ -140,7 +145,10 @@ export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prism
     });
   }
 
-  if (criteria.onSpecial) and.push({ isSpecial: true });
+  // OR within the parameter; IN leaves out vehicles whose cylinders are unknown.
+  if (criteria.cylinders !== undefined) and.push({ cylinders: { in: cylinderValues(criteria.cylinders) } });
+  // onSpecial=false means "not on special", not "any".
+  if (criteria.onSpecial !== undefined) and.push({ isSpecial: criteria.onSpecial });
   if (criteria.featured) and.push({ isFeatured: true });
 
   if (criteria.lat !== undefined && criteria.lng !== undefined && criteria.radiusKm) {

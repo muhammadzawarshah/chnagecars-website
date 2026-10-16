@@ -259,6 +259,7 @@ export class SearchService {
       engineCapacityCc: row.engineCapacityCc,
       powerKw: row.powerKw,
       seats: row.seats,
+      cylinders: row.cylinders,
       isSpecial: row.isSpecial,
       isFeatured: row.isFeatured,
       popularityScore: row.popularityScore,

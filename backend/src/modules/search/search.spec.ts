@@ -1,4 +1,4 @@
-import { buildOrderBy, buildWhere, criteriaKey, makeModelGroups, seatFilter } from './search.builder';
+import { buildOrderBy, buildWhere, criteriaKey, cylinderValues, makeModelGroups, seatFilter } from './search.builder';
 import { matchesCriteria, VehicleSnapshot } from './search.matcher';
 
 const hilux: VehicleSnapshot = {
@@ -23,6 +23,7 @@ const hilux: VehicleSnapshot = {
   engineCapacityCc: 2755,
   powerKw: 150,
   seats: 5,
+  cylinders: 4,
   isSpecial: false,
   isFeatured: true,
   popularityScore: 10,
@@ -86,6 +87,31 @@ describe('search criteria', () => {
   it('sorts deterministically with an id tie-breaker', () => {
     expect(buildOrderBy('price-asc')).toEqual([{ price: 'asc' }, { id: 'desc' }]);
     expect(buildOrderBy(undefined, 'hot-sellers')[0]).toEqual({ popularityScore: 'desc' });
+  });
+
+  it('filters on any of the listed cylinder counts and leaves out unknown cylinders', () => {
+    expect(cylinderValues('3, 4,5,4')).toEqual([3, 4, 5]);
+    expect(JSON.stringify(buildWhere({ cylinders: '3,4,5' }))).toContain('"cylinders":{"in":[3,4,5]}');
+    expect(matchesCriteria(hilux, { cylinders: '3,4,5' }, now)).toBe(true);
+    expect(matchesCriteria(hilux, { cylinders: '6,7,8' }, now)).toBe(false);
+    expect(matchesCriteria({ ...hilux, cylinders: null }, { cylinders: '3,4,5' }, now)).toBe(false);
+    expect(matchesCriteria({ ...hilux, cylinders: null }, {}, now)).toBe(true);
+  });
+
+  it('treats onSpecial=false as "not on special" and omitted as both', () => {
+    expect(JSON.stringify(buildWhere({ onSpecial: false }))).toContain('"isSpecial":false');
+    expect(JSON.stringify(buildWhere({ onSpecial: true }))).toContain('"isSpecial":true');
+    expect(JSON.stringify(buildWhere({}))).not.toContain('isSpecial');
+    expect(matchesCriteria(hilux, { onSpecial: false }, now)).toBe(true);
+    expect(matchesCriteria({ ...hilux, isSpecial: true }, { onSpecial: false }, now)).toBe(false);
+    expect(matchesCriteria({ ...hilux, isSpecial: true }, {}, now)).toBe(true);
+  });
+
+  it('matches a vehicle on any of its body types', () => {
+    expect(JSON.stringify(buildWhere({ category: 'single-cabs' }))).toContain('"categories":{"some":{"slug":{"in":["single-cabs"]}}}');
+    const both = { ...hilux, categorySlugs: ['bakkies', 'single-cabs'] };
+    expect(matchesCriteria(both, { category: 'single-cabs' }, now)).toBe(true);
+    expect(matchesCriteria(both, { category: 'bakkies' }, now)).toBe(true);
   });
 
   it('cache keys ignore parameter order and empty values', () => {

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsIn, IsInt, IsLatitude, IsLongitude, IsNumber, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsLatitude, IsLongitude, IsNumber, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min } from 'class-validator';
 
 const toBool = ({ value }: { value: unknown }) => (value === undefined ? undefined : value === true || value === 'true' || value === '1');
 
@@ -54,8 +54,10 @@ export class SearchCriteriaDto {
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(0) minPowerKw?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(0) maxPowerKw?: number;
   @ApiPropertyOptional({ description: 'Seat counts, comma-separated; "8+" for eight or more', example: '5,7' }) @IsOptional() @IsString() @MaxLength(50) seats?: string;
+  @ApiPropertyOptional({ description: 'Cylinder counts, comma-separated; matches any of them. Vehicles with unknown cylinders are left out', example: '3,4,5' })
+  @IsOptional() @IsString() @MaxLength(100) @Matches(/^\s*\d{1,2}(\s*,\s*\d{1,2})*\s*$/, { message: 'cylinders must be comma-separated whole numbers, e.g. 3,4,5' }) cylinders?: string;
 
-  @ApiPropertyOptional({ description: 'Only vehicles on special (FR-23)' }) @IsOptional() @Transform(toBool) @IsBoolean() onSpecial?: boolean;
+  @ApiPropertyOptional({ description: 'true: only vehicles on special; false: only vehicles not on special; omit for both (FR-23)' }) @IsOptional() @Transform(toBool) @IsBoolean() onSpecial?: boolean;
   @ApiPropertyOptional() @IsOptional() @Transform(toBool) @IsBoolean() featured?: boolean;
   @ApiPropertyOptional({ description: 'Hide reserved vehicles' }) @IsOptional() @Transform(toBool) @IsBoolean() availableOnly?: boolean;
   @ApiPropertyOptional({ enum: COLLECTIONS }) @IsOptional() @IsIn(COLLECTIONS) collection?: Collection;
@@ -75,7 +77,7 @@ export class SearchVehiclesQueryDto extends SearchCriteriaDto {
 export const CRITERIA_KEYS = [
   'q', 'make', 'model', 'variant', 'condition', 'category', 'fuelType', 'transmission', 'drivetrain', 'province', 'city', 'colour',
   'dealer', 'branchId', 'minPrice', 'maxPrice', 'minYear', 'maxYear', 'minMileage', 'maxMileage', 'minEngineCc', 'maxEngineCc',
-  'minPowerKw', 'maxPowerKw', 'seats', 'onSpecial', 'featured', 'availableOnly', 'collection', 'lat', 'lng', 'radiusKm',
+  'minPowerKw', 'maxPowerKw', 'seats', 'cylinders', 'onSpecial', 'featured', 'availableOnly', 'collection', 'lat', 'lng', 'radiusKm',
 ] as const satisfies readonly (keyof SearchCriteriaDto)[];
 
 export function pickCriteria(source: SearchCriteriaDto): SearchCriteriaDto {
