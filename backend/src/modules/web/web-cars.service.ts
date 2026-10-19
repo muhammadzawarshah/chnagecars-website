@@ -166,7 +166,7 @@ export type WebCar = ReturnType<typeof toWebCar>;
 export function toWebCar(row: CarRow) {
   const sourceDealer = dealerSourceDetails((row.sourceData as { dealertradeDealer?: unknown } | null)?.dealertradeDealer);
   const slugs = row.categories.map((category) => category.slug);
-  if (row.variant?.bodyCategory) slugs.push(row.variant.bodyCategory.slug);
+  if ((row.sourceData as { importPolicy?: string } | null)?.importPolicy !== 'dealertrade-only' && row.variant?.bodyCategory) slugs.push(row.variant.bodyCategory.slug);
   const gallery = row.images.map((image) => image.largeUrl ?? image.url ?? image.mediumUrl).filter((url): url is string => !!url);
   const image = row.primaryImageUrl ?? gallery[0] ?? NO_IMAGE;
   const province = PROVINCE_NAMES[row.province];

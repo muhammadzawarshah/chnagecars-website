@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import { provinceFromName, slugify } from '../src/modules/web/web-format';
 
 type Row = Record<string, any>;
+const strictSource = process.env.DEALERTRADE_STRICT_SOURCE === '1';
 const dir = resolve(process.env.DEALERTRADE_IMPORT_DIR || resolve(__dirname, '../.local/dealertrade'));
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL!, max: 12 }) });
 const uuid = (key: string, source = 'dealertrade') => {
@@ -44,6 +45,13 @@ async function snapshots(kind: string, rows: Row[], key: string) {
 }
 
 async function main() {
+  if (strictSource) {
+    const connection = new URL(process.env.DATABASE_URL!);
+    if (connection.hostname !== '127.0.0.1' || connection.port !== '55432' || !/^\/changecars_strict_stage_/.test(connection.pathname)) throw Error('Strict rebuild requires an isolated local staging database');
+    if (await db.vehicle.count() || await db.dealer.count()) throw Error('Strict rebuild stage must have empty inventory and dealers');
+  }
+  const preservedSlugs = strictSource && existsSync(resolve(dir, 'preserved-slugs.json')) ? new Map<string,string>(JSON.parse(readFileSync(resolve(dir, 'preserved-slugs.json'), 'utf8')).map((row: Row) => [row.id, row.slug])) : new Map<string,string>();
+  const preservedDealerSlugs = strictSource && existsSync(resolve(dir, 'preserved-dealer-slugs.json')) ? new Map<string,string>(JSON.parse(readFileSync(resolve(dir, 'preserved-dealer-slugs.json'), 'utf8')).map((row: Row) => [row.id, row.slug])) : new Map<string,string>();
   const dealers: Row[] = JSON.parse(readFileSync(resolve(dir,'dealers-all.json'),'utf8'));
   const stock: Row[] = JSON.parse(readFileSync(resolve(dir,'stock-all.json'),'utf8'));
   for (const [rows,key] of [[dealers,'dealer_id'],[stock,'vehicle_id']] as const) {
@@ -74,12 +82,12 @@ async function main() {
   const issues: Row[] = [];
   for (const r of dealers) {
     const key=String(r.dealer_id), id=key, branchId=uuid(`branch:${key}`,'fbook');
-    const existing=oldDealers.get(id), province=provinceFromName(r.province);
-    if (!province) {issues.push({dealerId:key,reason:'Unknown province; raw record retained'});continue;}
+    const existing=oldDealers.get(id), province=provinceFromName(typeof r.province === 'string' ? r.province : '');
+    if (!province || typeof r.dealer_name !== 'string' || !r.dealer_name.trim()) {issues.push({dealerId:key,reason:!province ? 'Unknown province; raw record retained' : 'Missing dealer name; raw record retained'});continue;}
     const city=existing?.city || dealerCities.get(key) || '';
     if(!city) issues.push({dealerId:key,reason:'Dealer city not supplied; left empty'});
-    const data={name:r.dealer_name,phone:r.telephone || existing?.phone || '',email:r.email || existing?.email || `dealertrade-${key}@example.invalid`,address:r.address,province,city,description:r.description || existing?.description};
-    await db.dealer.upsert({where:{id},create:{id,...data,slug:`${slugify(r.dealer_name)}-fbook-${key}`,status:'APPROVED',approvedAt:new Date()},update:data});
+    const data={logoUrl: strictSource && r.dealer_image ? new URL('images/200/' + String(r.dealer_image).replace(/^\//, ''), 'https://www.changecars.co.za/').href : undefined,name:r.dealer_name,phone:r.telephone || existing?.phone || '',email:strictSource ? (r.email ?? '') : r.email || existing?.email || `dealertrade-${key}@example.invalid`,address:r.address,province,city,description:r.description || existing?.description};
+    await db.dealer.upsert({where:{id},create:{id,...data,slug:preservedDealerSlugs.get(key) ?? `${slugify(r.dealer_name)}-${strictSource ? 'dealertrade' : 'fbook'}-${key}`,status:'APPROVED',approvedAt:new Date()},update:data});
     const branch={dealerId:id,name:r.dealer_name,phone:data.phone,email:r.email || null,address:r.address,province,city,isHeadOffice:true};
     await db.branch.upsert({where:{id:branchId},create:{id:branchId,...branch,slug:'feed-head-office'},update:branch});
     dealerMap.set(key,{id,branchId,province,city,raw:r});
@@ -97,8 +105,8 @@ async function main() {
     const makeSlug=slugify(r.make_name), key=makeSlug+':'+slugify(r.model_name);
     if(models.has(key))continue;
     let makeId=makes.get(makeSlug);
-    if(!makeId){const m=await db.make.upsert({where:{slug:makeSlug},create:{name:r.make_name,slug:makeSlug},update:{}});makeId=m.id;makes.set(makeSlug,makeId);}
-    const m=await db.model.upsert({where:{makeId_slug:{makeId,slug:slugify(r.model_name)}},create:{makeId,name:r.model_name,slug:slugify(r.model_name)},update:{}});
+    if(!makeId){const m=await db.make.upsert({where:{slug:makeSlug},create:{name:r.make_name,slug:makeSlug},update:strictSource ? {name:r.make_name} : {}});makeId=m.id;makes.set(makeSlug,makeId);}
+    const m=await db.model.upsert({where:{makeId_slug:{makeId,slug:slugify(r.model_name)}},create:{makeId,name:r.model_name,slug:slugify(r.model_name)},update:strictSource ? {name:r.model_name} : {}});
     models.set(key,{makeId,modelId:m.id});
   }
   const categories=new Map((await db.category.findMany()).map(c=>[c.slug,c.id]));
@@ -118,25 +126,25 @@ async function main() {
         const year=previous?.year ?? (positive(source.year) && Number(source.year)>=1900 && Number(source.year)<=2100 ? Number(source.year) : null);
         const colour=previous?.colour || source.exterior_color || null;
         const transmission=({1:'MANUAL',2:'AUTOMATIC'} as const)[r.transmission_type_id as 1|2] ?? previous?.transmission ?? 'UNKNOWN';
-        const fuelType=previous?.fuelType ?? 'OTHER'; // Numeric fuel IDs have no documented mapping.
+        const fuelType=strictSource ? ({1:'PETROL',2:'DIESEL',3:'ELECTRIC',4:'HYBRID'} as const)[r.fuel_type_id as 1|2|3|4] ?? 'OTHER' : previous?.fuelType ?? 'OTHER'; // Explicit source ID mapping; unknown IDs retain OTHER plus the untouched raw ID.
         const drivetrain=({ '4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR','AWD':'AWD','FWD':'FWD','RWD':'RWD' } as Record<string,Drivetrain>)[r.driven_wheels] ?? previous?.drivetrain ?? null;
         const id=key;
         const images=(r.photos ?? []).map((p:string,position:number)=>{
-          const sourceUrl=imageUrl(r,p), local=localImage(sourceUrl);
+          const sourceUrl=imageUrl(r,p), local=strictSource ? {url:sourceUrl,size:null} : localImage(sourceUrl);
           return {id:uuid(`image:${key}:${position}`),vehicleId:id,storageKey:`dealertrade/${key}/${position}`,url:local.url,sizeBytes:local.size,contentType:/\.png$/i.test(sourceUrl)?'image/png':/\.webp$/i.test(sourceUrl)?'image/webp':'image/jpeg',position,isPrimary:position===0,status:'READY',altText:[year,r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' ')};
         });
         const discount=positive(r.discount_price), title=[year,r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' ');
         const mileage=r.mileage!==null && r.mileage!=='' && Number.isSafeInteger(Number(r.mileage)) && Number(r.mileage)>=0 ? Number(r.mileage) : previous?.mileage ?? null;
-        const data={dealerId:dealer.id,branchId:dealer.branchId,...cat,stockNumber:key,title,year,colour,mileage,price,specialPrice:discount && discount<price?discount:null,isSpecial:!!discount&&discount<price,condition,
+        const data={isFeatured:strictSource ? r.featured===1 : undefined,dealerId:dealer.id,branchId:dealer.branchId,...cat,stockNumber:strictSource ? (r.stockno == null || r.stockno === '' ? null : String(r.stockno)) : key,title,year,colour,mileage,price,specialPrice:discount && discount<price?discount:null,isSpecial:!!discount&&discount<price,condition,
           transmission,fuelType,drivetrain,engineCapacityCc:positive(r.engine_capacity) ?? previous?.engineCapacityCc ?? null,powerKw:positive(r.kilowatts) ?? previous?.powerKw ?? null,cylinders:positive(r.cylinders) ?? previous?.cylinders ?? null,seats:positive(r.no_seats) ?? previous?.seats ?? null,doors:positive(r.no_doors) ?? previous?.doors ?? null,
           province:l.province ?? previous?.province ?? dealer.province,city:l.city ?? previous?.city ?? dealer.city,
           primaryImageUrl:images[0]?.url ?? previous?.primaryImageUrl ?? null,imageCount:images.length,
-          sourceData:{...source,vehicle_id:key,dealertrade:r,dealertradeDealer:dealer.raw} as Prisma.InputJsonValue,
+          sourceData:{...source,...(strictSource ? {importPolicy:'dealertrade-only'} : {}),vehicle_id:key,dealertrade:r,dealertradeDealer:dealer.raw} as Prisma.InputJsonValue,
           description:[r.comment,r.additional_information,r.extras].filter(v=>typeof v==='string'&&v.trim()).join('\n\n') || undefined};
         const category=categories.get(resolveBodyType(r)?.slugs[0] ?? '');
         const bodyCategories=[...(category?[{id:category}]:[]),...(previous?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>({id:c.id}))??[])];
         await db.$transaction(async tx=>{
-          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:`${slugify(title)}-fbook-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,categories:{connect:bodyCategories}},update:{...data,categories:{set:bodyCategories},...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
+          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:preservedSlugs.get(key) ?? `${slugify(title)}-${strictSource ? 'dealertrade' : 'fbook'}-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,categories:{connect:bodyCategories}},update:{...data,categories:{set:bodyCategories},...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
           if(images.length){
             const json=JSON.stringify(images);
             await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"altText","updatedAt")
@@ -153,7 +161,7 @@ async function main() {
       }catch(e){failures.push({vehicleId:key,error:String(e)});if(failures.length===1)console.error(e);}
     }
   }));
-  const report={source:'https://dealertrade.co.za',at:new Date().toISOString(),rawDealers:dealers.length,rawVehicles:stock.length,imported,created,updated:imported-created,photos,missing,issues,failures};
+  const report={source:'https://dealertrade.co.za',at:new Date().toISOString(),strictSource,rawDealers:dealers.length,rawVehicles:stock.length,imported,created,updated:imported-created,photos,missing,issues,failures};
   writeFileSync(resolve(dir,'import-report.json'),JSON.stringify(report,null,2));
   console.log({...report,issues:issues.length,failures:failures.length});
   if(failures.length)throw Error('Import failures; see import-report.json');

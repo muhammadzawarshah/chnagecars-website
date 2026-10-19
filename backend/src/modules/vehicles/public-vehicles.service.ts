@@ -71,7 +71,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       });
       if (!row) return null;
       const [features, moreFromThisDealer, youMightLike] = await Promise.all([
-        this.catalogue.resolveFeatures({
+        (row.sourceData as { importPolicy?: string } | null)?.importPolicy === 'dealertrade-only' ? Promise.resolve([]) : this.catalogue.resolveFeatures({
           makeId: row.makeId,
           modelId: row.modelId,
           generationId: row.generationId,
@@ -136,7 +136,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const items = await Promise.all(
       rows.map(async ({ makeId, modelId, generationId, variantId, ...row }) => ({
         ...withAvailability(row),
-        features: await this.catalogue.resolveFeatures({ makeId, modelId, generationId, variantId, vehicleId: row.id }),
+        features: (row.sourceData as { importPolicy?: string } | null)?.importPolicy === 'dealertrade-only' ? [] : await this.catalogue.resolveFeatures({ makeId, modelId, generationId, variantId, vehicleId: row.id }),
       })),
     );
     return { items: ids.map((id) => items.find((item) => item.id === id)).filter(Boolean) };
