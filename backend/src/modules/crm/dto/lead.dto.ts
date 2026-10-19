@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsDateString, IsEmail, IsEnum, IsIn, IsOptional, IsString, IsUUID, Length, Matches, MaxLength, ValidateIf } from 'class-validator';
@@ -14,7 +15,7 @@ export class CreateLeadDto {
   @ApiProperty({ enum: [LeadSource.PHONE, LeadSource.WHATSAPP, LeadSource.EMAIL, LeadSource.WALK_IN, LeadSource.OTHER] })
   @IsIn([LeadSource.PHONE, LeadSource.WHATSAPP, LeadSource.EMAIL, LeadSource.WALK_IN, LeadSource.OTHER])
   source: LeadSource;
-  @ApiPropertyOptional() @IsOptional() @IsUUID() vehicleId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() vehicleId?: string;
   @ApiPropertyOptional() @IsOptional() @IsUUID() branchId?: string;
   @ApiPropertyOptional() @IsOptional() @IsUUID() assignedToId?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(4000) note?: string;
@@ -25,7 +26,7 @@ export class UpdateLeadDto {
   @ApiPropertyOptional() @IsOptional() @Transform(trim) @IsString() @Length(1, 160) name?: string;
   @ApiPropertyOptional() @IsOptional() @IsEmail() email?: string;
   @ApiPropertyOptional() @IsOptional() @Matches(PHONE_RULE) phone?: string;
-  @ApiPropertyOptional() @IsOptional() @IsUUID() vehicleId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() vehicleId?: string;
   @ApiPropertyOptional({ nullable: true }) @IsOptional() @ValidateIf((_, value) => value !== null) @IsDateString() nextFollowUpAt?: string | null;
 }
 

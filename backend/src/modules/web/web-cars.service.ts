@@ -1,3 +1,5 @@
+import { resolveBodyType } from '../vehicles/body-type-mapping';
+import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Injectable } from '@nestjs/common';
 import { DealerStatus, ImageStatus, Prisma, VehicleCondition } from '../../generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
@@ -115,6 +117,7 @@ export function parseWebCarSearch(query: Record<string, unknown>): WebCarSearch 
 
 const carSelect = {
   id: true,
+  sourceData: true,
   title: true,
   year: true,
   price: true,
@@ -176,7 +179,7 @@ export function toWebCar(row: CarRow) {
     price: effPrice,
     monthlyPrice: monthly,
     formattedMonthlyPrice: `R ${monthly.toLocaleString('en-US').replace(/,/g, ' ')} pm`,
-    bodyType: bodyTypeLabel(slugs),
+    bodyType: resolveBodyType((row.sourceData as { dealertrade?: Record<string, unknown> } | null)?.dealertrade ?? {})?.label ?? 'Not available',
     fuel: FUEL_LABELS[row.fuelType],
     transmission: TRANSMISSION_LABELS[row.transmission],
     drive: driveLabel(row.drivetrain),
@@ -243,7 +246,7 @@ export class WebCarsService {
 
   /** Listings the public may browse: published or reserved, from an approved dealer. */
   private publicWhere(extra: Prisma.VehicleWhereInput = {}): Prisma.VehicleWhereInput {
-    return { status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: DealerStatus.APPROVED }, ...extra };
+    return { ...extra, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: DealerStatus.APPROVED }, ...dealerTradeVehicleWhere() };
   }
 
   async search(search: WebCarSearch) {
@@ -393,7 +396,7 @@ export class WebCarsService {
     const id = fromWebId(webId);
     if (!id) return null;
     const row = await this.db.vehicle.findFirst({
-      where: { id, status: { in: statuses }, dealer: { status: DealerStatus.APPROVED } },
+      where: { id, status: { in: statuses }, dealer: { status: DealerStatus.APPROVED }, ...dealerTradeVehicleWhere() },
       select: { ...carSelect, ...(extra ?? {}), makeId: true, modelId: true },
     });
     return row;

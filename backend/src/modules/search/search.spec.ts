@@ -108,7 +108,8 @@ describe('search criteria', () => {
   });
 
   it('matches a vehicle on any of its body types', () => {
-    expect(JSON.stringify(buildWhere({ category: 'single-cabs' }))).toContain('"categories":{"some":{"slug":{"in":["single-cabs"]}}}');
+    expect(JSON.stringify(buildWhere({ category: 'single-cabs' }))).toContain('"categories":{"some":{"slug":{"in":["single-cabs","bakkies"]}}}');
+    expect(matchesCriteria({ ...hilux, categorySlugs: ['single-cabs'] }, { category: 'bakkies' }, now)).toBe(true);
     const both = { ...hilux, categorySlugs: ['bakkies', 'single-cabs'] };
     expect(matchesCriteria(both, { category: 'single-cabs' }, now)).toBe(true);
     expect(matchesCriteria(both, { category: 'bakkies' }, now)).toBe(true);

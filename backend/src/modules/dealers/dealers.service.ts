@@ -1,3 +1,4 @@
+import { DealerTradeIdentityService } from '../../infrastructure/dealertrade/dealertrade-identity.service';
 import { Injectable } from '@nestjs/common';
 import {
   DealerMemberRole,
@@ -71,6 +72,7 @@ export class DealersService {
     private readonly outbox: OutboxService,
     private readonly storage: StorageService,
     private readonly webSync: WebSyncService,
+    private readonly identities: DealerTradeIdentityService,
   ) {}
 
   // ───────────── registration (FR-11) ─────────────
@@ -125,8 +127,10 @@ export class DealersService {
   // ───────────── public directory ─────────────
 
   async listPublic(query: PublicDealerQueryDto) {
+    await this.identities.refresh();
     const { page, pageSize, skip, take } = pageArgs(query);
     const where: Prisma.DealerWhereInput = {
+      id: { in: this.identities.dealerIds() },
       status: DealerStatus.APPROVED,
       ...(query.province ? { province: query.province } : {}),
       ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
@@ -139,8 +143,9 @@ export class DealersService {
   }
 
   async getPublic(slug: string) {
+    await this.identities.refresh();
     const dealer = await this.prisma.replica.dealer.findFirst({
-      where: { slug, status: DealerStatus.APPROVED },
+      where: { slug, status: DealerStatus.APPROVED, id: { in: this.identities.dealerIds() } },
       select: {
         ...publicDealerSelect,
         branches: {

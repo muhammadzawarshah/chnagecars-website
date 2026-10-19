@@ -1,3 +1,4 @@
+import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Injectable } from '@nestjs/common';
 import { ContentStatus, Prisma } from '../../generated/prisma/client';
 import { pageArgs, toPage } from '../../common/dto/pagination.dto';
@@ -351,7 +352,7 @@ export class ContentService {
     const promotion = await this.prisma.replica.promotion.findFirst({ where: { slug, ...this.activePromotion() } });
     if (!promotion) throw Errors.notFound('Promotion');
     const { page, pageSize, skip, take } = pageArgs(query, 50);
-    const where: Prisma.VehicleWhereInput = { promotionId: promotion.id, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' } };
+    const where: Prisma.VehicleWhereInput = { promotionId: promotion.id, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' }, ...dealerTradeVehicleWhere() };
     const [rows, total] = await Promise.all([
       this.prisma.replica.vehicle.findMany({ where, select: publicVehicleSelect, orderBy: { publishedAt: 'desc' }, skip, take }),
       this.prisma.replica.vehicle.count({ where }),

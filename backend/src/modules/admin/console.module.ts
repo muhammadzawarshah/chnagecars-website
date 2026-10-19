@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../common/pipes/marketplace-id.pipe';
 import { Body, Controller, Get, Injectable, Module, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
@@ -18,7 +19,7 @@ import { FilterSnapshotsService } from '../search/filter-snapshots';
 import { SearchModule } from '../search/search.service';
 
 class ConsoleLeadQuery extends PaginationQueryDto {
-  @IsOptional() @IsUUID() dealerId?: string;
+  @IsOptional() @IsMarketplaceId() dealerId?: string;
   @IsOptional() @IsString() @MaxLength(100) q?: string;
 }
 
@@ -135,7 +136,7 @@ export class ConsoleController {
   @Get('snapshots') snapshots() { return this.service.snapshotHistory(); }
   @Post('snapshots/refresh') refresh() { return this.service.refreshSnapshot(); }
   @Get('settings') settings() { return this.service.settings(); }
-  @Post('dealers/:id/view') view(@Param('id', ParseUUIDPipe) id: string) { return this.service.viewDealer(id); }
+  @Post('dealers/:id/view') view(@Param('id', ParseMarketplaceIdPipe) id: string) { return this.service.viewDealer(id); }
 }
 
 @Module({ imports: [SearchModule, CrmModule], controllers: [ConsoleController], providers: [ConsoleService] })

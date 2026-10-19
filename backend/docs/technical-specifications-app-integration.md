@@ -8,7 +8,7 @@ This guide covers the 13 technical specification rows on the Car Detail Page. Us
 GET /api/v1/vehicles/{slugOrId}
 ```
 
-Use the selected listing's slug or internal vehicle UUID. Read `technicalSpecifications` from the returned vehicle object. The detail controller returns the vehicle directly; the website adapter also forwards its `technicalSpecifications` object. Do not look up another listing by make/model to fill missing specifications.
+Use the selected listing's original DealerTrade vehicle ID, slug or legacy internal UUID. Database primary IDs and public vehicle/dealer IDs now use original DealerTrade IDs stored/serialized as strings; see [the local DealerTrade-only guide](local-dealertrade-only.md). Read `technicalSpecifications` from the returned vehicle object. The detail controller returns the vehicle directly; the website adapter also forwards its `technicalSpecifications` object. Do not look up another listing by make/model to fill missing specifications.
 
 The following is an illustrative response fragment, not a default vehicle and not a captured live response:
 
@@ -63,7 +63,7 @@ Finance controls may remain outside the three technical sections. Do not add Yea
 - Power: append uppercase `KW`, with no space: `110KW`. Do not show `110 kW` or `110.0KW`.
 - Engine capacity: keep the original cc value and append lowercase `cc`, with no space: `1395cc`. Do not derive it from a rounded litre label such as `1.4L`.
 - Fuel tank: append uppercase `L`, with no space: `50L`. Preserve a meaningful fractional value if present, such as `52.5L`; do not force `.0`.
-- Body Type, Colour, tyre values and Driven Wheels: trim outer whitespace and uppercase the value. Preserve internal spaces and symbols, so `215/50 R18` stays `215/50 R18`. Do not change `4X2` to `4x2` or a descriptive phrase.
+- Colour, tyre values and Driven Wheels: trim outer whitespace and uppercase the value. Preserve internal spaces and symbols, so `215/50 R18` stays `215/50 R18`. Do not change `4X2` to `4x2` or a descriptive phrase.
 - Introduction Date: parse a valid date-only `YYYY-MM-DD` and display the numeric day, full English month and four-digit year. Use UTC/date-only parsing to avoid timezone changes. `2024-01-17` becomes `17 January 2024`, without an ordinal, comma or leading zero. Reject impossible dates such as `2024-02-31`.
 - Turbo / Supercharged: use the nested value, `T`, `S` or `N`. Do not use the separate top-level `turboSupercharged`, which contains descriptive values such as `TURBO`. Unknown or ambiguous source values remain missing.
 
@@ -73,7 +73,7 @@ Keep all 13 rows and display exactly `Not available` for null, absent or empty v
 
 On navigation between listings, replace the complete specification object with the new listing's response. Key cached detail data by listing slug/UUID and ignore stale responses from the previously selected vehicle. Do not merge non-null specifications from the previous listing into the next one.
 
-Body Type in this table is the selected listing's source label. The search filter's 15 canonical options are a separate mapping: do not use a selected filter label to overwrite the actual listing specification.
+Body Type in this table is now the canonical 15-name label resolved from this listing's DealerTrade source ID/code. Preserve its exact capitalization; for example, `Hatchback`, `Coupé`, `SUV`. The same mapping drives the search categories. `bodyTypeRaw` and `bodyTypeId` retain the original source code and ID. See the Body Type integration guide for the full mapping and ambiguous cases.
 
 ## 5. Backend mapping reference
 
@@ -83,7 +83,7 @@ This section documents the existing implementation; the app must consume the pub
 | --- | --- |
 | `doors` | `feed.no_doors`, then `row.doors` |
 | `seats` | `feed.no_seats`, then `row.seats` |
-| `bodyType` | `feed.body_type`, then this listing's `sourceData.body_style` |
+| `bodyType` | Shared verified DealerTrade source-ID/code mapping; null when unresolved |
 | `colour` | `row.colour` |
 | `introductionDate` | `feed.introduction_date` only |
 | `powerKw` | `feed.kilowatts`, then `row.powerKw` |

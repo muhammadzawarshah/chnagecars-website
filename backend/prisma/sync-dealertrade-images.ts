@@ -22,7 +22,7 @@ async function main(){
     const data=JSON.stringify(ready.slice(start,start+500));
     await db.$transaction([
       db.$executeRaw`UPDATE vehicle_images i SET url=m.url,"sizeBytes"=m.size,"updatedAt"=NOW() FROM jsonb_to_recordset(${data}::jsonb) AS m(id uuid,url text,size int) WHERE i.id=m.id`,
-      db.$executeRaw`UPDATE vehicles v SET "primaryImageUrl"=m.url,"updatedAt"=NOW() FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" uuid,url text,position int) WHERE v.id=m."vehicleId" AND m.position=0`,
+      db.$executeRaw`UPDATE vehicles v SET "primaryImageUrl"=m.url,"updatedAt"=NOW() FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" text,url text,position int) WHERE v.id=m."vehicleId" AND m.position=0`,
     ]);
   }
   const report={vehicles:vehicles.length,newlyLocal:ready.length,alreadyLocal:local,remoteImages:remote};

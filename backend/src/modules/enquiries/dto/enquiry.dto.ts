@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
@@ -39,14 +40,14 @@ export class ContactDto {
 }
 
 export class VehicleEnquiryDto extends ContactDto {
-  @ApiProperty() @IsUUID() vehicleId: string;
+  @ApiProperty() @IsMarketplaceId() vehicleId: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(4000) message?: string;
   @ApiPropertyOptional({ description: 'Customer would like finance' }) @IsOptional() @IsBoolean() interestedInFinance?: boolean;
   @ApiPropertyOptional({ description: 'Customer has a vehicle to trade in' }) @IsOptional() @IsBoolean() hasTradeIn?: boolean;
 }
 
 export class TestDriveDto extends ContactDto {
-  @ApiProperty() @IsUUID() vehicleId: string;
+  @ApiProperty() @IsMarketplaceId() vehicleId: string;
   @ApiProperty({ description: 'Preferred date/time (ISO 8601)' }) @IsDateString() preferredAt: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(2000) message?: string;
 }
@@ -56,7 +57,7 @@ export class QuoteRequestDto extends ContactDto {
   @ApiProperty() @IsUUID() makeId: string;
   @ApiProperty() @IsUUID() modelId: string;
   @ApiPropertyOptional() @IsOptional() @IsUUID() variantId?: string;
-  @ApiPropertyOptional({ description: 'Send to a specific dealer; otherwise the platform team handles it' }) @IsOptional() @IsUUID() dealerId?: string;
+  @ApiPropertyOptional({ description: 'Send to a specific dealer; otherwise the platform team handles it' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
   @ApiProperty({ enum: Province }) @IsEnum(Province) province: Province;
   @ApiPropertyOptional({ description: 'Colour, extras, timing, finance needs...' }) @IsOptional() @IsString() @MaxLength(4000) requirements?: string;
 }
@@ -86,7 +87,7 @@ export class TradeInVehicleDto {
 
 /** FR-20 trade-in when buying another vehicle. */
 export class TradeInDto extends ContactDto {
-  @ApiPropertyOptional({ description: 'Listed vehicle the customer wants (routes to its dealer)' }) @IsOptional() @IsUUID() vehicleId?: string;
+  @ApiPropertyOptional({ description: 'Listed vehicle the customer wants (routes to its dealer)' }) @IsOptional() @IsMarketplaceId() vehicleId?: string;
   @ApiPropertyOptional({ description: 'Desired replacement vehicle if not a specific listing' }) @IsOptional() @IsString() @MaxLength(200) desiredVehicle?: string;
   @ApiProperty({ type: TradeInVehicleDto }) @ValidateNested() @Type(() => TradeInVehicleDto) tradeIn: TradeInVehicleDto;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(2000) message?: string;
@@ -132,7 +133,7 @@ export class HelpMeFindDto extends ContactDto {
 
 /** Finance enquiry (FR-33), optionally for a listed vehicle. */
 export class FinanceEnquiryDto extends ContactDto {
-  @ApiPropertyOptional() @IsOptional() @IsUUID() vehicleId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() vehicleId?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) vehiclePrice?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) deposit?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(6) @Max(96) termMonths?: number;
@@ -146,7 +147,7 @@ export class FinanceEnquiryDto extends ContactDto {
 
 /** FR-30 insurance quote request. */
 export class InsuranceEnquiryDto extends ContactDto {
-  @ApiPropertyOptional() @IsOptional() @IsUUID() vehicleId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() vehicleId?: string;
   @ApiPropertyOptional({ example: '2022 Toyota Corolla Cross 1.8 Xi' }) @IsOptional() @IsString() @MaxLength(200) vehicleDescription?: string;
   @ApiPropertyOptional({ enum: ['COMPREHENSIVE', 'THIRD_PARTY_FIRE_THEFT', 'THIRD_PARTY', 'NOT_SURE'] })
   @IsOptional()
@@ -180,7 +181,7 @@ export class EnquiryQueryDto extends PaginationQueryDto {
 }
 
 export class AdminEnquiryQueryDto extends EnquiryQueryDto {
-  @ApiPropertyOptional() @IsOptional() @IsUUID() dealerId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() dealerId?: string;
   @ApiPropertyOptional({ description: 'Only enquiries handled by the platform team (no dealer)' })
   @IsOptional()
   @Transform(({ value }) => value === true || value === 'true' || value === '1')
@@ -190,5 +191,5 @@ export class AdminEnquiryQueryDto extends EnquiryQueryDto {
 export class AdminUpdateEnquiryDto {
   @ApiPropertyOptional({ enum: EnquiryStatus }) @IsOptional() @IsEnum(EnquiryStatus) status?: EnquiryStatus;
   @ApiPropertyOptional({ description: 'Platform team member handling it' }) @IsOptional() @IsUUID() assignedAdminId?: string;
-  @ApiPropertyOptional({ description: 'Route to a dealer (creates a lead for them)' }) @IsOptional() @IsUUID() dealerId?: string;
+  @ApiPropertyOptional({ description: 'Route to a dealer (creates a lead for them)' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
 }

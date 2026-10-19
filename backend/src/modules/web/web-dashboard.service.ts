@@ -14,7 +14,7 @@ import {
   PLAN_LABELS,
   PROVINCE_NAMES,
   WebDealerStatus,
-  isUuid,
+  isMarketplaceId,
   localPhone,
   ymd,
   ymdhm,
@@ -39,7 +39,7 @@ function monthWindow(now = new Date()) {
 }
 
 const dealerFilter = (column: string, ids: string[] | null) =>
-  ids ? Prisma.sql`AND ${Prisma.raw(column)} IN (${Prisma.join(ids.map((id) => Prisma.sql`${id}::uuid`))})` : Prisma.empty;
+  ids ? Prisma.sql`AND ${Prisma.raw(column)} IN (${Prisma.join(ids.map((id) => Prisma.sql`${id}::text`))})` : Prisma.empty;
 
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
@@ -94,7 +94,7 @@ export class WebDashboardService {
   /** Admins may open any dealer; dealer staff only their own dealership. */
   private dealerScope(viewer: Viewer, dealerId?: string): string | null {
     if (viewer.isAdmin) {
-      if (dealerId && !isUuid(dealerId)) throw Errors.notFound('Dealer');
+      if (dealerId && !isMarketplaceId(dealerId)) throw Errors.notFound('Dealer');
       return dealerId ?? null;
     }
     if (!viewer.dealer) throw Errors.forbidden('NOT_A_DEALER', 'This account is not linked to a dealership');
@@ -117,7 +117,7 @@ export class WebDashboardService {
 
   async dealersById(viewer: Viewer, ids: string[]) {
     this.requireAdmin(viewer);
-    const wanted = [...new Set(ids.filter(isUuid))].slice(0, 4);
+    const wanted = [...new Set(ids.filter(isMarketplaceId))].slice(0, 4);
     if (!wanted.length) return [];
     const rows = await this.prisma.dealer.findMany({ where: { id: { in: wanted } }, select: dealerSelect });
     const summaries = await this.withStats(rows);
@@ -134,7 +134,7 @@ export class WebDashboardService {
   /** The console's Approve / Suspend / Reactivate buttons. */
   async setDealerStatus(viewer: Viewer, id: string, status: WebDealerStatus) {
     this.requireAdmin(viewer);
-    if (!isUuid(id)) throw Errors.notFound('Dealer');
+    if (!isMarketplaceId(id)) throw Errors.notFound('Dealer');
     if (status === 'pending') throw Errors.badRequest('INVALID_STATUS', 'A dealer cannot be moved back to pending');
     const target = status === 'active' ? DealerStatus.APPROVED : DealerStatus.SUSPENDED;
     const reason = target === DealerStatus.SUSPENDED ? 'Suspended from the admin console' : undefined;

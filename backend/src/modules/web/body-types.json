@@ -3,30 +3,54 @@
     "label": "Boat",
     "slugs": [
       "boats"
-    ]
+    ],
+    "sourceIds": [],
+    "sourceCodes": []
   },
   {
     "label": "Caravan",
     "slugs": [
       "caravans"
-    ]
+    ],
+    "sourceIds": [],
+    "sourceCodes": []
   },
   {
     "label": "Convertible",
     "slugs": [
       "convertibles"
+    ],
+    "sourceIds": [
+      3
+    ],
+    "sourceCodes": [
+      "C/B"
     ]
   },
   {
     "label": "Coupé",
     "slugs": [
       "coupes"
+    ],
+    "sourceIds": [
+      5
+    ],
+    "sourceCodes": [
+      "C/P"
     ]
   },
   {
     "label": "Double Cab Bakkie",
     "slugs": [
       "double-cabs"
+    ],
+    "sourceIds": [
+      9
+    ],
+    "sourceCodes": [
+      "D/C",
+      "Double Cab",
+      "Double Cab Bakie"
     ]
   },
   {
@@ -34,54 +58,129 @@
     "slugs": [
       "king-cabs",
       "super-cabs"
+    ],
+    "sourceIds": [
+      39,
+      53
+    ],
+    "sourceCodes": [
+      "XCab",
+      "Extended Cab"
     ]
   },
   {
     "label": "Hatchback",
     "slugs": [
       "hatchbacks"
+    ],
+    "sourceIds": [
+      12,
+      14
+    ],
+    "sourceCodes": [
+      "H/B",
+      "Hatch"
     ]
   },
   {
     "label": "Minibus",
     "slugs": [
       "minibuses"
+    ],
+    "sourceIds": [
+      2
+    ],
+    "sourceCodes": [
+      "B/S"
     ]
   },
   {
     "label": "Motorbike",
     "slugs": [
       "motorbikes"
+    ],
+    "sourceIds": [
+      10,
+      16,
+      19,
+      23
+    ],
+    "sourceCodes": [
+      "D/P",
+      "O/F",
+      "R/D",
+      "S/P"
     ]
   },
   {
     "label": "MPV",
     "slugs": [
       "mpvs"
+    ],
+    "sourceIds": [
+      15
+    ],
+    "sourceCodes": [
+      "MPV"
     ]
   },
   {
     "label": "Panel Van",
     "slugs": [
       "panel-vans"
+    ],
+    "sourceIds": [
+      17
+    ],
+    "sourceCodes": [
+      "P/V"
     ]
   },
   {
     "label": "Sedan",
     "slugs": [
       "sedans"
+    ],
+    "sourceIds": [
+      22,
+      26
+    ],
+    "sourceCodes": [
+      "S/D",
+      "Sedan"
     ]
   },
   {
     "label": "Single Cab Bakkie",
     "slugs": [
+      "single-cabs",
       "bakkies"
+    ],
+    "sourceIds": [
+      4,
+      11,
+      21
+    ],
+    "sourceCodes": [
+      "S/C",
+      "C/C",
+      "D/S",
+      "Single Cab",
+      "Single Cab Bakie",
+      "Single Cabe",
+      "Single Cabe Bakie"
     ]
   },
   {
     "label": "Station Wagon",
     "slugs": [
       "station-wagons"
+    ],
+    "sourceIds": [
+      24
+    ],
+    "sourceCodes": [
+      "S/W"
     ]
   },
   {
@@ -89,6 +188,18 @@
     "slugs": [
       "suvs",
       "crossovers"
+    ],
+    "sourceIds": [
+      20,
+      25,
+      27,
+      29
+    ],
+    "sourceCodes": [
+      "SUV",
+      "SAV",
+      "X/O",
+      "R/V"
     ]
   }
 ]

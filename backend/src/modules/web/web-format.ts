@@ -30,12 +30,12 @@ export const toWebId = (uuid: string) => uuid.replace(/-/g, '').toLowerCase();
 
 export function fromWebId(id: string): string | null {
   const value = id.trim().toLowerCase();
-  if (UUID.test(value)) return value;
+  if (UUID.test(value) || /^\d+$/.test(value)) return value;
   if (!HEX32.test(value)) return null;
   return `${value.slice(0, 8)}-${value.slice(8, 12)}-${value.slice(12, 16)}-${value.slice(16, 20)}-${value.slice(20)}`;
 }
 
-export const isUuid = (value: string) => UUID.test(value);
+export const isMarketplaceId = (value: string) => UUID.test(value) || /^\d+$/.test(value);
 
 /** Same rules as the website's slugify (app/lib/cars/search.ts). */
 export function slugify(value: string): string {
@@ -118,7 +118,7 @@ export function drivetrainsFromLabel(label: string): Drivetrain[] {
 /** Website body type label → category slugs (seeded in prisma/seed.ts). First slug is the canonical one. */
 export const BODY_TYPES: { label: string; slugs: string[] }[] = bodyTypes;
 
-export const BAKKIE_SLUGS = ['bakkies', 'double-cabs', 'king-cabs', 'super-cabs'];
+export const BAKKIE_SLUGS = ['single-cabs', 'bakkies', 'double-cabs', 'king-cabs', 'super-cabs'];
 
 export function bodyTypeSlugs(label: string): string[] {
   const slug = slugify(label);

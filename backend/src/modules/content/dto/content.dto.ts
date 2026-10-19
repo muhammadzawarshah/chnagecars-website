@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
@@ -106,7 +107,7 @@ export class PromotionDto {
   @ApiPropertyOptional() @IsOptional() @IsUrl({ require_protocol: true }) bannerUrl?: string;
   @ApiPropertyOptional({ enum: ['PERCENT', 'AMOUNT', 'NONE'] }) @IsOptional() @IsIn(['PERCENT', 'AMOUNT', 'NONE']) discountType?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) discountValue?: number;
-  @ApiPropertyOptional({ description: 'Dealer-specific promotion' }) @IsOptional() @IsUUID() dealerId?: string;
+  @ApiPropertyOptional({ description: 'Dealer-specific promotion' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
   @ApiProperty() @IsDateString() startsAt: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() endsAt?: string;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
@@ -114,5 +115,5 @@ export class PromotionDto {
 export class UpdatePromotionDto extends PartialType(PromotionDto) {}
 
 export class PromotionVehiclesDto {
-  @ApiProperty({ type: [String] }) @IsArray() @ArrayMaxSize(500) @IsUUID('all', { each: true }) vehicleIds: string[];
+  @ApiProperty({ type: [String] }) @IsArray() @ArrayMaxSize(500) @IsMarketplaceId({ each: true }) vehicleIds: string[];
 }

@@ -3,7 +3,7 @@
 import argparse, concurrent.futures, hashlib, json, os, pathlib, re, subprocess, threading, time
 
 ROOT=pathlib.Path(__file__).resolve().parents[2]
-OUT=ROOT/'backend/.local/dealertrade-reconcile/source'
+OUT=pathlib.Path(os.environ.get('DEALERTRADE_OUTPUT_DIR', str(ROOT/'backend/.local/dealertrade-reconcile/source'))).resolve()
 OUT.mkdir(parents=True,exist_ok=True)
 TOKEN=os.environ.get('DEALERTRADE_TOKEN') or (ROOT/'backend/.local/dealertrade/token').read_text().strip()
 lock=threading.Lock(); next_request=0.0
@@ -19,7 +19,7 @@ def request(endpoint,body,page=1,label=''):
             if delay:time.sleep(delay)
             next_request=time.monotonic()+1.4
         config='header = '+json.dumps('Authorization: Bearer '+TOKEN)+'\n'
-        p=subprocess.run(['curl','--config','-','--http1.1','--fail','--silent','--show-error','--max-time','120','--header','Content-Type: application/json','--header','Accept: application/json','--dump-header',str(headers),'--data',json.dumps(body),f'https://dealertrade.co.za/api/apk/{endpoint}?page={page}'],input=config.encode(),capture_output=True)
+        p=subprocess.run(['curl','--config','-','--http1.1','--fail','--silent','--show-error','--max-time','120','--header','Content-Type: application/json','--header','Accept: application/json','--dump-header',str(headers),'--data',json.dumps(body),f'https://dealertrade.co.za/api/apk/{endpoint}?page={page}&per_page=1000'],input=config.encode(),capture_output=True)
         if not p.returncode:
             value=json.loads(p.stdout)
             if value.get('current_page')==page and isinstance(value.get('data'),list):return value

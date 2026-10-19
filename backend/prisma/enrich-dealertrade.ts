@@ -1,3 +1,5 @@
+import { resolveBodyType } from '../src/modules/vehicles/body-type-mapping';
+import bodyTypes from '../src/modules/web/body-types.json';
 /** Normalize verified API variants/specifications and exact source URL body categories. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -47,11 +49,11 @@ async function main(){
   }}));
   const bodies:Record<string,string>={'suv':'suvs','sedan':'sedans','hatchback':'hatchbacks','coupe':'coupes','convertible':'convertibles','mpv':'mpvs','panel-van':'panel-vans','double-cab-bakkie':'double-cabs','single-cab-bakkie':'single-cabs','extended-cab':'king-cabs','minibus':'minibuses','motorbike':'motorbikes','station-wagon':'station-wagons'};
   const cats=new Map<string,string>();
-  for(const slug of new Set(Object.values(bodies))){const c=await db.category.upsert({where:{slug},create:{name:slug.replace(/-/g,' '),slug},update:{}});cats.set(slug,c.id);}
-  const assignments=stock.flatMap(r=>{const v=byExternal.get(String(r.vehicle_id)),body=(r.single_vehicle_url??'').split('/')[3],categoryId=cats.get(bodies[body]);return v&&categoryId?[{vehicleId:v.id,categoryId}]:[];});
+  for(const type of bodyTypes){const slug=type.slugs[0];const c=await db.category.upsert({where:{slug},create:{name:type.label,slug},update:{name:type.label}});cats.set(slug,c.id);}
+  const assignments=stock.flatMap(r=>{const v=byExternal.get(String(r.vehicle_id)),categoryId=cats.get(resolveBodyType((v?.sourceData as any)?.dealertrade??r)?.slugs[0]??'');return v&&categoryId?[{vehicleId:v.id,categoryId}]:[];});
   for(let i=0;i<assignments.length;i+=500){
     const data=JSON.stringify(assignments.slice(i,i+500));
-    await db.$executeRaw`INSERT INTO "_CategoryToVehicle" ("A","B") SELECT m."categoryId",m."vehicleId" FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" uuid,"categoryId" uuid) ON CONFLICT DO NOTHING`;
+    await db.$executeRaw`INSERT INTO "_CategoryToVehicle" ("A","B") SELECT m."categoryId",m."vehicleId" FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" text,"categoryId" uuid) ON CONFLICT DO NOTHING`;
   }
   const report={variants,linkedVehicles,bodyAssignments:assignments.length,issues};writeFileSync(resolve(dir,'enrichment-report.json'),JSON.stringify(report,null,2));console.log({...report,issues:issues.length});
 }

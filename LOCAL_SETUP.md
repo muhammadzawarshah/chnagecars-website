@@ -56,3 +56,7 @@ Final full-feed verification: 30,011 published feed vehicles, 744 feed dealers,
 30,000 original images downloaded locally (about 4 GB), 11 blocked/missing
 source images using the local placeholder, and zero remote image dependencies.
 The nine initial setup demo vehicles are archived.
+
+## DealerTrade-only local inventory
+
+The local database now uses DealerTrade inventory only for public browsing. Fbook-only listings have been removed with a backup, and the Fbook importer is disabled. Public vehicle/dealer IDs use original DealerTrade IDs. See [cleanup details and API examples](backend/docs/local-dealertrade-only.md); the earlier Fbook-import section describes historical setup only.

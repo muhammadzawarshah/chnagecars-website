@@ -376,7 +376,7 @@ model PasswordResetToken {
 // ───────────────────────── Dealers, branches, staff ─────────────────────────
 
 model Dealer {
-  id                  String       @id @default(uuid(7)) @db.Uuid
+  id                  String       @id @default(uuid(7))
   name                String
   slug                String       @unique
   legalName           String?
@@ -420,7 +420,7 @@ model Dealer {
 
 model DealerDocument {
   id          String   @id @default(uuid(7)) @db.Uuid
-  dealerId    String   @db.Uuid
+  dealerId    String
   type        String
   fileName    String
   storageKey  String
@@ -435,7 +435,7 @@ model DealerDocument {
 
 model Branch {
   id             String   @id @default(uuid(7)) @db.Uuid
-  dealerId       String   @db.Uuid
+  dealerId       String
   name           String
   slug           String
   email          String?
@@ -467,7 +467,7 @@ model Branch {
 /// Effective permissions = role defaults ∪ extraPermissions.
 model DealerMember {
   id               String             @id @default(uuid(7)) @db.Uuid
-  dealerId         String             @db.Uuid
+  dealerId         String
   userId           String             @unique @db.Uuid
   branchId         String?            @db.Uuid
   role             DealerMemberRole   @default(STAFF)
@@ -666,7 +666,7 @@ model FeatureAssignment {
   modelId      String?             @db.Uuid
   generationId String?             @db.Uuid
   variantId    String?             @db.Uuid
-  vehicleId    String?             @db.Uuid
+  vehicleId    String?
   createdAt    DateTime            @default(now())
 
   feature    Feature     @relation(fields: [featureId], references: [id], onDelete: Cascade)
@@ -700,9 +700,9 @@ model SourceFeedRecord {
 }
 
 model Vehicle {
-  id                 String           @id @default(uuid(7)) @db.Uuid
+  id                 String           @id @default(uuid(7))
   slug               String           @unique
-  dealerId           String           @db.Uuid
+  dealerId           String
   branchId           String?          @db.Uuid
   makeId             String           @db.Uuid
   modelId            String           @db.Uuid
@@ -803,7 +803,7 @@ model Vehicle {
 
 /// Views per vehicle per UTC day, written when the view buffer is flushed. Feeds dealer view charts.
 model VehicleViewDaily {
-  vehicleId String   @db.Uuid
+  vehicleId String
   day       DateTime @db.Date
   views     Int      @default(0)
 
@@ -816,7 +816,7 @@ model VehicleViewDaily {
 
 model VehicleImage {
   id           String      @id @default(uuid(7)) @db.Uuid
-  vehicleId    String      @db.Uuid
+  vehicleId    String
   storageKey   String      @unique
   url          String?
   thumbnailUrl String?
@@ -841,7 +841,7 @@ model VehicleImage {
 
 model VehicleStatusHistory {
   id         String         @id @default(uuid(7)) @db.Uuid
-  vehicleId  String         @db.Uuid
+  vehicleId  String
   fromStatus VehicleStatus?
   toStatus   VehicleStatus
   actorId    String?        @db.Uuid
@@ -856,7 +856,7 @@ model VehicleStatusHistory {
 
 model VehiclePriceHistory {
   id          String   @id @default(uuid(7)) @db.Uuid
-  vehicleId   String   @db.Uuid
+  vehicleId   String
   oldPrice    Int
   newPrice    Int
   changedById String?  @db.Uuid
@@ -877,7 +877,7 @@ model Promotion {
   /// PERCENT | AMOUNT | NONE
   discountType  String    @default("NONE")
   discountValue Int?
-  dealerId      String?   @db.Uuid
+  dealerId      String?
   startsAt      DateTime
   endsAt        DateTime?
   isActive      Boolean   @default(true)
@@ -895,7 +895,7 @@ model Promotion {
 
 model Favourite {
   userId    String   @db.Uuid
-  vehicleId String   @db.Uuid
+  vehicleId String
   createdAt DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -926,7 +926,7 @@ model SavedSearch {
 
 model RecentlyViewed {
   userId    String   @db.Uuid
-  vehicleId String   @db.Uuid
+  vehicleId String
   viewedAt  DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -950,8 +950,8 @@ model Enquiry {
   email           String
   phone           String?
   message         String?
-  vehicleId       String?       @db.Uuid
-  dealerId        String?       @db.Uuid
+  vehicleId       String?
+  dealerId        String?
   branchId        String?       @db.Uuid
   makeId          String?       @db.Uuid
   modelId         String?       @db.Uuid
@@ -1000,12 +1000,12 @@ model EnquiryResponse {
 
 model Lead {
   id              String     @id @default(uuid(7)) @db.Uuid
-  dealerId        String     @db.Uuid
+  dealerId        String
   branchId        String?    @db.Uuid
   assignedToId    String?    @db.Uuid
   customerId      String?    @db.Uuid
   enquiryId       String?    @unique @db.Uuid
-  vehicleId       String?    @db.Uuid
+  vehicleId       String?
   name            String
   email           String?
   phone           String?
@@ -1174,7 +1174,7 @@ model BiddingSession {
 /// Optional explicit invite list. When a session has invites, only invited dealers may view/bid.
 model BiddingInvite {
   sessionId String   @db.Uuid
-  dealerId  String   @db.Uuid
+  dealerId  String
   createdAt DateTime @default(now())
 
   session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -1188,7 +1188,7 @@ model BiddingInvite {
 model Offer {
   id            String      @id @default(uuid(7)) @db.Uuid
   sessionId     String      @db.Uuid
-  dealerId      String      @db.Uuid
+  dealerId      String
   submittedById String?     @db.Uuid
   amount        Int
   terms         String?
@@ -1250,7 +1250,7 @@ model Deal {
   id            String     @id @default(uuid(7)) @db.Uuid
   offerId       String     @unique @db.Uuid
   sellRequestId String     @db.Uuid
-  dealerId      String     @db.Uuid
+  dealerId      String
   customerId    String?    @db.Uuid
   leadId        String?    @unique @db.Uuid
   amount        Int
@@ -1504,4 +1504,13 @@ model VehicleFilterSnapshot {
   generatedAt     DateTime @default(now())
 
   @@map("vehicle_filter_snapshots")
+}
+
+/// Legacy UUID URLs resolve to the original DealerTrade primary IDs.
+model DealerTradeIdAlias {
+  entity String
+  legacyId String
+  sourceId String
+  @@id([entity, legacyId])
+  @@map("dealertrade_id_aliases")
 }

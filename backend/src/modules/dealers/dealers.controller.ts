@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../common/pipes/marketplace-id.pipe';
 import { PublicCache } from '../../common/interceptors/cache-headers.interceptor';
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -156,19 +157,19 @@ export class AdminDealersController {
   }
 
   @Get(':id')
-  get(@Param('id', ParseUUIDPipe) id: string) {
+  get(@Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.dealers.adminGet(id);
   }
 
   @Patch(':id/status')
   @ApiOperation({ summary: 'Approve, reject, suspend or reinstate a dealer (FR-11, FR-34)' })
-  changeStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ChangeDealerStatusDto, @CurrentUser() admin: AuthUser) {
+  changeStatus(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: ChangeDealerStatusDto, @CurrentUser() admin: AuthUser) {
     return this.dealers.changeStatus(id, dto, admin.id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update plan, bidding eligibility or rating' })
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AdminUpdateDealerDto) {
+  update(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: AdminUpdateDealerDto) {
     return this.dealers.adminUpdate(id, dto);
   }
 }

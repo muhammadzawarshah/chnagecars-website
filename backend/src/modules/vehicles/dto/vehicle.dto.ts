@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
@@ -119,7 +120,7 @@ export class DealerVehicleQueryDto extends PaginationQueryDto {
 }
 
 export class AdminVehicleQueryDto extends DealerVehicleQueryDto {
-  @ApiPropertyOptional() @IsOptional() @IsUUID() dealerId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsMarketplaceId() dealerId?: string;
 }
 
 export class ImageUploadRequestDto {
