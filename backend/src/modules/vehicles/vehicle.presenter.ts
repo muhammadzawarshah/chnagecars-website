@@ -5,6 +5,9 @@ import { availabilityOf } from './vehicle-lifecycle';
 export const publicVehicleSelect = {
   id: true,
   slug: true,
+  stockNumber: true,
+  sourceData: true,
+  description: true,
   title: true,
   condition: true,
   status: true,
@@ -32,10 +35,10 @@ export const publicVehicleSelect = {
   reservedUntil: true,
   make: { select: { id: true, name: true, slug: true } },
   model: { select: { id: true, name: true, slug: true } },
-  variant: { select: { id: true, name: true, slug: true } },
+  variant: { select: { id: true, name: true, slug: true, specification: true } },
   dealer: { select: { id: true, name: true, slug: true, logoUrl: true, rating: true, plan: true } },
   branch: { select: { id: true, name: true, city: true, province: true } },
-  categories: { select: { slug: true, name: true } },
+  categories: { select: { id: true, slug: true, name: true } },
   promotion: { select: { id: true, title: true, slug: true, endsAt: true } },
 } satisfies Prisma.VehicleSelect;
 
@@ -78,14 +81,67 @@ export function monthlyPayment(principal: number, months = 72, rate = 0.125): nu
 }
 
 export function withAvailability<T extends { status: VehicleStatus; price: number; specialPrice: number | null; isSpecial: boolean }>(vehicle: T) {
+  const { sourceData, ...safeVehicle } = vehicle as T & { sourceData?: unknown };
+  const fields = publicVehicleFields(vehicle);
   const effPrice = effectivePrice(vehicle);
   const monthly = monthlyPayment(effPrice);
   return {
-    ...vehicle,
+    ...safeVehicle,
+    ...fields,
     availability: availabilityOf(vehicle.status),
     effectivePrice: effPrice,
     monthlyPrice: monthly,
     formattedMonthlyPrice: `R ${monthly.toLocaleString('en-US').replace(/,/g, ' ')} pm`,
     discount: vehicle.isSpecial && vehicle.specialPrice && vehicle.specialPrice < vehicle.price ? vehicle.price - vehicle.specialPrice : null,
+  };
+}
+
+/** Only explicitly allowed source fields may leave the API; raw feeds contain private data. */
+function object(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+function text(value: unknown): string | null {
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const result = String(value).trim();
+  return result && !/^(n\/a|null|none)$/i.test(result) ? result : null;
+}
+function positive(value: unknown): number | null {
+  const result = text(value);
+  return result !== null && Number.isFinite(Number(result)) && Number(result) > 0 ? Number(result) : null;
+}
+export function publicVehicleFields(vehicle: unknown) {
+  const row = object(vehicle), source = object(row.sourceData);
+  const feed = object(source.dealertrade);
+  const spec = object(object(row.variant).specification), extra = object(spec.extra);
+  const turbo = text(feed.turbo_supercharged)?.toUpperCase();
+  return {
+    technicalSpecifications: {
+      doors: positive(feed.no_doors) ?? positive(row.doors),
+      seats: positive(feed.no_seats) ?? positive(row.seats),
+      bodyType: text(feed.body_type) ?? text(source.body_style),
+      colour: text(row.colour),
+      introductionDate: text(feed.introduction_date),
+      powerKw: positive(feed.kilowatts) ?? positive(row.powerKw),
+      cylinders: positive(feed.cylinders) ?? positive(row.cylinders),
+      engineCapacityCc: positive(feed.engine_capacity) ?? positive(row.engineCapacityCc),
+      turboSupercharged: turbo === 'T' || turbo === 'S' || turbo === 'N' ? turbo : turbo === 'NO' ? 'N' : null,
+      fuelTankLitres: positive(feed.fuel_tank_size) ?? positive(spec.fuelTankLitres),
+      frontTyreSize: text(feed.front_tyre_size),
+      rearTyreSize: text(feed.rear_tyre_size),
+      drivenWheels: text(feed.driven_wheels) ?? ({ FOUR_X_TWO: '4X2', FOUR_X_FOUR: '4X4', FWD: 'FWD', RWD: 'RWD', AWD: 'AWD' }[String(row.drivetrain)] ?? null),
+    },
+    gears: positive(feed.no_gears) ?? positive(spec.gears),
+    turboSupercharged: turbo === 'T' ? 'TURBO' : turbo === 'S' ? 'SUPERCHARGED' :
+      turbo === 'N' || turbo === 'NO' ? 'NONE' : turbo === 'YES' ? 'FORCED_INDUCTION' : null,
+    bodyTypeId: text(feed.body_type_id),
+    bodyType: text(feed.body_type) ?? text(source.body_style),
+    frontTyreSize: text(feed.front_tyre_size) ?? text(extra.front_tyre_size),
+    rearTyreSize: text(feed.rear_tyre_size) ?? text(extra.rear_tyre_size),
+    fuelTankLitres: positive(feed.fuel_tank_size) ?? positive(spec.fuelTankLitres),
+    drivetrainSourceId: text(feed.driven_wheels_id),
+    mmcode: text(feed.mmcode) ?? text(extra.mmcode),
+    stockNumber: text(row.stockNumber) ?? text(feed.stockno),
+    additionalInformation: text(feed.additional_information) ?? text(row.description),
+    sourceVehicleId: text(feed.vehicle_id) ?? text(source.vehicle_id),
   };
 }

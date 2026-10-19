@@ -1,5 +1,6 @@
 "use client"
 
+import { technicalSpecificationGroups } from "@/app/lib/cars/technical-specifications"
 import { useState } from "react"
 import Link from "next/link"
 import { Car } from "@/app/lib/cars/types"
@@ -107,9 +108,9 @@ export default function FeaturedCarDetail({ car, dealerCars, similarCars }: CarD
                     <section className={`${dashed} border-t border-b pt-4.5 max-[981px]:mb-4.5 min-[981px]:mt-8 min-[981px]:rounded-xl min-[981px]:border-0 min-[981px]:bg-white min-[981px]:pt-10`}>
                         <h2 className={heading}>Technical <strong>Specifications</strong></h2>
                         <div className="mt-4 min-[981px]:mt-7">
-                            <SpecAccordion icon="/img/car-detail/general.svg" title="General" rows={[["Body Type", bodyType], ["Year", year], ["Mileage", mileage]]} />
-                            <SpecAccordion icon="/img/car-detail/engine.svg" title="Engine" rows={[["Engine Size", engine], ["Fuel Type", fuel]]} />
-                            <SpecAccordion icon="/img/car-detail/handling.svg" title="Handling" rows={[["Transmission", transmission]]} />
+                            {technicalSpecificationGroups(car).map(group => (
+                                <SpecAccordion key={group.title} icon={`/img/car-detail/${group.icon}.svg`} title={group.title} rows={group.rows} />
+                            ))}
                             <SpecAccordion icon="/img/car-detail/calculator.svg" title="Finance Calculator" onOpen={() => setFinance(true)} />
                         </div>
                         <p className="m-0 bg-white px-5 pt-4 pb-6.5 text-[10.5px] leading-3.5 text-[#111] min-[981px]:py-5 min-[981px]:text-base min-[981px]:leading-6"><strong>KINDLY NOTE:</strong> The data provided for this vehicle is supplied by the selling party. CHANGECARS is not responsible for any errors should they occur.</p>

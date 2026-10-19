@@ -1,4 +1,6 @@
 "use client"
+
+import { bodyTypeCategories as bodies, bodyTypeOptions } from "@/app/lib/cars/body-types"
 import { useEffect, useState } from 'react'
 import { Make } from '../../Data/makes'
 import { buildSearchUrl, SearchValues } from '../../Data/searchUrl'
@@ -6,7 +8,6 @@ import { CarSearch } from '@/app/lib/cars/search'
 
 type Option = { value?: string | number; name?: string; slug?: string; count: number; make?: string; model?: string }
 type Facets = { total: number; ranges: Record<string, {min: number | null; max: number | null}> } & Record<string, unknown>
-const bodies: Record<string, string[]> = { SUV:['suvs','crossovers'], Sedan:['sedans'], Hatchback:['hatchbacks'], 'Coupé':['coupes'], Convertible:['convertibles'], 'Double Cab Bakkie':['double-cabs'], 'Single Cab Bakkie':['bakkies'], 'Extended Cab':['king-cabs','super-cabs'], MPV:['mpvs'], Minibus:['minibuses'], 'Panel Van':['panel-vans'], 'Station Wagon':['station-wagons'], Motorbike:['motorbikes'], Caravan:['caravans'], Boat:['boats'] }
 const labels: Record<string,string> = { AUTOMATIC:'Automatic', MANUAL:'Manual', UNKNOWN:'Unknown', PETROL:'Petrol', DIESEL:'Diesel', OTHER:'Other', HYBRID:'Hybrid', ELECTRIC:'Electric', PLUGIN_HYBRID:'Plug-in Hybrid', LPG:'LPG', FOUR_X_TWO:'4X2', FOUR_X_FOUR:'4X4', AWD:'AWD', FWD:'FWD', RWD:'RWD', NEW:'New', USED:'Used', DEMO:'Demo' }
 const enumValue = (value: string) => Object.entries(labels).find(([,label])=>label.toLowerCase()===value.toLowerCase())?.[0] ?? value.toUpperCase().replace(/[ -]/g,'_')
 export function dependentQuery(values: SearchValues, extras: Record<string,string[]>, preset: CarSearch = {}) {
@@ -41,7 +42,7 @@ export default function useDependentFilters(values: SearchValues, extras: Record
     const data = state?.query===query ? state.data : null;
     const options = (key:string):Option[] => (data?.[key] as Option[] | undefined) ?? [];
     const makeOptions:Make[] = options('makes').map(make=>({name:make.name!,slug:make.slug!,count:make.count,models:options('models').filter(model=>model.make===make.slug).map(model=>({name:model.name!,slug:model.slug!,count:model.count,variants:options('variants').filter(v=>v.make===make.slug&&v.model===model.slug).map(v=>v.slug!)}))}));
-    const bodyOptions = Object.entries(bodies).map(([name,slugs])=>({name,count:options('categories').filter(o=>slugs.includes(o.slug!)).reduce((sum,o)=>sum+o.count,0)})).filter(o=>o.count>0);
+    const bodyOptions = bodyTypeOptions(options('categories'));
     const groups:Record<string,string>={fuelType:'fuelType',transmission:'transmission',drive:'drivetrain',colour:'colour',province:'province',vehicleGroup:'condition',seats:'seats',minEngine:'engineCapacityCc',maxEngine:'engineCapacityCc',minKw:'powerKw',maxKw:'powerKw',dealership:'dealerships'};
     const choices = (key:string) => options(groups[key]).map(o=> {
         const raw=String(o.value??o.slug??'');

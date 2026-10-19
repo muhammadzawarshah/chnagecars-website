@@ -36,7 +36,7 @@ export default function SpecAccordion({ groups }: { groups: SpecGroup[] }) {
                             type="button"
                             onClick={() => setOpen(open === group.title ? null : group.title)}
                             aria-expanded={open === group.title}
-                            className="relative block h-12.25 w-full cursor-pointer border-0 bg-transparent pr-6.25 pl-12.5 text-left font-sans text-sm leading-12.25 font-medium text-black uppercase"
+                            className="relative block h-12.25 w-full cursor-pointer border-0 bg-transparent pr-6.25 pl-12.5 text-left font-sans text-sm leading-12.25 font-medium text-black"
                         >
                             <img src={group.icon} alt="" className="absolute top-1/2 left-2.5 max-h-6 -translate-y-1/2" />
                             {group.title}

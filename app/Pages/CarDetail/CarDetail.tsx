@@ -1,3 +1,4 @@
+import { technicalSpecificationGroups } from "@/app/lib/cars/technical-specifications"
 import Link from "next/link"
 import { Car } from "@/app/lib/cars/types"
 import { PopularDealer } from "@/app/lib/cars/api"
@@ -135,10 +136,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                         <div className="mb-6.5">
                             <h3 className={`${heading} mb-3.75`}>Technical specifications</h3>
                             <SpecAccordion groups={[
-                                { icon: `${icon}/icon-general.svg`, title: "General", rows: [["Body Type", car.bodyType], ["Colour", car.colour], ["Year", car.year ? String(car.year) : "Unknown"], ["Mileage", formatKm(car.mileage, " ")]] },
-                                { icon: `${icon}/icon-engine.svg`, title: "Engine", rows: [["Engine Capacity", car.engine], ["Fuel Type", car.fuel]] },
-                                { icon: `${icon}/icon-handling.svg`, title: "Handling", rows: [["Transmission", car.transmission], ["Drive", car.drive]] },
-                                { icon: `${icon}/icon-extra.svg`, title: "Extras", rows: [["Extras", "Contact the dealer"]] },
+                                ...technicalSpecificationGroups(car).map(group => ({ ...group, icon: `${icon}/icon-${group.icon}.svg` })),
                                 { icon: `${icon}/icon-calculator.svg`, title: "Finance Calculator", calculator: car.price },
                             ]} />
                         </div>

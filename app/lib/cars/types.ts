@@ -12,6 +12,21 @@ export type Dealer = {
 export type CarCategory = "exotic" | "classic" | "leisure"
 
 export type Car = {
+    technicalSpecifications?: {
+        doors: number | null
+        seats: number | null
+        bodyType: string | null
+        colour: string | null
+        introductionDate: string | null
+        powerKw: number | null
+        cylinders: number | null
+        engineCapacityCc: number | null
+        turboSupercharged: string | null
+        fuelTankLitres: number | null
+        frontTyreSize: string | null
+        rearTyreSize: string | null
+        drivenWheels: string | null
+    }
     id: string
     title: string
     make: string

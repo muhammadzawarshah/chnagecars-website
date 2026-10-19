@@ -87,3 +87,16 @@ describe('places', () => {
     expect(mileageFromRange('none')).toBeUndefined();
   });
 });
+
+describe('exact body type vocabulary', () => {
+  const expected = ['Boat', 'Caravan', 'Convertible', 'Coupé', 'Double Cab Bakkie', 'Extended Cab', 'Hatchback', 'Minibus', 'Motorbike', 'MPV', 'Panel Van', 'Sedan', 'Single Cab Bakkie', 'Station Wagon', 'SUV'];
+  it('offers exactly the requested 15 names in order', () => {
+    const { BODY_TYPES } = require('./web-format');
+    expect(BODY_TYPES.map((type: { label: string }) => type.label)).toEqual(expected);
+  });
+  it.each(expected)('round-trips every category alias for %s', label => {
+    const slugs = bodyTypeSlugs(label);
+    expect(slugs.length).toBeGreaterThan(0);
+    for (const slug of slugs) expect(bodyTypeLabel([slug])).toBe(label);
+  });
+});

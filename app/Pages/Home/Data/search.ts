@@ -1,3 +1,5 @@
+import { BODY_TYPES } from "@/app/lib/cars/body-types"
+
 export type PriceOption = {
     value: number
     price: string
@@ -65,12 +67,12 @@ export const maxPrices: PriceOption[] = minPrices.slice(1);
 
 export const years: string[] = Array.from({ length: 2026 - 1980 + 1 }, (_, i) => String(2026 - i));
 
-export const bodyTypes: BodyType[] = [
+const bodyTypePresentation: BodyType[] = [
     { name: "Boat", label: "Boat", icon: "/img/body-types/boat.png", count: 1 },
     { name: "Caravan", label: "Caravan", icon: "/img/body-types/caravan.png", count: 87 },
     { name: "Convertible", label: "Convertible", icon: "/img/body-types/convertible.png", count: 91 },
     { name: "Coupé", label: "Coupé", icon: "/img/body-types/coupe.png", count: 452 },
-    { name: "Double Cab Bakkie", label: "Double Cab -\nBakkie", icon: "/img/body-types/double-cab.png", count: 4812 },
+    { name: "Double Cab Bakkie", label: "Double Cab Bakkie", icon: "/img/body-types/double-cab.png", count: 4812 },
     { name: "Extended Cab", label: "Extended Cab", icon: "/img/body-types/bakkie.png", count: 146 },
     { name: "Hatchback", label: "Hatchback", icon: "/img/body-types/hatchback.png", count: 7393 },
     { name: "Minibus", label: "Minibus", icon: "/img/body-types/minivan.png", count: 528 },
@@ -82,3 +84,9 @@ export const bodyTypes: BodyType[] = [
     { name: "Station Wagon", label: "Station Wagon", icon: "/img/body-types/stationwagon.png", count: 98 },
     { name: "SUV", label: "SUV", icon: "/img/body-types/suv.png", count: 16945 },
 ];
+
+export const bodyTypes: BodyType[] = BODY_TYPES.map(({ label }) => ({
+    ...bodyTypePresentation.find(type => type.name === label)!,
+    name: label,
+    label,
+}));

@@ -1,3 +1,4 @@
+import bodyTypes from './body-types.json';
 import {
   ConditionGrade,
   DealerPlan,
@@ -115,23 +116,7 @@ export function drivetrainsFromLabel(label: string): Drivetrain[] {
 }
 
 /** Website body type label → category slugs (seeded in prisma/seed.ts). First slug is the canonical one. */
-export const BODY_TYPES: { label: string; slugs: string[] }[] = [
-  { label: 'SUV', slugs: ['suvs', 'crossovers'] },
-  { label: 'Sedan', slugs: ['sedans'] },
-  { label: 'Hatchback', slugs: ['hatchbacks'] },
-  { label: 'Coupé', slugs: ['coupes'] },
-  { label: 'Convertible', slugs: ['convertibles'] },
-  { label: 'Double Cab Bakkie', slugs: ['double-cabs'] },
-  { label: 'Single Cab Bakkie', slugs: ['bakkies'] },
-  { label: 'Extended Cab', slugs: ['king-cabs', 'super-cabs'] },
-  { label: 'MPV', slugs: ['mpvs'] },
-  { label: 'Minibus', slugs: ['minibuses'] },
-  { label: 'Panel Van', slugs: ['panel-vans'] },
-  { label: 'Station Wagon', slugs: ['station-wagons'] },
-  { label: 'Motorbike', slugs: ['motorbikes'] },
-  { label: 'Caravan', slugs: ['caravans'] },
-  { label: 'Boat', slugs: ['boats'] },
-];
+export const BODY_TYPES: { label: string; slugs: string[] }[] = bodyTypes;
 
 export const BAKKIE_SLUGS = ['bakkies', 'double-cabs', 'king-cabs', 'super-cabs'];
 
