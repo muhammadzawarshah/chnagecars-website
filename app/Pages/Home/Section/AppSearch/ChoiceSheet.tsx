@@ -3,13 +3,18 @@
 import { useState } from "react"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import BottomSheet from "./BottomSheet"
+import FilterOptionsStatus from "./FilterOptionsStatus"
 import SheetFooter from "./SheetFooter"
 import CircleCheck from "./CircleCheck"
 
 type ChoiceSheetProps = {
+    onRetry?: () => void
+    loading?: boolean
+    error?: boolean
     title: string
     options: string[]
     counts?: Record<string,number>
+    optionLabels?: Record<string,string>
     selected: string[]
     multiple?: boolean
     info?: string
@@ -18,14 +23,14 @@ type ChoiceSheetProps = {
     onClose: () => void
 }
 
-export default function ChoiceSheet({ title, options, counts, selected, multiple = false, info, searchable = false, onApply, onClose }: ChoiceSheetProps) {
+export default function ChoiceSheet({ loading, error, onRetry, title, options, counts, optionLabels, selected, multiple = false, info, searchable = false, onApply, onClose }: ChoiceSheetProps) {
 
     const { t } = useLanguage();
     const [draft, setDraft] = useState(selected);
     const [query, setQuery] = useState("");
 
     const search = query.trim().toLowerCase();
-    const visible = search ? options.filter((option) => option.toLowerCase().includes(search)) : options;
+    const visible = search ? options.filter((option) => (optionLabels?.[option] ?? option).toLowerCase().includes(search)) : options;
 
     function toggle(name: string) {
         if (!multiple) {
@@ -42,6 +47,7 @@ export default function ChoiceSheet({ title, options, counts, selected, multiple
                 onClose={onClose}
                 footer={<SheetFooter applyLabel={t.applyFilters} clearLabel={t.clear} onApply={() => onApply(draft)} onClear={() => onApply([])} />}
             >
+                <FilterOptionsStatus onRetry={onRetry} loading={loading} error={error} empty={!options.length} />
                 {searchable && (
                     <div className="sticky top-0 z-1 bg-white px-5 pt-1 pb-2">
                         <input
@@ -63,7 +69,7 @@ export default function ChoiceSheet({ title, options, counts, selected, multiple
                     {visible.map((option) => (
                         <li key={option} onClick={() => toggle(option)} className="flex h-12 cursor-pointer items-center pl-5">
                             <CircleCheck checked={draft.includes(option)} />
-                            <span className={`ml-[12.67px] text-[15.2px] ${draft.includes(option) ? "text-[#957e4e]" : "text-black"}`}>{option}{counts?.[option] !== undefined && ` (${counts[option]})`}</span>
+                            <span className={`ml-[12.67px] text-[15.2px] ${draft.includes(option) ? "text-[#957e4e]" : "text-black"}`}>{optionLabels?.[option] ?? option}{counts?.[option] !== undefined && ` (${counts[option]})`}</span>
                         </li>
                     ))}
                 </ul>

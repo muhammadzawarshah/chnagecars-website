@@ -152,8 +152,11 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
         <>
             {sheet && additionalFilters.some((filter) => filter.key === sheet) && (
                 <ChoiceSheet
+                    onRetry={dependent.retry} loading={dependent.loading}
+                    error={dependent.error}
                     title={findFilter(sheet).label}
                     options={dependent.choices(sheet).map(o=>o.value)}
+                    optionLabels={Object.fromEntries(dependent.choices(sheet).map(o=>[o.value,o.label]))}
                     counts={Object.fromEntries(dependent.choices(sheet).map(o=>[o.value,o.count]))}
                     selected={extraFilters[sheet] ?? []}
                     multiple={findFilter(sheet).multiple}
@@ -165,6 +168,8 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
             )}
             {sheet && isRange(sheet) && (
                 <OptionSheet
+                    onRetry={dependent.retry} loading={dependent.loading}
+                    error={dependent.error}
                     title={ranges[sheet].title}
                     options={dependent.rangeOptions(sheet,ranges[sheet].options)}
                     selected={values[sheet]}
@@ -177,7 +182,7 @@ export default function useAppFilters(preset: CarSearch = {}, initial: CarSearch
                 <BodyTypeSheet options={dependent.bodyOptions} selected={values.bodyTypes} onApply={(bodyTypes) => { setValues({ ...values, bodyTypes }); setSheet(null); }} onClose={() => setSheet(null)} />
             )}
             {sheet === "makes" && (
-                <MakesSheet query={dependent.query} options={dependent.makeOptions} selected={values.makes} onApply={(selected) => { setValues({ ...values, makes: selected }); setSheet(null); }} onClose={() => setSheet(null)} />
+                <MakesSheet onRetry={dependent.retry} loading={dependent.loading} error={dependent.error} query={dependent.query} options={dependent.makeOptions} selected={values.makes} onApply={(selected) => { setValues({ ...values, makes: selected }); setSheet(null); }} onClose={() => setSheet(null)} />
             )}
         </>
     );

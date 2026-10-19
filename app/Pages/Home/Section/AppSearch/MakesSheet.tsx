@@ -5,11 +5,15 @@ import { useState } from "react"
 import { Make } from "../../Data/makes"
 import { useLanguage } from "../../../../components/Language/LanguageContext"
 import BottomSheet from "./BottomSheet"
+import FilterOptionsStatus from "./FilterOptionsStatus"
 import SheetFooter from "./SheetFooter"
 import CircleCheck from "./CircleCheck"
 import ExpandLink from "./ExpandLink"
 
 type MakesSheetProps = {
+    onRetry?: () => void
+    loading?: boolean
+    error?: boolean
     query: string
     options: Make[]
     selected: string[]
@@ -17,7 +21,7 @@ type MakesSheetProps = {
     onClose: () => void
 }
 
-export default function MakesSheet({ query, options: makes, selected, onApply, onClose }: MakesSheetProps) {
+export default function MakesSheet({ loading, error, onRetry, query, options: makes, selected, onApply, onClose }: MakesSheetProps) {
 
     const { t } = useLanguage();
     const [draft, setDraft] = useState(selected);
@@ -40,6 +44,7 @@ export default function MakesSheet({ query, options: makes, selected, onApply, o
                 onClose={onClose}
                 footer={<SheetFooter applyLabel={t.applyFilters} clearLabel={t.clear} onApply={() => onApply(draft)} onClear={() => onApply([])} />}
             >
+                <FilterOptionsStatus onRetry={onRetry} loading={loading} error={error} empty={!makes.length} />
                 <ul className="m-0 list-none p-0">
                     {makes.map((make) => {
                         const makeKey = make.slug;

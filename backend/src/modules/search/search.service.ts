@@ -145,81 +145,20 @@ export class SearchService {
 
   /** Filter counts for the current search (FR-05 "filter based on available criteria"). */
   async facets(criteria: SearchCriteriaDto) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:v2:${criteriaKey(criteria)}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:v3:${criteriaKey(criteria)}`);
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
-      const where = buildWhere(criteria);
-      const db = this.prisma.replica;
-      const [makes, fuel, transmission, province, condition, ranges, categories, models, variants, colours, cities, drives, total, seats, engines, powers, dealers, cylinders] = await Promise.all([
-        db.vehicle.groupBy({ by: ['makeId'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['fuelType'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['transmission'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['province'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['condition'], where, _count: { _all: true } }),
-        db.vehicle.aggregate({ where, _min: { price: true, year: true, mileage: true }, _max: { price: true, year: true, mileage: true } }),
-        db.category.findMany({ where: { isActive: true }, select: { id: true, slug: true, name: true }, orderBy: { sortOrder: 'asc' } }),
-        db.vehicle.groupBy({ by: ['modelId'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['variantId'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['colour'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['city'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['drivetrain'], where, _count: { _all: true } }),
-        db.vehicle.count({ where }),
-        db.vehicle.groupBy({ by: ['seats'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['engineCapacityCc'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['powerKw'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['dealerId'], where, _count: { _all: true } }),
-        db.vehicle.groupBy({ by: ['cylinders'], where, _count: { _all: true } }),
-      ]);
-      const makeRows = await db.make.findMany({ where: { id: { in: makes.map((row) => row.makeId) } }, select: { id: true, slug: true, name: true } });
-      const [modelRows, variantRows] = await Promise.all([
-        db.model.findMany({ where: { id: { in: models.map((row) => row.modelId) } }, select: { id: true, slug: true, name: true, make: { select: { slug: true } } } }),
-        db.variant.findMany({ where: { id: { in: variants.flatMap((row) => row.variantId ? [row.variantId] : []) } }, select: { id: true, slug: true, name: true, model: { select: { slug: true, make: { select: { slug: true } } } } } }),
-      ]);
-      const dealerRows = await db.dealer.findMany({ where: { id: { in: dealers.map((row) => row.dealerId) } }, select: { id: true, slug: true, name: true } });
-      const colourCounts = new Map<string, number>();
-      for (const row of colours) {
-        const value = row.colour?.trim().toLowerCase();
-        if (value) colourCounts.set(value, (colourCounts.get(value) ?? 0) + row._count._all);
-      }
-      const categoryCounts = await Promise.all(
-        categories.map(async (category) => ({
-          slug: category.slug,
-          name: category.name,
-          count: await db.vehicle.count({ where: { AND: [where, { categories: { some: { id: category.id } } }] } }),
-        })),
-      );
+      // Read matching public filter fields once; repeated groupBy/count scans each decompress source JSON.
+      const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere(criteria), select: filterVehicleSelect });
+      const data = buildFilterData(rows);
+      const colour = data.options.colour.map(option => ({ ...option, name: String(option.value).replace(/\b\w/g, letter => letter.toUpperCase()) }));
       return {
-        total,
-        cylinders: cylinders.flatMap((row) => row.cylinders === null || row.cylinders <= 0 ? [] : [{ value: row.cylinders, count: row._count._all }]).sort((a, b) => a.value - b.value),
-        seats: seats.flatMap((row) => row.seats === null ? [] : [{ value: row.seats, count: row._count._all }]).sort((a, b) => a.value - b.value),
-        engineCapacityCc: engines.flatMap((row) => row.engineCapacityCc === null ? [] : [{ value: row.engineCapacityCc, count: row._count._all }]).sort((a, b) => a.value - b.value),
-        powerKw: powers.flatMap((row) => row.powerKw === null ? [] : [{ value: row.powerKw, count: row._count._all }]).sort((a, b) => a.value - b.value),
-        dealerships: dealers.flatMap((row) => {
-          const dealer = dealerRows.find((item) => item.id === row.dealerId);
-          return dealer ? [{ slug: dealer.slug, name: dealer.name, count: row._count._all }] : [];
-        }).sort((a, b) => a.name.localeCompare(b.name)),
-        models: models.flatMap((row) => {
-          const model = modelRows.find((item) => item.id === row.modelId);
-          return model ? [{ slug: model.slug, name: model.name, make: model.make.slug, value: `${model.make.slug}:${model.slug}`, count: row._count._all }] : [];
-        }).sort((a, b) => a.name.localeCompare(b.name)),
-        variants: variants.flatMap((row) => {
-          const variant = variantRows.find((item) => item.id === row.variantId);
-          return variant ? [{ slug: variant.slug, name: variant.name, make: variant.model.make.slug, model: variant.model.slug, count: row._count._all }] : [];
-        }).sort((a, b) => a.name.localeCompare(b.name)),
-        colour: [...colourCounts].map(([value, count]) => ({ value, name: value.replace(/\b\w/g, (letter) => letter.toUpperCase()), count })).sort((a, b) => a.name.localeCompare(b.name)),
-        city: cities.filter((row) => row.city).map((row) => ({ value: row.city, count: row._count._all })),
-        drivetrain: drives.filter((row) => row.drivetrain).map((row) => ({ value: row.drivetrain, count: row._count._all })),
-        makes: makes
-          .map((row) => {
-            const make = makeRows.find((item) => item.id === row.makeId);
-            return { slug: make?.slug, name: make?.name, count: row._count._all };
-          })
-          .sort((a, b) => b.count - a.count),
-        fuelType: fuel.map((row) => ({ value: row.fuelType, count: row._count._all })),
-        transmission: transmission.map((row) => ({ value: row.transmission, count: row._count._all })),
-        province: province.map((row) => ({ value: row.province, count: row._count._all })),
-        condition: condition.map((row) => ({ value: row.condition, count: row._count._all })),
-        categories: categoryCounts.filter((row) => row.count > 0),
-        ranges: { price: { min: ranges._min.price, max: ranges._max.price }, year: { min: ranges._min.year, max: ranges._max.year }, mileage: { min: ranges._min.mileage, max: ranges._max.mileage } },
+        total: data.total,
+        ...data.options,
+        colour,
+        makes: data.options.makes.sort((a, b) => b.count - a.count),
+        city: data.options.city.filter(row => row.value),
+        specials: [{ value: 'Not on special', count: rows.filter(row => !row.isSpecial).length }, { value: 'On special', count: rows.filter(row => row.isSpecial).length }],
+        ranges: data.ranges,
       };
     });
   }
