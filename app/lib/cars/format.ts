@@ -37,3 +37,13 @@ export function idFromSlug(slug: string) {
 export function carSpecs(car: Car) {
     return [car.bodyType, car.fuel, car.transmission, car.engine, formatKm(car.mileage)];
 }
+
+// Render source entities as text; React still escapes the result.
+export function sourceDescription(value: string) {
+    const entities: Record<string, string> = { quot: '"', apos: "'", amp: '&', lt: '<', gt: '>', nbsp: ' ' };
+    return value.replace(/&(#x[0-9a-f]+|#[0-9]+|quot|apos|amp|lt|gt|nbsp);/gi, (original, entity: string) => {
+        if (!entity.startsWith('#')) return entities[entity.toLowerCase()] ?? original;
+        const code = entity[1].toLowerCase() === 'x' ? parseInt(entity.slice(2), 16) : parseInt(entity.slice(1), 10);
+        return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : original;
+    });
+}

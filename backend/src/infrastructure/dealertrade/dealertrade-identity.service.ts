@@ -17,6 +17,7 @@ export function importedDealerUuid(sourceId: string) {
 @Injectable()
 export class DealerTradeIdentityService {
   private expiresAt = 0;
+  private whatsapp = new Map<string, string | null>();
   private loading?: Promise<void>;
   private external = new Map<string, string>();
   private vehicles = new Map<string, string>();
@@ -35,10 +36,11 @@ export class DealerTradeIdentityService {
     const [vehicles, dealers, sources, aliases] = await Promise.all([
       this.prisma.$queryRaw<VehicleIdentity[]>`SELECT id, "dealerId", "sourceData"->'dealertrade'->>'vehicle_id' AS "sourceId", "sourceData"->'dealertrade'->>'dealer_id' AS "sourceDealerId" FROM vehicles WHERE "sourceData"->'dealertrade'->>'vehicle_id' IS NOT NULL`,
       this.prisma.dealer.findMany({ select: { id: true, slug: true } }),
-      this.prisma.$queryRaw<{ sourceId: string }[]>`SELECT payload->>'dealer_id' AS "sourceId" FROM source_feed_records WHERE source='dealertrade' AND kind='dealer'`,
+      this.prisma.$queryRaw<{ sourceId: string; whatsappNumber: string | null }[]>`SELECT payload->>'dealer_id' AS "sourceId", NULLIF(TRIM(payload->>'whatsapp_number'), '') AS "whatsappNumber" FROM source_feed_records WHERE source='dealertrade' AND kind='dealer'`,
       this.prisma.dealerTradeIdAlias.findMany(),
     ]);
     this.setIdentities(vehicles, dealers, sources.map(row => row.sourceId));
+    this.whatsapp = new Map(sources.map(row => [row.sourceId, row.whatsappNumber]));
     for (const alias of aliases) {
       this.external.set(alias.legacyId, alias.sourceId);
       this.external.set(alias.legacyId.replace(/-/g, ''), alias.sourceId);
@@ -83,6 +85,8 @@ export class DealerTradeIdentityService {
     if (Array.isArray(value)) return value.map(item => this.present(item));
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, this.present(item)]));
   }
+
+  whatsappNumber(id: string) { return this.whatsapp.get(this.external.get(id) ?? id) ?? null; }
 
   dealerIds() { return [...new Set([...this.dealers.values()].map(row => row.id))]; }
 

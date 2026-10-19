@@ -161,7 +161,7 @@ export default function FinanceCalculator({ price: startPrice }: { price: number
                             <p className="m-0 text-2xl leading-8">Monthly Installment R{Math.round(monthly).toLocaleString("en-US").replace(/,/g, " ")}</p>
                         </div>
                     </div>
-                    <p className="m-0 px-2 text-xs leading-4 text-gold">All calculations supplied on this site, together with rates quoted, are guidelines only and are subject to confirmation at the time of finalising any transactions.<br />* Current Prime Rate is 10.75%</p>
+                    <p className="m-0 px-2 text-xs leading-4 text-gold">All calculations supplied on this site, together with rates quoted, are guidelines only and are subject to confirmation at the time of finalising any transactions.<br />* Rates and fees shown are illustrative; adjust the interest rate to your lender’s quote.</p>
                     <p className="m-0 py-4 text-lg leading-7">Financing a Vehicle? Common questions answered</p>
                     {faqs.map((item) => (
                         <div key={item.title}>

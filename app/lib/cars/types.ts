@@ -4,6 +4,12 @@
 export type Dealer = {
     id: string
     name: string
+    phone?: string | null
+    email?: string | null
+    whatsappNumber?: string | null
+    rating?: number | null
+    googleReviewUrl?: string | null
+    hellopeterReviewUrl?: string | null
     logo?: string
     address?: string
     hours?: { day: string, time: string }[]
@@ -27,6 +33,19 @@ export type Car = {
         rearTyreSize: string | null
         drivenWheels: string | null
     }
+    insights?: {
+        source: 'this-site'
+        comparableCount: number
+        averagePrice: number | null
+        priceDifference: number | null
+        averageMileage: number | null
+        mileageDifference: number | null
+        daysListed: number | null
+        viewsLast7Days: number
+        enquiriesLast7Days: number
+    }
+    additionalInformation?: string | null
+    description?: string | null
     id: string
     title: string
     make: string

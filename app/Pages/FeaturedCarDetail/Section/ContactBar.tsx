@@ -1,14 +1,16 @@
-export default function ContactBar({ title, inline = false }: { title: string, inline?: boolean }) {
+import type { Dealer } from '@/app/lib/cars/types'
+import { dealerContact } from '@/app/lib/cars/dealer-contact'
+export default function ContactBar({ title, dealer, inline = false }: { title: string, dealer?: Dealer, inline?: boolean }) {
 
-    const message = encodeURIComponent(`Hi, I'm interested in the ${title} on CHANGECARS.`);
+    const contact = dealerContact(dealer ?? {}, title);
     const button = "flex h-11 flex-1 items-center justify-center rounded-lg bg-gold text-[11px] font-medium text-white no-underline min-[981px]:rounded-md min-[981px]:text-[15px]";
 
     return (
         <>
             <div className={inline ? "mt-3 hidden gap-3 min-[981px]:flex" : "fixed inset-x-0 bottom-0 z-50 flex gap-2.25 bg-black px-5 py-2.5 font-roboto min-[981px]:hidden"}>
-                <a href="tel:0861248248" className={button}>Call Dealer</a>
-                <a href={`mailto:info@changecars.co.za?subject=${encodeURIComponent(title)}&body=${message}`} className={button}>Message Dealer</a>
-                <a href={`https://wa.me/27861248248?text=${message}`} target="_blank" className={button}>Whatsapp</a>
+                {contact.phone && <a href={contact.phone} className={button}>Call Dealer</a>}
+                {dealer?.email && <a href={`mailto:${dealer.email}?subject=${encodeURIComponent(title)}`} className={button}>Message Dealer</a>}
+                {contact.whatsapp && <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer" className={button}>WhatsApp</a>}
             </div>
         </>
     )

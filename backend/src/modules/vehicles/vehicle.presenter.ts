@@ -89,12 +89,19 @@ export function withAvailability<T extends { status: VehicleStatus; price: numbe
   return {
     ...safeVehicle,
     ...fields,
+    ...('dealer' in safeVehicle && safeVehicle.dealer && typeof safeVehicle.dealer === 'object' ? {
+      dealer: { ...safeVehicle.dealer, whatsappNumber: dealerWhatsappNumber(object(sourceData).dealertradeDealer) },
+    } : {}),
     availability: availabilityOf(vehicle.status),
     effectivePrice: effPrice,
     monthlyPrice: monthly,
     formattedMonthlyPrice: `R ${monthly.toLocaleString('en-US').replace(/,/g, ' ')} pm`,
     discount: vehicle.isSpecial && vehicle.specialPrice && vehicle.specialPrice < vehicle.price ? vehicle.price - vehicle.specialPrice : null,
   };
+}
+
+export function dealerWhatsappNumber(source: unknown): string | null {
+  return text(object(source).whatsapp_number);
 }
 
 /** Only explicitly allowed source fields may leave the API; raw feeds contain private data. */
@@ -110,6 +117,22 @@ function positive(value: unknown): number | null {
   const result = text(value);
   return result !== null && Number.isFinite(Number(result)) && Number(result) > 0 ? Number(result) : null;
 }
+export function vehicleSourceLinks(source: unknown) {
+  const feed = object(object(source).dealertrade);
+  const raw = text(feed.single_vehicle_url);
+  if (!raw) return { singleVehicleUrl: null, sourceUrl: null };
+  try {
+    const url = new URL(raw, 'https://www.changecars.co.za/');
+    const sourceId = text(feed.vehicle_id);
+    if (url.protocol !== 'https:' || url.hostname !== 'www.changecars.co.za' || url.username || url.password || url.port ||
+        !/^\/new-or-used-(?:cars|motorbikes|caravans|boats)-for-sale\//.test(url.pathname) ||
+        (sourceId && url.pathname.replace(/\/$/, '').split('/').at(-1) !== sourceId)) {
+      return { singleVehicleUrl: null, sourceUrl: null };
+    }
+    return { singleVehicleUrl: raw, sourceUrl: url.href };
+  } catch { return { singleVehicleUrl: null, sourceUrl: null }; }
+}
+
 export function publicVehicleFields(vehicle: unknown) {
   const row = object(vehicle), source = object(row.sourceData);
   const feed = object(source.dealertrade);
@@ -117,6 +140,7 @@ export function publicVehicleFields(vehicle: unknown) {
   const turbo = text(feed.turbo_supercharged)?.toUpperCase();
   const bodyType = resolveBodyType(feed)?.label ?? null;
   return {
+    ...vehicleSourceLinks(row.sourceData),
     technicalSpecifications: {
       doors: positive(feed.no_doors) ?? positive(row.doors),
       seats: positive(feed.no_seats) ?? positive(row.seats),

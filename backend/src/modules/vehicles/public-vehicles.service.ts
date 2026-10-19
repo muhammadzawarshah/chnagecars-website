@@ -116,6 +116,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const flagged = await this.withFavouriteFlags([vehicle, ...vehicle.moreFromThisDealer, ...vehicle.youMightLike], viewerId);
     return {
       ...vehicle,
+      insights: await this.listingInsights(vehicle.id),
       isFavourite: flagged[0].isFavourite,
       moreFromThisDealer: flagged.slice(1, 1 + vehicle.moreFromThisDealer.length),
       youMightLike: flagged.slice(1 + vehicle.moreFromThisDealer.length),
@@ -187,6 +188,31 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Market context: average asking price of comparable listings (same model, year ±1). */
+  /** Comparisons and seven-day activity belong to this installation, not the source website. */
+  async listingInsights(id: string) {
+    const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { modelId: true, year: true, variantId: true, price: true, mileage: true, publishedAt: true } });
+    if (!base) throw Errors.notFound('Vehicle');
+    const now = new Date();
+    const since = new Date(now.getTime() - 7 * 86400000);
+    const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 6));
+    const [peers, views, enquiries] = await Promise.all([
+      base.year === null ? Promise.resolve(null) : this.prisma.replica.vehicle.aggregate({
+        where: { id: { not: id }, modelId: base.modelId, year: { gte: base.year - 1, lte: base.year + 1 },
+          ...(base.variantId ? { variantId: base.variantId } : {}), status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' }, ...dealerTradeVehicleWhere() },
+        _avg: { price: true, mileage: true }, _count: { price: true, mileage: true },
+      }),
+      this.prisma.replica.vehicleViewDaily.aggregate({ where: { vehicleId: id, day: { gte: dayStart, lte: now } }, _sum: { views: true } }),
+      this.prisma.replica.enquiry.count({ where: { vehicleId: id, createdAt: { gte: since, lte: now } } }),
+    ]);
+    const averagePrice = peers && peers._count.price >= 3 ? peers._avg.price : null;
+    const averageMileage = peers && peers._count.mileage >= 3 ? peers._avg.mileage : null;
+    return { source: 'this-site' as const, comparableCount: peers?._count.price ?? 0,
+      averagePrice, priceDifference: averagePrice === null ? null : base.price - averagePrice,
+      averageMileage, mileageDifference: averageMileage === null || base.mileage === null ? null : base.mileage - averageMileage,
+      daysListed: base.publishedAt ? Math.max(0, Math.floor((now.getTime() - base.publishedAt.getTime()) / 86400000)) : null,
+      viewsLast7Days: views._sum.views ?? 0, enquiriesLast7Days: enquiries };
+  }
+
   async marketPrice(id: string) {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { modelId: true, year: true, price: true } });
     if (!base) throw Errors.notFound('Vehicle');
