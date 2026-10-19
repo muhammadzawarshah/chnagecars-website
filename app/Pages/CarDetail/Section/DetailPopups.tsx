@@ -8,10 +8,12 @@ type DetailPopupsProps = {
     title: string
     dealer: string
     logo: string
+    phone?: string | null
+    whatsappNumber?: string | null
 }
 
 // Listens for the page's "Message Dealer" buttons on screens without the side form.
-export default function DetailPopups({ title, dealer, logo }: DetailPopupsProps) {
+export default function DetailPopups({ title, dealer, logo, phone, whatsappNumber }: DetailPopupsProps) {
 
     const [enquiry, setEnquiry] = useState(false);
 
@@ -38,7 +40,7 @@ export default function DetailPopups({ title, dealer, logo }: DetailPopupsProps)
                         <button type="button" onClick={() => setEnquiry(false)} aria-label="Close" className="absolute top-4 right-4 flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0">
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" strokeWidth="1.8"><path d="M1 1l12 12M13 1L1 13" /></svg>
                         </button>
-                        <EnquiryForm title={title} dealer={dealer} logo={logo} idPrefix="popup-enquiry" />
+                        <EnquiryForm title={title} dealer={dealer} logo={logo} phone={phone} whatsappNumber={whatsappNumber} idPrefix="popup-enquiry" />
                     </div>
                 </div>,
                 document.body

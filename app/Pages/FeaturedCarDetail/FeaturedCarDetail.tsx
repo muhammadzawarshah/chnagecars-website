@@ -101,7 +101,7 @@ export default function FeaturedCarDetail({ car, dealerCars, similarCars }: CarD
                                     <Link key={label} href="/login" className={outline}><span className="text-[#757575]">+</span> {label}</Link>
                                 ))}
                             </div>
-                            <ContactBar title={car.title} inline />
+                            <ContactBar dealer={car.dealer} title={car.title} inline />
                         </div>
                     </div>
 
@@ -136,7 +136,7 @@ export default function FeaturedCarDetail({ car, dealerCars, similarCars }: CarD
                         <RelatedCars title={<>You might like <strong>this</strong></>} cars={similarCars} />
                     </div>
 
-                    <ContactBar title={car.title} />
+                    <ContactBar dealer={car.dealer} title={car.title} />
                 </div>
             </main>
             {finance && <FinanceSheet key={car.id} price={price} onClose={() => setFinance(false)} />}

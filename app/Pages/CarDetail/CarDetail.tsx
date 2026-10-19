@@ -1,10 +1,11 @@
+import { dealerContact } from '@/app/lib/cars/dealer-contact'
 import { technicalSpecificationGroups } from "@/app/lib/cars/technical-specifications"
 import Link from "next/link"
 import { Car } from "@/app/lib/cars/types"
 import { PopularDealer } from "@/app/lib/cars/api"
 import { Article } from "@/app/lib/articles/types"
 import { articleHref, formatArticleDate } from "@/app/lib/articles/format"
-import { carHref, formatKm, formatRand, monthlyPayment } from "@/app/lib/cars/format"
+import { carHref, formatKm, formatRand, monthlyPayment, sourceDescription } from "@/app/lib/cars/format"
 import { carSearchHref, slugify } from "@/app/lib/cars/search"
 import ShareMenu from "../ArticleDetail/Section/ShareMenu"
 import EnquiryForm from "./Section/EnquiryForm"
@@ -36,19 +37,17 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
 
     const logo = car.dealer.logo ?? "/img/favicon.png";
     const address = car.dealer.address ?? car.location;
-    const message = encodeURIComponent(`Hi, I'm interested in the ${car.title} on CHANGECARS.`);
-    const whatsapp = `https://wa.me/27861248248?text=${message}`;
-    const specs = [["icon-cal.svg", car.year ? String(car.year) : "Unknown"], ["icon-km.svg", formatKm(car.mileage, " ").toUpperCase()], ["icon-tran.svg", car.transmission], ["icon-fuel.svg", car.fuel]];
-
-    const difference = marketPrice === undefined ? undefined : marketPrice - car.price;
-    const differenceText = difference === undefined ? "" : `R${Math.abs(difference).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, " ")}`;
-    const expectedMileage = Math.max(1, new Date().getFullYear() - car.year + 1) * 15000;
-    const mileageAbove = car.mileage > expectedMileage;
-    const canCompareMileage = car.year > 0 && car.mileage >= 0;
-    const days = daysListed(car.listedAt);
-    const lifespan = days < 7 ? "7 days" : days < 45 ? "45 days" : `${days} days`;
-    const views = car.views ?? 0;
-    const enquiries = car.enquiries ?? 0;
+    const contact = dealerContact(car.dealer, car.title);
+    const specs = [["icon-cal.svg", car.year ? String(car.year) : "N/A"], ["icon-km.svg", formatKm(car.mileage, " ").toUpperCase()], ["icon-tran.svg", car.transmission], ["icon-fuel.svg", car.fuel]];
+    const difference = car.insights?.priceDifference;
+    const differenceText = difference == null ? "" : `R${Math.abs(difference).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, " ")}`;
+    const mileageDifference = car.insights?.mileageDifference;
+    const canCompareMileage = mileageDifference != null;
+    const mileageAbove = (mileageDifference ?? 0) > 0;
+    const days = car.insights?.daysListed;
+    const lifespan = days == null ? "N/A" : days < 45 ? "45 days" : `${days} days`;
+    const views = car.insights?.viewsLast7Days;
+    const enquiries = car.insights?.enquiriesLast7Days;
 
     const gold = "h-10 rounded-[5px] bg-gold px-2.5 text-center text-sm leading-10 font-medium text-white no-underline shadow-[0_3px_6px_rgba(0,0,0,0.07)]";
     const topButton = `${gold} w-[calc(33.333%-12px)] max-[1038px]:w-[calc(50%-5px)]`;
@@ -59,7 +58,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
     const cardTitle = "mt-3 mb-3.75 text-lg leading-[20.7px] font-semibold text-black";
     const dealerButton = "flex h-10 items-center rounded-[5px] bg-gold px-1.75 font-sans text-sm text-white no-underline";
 
-    const rating = <DealerRating dealer={car.dealer.name} />;
+    const rating = <DealerRating dealer={car.dealer.name} rating={car.dealer.rating} />;
 
     return (
         <>
@@ -71,7 +70,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
             <main className="relative z-1 pt-5 pb-15 font-sans min-[1039px]:pt-20 min-[1039px]:pb-0 min-[1112px]:pt-0">
                 <div className="mx-auto flow-root w-full max-w-350 px-5">
                     <aside className="float-left ml-11.25 hidden w-90 pt-8.5 min-[1039px]:block">
-                        <EnquiryForm title={car.title} dealer={car.dealer.name} logo={logo} />
+                        <EnquiryForm title={car.title} dealer={car.dealer.name} logo={logo} phone={car.dealer.phone} whatsappNumber={car.dealer.whatsappNumber} />
                     </aside>
 
                     <section className="bg-white px-5 py-7.5 min-[1039px]:ml-111.5 min-[1039px]:px-10">
@@ -89,13 +88,13 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                             <h1 className="m-0 mb-3.75 text-xl leading-5 font-bold text-ink">{car.title}</h1>
                             <div className="mb-2.5 flex w-[92%] flex-wrap gap-2.5 max-[1038px]:w-full">
                                 <ActionButton action="enquiry" className={topButton}>Message Dealer</ActionButton>
-                                <a href="tel:0861248248" className={topButton}>Call Dealer</a>
-                                <a href={whatsapp} target="_blank" className={`${topButton} flex items-center justify-center`}>
+                                {contact.phone && <a href={contact.phone} className={topButton}>Call Dealer</a>}
+                                {contact.whatsapp && <a href={contact.whatsapp} target="_blank" className={`${topButton} flex items-center justify-center`}>
                                     <img src={`${icon}/icon-whatsapp-logo-green-white.svg`} alt="" className="mr-1.5 size-6" />
                                     WhatsApp
-                                </a>
+                                </a>}
                                 <a href="https://screan.co.za/" target="_blank" className={topButton}>Screan It</a>
-                                <a href="https://www.changecars.co.za/insurance/discovery-car-insurance" target="_blank" className={topButton}>Insurance</a>
+                                <ActionButton action="finance" className={topButton}>Get Finance</ActionButton>
                             </div>
                             <span className="mb-2.25 block border-t border-dotted border-[#7c7c7c]"></span>
                             <div className="flex items-start justify-between gap-5 max-[1038px]:block">
@@ -118,7 +117,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                             <div className="flex flex-wrap gap-2.5 max-[1038px]:mt-2.5">
                                 <Link href={carSearchHref({ make: slugify(car.make) })} className={black}>Learn about {car.make}</Link>
                                 <a href="#dealer-info" className={black}>Learn about this Dealer</a>
-                                <a href="https://www.youtube.com/channel/UCZERPfVcd1TVgqtIucVgNwg" target="_blank" className={`${black} bg-[#0a0a0a] font-medium`}>Watch Review</a>
+
                                 <a href="#all-you-need-to-know" className={`${black} bg-[#0a0a0a] font-medium shadow-[0_3px_6px_rgba(0,0,0,0.07)]`}>
                                     <img src={`${icon}/all-you-need-to-know-icon.svg`} alt="" className="mr-1.5 size-4.25" />
                                     All You Need to Know
@@ -130,7 +129,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
 
                         <div className="mb-7 bg-[#f5f5f5] px-3.75 py-2.5">
                             <h3 className="m-0 mb-3.75 text-lg leading-6 font-semibold text-black">Additional Information</h3>
-                            <p className="my-4 text-base leading-5 text-ink">{car.title} finished in {car.colour.toLowerCase()}, with a {car.engine} {car.fuel.toLowerCase()} engine, {car.transmission.toLowerCase()} transmission and {car.drive} drive. Contact the dealer for the full list of features and the service history of this vehicle.</p>
+                            <p className="my-4 whitespace-pre-line text-base leading-5 text-ink">{sourceDescription(car.additionalInformation || car.description || "Contact the dealer for additional vehicle information.")}</p>
                         </div>
 
                         <div className="mb-6.5">
@@ -150,7 +149,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                 <h3 className="my-6.75 ml-2.5 text-[27px] leading-[31px] font-normal text-gold">{car.dealer.name}</h3>
                             </div>
                             <div className="border-b border-black/50 py-5 text-base leading-[18.4px] text-black">
-                                <Link href={carSearchHref({})} className="text-black no-underline">View Listings</Link>
+                                <Link href={carSearchHref({ dealership: car.dealer.name })} className="text-black no-underline">View Listings</Link>
                                 <span className="mx-2.5 text-black/30">|</span>
                                 <a href="#all-you-need-to-know" className="text-black no-underline">Learn More</a>
                             </div>
@@ -159,11 +158,11 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                     <h4 className="my-6 w-28.75 shrink-0 text-lg leading-[20.7px] font-normal text-black max-[600px]:my-2.5 max-[600px]:w-auto">Contact</h4>
                                     <div className="flex flex-wrap gap-1.25 max-[600px]:justify-center">
                                         <ActionButton action="enquiry" className={dealerButton}>Message Dealer</ActionButton>
-                                        <a href="tel:0861248248" className={dealerButton}>Call Dealer</a>
-                                        <a href={whatsapp} target="_blank" className={dealerButton}>
+                                        {contact.phone && <a href={contact.phone} className={dealerButton}>Call Dealer</a>}
+                                        {contact.whatsapp && <a href={contact.whatsapp} target="_blank" className={dealerButton}>
                                             <img src={`${icon}/icon-whatsapp-logo-green-white.svg`} alt="" className="mr-1.25 size-6" />
                                             WhatsApp
-                                        </a>
+                                        </a>}
                                         <OpeningHours hours={car.dealer.hours} />
                                     </div>
                                 </div>
@@ -175,6 +174,10 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                     </a>
                                 </div>
                             </div>
+                            {(car.dealer.googleReviewUrl || car.dealer.hellopeterReviewUrl) && <div className="flex flex-wrap gap-4 py-3 text-sm">
+                                {car.dealer.googleReviewUrl && <a href={car.dealer.googleReviewUrl} target="_blank" rel="noopener noreferrer" className="text-gold underline">Read Google Reviews</a>}
+                                {car.dealer.hellopeterReviewUrl && <a href={car.dealer.hellopeterReviewUrl} target="_blank" rel="noopener noreferrer" className="text-gold underline">Read Hellopeter Reviews</a>}
+                            </div>}
                         </div>
 
                         <div id="all-you-need-to-know" className="mt-6.5 scroll-mt-5">
@@ -183,41 +186,41 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-price.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Price</h4>
-                                    {difference === undefined ? (
+                                    {difference == null ? (
                                         <>
-                                            <p>Market related price</p>
-                                            <p>There are not enough similar vehicles listed yet to compare this price.</p>
+                                            <p>Price comparison unavailable</p>
+                                            <p>At least three comparable listings with a known year are needed on this site.</p>
                                         </>
                                     ) : (
                                         <>
-                                            <p>{differenceText} {difference >= 0 ? "below" : "above"} market average</p>
-                                            <p>This vehicle is <span>{differenceText}</span> {difference >= 0 ? "below" : "above"} market average, compared to vehicles of similar age and specification</p>
+                                            <p>{differenceText} {difference === 0 ? "at" : difference > 0 ? "above" : "below"} market average</p>
+                                            <p>This vehicle is <span>{differenceText}</span> {difference === 0 ? "at" : difference > 0 ? "above" : "below"} market average, compared to similar vehicles listed on this site</p>
                                         </>
                                     )}
                                 </div>
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-mileage.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Mileage</h4>
-                                    <p>{canCompareMileage ? `${mileageAbove ? "Above" : "Below"} market average` : "Mileage comparison unavailable"}</p>
-                                    {canCompareMileage && <p>This vehicle&apos;s mileage is <span>{mileageAbove ? "above" : "below"} average</span>, compared to vehicles of similar age and specification</p>}
+                                    <p>{canCompareMileage ? `${mileageDifference === 0 ? "At" : mileageAbove ? "Above" : "Below"} market average` : "Mileage comparison unavailable"}</p>
+                                    {canCompareMileage && <p>This vehicle&apos;s mileage is <span>{mileageDifference === 0 ? "at" : mileageAbove ? "above" : "below"} average</span>, compared to similar vehicles listed on this site</p>}
                                 </div>
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-listing-lifespan.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Listing lifespan</h4>
-                                    <p>{days < 45 ? `Less than ${lifespan}` : `Listed for ${lifespan}`}</p>
-                                    <p>Vehicle has been listed with CHANGECARS for {days < 45 ? "less than " : ""}<span>{lifespan}</span></p>
+                                    <p>{days == null ? "Listing age unavailable" : days < 45 ? `Less than ${lifespan}` : `Listed for ${lifespan}`}</p>
+                                    {days != null && <p>Vehicle has been listed on this site for <span>{days} days</span>.</p>}
                                 </div>
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-listing-views.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Listing views</h4>
-                                    <p>{views} views past 7 days</p>
-                                    <p>This listing has had <span>{views} views</span> in the past <span>7 days</span></p>
+                                    <p>{views ?? "N/A"} views past 7 days</p>
+                                    <p>This site recorded <span>{views ?? "N/A"} views</span> over seven calendar days. Counts update periodically.</p>
                                 </div>
                                 <div className={card}>
                                     <img src={`${icon}/all-you-need-to-know-enquiries.svg`} alt="" className="inline h-6 align-baseline" />
                                     <h4 className={cardTitle}>Enquiries</h4>
-                                    <p>{enquiries} enquiries past 7 days</p>
-                                    <p>This listing has had <span>{enquiries} enquiries</span> in the past <span>7 days</span></p>
+                                    <p>{enquiries ?? "N/A"} enquiries past 7 days</p>
+                                    <p>This site received <span>{enquiries ?? "N/A"} enquiries</span> in the past <span>7 days</span></p>
                                 </div>
                                 <div className={card}>
                                     <h4 className={`${cardTitle} mt-9.5`}>Interested?</h4>
@@ -253,7 +256,7 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                                 <h3 className={boldHeading}>Popular {car.make} {car.model} Dealers</h3>
                                 <div className="flex flex-wrap gap-2.5">
                                     {dealers.map(({ dealer, count }) => (
-                                        <Link key={dealer.id} href={carSearchHref({ make: slugify(car.make), model: slugify(car.model) })} className="block w-[calc((100%-20px)/3)] no-underline shadow-[0_0_8px_rgba(0,0,0,0.16)] max-[600px]:w-full">
+                                        <Link key={dealer.id} href={carSearchHref({ make: slugify(car.make), model: slugify(car.model), dealership: dealer.name })} className="block w-[calc((100%-20px)/3)] no-underline shadow-[0_0_8px_rgba(0,0,0,0.16)] max-[600px]:w-full">
                                             <h4 className="m-0 h-8.75 truncate bg-gold px-3.75 text-center text-base leading-8.75 font-bold text-white">{dealer.name}</h4>
                                             <div className="h-37.5 bg-white bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${dealer.logo ?? "/img/site_logo_dark.svg"})`, backgroundSize: dealer.logo ? undefined : "60%" }}></div>
                                             <p className="m-0 h-7.5 bg-[#fefefe] px-2.5 text-center text-sm leading-7.5 text-gold">{count} Matching vehicles</p>
@@ -266,8 +269,8 @@ export default function CarDetail({ car, similarCars, articles, dealers, marketP
                 </div>
             </main>
 
-            <ContactBar title={car.title} />
-            <DetailPopups title={car.title} dealer={car.dealer.name} logo={logo} />
+            <ContactBar title={car.title} dealer={car.dealer} />
+            <DetailPopups title={car.title} dealer={car.dealer.name} logo={logo} phone={car.dealer.phone} whatsappNumber={car.dealer.whatsappNumber} />
         </>
     )
 }

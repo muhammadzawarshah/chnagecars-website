@@ -31,6 +31,7 @@ describe('vehicle detail recommendations', () => {
     jest.spyOn(service, 'fromSameDealer').mockResolvedValue([card('dealer-car')] as any);
     jest.spyOn(service, 'similar').mockResolvedValue([card('similar-car')] as any);
     jest.spyOn(service as any, 'recordView').mockResolvedValue(undefined);
+    jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
     const result = await service.detail('base-slug');
     expect(result.location).toEqual({ city: 'Bethlehem', province: 'FREE_STATE', address: 'Branch address', latitude: -28, longitude: 28, country: 'South Africa' });
     expect(result.additionalInformation).toBe('Full dealer information');

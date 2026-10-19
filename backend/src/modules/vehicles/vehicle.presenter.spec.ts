@@ -21,3 +21,27 @@ describe('public vehicle fields', () => {
     expect(publicVehicleFields({ sourceData: { dealertrade: { no_gears: 0, fuel_tank_size: 'invalid' } } })).toMatchObject({ gears: null, fuelTankLitres: null, mmcode: null, sourceVehicleId: null });
   });
 });
+
+it('exposes only the selected dealer WhatsApp number and preserves its phone', () => {
+  const input = { status: 'PUBLISHED' as const, price: 100, specialPrice: null, isSpecial: false,
+    dealer: { id: '26', phone: '058 303 4155' },
+    sourceData: { dealertradeDealer: { dealer_id: 26, whatsapp_number: ' +27614033321 ', lead_email_1: 'private@example.test' } } };
+  const output = withAvailability(input);
+  expect(output.dealer).toEqual({ id: '26', phone: '058 303 4155', whatsappNumber: '+27614033321' });
+  expect(JSON.stringify(output)).not.toContain('private@example.test');
+  expect(withAvailability({ ...input, sourceData: {} }).dealer).toEqual({ id: '26', phone: '058 303 4155', whatsappNumber: null });
+});
+
+it('returns this listing’s original path and full ChangeCars URL', () => {
+  const singleVehicleUrl = 'new-or-used-cars-for-sale/mpumalanga/lydenburg/suv/suzuki-cars/xl6/1-5-gl/1521740';
+  expect(publicVehicleFields({ sourceData: { dealertrade: { vehicle_id: 1521740, single_vehicle_url: singleVehicleUrl } } })).toMatchObject({ singleVehicleUrl, sourceUrl: `https://www.changecars.co.za/${singleVehicleUrl}` });
+});
+
+it.each(['https://other.example/new-or-used-cars-for-sale/1521740', 'javascript:alert(1)', 'new-or-used-cars-for-sale/wrong-vehicle/999'])('rejects an untrusted or different-vehicle source URL: %s', single_vehicle_url => {
+  expect(publicVehicleFields({ sourceData: { dealertrade: { vehicle_id: 1521740, single_vehicle_url } } })).toMatchObject({ singleVehicleUrl: null, sourceUrl: null });
+});
+
+it('supports original motorbike listing URLs', () => {
+  const path = 'new-or-used-motorbikes-for-sale/gauteng/ravenswood/motorbike/ktm/sx-f/1366882';
+  expect(publicVehicleFields({ sourceData: { dealertrade: { vehicle_id: 1366882, single_vehicle_url: path } } })).toMatchObject({ singleVehicleUrl: path, sourceUrl: `https://www.changecars.co.za/${path}` });
+});

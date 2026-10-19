@@ -139,7 +139,7 @@ export class DealersService {
       this.prisma.replica.dealer.findMany({ where, select: publicDealerSelect, orderBy: [{ plan: 'desc' }, { name: 'asc' }], skip, take }),
       this.prisma.replica.dealer.count({ where }),
     ]);
-    return toPage(data, total, page, pageSize);
+    return toPage(data.map(dealer => ({ ...dealer, whatsappNumber: this.identities.whatsappNumber(dealer.id) })), total, page, pageSize);
   }
 
   async getPublic(slug: string) {
@@ -157,7 +157,7 @@ export class DealersService {
     });
     if (!dealer) throw Errors.notFound('Dealer');
     const { _count, ...rest } = dealer;
-    return { ...rest, activeListings: _count.vehicles };
+    return { ...rest, whatsappNumber: this.identities.whatsappNumber(rest.id), activeListings: _count.vehicles };
   }
 
   // ───────────── dealer portal: profile ─────────────

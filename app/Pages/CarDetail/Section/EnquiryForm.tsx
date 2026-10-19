@@ -1,5 +1,6 @@
 "use client"
 
+import { dealerContact } from "@/app/lib/cars/dealer-contact"
 import { useRef, useState } from "react"
 import CheckSelect from "./CheckSelect"
 import { submitWebsiteForm } from "../../../lib/backend/actions"
@@ -13,15 +14,17 @@ type EnquiryFormProps = {
     title: string
     dealer: string
     logo: string
+    phone?: string | null
+    whatsappNumber?: string | null
     idPrefix?: string
 }
 
-export default function EnquiryForm({ title, dealer, logo, idPrefix = "enquiry" }: EnquiryFormProps) {
+export default function EnquiryForm({ title, dealer, logo, phone, whatsappNumber, idPrefix = "enquiry" }: EnquiryFormProps) {
 
     const [sent, setSent] = useState(false);
     const sending = useRef(false);
     const [formError, setFormError] = useState("");
-    const message = encodeURIComponent(`Hi, I'm interested in the ${title} on CHANGECARS.`);
+    const contactLinks = dealerContact({ phone, whatsappNumber }, title);
     const field = "block h-7.75 w-full rounded-[20px] border border-gold bg-black/75 px-2.5 font-sans text-sm text-white outline-none placeholder:text-white";
     const contact = "h-10 rounded-[5px] bg-gold px-2.5 text-sm font-medium text-white no-underline shadow-[0_3px_6px_rgba(0,0,0,0.7)]";
 
@@ -59,11 +62,11 @@ export default function EnquiryForm({ title, dealer, logo, idPrefix = "enquiry" 
             <h2 className="m-0 text-center text-base leading-4.75 font-bold text-white">{dealer}</h2>
             <p className="mt-4 mb-5.25 text-center text-base leading-4.75 text-white">Enquire about this vehicle</p>
             <div className="mb-5 flex justify-center gap-2.5">
-                <a href="tel:0861248248" className={`${contact} leading-10`}>Call Dealer</a>
-                <a href={`https://wa.me/27861248248?text=${message}`} target="_blank" className={`${contact} flex items-center border border-gold`}>
+                {contactLinks.phone && <a href={contactLinks.phone} className={`${contact} leading-10`}>Call Dealer</a>}
+                {contactLinks.whatsapp && <a href={contactLinks.whatsapp} target="_blank" className={`${contact} flex items-center border border-gold`}>
                     <img src="/img/car-detail/orig/icon-whatsapp-logo-green-white.svg" alt="" className="mr-1.5 size-6" />
                     WhatsApp The Dealer
-                </a>
+                </a>}
             </div>
             {sent ? (
                 <p className="m-0 text-center text-base leading-6 text-white">Thank you, {dealer} will be in touch with you shortly.</p>

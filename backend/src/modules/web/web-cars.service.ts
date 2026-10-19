@@ -1,3 +1,5 @@
+import { dealerSourceDetails } from '../vehicles/dealer-source';
+import { dealerWhatsappNumber, vehicleSourceLinks } from '../vehicles/vehicle.presenter';
 import { resolveBodyType } from '../vehicles/body-type-mapping';
 import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Injectable } from '@nestjs/common';
@@ -152,7 +154,7 @@ const carSelect = {
     take: 24,
     select: { url: true, largeUrl: true, mediumUrl: true },
   },
-  dealer: { select: { id: true, name: true, logoUrl: true, address: true } },
+  dealer: { select: { id: true, name: true, logoUrl: true, address: true, phone: true, email: true, rating: true } },
   branch: { select: { address: true, operatingHours: true } },
 } satisfies Prisma.VehicleSelect;
 
@@ -162,6 +164,7 @@ export type WebCar = ReturnType<typeof toWebCar>;
 
 /** One database row → the website's Car (app/lib/cars/types.ts). */
 export function toWebCar(row: CarRow) {
+  const sourceDealer = dealerSourceDetails((row.sourceData as { dealertradeDealer?: unknown } | null)?.dealertradeDealer);
   const slugs = row.categories.map((category) => category.slug);
   if (row.variant?.bodyCategory) slugs.push(row.variant.bodyCategory.slug);
   const gallery = row.images.map((image) => image.largeUrl ?? image.url ?? image.mediumUrl).filter((url): url is string => !!url);
@@ -172,6 +175,7 @@ export function toWebCar(row: CarRow) {
   const monthly = effPrice <= 0 ? 0 : Math.round((effPrice * r) / (1 - Math.pow(1 + r, -72)));
   return {
     id: toWebId(row.id),
+    ...vehicleSourceLinks(row.sourceData),
     title: row.title,
     make: row.make.name,
     model: row.model.name,
@@ -191,10 +195,15 @@ export function toWebCar(row: CarRow) {
     photoCount: Math.max(row.imageCount, gallery.length),
     dealer: {
       id: row.dealer.id,
+      whatsappNumber: dealerWhatsappNumber((row.sourceData as { dealertradeDealer?: unknown } | null)?.dealertradeDealer),
       name: row.dealer.name,
+      phone: row.dealer.phone,
+      email: row.dealer.email,
+      rating: row.dealer.rating,
       logo: row.dealer.logoUrl ?? undefined,
       address: row.branch?.address ?? row.dealer.address ?? undefined,
-      hours: hoursRows(row.branch?.operatingHours),
+      ...sourceDealer,
+      hours: sourceDealer.hours ?? hoursRows(row.branch?.operatingHours),
     },
     location: `${row.city}, ${province}`,
     province,
@@ -311,6 +320,7 @@ export class WebCarsService {
     return {
       ...toWebCar(row),
       technicalSpecifications: detail.technicalSpecifications,
+      insights: detail.insights,
       description: detail.description,
       additionalInformation: detail.additionalInformation,
       mapDetails: detail.mapDetails,
