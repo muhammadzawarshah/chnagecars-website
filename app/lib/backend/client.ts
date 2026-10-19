@@ -95,8 +95,8 @@ function cacheTag(path: string): CacheTag {
 // Public data (cars, articles). Cached by Next for `revalidate` seconds as a safety net; the API
 // refreshes it at once when the data changes. `fresh` skips the cache.
 // Returns undefined for 404 so pages can call notFound().
-export async function publicGet<T>(path: string, options: { revalidate?: number, fresh?: boolean } = {}): Promise<T | undefined> {
-    const response = await send(path, options.fresh ? { cache: "no-store" } : { next: { revalidate: options.revalidate ?? 60, tags: [cacheTag(path)] } }, GET_TIMEOUT_MS)
+export async function publicGet<T>(path: string, options: { revalidate?: number, fresh?: boolean, timeoutMs?: number } = {}): Promise<T | undefined> {
+    const response = await send(path, options.fresh ? { cache: "no-store" } : { next: { revalidate: options.revalidate ?? 60, tags: [cacheTag(path)] } }, options.timeoutMs ?? GET_TIMEOUT_MS)
     if (response.status === 404) return undefined
     if (!response.ok) throw await toError(response, path)
     return response.json() as Promise<T>

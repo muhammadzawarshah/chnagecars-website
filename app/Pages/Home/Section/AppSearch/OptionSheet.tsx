@@ -3,8 +3,12 @@
 import { useEffect, useRef } from "react"
 import { AppOption } from "../../Data/appSearch"
 import BottomSheet from "./BottomSheet"
+import FilterOptionsStatus from "./FilterOptionsStatus"
 
 type OptionSheetProps = {
+    onRetry?: () => void
+    loading?: boolean
+    error?: boolean
     title: string
     options: AppOption[]
     selected: number | null
@@ -13,7 +17,7 @@ type OptionSheetProps = {
     onClose: () => void
 }
 
-export default function OptionSheet({ title, options, selected, fallback, onSelect, onClose }: OptionSheetProps) {
+export default function OptionSheet({ loading, error, onRetry, title, options, selected, fallback, onSelect, onClose }: OptionSheetProps) {
 
     const active = selected ?? fallback;
     const activeRef = useRef<HTMLLIElement>(null);
@@ -25,6 +29,7 @@ export default function OptionSheet({ title, options, selected, fallback, onSele
     return (
         <>
             <BottomSheet title={title} onClose={onClose}>
+                <FilterOptionsStatus onRetry={onRetry} loading={loading} error={error} empty={!options.length} />
                 <ul className="m-0 list-none p-0">
                     {options.map((option) => (
                         <li

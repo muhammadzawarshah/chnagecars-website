@@ -45,3 +45,12 @@ it('supports original motorbike listing URLs', () => {
   const path = 'new-or-used-motorbikes-for-sale/gauteng/ravenswood/motorbike/ktm/sx-f/1366882';
   expect(publicVehicleFields({ sourceData: { dealertrade: { vehicle_id: 1366882, single_vehicle_url: path } } })).toMatchObject({ singleVehicleUrl: path, sourceUrl: `https://www.changecars.co.za/${path}` });
 });
+
+it('keeps a source-verified variant identity without returning its old catalogue specifications', () => {
+  const output = withAvailability({ status: 'PUBLISHED' as const, price: 100, specialPrice: null, isSpecial: false,
+    variant: { id: 'stable-variant-id', name: 'Source variant', specification: { fuelTankLitres: 999, extra: { mmcode: 'OLD' } } },
+    sourceData: { importPolicy: 'dealertrade-only', dealertrade: { vehicle_id: 123, fuel_tank_size: 0 } } });
+  expect(output.variant).toEqual({ id: 'stable-variant-id', name: 'Source variant', specification: null });
+  expect(output.technicalSpecifications.fuelTankLitres).toBeNull();
+  expect(output.mmcode).toBeNull();
+});

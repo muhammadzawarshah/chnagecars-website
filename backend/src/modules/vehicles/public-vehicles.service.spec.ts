@@ -42,6 +42,17 @@ describe('vehicle detail recommendations', () => {
     expect(result.moreFromThisDealer[0]).not.toHaveProperty('moreFromThisDealer');
   });
 
+  it('does not borrow catalogue features for a source-only imported listing', async () => {
+    const { service, vehicle } = setup();
+    vehicle.findFirst.mockResolvedValue({ ...card('base'), sourceData: { importPolicy: 'dealertrade-only', dealertrade: { vehicle_id: 123 } }, city: '', province: 'GAUTENG', latitude: null, longitude: null, dealer: { address: '' }, branch: null, makeId: 'make', modelId: 'model', dealerId: 'dealer' });
+    jest.spyOn(service, 'fromSameDealer').mockResolvedValue([]);
+    jest.spyOn(service, 'similar').mockResolvedValue([]);
+    jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
+    jest.spyOn(service as any, 'recordView').mockResolvedValue(undefined);
+    expect((await service.detail('base-slug')).features).toEqual([]);
+    expect((service as any).catalogue.resolveFeatures).not.toHaveBeenCalled();
+  });
+
   it('prioritizes same-model stock and fills remaining slots with similar category/price cars', async () => {
     const { service, vehicle } = setup();
     vehicle.findUnique.mockResolvedValue({ id: 'base', modelId: 'model', price: 200000, categories: [{ id: 'suv' }] });

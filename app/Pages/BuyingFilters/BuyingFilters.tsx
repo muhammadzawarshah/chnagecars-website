@@ -5,6 +5,7 @@ import AdBanner from "../../components/AdBanner"
 import { heroAd } from "../Home/Data/ads"
 import useAppFilters, { rangeKeys } from "../Home/Section/AppSearch/useAppFilters"
 import { CarSearch } from "@/app/lib/cars/search"
+import { additionalFilters } from "../Home/Data/additionalFilters"
 import BuyingField from "./Section/BuyingField"
 
 type BuyingFiltersProps = {
@@ -71,6 +72,7 @@ export default function BuyingFilters({ preset, initial = {}, resultsPath, prese
                             <BuyingField wide label={makesLabel()} active={values.makes.length > 0} onClick={() => openSheet("makes")} />
                             {choice("drive", true)}
                             {choice("colour", true)}
+                            {additionalFilters.filter(filter => !["transmission", "fuelType", "drive", "colour"].includes(filter.key)).map(filter => choice(filter.key, ["province", "dealership"].includes(filter.key)))}
                         </div>
                     </div>
 

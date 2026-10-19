@@ -88,6 +88,7 @@ export function withAvailability<T extends { status: VehicleStatus; price: numbe
   const monthly = monthlyPayment(effPrice);
   return {
     ...safeVehicle,
+    ...((object(sourceData).importPolicy === 'dealertrade-only' && 'variant' in safeVehicle && safeVehicle.variant) ? { variant: { ...object(safeVehicle.variant), specification: null } } : {}),
     ...fields,
     ...('dealer' in safeVehicle && safeVehicle.dealer && typeof safeVehicle.dealer === 'object' ? {
       dealer: { ...safeVehicle.dealer, whatsappNumber: dealerWhatsappNumber(object(sourceData).dealertradeDealer) },
@@ -136,7 +137,7 @@ export function vehicleSourceLinks(source: unknown) {
 export function publicVehicleFields(vehicle: unknown) {
   const row = object(vehicle), source = object(row.sourceData);
   const feed = object(source.dealertrade);
-  const spec = object(object(row.variant).specification), extra = object(spec.extra);
+  const spec = source.importPolicy === 'dealertrade-only' ? {} : object(object(row.variant).specification), extra = object(spec.extra);
   const turbo = text(feed.turbo_supercharged)?.toUpperCase();
   const bodyType = resolveBodyType(feed)?.label ?? null;
   return {
