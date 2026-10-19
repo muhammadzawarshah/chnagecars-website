@@ -106,7 +106,7 @@ export default function SideSearch() {
             const selected = filters.bodyTypes.includes(type.name);
             return {
                 id: type.name,
-                label: type.name,
+                label: `${type.name} (${dependent.loading ? "…" : dependent.error ? "Unavailable" : type.count})`,
                 selected,
                 onSelect: () => update("bodyTypes", selected ? filters.bodyTypes.filter((item) => item !== type.name) : [...filters.bodyTypes, type.name]),
             };
@@ -229,6 +229,9 @@ export default function SideSearch() {
 
                 {showMore && (
                     <AdditionalFiltersModal onClose={closeMore} onApply={closeMore} onReset={resetFilters}>
+                        <FilterSelect wide label={listLabel(filters.bodyTypes, t.bodyTypes)} active={filters.bodyTypes.length > 0} open={open === "more-bodyType"} onToggle={() => toggle("more-bodyType")}>
+                            <OptionMenu items={bodyTypeItems()} />
+                        </FilterSelect>
                         {filterRows.popup.map((key) => choiceField(key, false))}
                         {filterRows.popupWide.map((key) => choiceField(key, true))}
                     </AdditionalFiltersModal>

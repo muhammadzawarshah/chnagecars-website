@@ -28,15 +28,15 @@ enum UserStatus {
 }
 
 enum Province {
-  EASTERN_CAPE
-  FREE_STATE
-  GAUTENG
-  KWAZULU_NATAL
-  LIMPOPO
-  MPUMALANGA
-  NORTHERN_CAPE
-  NORTH_WEST
-  WESTERN_CAPE
+  EASTERN_CAPE @map("Eastern Cape")
+  FREE_STATE @map("Free State")
+  GAUTENG @map("Gauteng")
+  KWAZULU_NATAL @map("KwaZulu-Natal")
+  LIMPOPO @map("Limpopo")
+  MPUMALANGA @map("Mpumalanga")
+  NORTHERN_CAPE @map("Northern Cape")
+  NORTH_WEST @map("North West")
+  WESTERN_CAPE @map("Western Cape")
 }
 
 enum DealerStatus {

@@ -123,7 +123,8 @@ async function main() {
         const price=positive(r.price);
         if(!dealer || !cat || !condition || !price) {issues.push({vehicleId:key,reason:!price?'Missing/POA/nonpositive price; raw record retained':!dealer?'Dealer absent from feed':!cat?'Missing make/model':'Unknown condition'});continue;}
         const l=location(r), source=(previous?.sourceData as Row|null) ?? {};
-        const year=previous?.year ?? (positive(source.year) && Number(source.year)>=1900 && Number(source.year)<=2100 ? Number(source.year) : null);
+        const sourceYear = positive(r.model_year);
+        const year=sourceYear && Number.isInteger(sourceYear) && sourceYear>=1900 && sourceYear<=2100 ? sourceYear : strictSource ? null : previous?.year ?? (positive(source.year) && Number(source.year)>=1900 && Number(source.year)<=2100 ? Number(source.year) : null);
         const colour=previous?.colour || source.exterior_color || null;
         const transmission=({1:'MANUAL',2:'AUTOMATIC'} as const)[r.transmission_type_id as 1|2] ?? previous?.transmission ?? 'UNKNOWN';
         const fuelType=strictSource ? ({1:'PETROL',2:'DIESEL',3:'ELECTRIC',4:'HYBRID'} as const)[r.fuel_type_id as 1|2|3|4] ?? 'OTHER' : previous?.fuelType ?? 'OTHER'; // Explicit source ID mapping; unknown IDs retain OTHER plus the untouched raw ID.
