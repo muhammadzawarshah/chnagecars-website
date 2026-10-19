@@ -33,7 +33,7 @@ Source capture, import report, exact field proof, app variant mapping, staging/A
 
 The strict importer requires an empty isolated local staging database and `DEALERTRADE_STRICT_SOURCE=1`. Preparation, import, verification, API smoke test and promotion scripts are local-only and guard their target database. These one-off orchestration scripts reference this capture/backup explicitly; review those paths before a future refresh. No schema migration is needed.
 
-Deploy the accompanying backend changes when restoring this database elsewhere. Source-only inventory must not fall back to older shared catalogue specifications or generic features.
+Deploy the accompanying backend changes when restoring this database elsewhere. Source-only inventory must not fall back to older shared catalogue specifications or generic features. feature/search-sorting-near-me
 
 ### DealerTrade model year update
 
@@ -46,3 +46,5 @@ Local year sync result: 38,624 fetched rows, 38,603 unique source vehicle IDs (i
 ### Province database labels
 
 Migration `20261019000200_province_database_labels` renames all nine PostgreSQL `Province` enum labels to their proper names (for example `Free State`, `Western Cape`, and `KwaZulu-Natal`). This applies consistently to vehicles, dealers, branches, and other columns using the enum, including enum arrays. Prisma `@map` preserves existing application/API codes such as `FREE_STATE`, so existing filters and app variables continue working. Deploy the schema migration with the regenerated Prisma client and restart the backend together. Verified locally: 37,928 vehicles and 926 dealers retain their original province counts; `/vehicles/count?province=FREE_STATE` returns 792; vehicle/dealer detail and facets remain HTTP 200. Backend build and 28 relevant tests pass.
+=======
+
