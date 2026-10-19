@@ -1,3 +1,4 @@
+import { dealerTradeVehicleWhere } from './dealertrade-visibility';
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { Errors } from '../../common/errors/app-error';
@@ -61,9 +62,10 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const vehicle = await this.cache.wrap(key, 300, async () => {
       const row = await this.prisma.replica.vehicle.findFirst({
         where: {
-          ...(UUID.test(slugOrId) ? { id: slugOrId } : { slug: slugOrId }),
+          ...((UUID.test(slugOrId) || /^\d+$/.test(slugOrId)) ? { id: slugOrId } : { slug: slugOrId }),
           status: { in: PUBLIC_DETAIL_STATUSES },
           dealer: { status: 'APPROVED' },
+          ...dealerTradeVehicleWhere(),
         },
         select: publicVehicleDetailSelect,
       });
@@ -123,11 +125,11 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
   /** FR-17 compare 2-4 listed vehicles side by side. */
   async compare(idsCsv: string) {
     const ids = [...new Set(splitCsv(idsCsv))];
-    if (ids.length < 2 || ids.length > 4 || ids.some((id) => !UUID.test(id))) {
+    if (ids.length < 2 || ids.length > 4 || ids.some((id) => !(UUID.test(id) || /^\d+$/.test(id)))) {
       throw Errors.badRequest('COMPARE_COUNT', 'Compare between 2 and 4 vehicles by id');
     }
     const rows = await this.prisma.replica.vehicle.findMany({
-      where: { id: { in: ids }, status: { in: PUBLIC_DETAIL_STATUSES } },
+      where: { id: { in: ids }, status: { in: PUBLIC_DETAIL_STATUSES }, ...dealerTradeVehicleWhere() },
       select: { ...publicVehicleSelect, makeId: true, modelId: true, generationId: true, variantId: true, variant: { select: { id: true, name: true, slug: true, specification: true } } },
     });
     const items = await Promise.all(
@@ -150,6 +152,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       id: { not: id },
       status: { in: PUBLIC_SEARCH_STATUSES },
       dealer: { status: 'APPROVED' },
+      ...dealerTradeVehicleWhere(),
     };
     const sameModel = await this.prisma.replica.vehicle.findMany({
       where: { ...visible, modelId: base.modelId },
@@ -175,7 +178,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { dealerId: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const rows = await this.prisma.replica.vehicle.findMany({
-      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' } },
+      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' }, ...dealerTradeVehicleWhere() },
       select: publicVehicleSelect,
       orderBy: { publishedAt: 'desc' },
       take: limit,
@@ -188,7 +191,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { modelId: true, year: true, price: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const stats = await this.prisma.replica.vehicle.aggregate({
-      where: { id: { not: id }, modelId: base.modelId, year: base.year === null ? undefined : { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES } },
+      where: { id: { not: id }, modelId: base.modelId, year: base.year === null ? undefined : { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES }, ...dealerTradeVehicleWhere() },
       _avg: { price: true },
       _min: { price: true },
       _max: { price: true },
@@ -239,10 +242,10 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       for (const [id, count] of this.memoryViews) counts[id] = String(count);
       this.memoryViews.clear();
     }
-    const entries = Object.entries(counts).filter(([id, count]) => UUID.test(id) && Number(count) > 0);
+    const entries = Object.entries(counts).filter(([id, count]) => (UUID.test(id) || /^\d+$/.test(id)) && Number(count) > 0);
     if (!entries.length) return 0;
 
-    const values = Prisma.join(entries.map(([id, count]) => Prisma.sql`(${id}::uuid, ${Number(count)}::int)`));
+    const values = Prisma.join(entries.map(([id, count]) => Prisma.sql`(${id}::text, ${Number(count)}::int)`));
     await this.prisma.$executeRaw(Prisma.sql`
       UPDATE vehicles v
          SET "viewCount" = v."viewCount" + c.views,

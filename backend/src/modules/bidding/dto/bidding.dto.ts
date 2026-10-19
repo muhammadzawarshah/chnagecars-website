@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -36,7 +37,7 @@ export class OpenBiddingDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(500)
-  @IsUUID('all', { each: true })
+  @IsMarketplaceId({ each: true })
   inviteDealerIds?: string[];
 }
 

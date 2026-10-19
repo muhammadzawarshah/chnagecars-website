@@ -1,0 +1,33 @@
+/** Local, new-identities-only import from the already validated fresh capture. */
+const fs=require('node:fs'),path=require('node:path'),{spawnSync,spawn}=require('node:child_process');
+require('dotenv').config({path:path.resolve(__dirname,'../.env'),quiet:true});const {Client}=require('pg');
+const url=new URL(process.env.DATABASE_URL);if(url.hostname!=='127.0.0.1'||url.port!=='55432'||url.pathname!=='/changecars')throw Error('Local database only');
+const backend=path.resolve(__dirname,'..'),source=path.join(backend,'.local/dealertrade-live-20261019-fresh');
+(async()=>{const db=new Client({connectionString:process.env.DATABASE_URL});await db.connect();try{
+ const known=new Set((await db.query(`SELECT "externalId" FROM source_feed_records WHERE source='dealertrade' AND kind='vehicle'`)).rows.map(r=>r.externalId));
+ const existing=new Set((await db.query('SELECT id FROM vehicles')).rows.map(r=>r.id));
+ const dealerIds=new Set((await db.query('SELECT id FROM dealers')).rows.map(r=>r.id));
+ const stock=JSON.parse(fs.readFileSync(path.join(source,'vehicles.json'),'utf8')).filter(r=>!known.has(String(r.vehicle_id))&&!existing.has(String(r.vehicle_id)));
+ const dealers=JSON.parse(fs.readFileSync(path.join(source,'dealers.json'),'utf8')).filter(r=>!dealerIds.has(String(r.dealer_id)));
+ console.log(JSON.stringify({newVehicles:stock.length,newDealers:dealers.length,invalidPriceRows:stock.filter(r=>!(Number(r.price)>0)).length}));
+ if(!process.argv.includes('--apply')||(!stock.length&&!dealers.length))return;
+ const directory=path.join(backend,'.local/missing-import',new Date().toISOString().replace(/[:.]/g,'-'));fs.mkdirSync(directory,{recursive:true});
+ fs.writeFileSync(path.join(directory,'stock-all.json'),JSON.stringify(stock));fs.writeFileSync(path.join(directory,'dealers-all.json'),JSON.stringify(dealers));
+ const backup=path.join(directory,'before-import.dump');
+ const env={...process.env,PGPASSWORD:decodeURIComponent(url.password)};
+ const d=spawnSync('pg_dump',['-h','127.0.0.1','-p','55432','-U',decodeURIComponent(url.username),'-d','changecars','-Fc','--no-owner','--no-acl','-f',backup],{env,encoding:'utf8'});if(d.status!==0)throw Error('Backup failed');
+ const verified=spawnSync('pg_restore',['--list',backup],{encoding:'utf8'});if(verified.status!==0||!verified.stdout.includes('TABLE DATA public vehicles'))throw Error('Backup verification failed');
+ await db.query(`CREATE TEMP TABLE old_vehicle_fingerprints AS SELECT id,md5((to_jsonb(v)-'viewCount'-'popularityScore'-'updatedAt')::text) fingerprint FROM vehicles v`);
+ await db.query(`CREATE TEMP TABLE old_dealer_fingerprints AS SELECT id,md5(to_jsonb(d)::text) fingerprint FROM dealers d`);
+ const exit=await new Promise((resolve,reject)=>{const child=spawn(process.execPath,['--import','tsx','prisma/import-dealertrade.ts'],{cwd:backend,env:{...process.env,DEALERTRADE_IMPORT_DIR:directory,DEALERTRADE_NEW_ONLY:'1'},stdio:'inherit'});child.on('error',reject);child.on('exit',resolve)});
+ if(exit!==0)throw Error('Import failed; inspect the stage report before retrying');
+ const report=JSON.parse(fs.readFileSync(path.join(directory,'import-report.json'),'utf8'));
+ const existingChanged=Number((await db.query(`SELECT count(*) count FROM old_vehicle_fingerprints b LEFT JOIN vehicles v ON v.id=b.id WHERE v.id IS NULL OR md5((to_jsonb(v)-'viewCount'-'popularityScore'-'updatedAt')::text)<>b.fingerprint`)).rows[0].count);
+ const dealersChanged=Number((await db.query(`SELECT count(*) count FROM old_dealer_fingerprints b LEFT JOIN dealers d ON d.id=b.id WHERE d.id IS NULL OR md5(to_jsonb(d)::text)<>b.fingerprint`)).rows[0].count);
+ if(existingChanged||dealersChanged)throw Error('Existing records changed unexpectedly');
+ const ids=stock.map(r=>String(r.vehicle_id));
+ const counts=(await db.query(`SELECT count(*)::int total,count(*) FILTER(WHERE id="sourceData"->'dealertrade'->>'vehicle_id' AND "dealerId"="sourceData"->'dealertrade'->>'dealer_id')::int correct_ids FROM vehicles WHERE id=ANY($1::text[])`,[ids])).rows[0];
+ if(counts.total!==report.imported||counts.total!==counts.correct_ids)throw Error('ID/count verification failed');
+ const final={createdVehicles:report.created,createdDealers:dealers.length,newRawVehiclePayloads:stock.length,rawOnly:report.issues.length,images:report.photos,existingBusinessRowsChanged:existingChanged,existingDealersChanged:dealersChanged,backup,stage:directory};
+ fs.writeFileSync(path.join(directory,'verification.json'),JSON.stringify(final,null,2)+'\n');console.log(JSON.stringify(final));
+ }finally{await db.end();}})().catch(error=>{console.error(error.message);process.exitCode=1});

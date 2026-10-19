@@ -14,7 +14,7 @@ export async function manageConsole(_previous: ActionState, form: FormData): Pro
     const value = (key: string) => String(form.get(key) ?? "").trim()
     const action = value("action"), id = value("id")
     if (!allowedActions.includes(action)) return { error: "Unknown action" }
-    if (id && !uuid.test(id)) return { error: "Invalid record ID" }
+    if (id && !uuid.test(id) && !/^\d+$/.test(id)) return { error: "Invalid record ID" }
     const pick = (field: string, options: string[]) => { const v = value(field); if (!options.includes(v)) throw new Error(`Choose a valid ${field}`); return v }
     const needed = (field: string, max = 1000) => { const v = value(field); if (!v || v.length > max) throw new Error(`Enter a valid ${field}`); return v }
     const requiredId = () => { if (!uuid.test(id)) throw new Error("Record ID is required"); return id }

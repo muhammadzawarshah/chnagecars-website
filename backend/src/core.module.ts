@@ -1,3 +1,5 @@
+import { DealerTradeIdentityModule } from './infrastructure/dealertrade/dealertrade-identity.service';
+import { DealerTradeIdentityInterceptor } from './common/interceptors/dealertrade-identity.interceptor';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -59,6 +61,7 @@ export const INFRASTRUCTURE_MODULES = [
     },
   }),
   DatabaseModule,
+  DealerTradeIdentityModule,
   RedisModule,
   WebSyncModule,
   CacheModule,
@@ -85,6 +88,7 @@ export const INFRASTRUCTURE_MODULES = [
     { provide: APP_GUARD, useClass: WebAwareThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_INTERCEPTOR, useClass: DealerTradeIdentityInterceptor },
     { provide: APP_INTERCEPTOR, useClass: CacheHeadersInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],

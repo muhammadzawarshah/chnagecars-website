@@ -3,9 +3,18 @@ const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const ts = require('typescript');
 const compile = (file) => {
-  const output = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+  const output = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText;
   const mod = { exports: {} };
-  new Function('exports', 'require', 'module', output)(mod.exports, require, mod);
+  const localRequire = id => {
+    const path = require('node:path');
+    if (id.startsWith('@/')) return require(path.resolve(id.slice(2)));
+    if (id.startsWith('.')) {
+      const target = path.resolve(path.dirname(file), id);
+      return target.endsWith('.json') ? require(target) : compile(target + '.ts');
+    }
+    return require(id);
+  };
+  new Function('exports', 'require', 'module', output)(mod.exports, localRequire, mod);
   return mod.exports;
 };
 const { technicalSpecificationGroups: groups } = compile('app/lib/cars/technical-specifications.ts');
@@ -32,3 +41,12 @@ if (fs.existsSync(feedPath)) {
   console.log('Verified formatting against 100 stored ChangeCars listings.');
 }
 console.log('All 13 labels, ordering, units and missing-value checks passed.');
+
+assert.equal(groups({ technicalSpecifications: { bodyType: 'Coupé' } })[0].rows[2][1], 'Coupé');
+assert.equal(groups({ technicalSpecifications: { bodyType: 'Double Cab Bakkie' } })[0].rows[2][1], 'Double Cab Bakkie');
+
+for (const raw of ['single cab', 'SINGLE CAB BAKKIE', 'Single Cabe Bakie', 'single-cab-bakkie']) {
+  assert.equal(groups({ technicalSpecifications: { bodyType: raw } })[0].rows[2][1], 'Single Cab Bakkie');
+}
+assert.equal(groups({ technicalSpecifications: { bodyType: 'mpv' } })[0].rows[2][1], 'MPV');
+assert.equal(groups({ technicalSpecifications: { bodyType: 'suv' } })[0].rows[2][1], 'SUV');

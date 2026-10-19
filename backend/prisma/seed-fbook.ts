@@ -14,6 +14,7 @@ type Row = Record<string, string> & {
     };
     images: string[];
 };
+throw new Error('Fbook import is disabled: this installation uses DealerTrade only. Run dealertrade:import instead.');
 const root = resolve(__dirname, '../..');
 const dir = resolve(__dirname, 'fixtures/fbook');
 const manifest = existsSync(resolve(dir, 'images.json')) ? JSON.parse(readFileSync(resolve(dir, 'images.json'), 'utf8')) : [];

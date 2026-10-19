@@ -1,3 +1,4 @@
+import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
 import { splitCsv } from '../../common/utils/strings';
 import { SearchCriteriaDto } from './dto/search.dto';
 import { COLLECTION_RULES, cylinderValues, enumValues, haversineKm, makeModelGroups, seatFilter } from './search.builder';
@@ -73,7 +74,7 @@ export function matchesCriteria(vehicle: VehicleSnapshot, criteria: SearchCriter
   if (!inEnum(enumValues('drivetrain', criteria.drivetrain), vehicle.drivetrain)) return false;
   if (!inEnum(enumValues('province', criteria.province), vehicle.province)) return false;
 
-  const categories = splitCsv(criteria.category).map((value) => value.toLowerCase());
+  const categories = expandBodyTypeSlugs(splitCsv(criteria.category).map((value) => value.toLowerCase()));
   if (categories.length && !categories.some((slug) => vehicle.categorySlugs.includes(slug))) return false;
 
   if (criteria.city && criteria.city.toLowerCase() !== vehicle.city.toLowerCase()) return false;

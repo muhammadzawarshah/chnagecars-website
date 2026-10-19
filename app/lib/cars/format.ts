@@ -5,8 +5,8 @@ export function formatRand(value: number, separator = ",") {
     return `R${Math.round(value).toLocaleString("en-US").replace(/,/g, separator)}`;
 }
 
-export function formatKm(value: number, separator = ",") {
-    if (value < 0) return "Unknown";
+export function formatKm(value: number | null | undefined, separator = ",") {
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return "N/A";
     return `${value.toLocaleString("en-US").replace(/,/g, separator)} km`;
 }
 

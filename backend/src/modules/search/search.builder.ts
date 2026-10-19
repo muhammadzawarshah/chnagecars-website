@@ -1,3 +1,5 @@
+import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
+import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { splitCsv } from '../../common/utils/strings';
 import { Collection, SearchCriteriaDto, SortKey } from './dto/search.dto';
@@ -22,7 +24,7 @@ export const COLLECTION_RULES = {
   budgetMaxPrice: 150_000,
   studentMaxPrice: 200_000,
   newArrivalDays: 7,
-  bakkieCategories: ['bakkies', 'super-cabs', 'king-cabs', 'double-cabs'],
+  bakkieCategories: ['single-cabs', 'bakkies', 'super-cabs', 'king-cabs', 'double-cabs'],
 } as const;
 
 /** "3,4,5" → [3, 4, 5]; anything that is not a positive whole number is dropped. */
@@ -77,7 +79,7 @@ export function boundingBox(lat: number, lng: number, radiusKm: number) {
 
 /** Criteria → Prisma `where`. Public visibility rules (BR-01, BR-04, BR-05) are always applied. */
 export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prisma.VehicleWhereInput {
-  const and: Prisma.VehicleWhereInput[] = [];
+  const and: Prisma.VehicleWhereInput[] = [dealerTradeVehicleWhere()];
 
   and.push({ status: criteria.availableOnly ? VehicleStatus.PUBLISHED : { in: [VehicleStatus.PUBLISHED, VehicleStatus.RESERVED] } });
   and.push({ dealer: { status: 'APPROVED' } });
@@ -114,7 +116,7 @@ export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prism
   const provinces = enumValues('province', criteria.province);
   if (provinces.length) and.push({ province: { in: provinces } });
 
-  const categories = splitCsv(criteria.category).map((value) => value.toLowerCase());
+  const categories = expandBodyTypeSlugs(splitCsv(criteria.category).map((value) => value.toLowerCase()));
   if (categories.length) and.push({ categories: { some: { slug: { in: categories } } } });
 
   if (criteria.city) and.push({ city: { equals: criteria.city, mode: 'insensitive' } });

@@ -13,7 +13,7 @@ describe('website adapter vocabulary', () => {
     const slug = `2009-toyota-land-cruiser-${id}`;
     expect(fromWebId(slug.slice(slug.lastIndexOf('-') + 1))).toBe(uuid);
     expect(fromWebId(uuid)).toBe(uuid);
-    expect(fromWebId('101')).toBeNull();
+    expect(fromWebId('101')).toBe('101');
     expect(fromWebId('zz'.repeat(16))).toBeNull();
   });
 

@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../common/pipes/marketplace-id.pipe';
 import { PublicCache } from '../../common/interceptors/cache-headers.interceptor';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -160,20 +161,20 @@ export class PublicVehiclesController {
 
   @Public()
   @Get(':id/similar')
-  similar(@Param('id', ParseUUIDPipe) id: string, @Query() query: RelatedQueryDto) {
+  similar(@Param('id', ParseMarketplaceIdPipe) id: string, @Query() query: RelatedQueryDto) {
     return this.vehicles.similar(id, query.limit);
   }
 
   @Public()
   @Get(':id/dealer-vehicles')
-  dealerVehicles(@Param('id', ParseUUIDPipe) id: string, @Query() query: RelatedQueryDto) {
+  dealerVehicles(@Param('id', ParseMarketplaceIdPipe) id: string, @Query() query: RelatedQueryDto) {
     return this.vehicles.fromSameDealer(id, query.limit);
   }
 
   @Public()
   @Get(':id/market-price')
   @ApiOperation({ summary: 'Average asking price of comparable listings' })
-  marketPrice(@Param('id', ParseUUIDPipe) id: string) {
+  marketPrice(@Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.marketPrice(id);
   }
 }
@@ -207,108 +208,108 @@ export class DealerVehiclesController {
 
   @Get(':id')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_VIEW] })
-  get(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  get(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.getForDealer(dealer, id);
   }
 
   @Patch(':id')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Edit a vehicle. After approval only price, specials, description, colour, branch, stock number and features may change.' })
-  update(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateVehicleDto) {
+  update(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: UpdateVehicleDto) {
     return this.vehicles.update(dealer, id, dto);
   }
 
   @Post(':id/submit')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE], requireApproved: true })
   @ApiOperation({ summary: 'Submit for admin review (DRAFT/REJECTED → PENDING_REVIEW)' })
-  submit(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  submit(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.PENDING_REVIEW, this.actor(dealer), { action: 'submit' });
   }
 
   @Post(':id/withdraw')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Withdraw from review (PENDING_REVIEW → DRAFT)' })
-  withdraw(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  withdraw(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.DRAFT, this.actor(dealer), { action: 'withdraw' });
   }
 
   @Post(':id/edit')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Move back to DRAFT for material edits (requires a new review)' })
-  backToDraft(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  backToDraft(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.DRAFT, this.actor(dealer), { action: 'edit' });
   }
 
   @Post(':id/publish')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_PUBLISH], requireApproved: true })
   @ApiOperation({ summary: 'Publish an approved vehicle (BR-01, BR-02)' })
-  publish(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  publish(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(dealer), { action: 'publish' });
   }
 
   @Post(':id/reserve')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Reserve a published vehicle (stays visible as reserved, BR-05)' })
-  reserve(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: ReserveDto) {
+  reserve(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: ReserveDto) {
     return this.vehicles.reserve(dealer, id, dto);
   }
 
   @Post(':id/release')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
-  release(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  release(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(dealer), { action: 'release' });
   }
 
   @Post(':id/sell')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Mark as sold (removed from search results, BR-04)' })
-  sell(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto) {
+  sell(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto) {
     return this.vehicles.transition(id, VehicleStatus.SOLD, this.actor(dealer), { ...dto, action: 'sell' });
   }
 
   @Post(':id/suspend')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Temporarily take a listing offline (FR-12)' })
-  suspend(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto) {
+  suspend(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto) {
     return this.vehicles.transition(id, VehicleStatus.SUSPENDED, this.actor(dealer), { ...dto, action: 'suspend' });
   }
 
   @Post(':id/unsuspend')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE], requireApproved: true })
-  unsuspend(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  unsuspend(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(dealer), { action: 'unsuspend' });
   }
 
   @Post(':id/archive')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Remove a listing (kept for history)' })
-  archive(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto) {
+  archive(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto) {
     return this.vehicles.transition(id, VehicleStatus.ARCHIVED, this.actor(dealer), { ...dto, action: 'archive' });
   }
 
   @Get(':id/images')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_VIEW] })
-  listImages(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string) {
+  listImages(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.getForDealer(dealer, id).then((vehicle) => vehicle.images);
   }
 
   @Post(':id/images/upload-url')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Step 1: get a presigned URL, then PUT the file to it' })
-  uploadUrl(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: ImageUploadRequestDto) {
+  uploadUrl(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: ImageUploadRequestDto) {
     return this.images.requestUpload(dealer, id, dto);
   }
 
   @Post(':id/images/:imageId/complete')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   @ApiOperation({ summary: 'Step 2: confirm the upload; resizing happens in the background' })
-  completeUpload(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Param('imageId', ParseUUIDPipe) imageId: string) {
+  completeUpload(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Param('imageId', ParseUUIDPipe) imageId: string) {
     return this.images.completeUpload(dealer, id, imageId);
   }
 
   @Put(':id/images/order')
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
-  reorder(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: ReorderImagesDto) {
+  reorder(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: ReorderImagesDto) {
     return this.images.reorder(dealer, id, dto.imageIds);
   }
 
@@ -316,7 +317,7 @@ export class DealerVehiclesController {
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
   updateImage(
     @CurrentDealer() dealer: DealerContext,
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseMarketplaceIdPipe) id: string,
     @Param('imageId', ParseUUIDPipe) imageId: string,
     @Body() dto: UpdateImageDto,
   ) {
@@ -326,7 +327,7 @@ export class DealerVehiclesController {
   @Delete(':id/images/:imageId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @DealerAccess({ permissions: [DealerPermission.INVENTORY_MANAGE] })
-  removeImage(@CurrentDealer() dealer: DealerContext, @Param('id', ParseUUIDPipe) id: string, @Param('imageId', ParseUUIDPipe) imageId: string) {
+  removeImage(@CurrentDealer() dealer: DealerContext, @Param('id', ParseMarketplaceIdPipe) id: string, @Param('imageId', ParseUUIDPipe) imageId: string) {
     return this.images.remove(dealer, id, imageId);
   }
 }
@@ -354,12 +355,12 @@ export class AdminVehiclesController {
   }
 
   @Get(':id')
-  get(@Param('id', ParseUUIDPipe) id: string) {
+  get(@Param('id', ParseMarketplaceIdPipe) id: string) {
     return this.vehicles.getForAdmin(id);
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateVehicleDto, @CurrentUser() user: AuthUser) {
+  async update(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: UpdateVehicleDto, @CurrentUser() user: AuthUser) {
     const current = await this.vehicles.getForAdmin(id);
     await this.vehicles.applyUpdate(current, dto, this.actor(user));
     return this.vehicles.getForAdmin(id);
@@ -367,43 +368,43 @@ export class AdminVehiclesController {
 
   @Patch(':id/flags')
   @ApiOperation({ summary: 'Feature a vehicle or mark it as special' })
-  flags(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AdminFlagsDto) {
+  flags(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: AdminFlagsDto) {
     return this.vehicles.setAdminFlags(id, dto);
   }
 
   @Post(':id/approve')
-  approve(@Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
+  approve(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.APPROVED, this.actor(user), { ...dto, action: 'approve' });
   }
 
   @Post(':id/reject')
-  reject(@Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
+  reject(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.REJECTED, this.actor(user), { ...dto, action: 'reject' });
   }
 
   @Post(':id/publish')
-  publish(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthUser) {
+  publish(@Param('id', ParseMarketplaceIdPipe) id: string, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(user), { action: 'publish' });
   }
 
   @Post(':id/suspend')
-  suspend(@Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
+  suspend(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.SUSPENDED, this.actor(user), { ...dto, action: 'suspend' });
   }
 
   @Post(':id/unsuspend')
-  unsuspend(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthUser) {
+  unsuspend(@Param('id', ParseMarketplaceIdPipe) id: string, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(user), { action: 'unsuspend' });
   }
 
   @Post(':id/archive')
-  archive(@Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
+  archive(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.ARCHIVED, this.actor(user), { ...dto, action: 'archive' });
   }
 
   @Post(':id/relist')
   @ApiOperation({ summary: 'Correct a mistaken sale: SOLD → PUBLISHED' })
-  relist(@Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
+  relist(@Param('id', ParseMarketplaceIdPipe) id: string, @Body() dto: TransitionDto, @CurrentUser() user: AuthUser) {
     return this.vehicles.transition(id, VehicleStatus.PUBLISHED, this.actor(user), { ...dto, action: 'relist' });
   }
 }

@@ -1,3 +1,4 @@
+import { BODY_TYPE_CATEGORY_SLUGS, resolveBodyType } from '../src/modules/vehicles/body-type-mapping';
 /** Idempotent DealerTrade import. Exact external IDs only; no guessed specifications. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -8,7 +9,7 @@ import { resolve } from 'node:path';
 import { provinceFromName, slugify } from '../src/modules/web/web-format';
 
 type Row = Record<string, any>;
-const dir = resolve(__dirname, '../.local/dealertrade');
+const dir = resolve(process.env.DEALERTRADE_IMPORT_DIR || resolve(__dirname, '../.local/dealertrade'));
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL!, max: 12 }) });
 const uuid = (key: string, source = 'dealertrade') => {
   const h = createHash('sha256').update(`changecars-${source}:${key}`).digest('hex');
@@ -48,10 +49,16 @@ async function main() {
   for (const [rows,key] of [[dealers,'dealer_id'],[stock,'vehicle_id']] as const) {
     if (!rows.length || new Set(rows.map(r => String(r[key]))).size !== rows.length) throw Error(`Empty or duplicate ${key}`);
   }
+  if (process.env.DEALERTRADE_NEW_ONLY === '1') {
+    const connection = new URL(process.env.DATABASE_URL!);
+    if (connection.hostname !== '127.0.0.1' || connection.port !== '55432') throw Error('New-only import is local-only');
+    if (await db.vehicle.count({ where: { id: { in: stock.map(r => String(r.vehicle_id)) } } })) throw Error('New-only input contains existing vehicles');
+    if (await db.dealer.count({ where: { id: { in: dealers.map(r => String(r.dealer_id)) } } })) throw Error('New-only input contains existing dealers');
+  }
   await snapshots('dealer',dealers,'dealer_id');
   await snapshots('vehicle',stock,'vehicle_id');
   if (process.argv.includes('--snapshots-only')) { console.log({ dealers:dealers.length, vehicles:stock.length }); return; }
-  const old = await db.vehicle.findMany({select:{id:true,sourceData:true,colour:true,year:true,mileage:true,condition:true,province:true,city:true,dealerId:true,branchId:true,transmission:true,fuelType:true,drivetrain:true,engineCapacityCc:true,powerKw:true,cylinders:true,seats:true,doors:true,primaryImageUrl:true,status:true}});
+  const old = await db.vehicle.findMany({select:{id:true,sourceData:true,colour:true,year:true,mileage:true,condition:true,province:true,city:true,dealerId:true,branchId:true,transmission:true,fuelType:true,drivetrain:true,engineCapacityCc:true,powerKw:true,cylinders:true,seats:true,doors:true,primaryImageUrl:true,status:true,categories:{select:{id:true,slug:true}}}});
   const byExternal = new Map<string,typeof old[number]>();
   for (const v of old) {
     const data = v.sourceData as Row | null;
@@ -66,7 +73,7 @@ async function main() {
   for (const r of stock) { const l=location(r); if(l.city) dealerCities.set(String(r.dealer_id),l.city); }
   const issues: Row[] = [];
   for (const r of dealers) {
-    const key=String(r.dealer_id), id=uuid(`dealer:${key}`,'fbook'), branchId=uuid(`branch:${key}`,'fbook');
+    const key=String(r.dealer_id), id=key, branchId=uuid(`branch:${key}`,'fbook');
     const existing=oldDealers.get(id), province=provinceFromName(r.province);
     if (!province) {issues.push({dealerId:key,reason:'Unknown province; raw record retained'});continue;}
     const city=existing?.city || dealerCities.get(key) || '';
@@ -81,7 +88,7 @@ async function main() {
   // prior feed identity where available; never attach their cars to another dealer.
   for(const r of stock){
     const key=String(r.dealer_id);if(dealerMap.has(key))continue;
-    const id=uuid(`dealer:${key}`,'fbook'),existing=oldDealers.get(id);
+    const id=key,existing=oldDealers.get(id);
     if(existing)dealerMap.set(key,{id,branchId:uuid(`branch:${key}`,'fbook'),province:existing.province,city:existing.city,raw:{dealer_id:r.dealer_id,provenance:'previous-import',dealer_name:existing.name}});
   }
   const makes=new Map<string,string>(), models=new Map<string,{makeId:string;modelId:string}>();
@@ -113,7 +120,7 @@ async function main() {
         const transmission=({1:'MANUAL',2:'AUTOMATIC'} as const)[r.transmission_type_id as 1|2] ?? previous?.transmission ?? 'UNKNOWN';
         const fuelType=previous?.fuelType ?? 'OTHER'; // Numeric fuel IDs have no documented mapping.
         const drivetrain=({ '4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR','AWD':'AWD','FWD':'FWD','RWD':'RWD' } as Record<string,Drivetrain>)[r.driven_wheels] ?? previous?.drivetrain ?? null;
-        const id=previous?.id ?? uuid(`vehicle:${key}`,'fbook');
+        const id=key;
         const images=(r.photos ?? []).map((p:string,position:number)=>{
           const sourceUrl=imageUrl(r,p), local=localImage(sourceUrl);
           return {id:uuid(`image:${key}:${position}`),vehicleId:id,storageKey:`dealertrade/${key}/${position}`,url:local.url,sizeBytes:local.size,contentType:/\.png$/i.test(sourceUrl)?'image/png':/\.webp$/i.test(sourceUrl)?'image/webp':'image/jpeg',position,isPrimary:position===0,status:'READY',altText:[year,r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' ')};
@@ -126,14 +133,15 @@ async function main() {
           primaryImageUrl:images[0]?.url ?? previous?.primaryImageUrl ?? null,imageCount:images.length,
           sourceData:{...source,vehicle_id:key,dealertrade:r,dealertradeDealer:dealer.raw} as Prisma.InputJsonValue,
           description:[r.comment,r.additional_information,r.extras].filter(v=>typeof v==='string'&&v.trim()).join('\n\n') || undefined};
-        const category=categories.get(bodies[l.body]);
+        const category=categories.get(resolveBodyType(r)?.slugs[0] ?? '');
+        const bodyCategories=[...(category?[{id:category}]:[]),...(previous?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>({id:c.id}))??[])];
         await db.$transaction(async tx=>{
-          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:`${slugify(title)}-fbook-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,...(category?{categories:{connect:[{id:category}]}}:{})},update:{...data,...(category?{categories:{set:[{id:category}]}}:{}),...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
+          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:`${slugify(title)}-fbook-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,categories:{connect:bodyCategories}},update:{...data,categories:{set:bodyCategories},...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
           if(images.length){
             const json=JSON.stringify(images);
             await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"altText","updatedAt")
               SELECT i.id,i."vehicleId",i."storageKey",i.url,i."sizeBytes",i."contentType",i.position,i."isPrimary",'READY'::"ImageStatus",i."altText",NOW()
-              FROM jsonb_to_recordset(${json}::jsonb) AS i(id uuid,"vehicleId" uuid,"storageKey" text,url text,"sizeBytes" int,"contentType" text,position int,"isPrimary" boolean,"altText" text)
+              FROM jsonb_to_recordset(${json}::jsonb) AS i(id uuid,"vehicleId" text,"storageKey" text,url text,"sizeBytes" int,"contentType" text,position int,"isPrimary" boolean,"altText" text)
               ON CONFLICT ("storageKey") DO UPDATE SET url=EXCLUDED.url,"sizeBytes"=EXCLUDED."sizeBytes",position=EXCLUDED.position,"isPrimary"=EXCLUDED."isPrimary","altText"=EXCLUDED."altText","updatedAt"=NOW()`;
           }
           // Replace gallery rows from this same upstream feed, preserving user uploads.

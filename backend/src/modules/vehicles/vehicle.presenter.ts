@@ -1,3 +1,4 @@
+import { resolveBodyType } from './body-type-mapping';
 import { ImageStatus, Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { availabilityOf } from './vehicle-lifecycle';
 
@@ -114,11 +115,12 @@ export function publicVehicleFields(vehicle: unknown) {
   const feed = object(source.dealertrade);
   const spec = object(object(row.variant).specification), extra = object(spec.extra);
   const turbo = text(feed.turbo_supercharged)?.toUpperCase();
+  const bodyType = resolveBodyType(feed)?.label ?? null;
   return {
     technicalSpecifications: {
       doors: positive(feed.no_doors) ?? positive(row.doors),
       seats: positive(feed.no_seats) ?? positive(row.seats),
-      bodyType: text(feed.body_type) ?? text(source.body_style),
+      bodyType,
       colour: text(row.colour),
       introductionDate: text(feed.introduction_date),
       powerKw: positive(feed.kilowatts) ?? positive(row.powerKw),
@@ -134,7 +136,8 @@ export function publicVehicleFields(vehicle: unknown) {
     turboSupercharged: turbo === 'T' ? 'TURBO' : turbo === 'S' ? 'SUPERCHARGED' :
       turbo === 'N' || turbo === 'NO' ? 'NONE' : turbo === 'YES' ? 'FORCED_INDUCTION' : null,
     bodyTypeId: text(feed.body_type_id),
-    bodyType: text(feed.body_type) ?? text(source.body_style),
+    bodyTypeRaw: text(feed.body_type),
+    bodyType,
     frontTyreSize: text(feed.front_tyre_size) ?? text(extra.front_tyre_size),
     rearTyreSize: text(feed.rear_tyre_size) ?? text(extra.rear_tyre_size),
     fuelTankLitres: positive(feed.fuel_tank_size) ?? positive(spec.fuelTankLitres),

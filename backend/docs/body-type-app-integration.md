@@ -18,7 +18,7 @@ Use exactly these 15 display names in this order, including options with zero ma
 | MPV | `mpvs` |
 | Panel Van | `panel-vans` |
 | Sedan | `sedans` |
-| Single Cab Bakkie | `bakkies` |
+| Single Cab Bakkie | `single-cabs`, `bakkies` |
 | Station Wagon | `station-wagons` |
 | SUV | `suvs`, `crossovers` |
 
@@ -100,3 +100,37 @@ The browser found an import above the `"use client"` directive in `useDependentF
 Run the website on port 3100, then run `PLAYWRIGHT_MODULE=/path/to/playwright node scripts/check-body-types-browser.cjs` from the repository root. Alternatively install Playwright in your development environment and omit `PLAYWRIGHT_MODULE`. Set `BODY_TYPES_TEST_URL` to change the filter page URL. The script intentionally intercepts facet requests for deterministic UI testing.
 
 Run `npm test --prefix backend -- --runInBand web-format.spec` to verify all backend aliases round-trip to the required names. Before release, repeat the requests against the running target API and confirm each returned listing has a category slug in the selected set. Verify zero-stock categories return zero matches and combined SUV/Extended Cab selections return the correct union.
+
+## DealerTrade codes mapped in detail responses and filters
+
+`bodyType` and `technicalSpecifications.bodyType` now return the exact canonical names below. The original code remains available as `bodyTypeRaw`, and `bodyTypeId` remains the original source ID. Raw source payloads are unchanged.
+
+| Canonical display name | DealerTrade codes | Source IDs | Canonical category slug |
+| --- | --- | --- | --- |
+| Boat | No observed source code | No observed source ID | `boats` |
+| Caravan | No observed source code | No observed source ID | `caravans` |
+| Convertible | `C/B` | 3 | `convertibles` |
+| Coupé | `C/P` | 5 | `coupes` |
+| Double Cab Bakkie | `D/C` | 9 | `double-cabs` |
+| Extended Cab | `XCab`, `Extended Cab` | 39, 53 | `king-cabs` |
+| Hatchback | `H/B`, `Hatch` | 12, 14 | `hatchbacks` |
+| Minibus | `B/S` | 2 | `minibuses` |
+| Motorbike | `D/P`, `O/F`, `R/D`, `S/P` | 10, 16, 19, 23 | `motorbikes` |
+| MPV | `MPV` | 15 | `mpvs` |
+| Panel Van | `P/V` | 17 | `panel-vans` |
+| Sedan | `S/D`, `Sedan` | 22, 26 | `sedans` |
+| Single Cab Bakkie | `S/C`, `C/C`, `D/S` | 4, 11, 21 | `single-cabs` |
+| Station Wagon | `S/W` | 24 | `station-wagons` |
+| SUV | `SUV`, `SAV`, `X/O`, `R/V` | 20, 25, 27, 29 | `suvs` |
+
+ID 8 maps to Coupé only when that individual listing's source URL identifies `coupe` or `coup`. ID 13 (`H/T`) and ID 43 (`F/C`) remain null/unmapped; no category is guessed. A missing source label can still be resolved from a verified source ID, such as ID 27 → SUV. Boat and Caravan remain valid selectable options even when no source stock matches them.
+
+The technical specifications formatter preserves the canonical name's capitalization (`Hatchback`, `Coupé`, `Double Cab Bakkie`); it does not uppercase this field. Other technical value formatting stays the same. For unresolved values, show `Not available` and do not introduce a sixteenth selectable Body Type.
+
+The local category backfill mapped 36,861 of 36,868 inventory vehicles and left 7 unresolved. It backed up the previous category assignments under `backend/.local/body-type-mapping/`, preserved every vehicle row unchanged, and assigned canonical category links so detail values, facets and search filters agree. Existing `bakkies` and `crossovers` filter aliases expand to their canonical groups.
+
+Future DealerTrade imports, reconciliation and enrichment use the same shared resolver. Existing client dumps predate this category backfill and must be re-exported before handing over these latest database mappings.
+
+## Capitalization normalization
+
+Body Type names use their exact canonical capitalization: `Single Cab Bakkie`, `Double Cab Bakkie`, `Extended Cab`, `Station Wagon`. Mixed case, repeated spaces, hyphens and recognized spellings such as `Single Cab Bakie` normalize to the same canonical name. `SUV` and `MPV` remain uppercase. This rule applies to backend responses and technical specification rendering; original source codes remain unchanged.

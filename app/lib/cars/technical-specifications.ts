@@ -1,3 +1,4 @@
+import { normalizeBodyTypeName } from "./body-types"
 import type { Car } from "./types"
 
 const missing = "Not available";
@@ -19,7 +20,7 @@ export function technicalSpecificationGroups(car: Car): { title: string; icon: s
         { title: "General", icon: "general", rows: [
             ["No of Doors", number(spec?.doors)],
             ["No of Seats", number(spec?.seats)],
-            ["Body Type", upper(spec?.bodyType)],
+            ["Body Type", normalizeBodyTypeName(spec?.bodyType) || missing],
             ["Colour", upper(spec?.colour)],
             ["Introduction Date", introductionDate(spec?.introductionDate)],
         ] },

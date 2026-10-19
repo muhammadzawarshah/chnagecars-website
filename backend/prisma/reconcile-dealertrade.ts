@@ -1,3 +1,4 @@
+import { BODY_TYPE_CATEGORY_SLUGS, resolveBodyType } from '../src/modules/vehicles/body-type-mapping';
 /** API-authoritative row updates with explicit blank preservation and optimistic writes. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -49,7 +50,7 @@ async function plan(){
   const dealerCities=new Map<string,string>();
   for(const r of rows){const p=String(r.single_vehicle_url??'').split('/');if(p[2])dealerCities.set(String(r.dealer_id),decodeURIComponent(p[2]).replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));}
   for(const r of dealerRows){
-    const externalId=String(r.dealer_id),id=uuid('dealer:'+externalId,'fbook'),existing=dealers.get(id);
+    const externalId=String(r.dealer_id),id=externalId,existing=dealers.get(id);
     const data:Row={};for(const [from,to]of Object.entries({dealer_name:'name',telephone:'phone',email:'email',address:'address',description:'description'}))if(!empty(r[from]))data[to]=r[from];
     if(!empty(r.province)){const province=provinceFromName(r.province);if(province)data.province=province;else issues.push({kind:'dealer',externalId,field:'province',reason:'Unrecognized API province retained in raw record'});}
     const create=existing?undefined:{id,slug:`${slugify(r.dealer_name)}-fbook-${externalId}`,name:r.dealer_name,email:r.email||`dealertrade-${externalId}@example.invalid`,phone:r.telephone||'',address:r.address||'',province:data.province,city:dealerCities.get(externalId)||'',status:'APPROVED',approvedAt:new Date().toISOString(),...data};
@@ -61,7 +62,7 @@ async function plan(){
     if(!existing)dealers.set(id,{...create,...data,branches:[]}as any);
   }
   for(const r of rows){
-    const externalId=String(r.vehicle_id),v=byExternal.get(externalId),dealerId=uuid('dealer:'+r.dealer_id,'fbook'),dealer=dealers.get(dealerId);
+    const externalId=String(r.vehicle_id),v=byExternal.get(externalId),dealerId=String(r.dealer_id),dealer=dealers.get(dealerId);
     const rawBefore=rawMap.get('vehicle:'+externalId),payload=mergeProvided(rawBefore,r);
     const oldSource=(v?.sourceData as Row|null)??{},sourceData={...oldSource,vehicle_id:externalId,dealertrade:mergeProvided(oldSource.dealertrade,r)};
     const before=v?scalarVehicle(v):null,patch:Row={};
@@ -91,10 +92,10 @@ async function plan(){
       patch.makeId=make!.id;patch.modelId=model!.id;
     }
     if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');}
-    const id=v?.id??uuid('vehicle:'+externalId,'fbook');
+    const id=externalId;
     const gallery=!empty(r.photos)?r.photos.map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
     if(gallery?.length)patch.primaryImageUrl=gallery[0].url;
-    const category=s.categories.find(c=>c.slug===bodyMap[p[3]]),categories=category?[category.id,...(v?.categories.filter(c=>!Object.values(bodyMap).includes(c.slug)).map(c=>c.id)??[])]:null;
+    const category=s.categories.find(c=>c.slug===resolveBodyType(sourceData.dealertrade)?.slugs[0]),categories=[...(category?[category.id]:[]),...(v?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>c.id)??[])];
     if(!v){
       if(!dealer||!patch.makeId||!patch.modelId||!patch.condition||!patch.price){rawOnly.push({externalId,payload,rawBefore:rawBefore??null,reason:!dealer?'Dealer absent from source catalogue':'Required inventory values missing'});continue;}
       const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-fbook-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date().toISOString():null,...patch,sourceData};
@@ -179,7 +180,7 @@ async function apply(){
       if(v.categories&&!isDeepStrictEqual([...v.categories].sort(),[...v.beforeCategories].sort()))await tx.vehicle.update({where:{id:v.id},data:{categories:{set:v.categories.map((id:string)=>({id}))}}});
       if(v.gallery){
         const data=JSON.stringify(v.gallery);
-        await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"updatedAt") SELECT i.id,i."vehicleId",i."storageKey",i.url,i."sizeBytes",i."contentType",i.position,i."isPrimary",'READY'::"ImageStatus",NOW() FROM jsonb_to_recordset(${data}::jsonb) AS i(id uuid,"vehicleId" uuid,"storageKey" text,url text,"sizeBytes" int,"contentType" text,position int,"isPrimary" boolean) ON CONFLICT ("storageKey") DO UPDATE SET url=EXCLUDED.url,"sizeBytes"=EXCLUDED."sizeBytes","contentType"=EXCLUDED."contentType",position=EXCLUDED.position,"isPrimary"=EXCLUDED."isPrimary","updatedAt"=NOW() WHERE (vehicle_images.url,vehicle_images."sizeBytes",vehicle_images."contentType",vehicle_images.position,vehicle_images."isPrimary") IS DISTINCT FROM (EXCLUDED.url,EXCLUDED."sizeBytes",EXCLUDED."contentType",EXCLUDED.position,EXCLUDED."isPrimary")`;
+        await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"updatedAt") SELECT i.id,i."vehicleId",i."storageKey",i.url,i."sizeBytes",i."contentType",i.position,i."isPrimary",'READY'::"ImageStatus",NOW() FROM jsonb_to_recordset(${data}::jsonb) AS i(id uuid,"vehicleId" text,"storageKey" text,url text,"sizeBytes" int,"contentType" text,position int,"isPrimary" boolean) ON CONFLICT ("storageKey") DO UPDATE SET url=EXCLUDED.url,"sizeBytes"=EXCLUDED."sizeBytes","contentType"=EXCLUDED."contentType",position=EXCLUDED.position,"isPrimary"=EXCLUDED."isPrimary","updatedAt"=NOW() WHERE (vehicle_images.url,vehicle_images."sizeBytes",vehicle_images."contentType",vehicle_images.position,vehicle_images."isPrimary") IS DISTINCT FROM (EXCLUDED.url,EXCLUDED."sizeBytes",EXCLUDED."contentType",EXCLUDED.position,EXCLUDED."isPrimary")`;
         await tx.vehicleImage.deleteMany({where:{vehicleId:v.id,OR:[{storageKey:{startsWith:`fbook/${v.externalId}-`}},{storageKey:{startsWith:`dealertrade/${v.externalId}/`},position:{gte:v.gallery.length}}]}});
       }
       await rawUpsert(tx,'vehicle',v);

@@ -1,3 +1,4 @@
+import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../common/pipes/marketplace-id.pipe';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Module, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/auth.decorators';
@@ -55,12 +56,12 @@ export class MeController {
   }
 
   @Put('favourites/:vehicleId')
-  addFavourite(@CurrentUser() user: AuthUser, @Param('vehicleId', ParseUUIDPipe) vehicleId: string) {
+  addFavourite(@CurrentUser() user: AuthUser, @Param('vehicleId', ParseMarketplaceIdPipe) vehicleId: string) {
     return this.customers.addFavourite(user.id, vehicleId);
   }
 
   @Delete('favourites/:vehicleId')
-  removeFavourite(@CurrentUser() user: AuthUser, @Param('vehicleId', ParseUUIDPipe) vehicleId: string) {
+  removeFavourite(@CurrentUser() user: AuthUser, @Param('vehicleId', ParseMarketplaceIdPipe) vehicleId: string) {
     return this.customers.removeFavourite(user.id, vehicleId);
   }
 

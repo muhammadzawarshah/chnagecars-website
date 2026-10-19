@@ -43,7 +43,7 @@ async function sync() {
         const data = JSON.stringify(rows.slice(start, start + 500));
         const [v, i] = await db.$transaction([
             db.$executeRaw `UPDATE "vehicles" v SET "primaryImageUrl"=m.url, "updatedAt"=NOW()
-    FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" uuid, position int, url text)
+    FROM jsonb_to_recordset(${data}::jsonb) AS m("vehicleId" text, position int, url text)
     WHERE v.id=m."vehicleId" AND m.position=0`,
             db.$executeRaw `UPDATE "vehicle_images" i SET url=m.url, "contentType"=m."contentType", "sizeBytes"=m."sizeBytes", "updatedAt"=NOW()
     FROM jsonb_to_recordset(${data}::jsonb) AS m("imageId" uuid, url text, "contentType" text, "sizeBytes" int)

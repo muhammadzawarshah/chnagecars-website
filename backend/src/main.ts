@@ -1,3 +1,4 @@
+import { DealerTradeIdentityService } from './infrastructure/dealertrade/dealertrade-identity.service';
 import 'reflect-metadata';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -33,6 +34,8 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.useBodyParser('json', { limit: '1mb' });
+  const identities = app.get(DealerTradeIdentityService);
+  app.use((req: Request, res: Response, next: NextFunction) => identities.request(req, res, next));
   app.enableCors({
     origin: config.get('CORS_ORIGINS'),
     credentials: true,
