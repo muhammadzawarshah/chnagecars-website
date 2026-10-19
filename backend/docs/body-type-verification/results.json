@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-10-19T04:10:08.480Z",
+  "browser": "Chromium headless",
+  "target": "http://127.0.0.1:3100/search/filters",
+  "mode": "Actual local frontend with controlled facet API responses; not live inventory verification",
+  "pageErrors": [],
+  "results": [
+    {
+      "check": 1,
+      "name": "Desktop: exact 15 labels and order",
+      "status": "PASS",
+      "response": "HTTP 200; all 15 exact labels in requested order at 1440px."
+    },
+    {
+      "check": 2,
+      "name": "Mobile: identical 15 labels and order",
+      "status": "PASS",
+      "response": "HTTP 200; identical labels/order at 390px."
+    },
+    {
+      "check": 3,
+      "name": "Zero matching vehicles",
+      "status": "PASS",
+      "response": "All 15 options remain visible with (0); no fabricated counts."
+    },
+    {
+      "check": 4,
+      "name": "Facet API failure",
+      "status": "PASS",
+      "response": "Controlled HTTP 502; all 15 options remain selectable; no page crash."
+    },
+    {
+      "check": 5,
+      "name": "Multiple body types combine category aliases",
+      "status": "PASS",
+      "response": "HTTP 200; category=king-cabs,super-cabs,suvs,crossovers"
+    },
+    {
+      "check": 6,
+      "name": "Select and map Boat",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Boat; category=boats"
+    },
+    {
+      "check": 7,
+      "name": "Select and map Caravan",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Caravan; category=caravans"
+    },
+    {
+      "check": 8,
+      "name": "Select and map Convertible",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Convertible; category=convertibles"
+    },
+    {
+      "check": 9,
+      "name": "Select and map Coupé",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Coupé; category=coupes"
+    },
+    {
+      "check": 10,
+      "name": "Select and map Double Cab Bakkie",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Double Cab Bakkie; category=double-cabs"
+    },
+    {
+      "check": 11,
+      "name": "Select and map Extended Cab",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Extended Cab; category=king-cabs,super-cabs"
+    },
+    {
+      "check": 12,
+      "name": "Select and map Hatchback",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Hatchback; category=hatchbacks"
+    },
+    {
+      "check": 13,
+      "name": "Select and map Minibus",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Minibus; category=minibuses"
+    },
+    {
+      "check": 14,
+      "name": "Select and map Motorbike",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Motorbike; category=motorbikes"
+    },
+    {
+      "check": 15,
+      "name": "Select and map MPV",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=MPV; category=mpvs"
+    },
+    {
+      "check": 16,
+      "name": "Select and map Panel Van",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Panel Van; category=panel-vans"
+    },
+    {
+      "check": 17,
+      "name": "Select and map Sedan",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Sedan; category=sedans"
+    },
+    {
+      "check": 18,
+      "name": "Select and map Single Cab Bakkie",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Single Cab Bakkie; category=bakkies"
+    },
+    {
+      "check": 19,
+      "name": "Select and map Station Wagon",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=Station Wagon; category=station-wagons"
+    },
+    {
+      "check": 20,
+      "name": "Select and map SUV",
+      "status": "PASS",
+      "response": "HTTP 200; selected label=SUV; category=suvs,crossovers"
+    }
+  ]
+}

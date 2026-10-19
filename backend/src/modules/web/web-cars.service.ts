@@ -307,6 +307,7 @@ export class WebCarsService {
     });
     return {
       ...toWebCar(row),
+      technicalSpecifications: detail.technicalSpecifications,
       description: detail.description,
       additionalInformation: detail.additionalInformation,
       mapDetails: detail.mapDetails,

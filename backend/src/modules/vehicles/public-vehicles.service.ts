@@ -102,7 +102,6 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
           googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${mapQuery}`,
           embedUrl: `https://maps.google.com/maps?q=${mapQuery}&output=embed`,
         },
-        additionalInformation: row.description ?? null,
         moreFromThisDealer,
         youMightLike,
         finance: row.status === VehicleStatus.SOLD ? null : financeExample(effectivePrice(row)),

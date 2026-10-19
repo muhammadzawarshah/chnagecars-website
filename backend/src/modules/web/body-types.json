@@ -1,0 +1,94 @@
+[
+  {
+    "label": "Boat",
+    "slugs": [
+      "boats"
+    ]
+  },
+  {
+    "label": "Caravan",
+    "slugs": [
+      "caravans"
+    ]
+  },
+  {
+    "label": "Convertible",
+    "slugs": [
+      "convertibles"
+    ]
+  },
+  {
+    "label": "Coupé",
+    "slugs": [
+      "coupes"
+    ]
+  },
+  {
+    "label": "Double Cab Bakkie",
+    "slugs": [
+      "double-cabs"
+    ]
+  },
+  {
+    "label": "Extended Cab",
+    "slugs": [
+      "king-cabs",
+      "super-cabs"
+    ]
+  },
+  {
+    "label": "Hatchback",
+    "slugs": [
+      "hatchbacks"
+    ]
+  },
+  {
+    "label": "Minibus",
+    "slugs": [
+      "minibuses"
+    ]
+  },
+  {
+    "label": "Motorbike",
+    "slugs": [
+      "motorbikes"
+    ]
+  },
+  {
+    "label": "MPV",
+    "slugs": [
+      "mpvs"
+    ]
+  },
+  {
+    "label": "Panel Van",
+    "slugs": [
+      "panel-vans"
+    ]
+  },
+  {
+    "label": "Sedan",
+    "slugs": [
+      "sedans"
+    ]
+  },
+  {
+    "label": "Single Cab Bakkie",
+    "slugs": [
+      "bakkies"
+    ]
+  },
+  {
+    "label": "Station Wagon",
+    "slugs": [
+      "station-wagons"
+    ]
+  },
+  {
+    "label": "SUV",
+    "slugs": [
+      "suvs",
+      "crossovers"
+    ]
+  }
+]
