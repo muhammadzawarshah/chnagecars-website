@@ -7,22 +7,28 @@ import { PaginationQueryDto } from '../../common/dto/pagination.dto';
 import type { AuthUser } from '../../common/types/auth-user';
 import { ContentService } from './content.service';
 import {
+  AdBannerDto,
   AdminArticleQueryDto,
   ArticleCategoryDto,
   ArticleDto,
   ArticleQueryDto,
   FaqDto,
+  FeaturedDealerDto,
   MediaItemDto,
   MediaQueryDto,
   PromotionDto,
   PromotionVehiclesDto,
   PublishDto,
   StaticPageDto,
+  TestimonialDto,
+  UpdateAdBannerDto,
   UpdateArticleDto,
   UpdateFaqDto,
+  UpdateFeaturedDealerDto,
   UpdateMediaItemDto,
   UpdatePromotionDto,
   UpdateStaticPageDto,
+  UpdateTestimonialDto,
 } from './dto/content.dto';
 
 @ApiTags('Content (public)')
@@ -80,6 +86,29 @@ export class PublicContentController {
   @Get('promotions/:slug')
   promotion(@Param('slug') slug: string, @Query() query: PaginationQueryDto) {
     return this.content.promotion(slug, query);
+  }
+
+  @Get('content/ad-banners')
+  @ApiOperation({ summary: 'Advert banners running now, ordered by placement' })
+  adBanners() {
+    return this.content.adBanners();
+  }
+
+  @Get('content/testimonials')
+  @ApiOperation({ summary: 'Customer testimonials for the home page' })
+  testimonials() {
+    return this.content.testimonials();
+  }
+
+  @Get('content/featured-dealers')
+  @ApiOperation({ summary: 'Featured dealers for the home page' })
+  featuredDealers() {
+    return this.content.featuredDealers();
+  }
+
+  @Get('content/featured-dealers/:slug')
+  featuredDealer(@Param('slug') slug: string) {
+    return this.content.featuredDealer(slug);
   }
 }
 
@@ -236,6 +265,69 @@ export class AdminContentController {
   @HttpCode(HttpStatus.NO_CONTENT)
   deletePromotion(@Param('id', ParseUUIDPipe) id: string) {
     return this.content.deletePromotion(id);
+  }
+
+  @Get('ad-banners')
+  adBanners() {
+    return this.content.adminAdBanners();
+  }
+
+  @Post('ad-banners')
+  createAdBanner(@Body() dto: AdBannerDto) {
+    return this.content.createAdBanner(dto);
+  }
+
+  @Patch('ad-banners/:id')
+  updateAdBanner(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateAdBannerDto) {
+    return this.content.updateAdBanner(id, dto);
+  }
+
+  @Delete('ad-banners/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteAdBanner(@Param('id', ParseUUIDPipe) id: string) {
+    return this.content.deleteAdBanner(id);
+  }
+
+  @Get('testimonials')
+  testimonials() {
+    return this.content.adminTestimonials();
+  }
+
+  @Post('testimonials')
+  createTestimonial(@Body() dto: TestimonialDto) {
+    return this.content.createTestimonial(dto);
+  }
+
+  @Patch('testimonials/:id')
+  updateTestimonial(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTestimonialDto) {
+    return this.content.updateTestimonial(id, dto);
+  }
+
+  @Delete('testimonials/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteTestimonial(@Param('id', ParseUUIDPipe) id: string) {
+    return this.content.deleteTestimonial(id);
+  }
+
+  @Get('featured-dealers')
+  featuredDealers() {
+    return this.content.adminFeaturedDealers();
+  }
+
+  @Post('featured-dealers')
+  createFeaturedDealer(@Body() dto: FeaturedDealerDto) {
+    return this.content.createFeaturedDealer(dto);
+  }
+
+  @Patch('featured-dealers/:id')
+  updateFeaturedDealer(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateFeaturedDealerDto) {
+    return this.content.updateFeaturedDealer(id, dto);
+  }
+
+  @Delete('featured-dealers/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteFeaturedDealer(@Param('id', ParseUUIDPipe) id: string) {
+    return this.content.deleteFeaturedDealer(id);
   }
 }
 

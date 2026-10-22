@@ -1,36 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CHANGECARS
 
-## Getting Started
+Three separate applications, each with its own `package.json`, dependencies and deployment:
 
-First, run the development server:
+| Folder | What it is | Default port |
+| --- | --- | --- |
+| [`backend/`](backend/) | NestJS API, database (Prisma/PostgreSQL), workers and import scripts | 4000 |
+| [`frontend/`](frontend/) | Customer website (Next.js), including the dealer and admin dashboards | 3000 |
+| [`superadmin/`](superadmin/) | Super admin console (Next.js), SUPER_ADMIN accounts only | 3001 |
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Both frontends talk only to the backend API (`API_URL`, including `/api/v1`); neither contains database credentials.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Connecting the two frontends
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `frontend/.env.local`: `SUPERADMIN_URL` is the address of the super admin console. Super admins who sign in on the website, and old `/dashboard/super-admin/...` links, are sent there. Without it, super admins use the website's admin console.
+- `superadmin/.env.local`: `NEXT_PUBLIC_SITE_URL` is the website address, used for "View on website" links.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Media
 
-## Learn More
+Downloaded vehicle photos and dealer logos live in `frontend/public/media/` (not in Git). The backend import/sync scripts read and write that folder.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Local development: see [LOCAL_SETUP.md](LOCAL_SETUP.md). Super admin deployment: see [superadmin/README.md](superadmin/README.md).

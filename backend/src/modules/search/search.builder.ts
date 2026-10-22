@@ -1,6 +1,8 @@
 import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
 import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
+import { Drivetrain, toDrivetrain } from '../../common/utils/drivetrain';
+import { Province, toProvince } from '../../common/utils/province';
 import { splitCsv } from '../../common/utils/strings';
 import { Collection, SearchCriteriaDto, SortKey } from './dto/search.dto';
 
@@ -8,8 +10,6 @@ const ENUMS = {
   condition: ['NEW', 'USED', 'DEMO'],
   fuelType: ['PETROL', 'DIESEL', 'HYBRID', 'PLUGIN_HYBRID', 'ELECTRIC', 'LPG', 'OTHER'],
   transmission: ['UNKNOWN', 'MANUAL', 'AUTOMATIC'],
-  drivetrain: ['FWD', 'RWD', 'AWD', 'FOUR_X_TWO', 'FOUR_X_FOUR'],
-  province: ['EASTERN_CAPE', 'FREE_STATE', 'GAUTENG', 'KWAZULU_NATAL', 'LIMPOPO', 'MPUMALANGA', 'NORTHERN_CAPE', 'NORTH_WEST', 'WESTERN_CAPE'],
 } as const;
 
 /** Upper-cases and keeps only known enum values, so bad input narrows nothing instead of erroring. */
@@ -18,6 +18,16 @@ export function enumValues<K extends keyof typeof ENUMS>(kind: K, raw?: string):
   return splitCsv(raw)
     .map((value) => value.toUpperCase().replace(/[\s-]+/g, '_'))
     .filter((value) => allowed.includes(value)) as (typeof ENUMS)[K][number][];
+}
+
+/** Accepts "4x2", "4X2" and legacy "FOUR_X_TWO"; unknown values are dropped. */
+export function drivetrainValues(raw?: string): Drivetrain[] {
+  return [...new Set(splitCsv(raw).map(toDrivetrain).filter((value): value is Drivetrain => !!value))];
+}
+
+/** Accepts names ("Western Cape") and legacy keys ("WESTERN_CAPE"); unknown values are dropped. */
+export function provinceValues(raw?: string): Province[] {
+  return [...new Set(splitCsv(raw).map(toProvince).filter((value): value is Province => !!value))];
 }
 
 export const COLLECTION_RULES = {
@@ -111,9 +121,9 @@ export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prism
   if (fuels.length) and.push({ fuelType: { in: fuels } });
   const transmissions = enumValues('transmission', criteria.transmission);
   if (transmissions.length) and.push({ transmission: { in: transmissions } });
-  const drivetrains = enumValues('drivetrain', criteria.drivetrain);
+  const drivetrains = drivetrainValues(criteria.drivetrain);
   if (drivetrains.length) and.push({ drivetrain: { in: drivetrains } });
-  const provinces = enumValues('province', criteria.province);
+  const provinces = provinceValues(criteria.province);
   if (provinces.length) and.push({ province: { in: provinces } });
 
   const categories = expandBodyTypeSlugs(splitCsv(criteria.category).map((value) => value.toLowerCase()));

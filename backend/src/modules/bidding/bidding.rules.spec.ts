@@ -3,7 +3,7 @@ import { canAcceptBids, checkAcceptable, isDealerEligible } from './bidding.rule
 
 const now = new Date('2026-06-01T12:00:00Z');
 const hour = 3600_000;
-const dealer = { id: 'd1', status: 'APPROVED' as const, biddingEnabled: true, province: 'GAUTENG' as const };
+const dealer = { id: 'd1', status: 'APPROVED' as const, biddingEnabled: true, province: 'Gauteng' as const };
 
 describe('bidding rules (FR-52, BR-06..BR-12)', () => {
   it('eligibility: approved, enabled, invited, right province', () => {
@@ -11,8 +11,8 @@ describe('bidding rules (FR-52, BR-06..BR-12)', () => {
     expect(isDealerEligible({ eligibleProvinces: [], inviteDealerIds: [] }, { ...dealer, status: 'PENDING' })).toBe(false);
     expect(isDealerEligible({ eligibleProvinces: [], inviteDealerIds: [] }, { ...dealer, biddingEnabled: false })).toBe(false);
     expect(isDealerEligible({ eligibleProvinces: [], inviteDealerIds: ['d2'] }, dealer)).toBe(false);
-    expect(isDealerEligible({ eligibleProvinces: ['WESTERN_CAPE'], inviteDealerIds: [] }, dealer)).toBe(false);
-    expect(isDealerEligible({ eligibleProvinces: ['GAUTENG'], inviteDealerIds: ['d1'] }, dealer)).toBe(true);
+    expect(isDealerEligible({ eligibleProvinces: ['Western Cape'], inviteDealerIds: [] }, dealer)).toBe(false);
+    expect(isDealerEligible({ eligibleProvinces: ['Gauteng'], inviteDealerIds: ['d1'] }, dealer)).toBe(true);
   });
 
   it('bids only inside the open window (BR-07)', () => {

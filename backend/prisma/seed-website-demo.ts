@@ -10,18 +10,17 @@ import {
   DealerMemberRole,
   DealerPlan,
   DealerStatus,
-  Drivetrain,
   FuelType,
   ImageStatus,
   LeadSource,
   LeadStage,
   PrismaClient,
-  Province,
   Transmission,
   UserRole,
   VehicleCondition,
   VehicleStatus,
 } from '../src/generated/prisma/client';
+import { Province } from '../src/common/utils/province';
 
 type FixtureCar = {
   id: string;
@@ -297,7 +296,7 @@ async function seedStock(prisma: PrismaClient, fixture: WebsiteFixture, dealerId
       isFeatured: overrides.featured,
       transmission: car.transmission === 'Manual' ? Transmission.MANUAL : Transmission.AUTOMATIC,
       fuelType: FUELS[car.fuel] ?? FuelType.OTHER,
-      drivetrain: car.drive === '4X4' ? Drivetrain.FOUR_X_FOUR : Drivetrain.FOUR_X_TWO,
+      drivetrain: car.drive === '4X4' ? '4x4' : '4x2',
       colour: car.colour,
       engineCapacityCc: engineCc(car.engine),
       province: province(dealer.province),

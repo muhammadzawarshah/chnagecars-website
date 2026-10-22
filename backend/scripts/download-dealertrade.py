@@ -20,7 +20,7 @@ try:
 except BlockingIOError:
     raise SystemExit('Another dealer-photo downloader is already running.')
 lock.seek(0); lock.truncate(); lock.write(str(os.getpid())); lock.flush()
-MEDIA = ROOT / 'public/media/dealertrade'
+MEDIA = ROOT / 'frontend/public/media/dealertrade'
 MEDIA.mkdir(parents=True, exist_ok=True)
 db = sqlite3.connect(STATE / 'images.sqlite')
 db.execute('CREATE TABLE IF NOT EXISTS images (url TEXT PRIMARY KEY, path TEXT NOT NULL, status TEXT NOT NULL DEFAULT "pending", bytes INTEGER, error TEXT)')
@@ -84,7 +84,7 @@ reuse = {}
 if old.exists():
     for m in json.loads(old.read_text()):
         if not m.get('error') and m.get('source') and m.get('url'):
-            reuse[m['source']] = ROOT / 'public' / m['url'].lstrip('/')
+            reuse[m['source']] = ROOT / 'frontend/public' / m['url'].lstrip('/')
 
 processed = 0
 blocked_reason = None
@@ -98,7 +98,7 @@ while True:
             time.sleep(5);continue
         if not args.urls_file: plan(json.loads((STATE / 'stock-all.json').read_text()))
         for url, relative in db.execute('SELECT url,path FROM images WHERE status!="ready"' + scope).fetchall():
-            dest = ROOT / 'public' / relative.lstrip('/')
+            dest = ROOT / 'frontend/public' / relative.lstrip('/')
             previous = reuse.get(url)
             if not dest.exists() and previous and valid(previous): os.link(previous, dest)
             if valid(dest): db.execute('UPDATE images SET status="ready",bytes=?,error=NULL WHERE url=?', (dest.stat().st_size,url))
@@ -115,7 +115,7 @@ while True:
         raise RuntimeError(f'Stopped before exhausting disk; fewer than {args.reserve_gib} GiB free. Resume after freeing storage.')
     transfers = []
     for url, relative in pending:
-        dest = ROOT / 'public' / relative.lstrip('/')
+        dest = ROOT / 'frontend/public' / relative.lstrip('/')
         previous = reuse.get(url)
         if not dest.exists() and previous and valid(previous): os.link(previous, dest)
         if valid(dest):

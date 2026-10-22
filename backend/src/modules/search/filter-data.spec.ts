@@ -8,7 +8,7 @@ describe('complete local filter snapshot', () => {
     price: 200000, year: 2020, mileage: 5000, seats: 5,
     engineCapacityCc: 1400, powerKw: null, colour: ' Black ', condition: 'USED',
     transmission: 'AUTOMATIC', fuelType: 'PETROL', drivetrain: null,
-    province: 'GAUTENG', city: 'Pretoria', branchId: null,
+    province: 'Gauteng', city: 'Pretoria', branchId: null,
     isSpecial: false, isFeatured: true, publishedAt: new Date(),
     latitude: null, longitude: null, popularityScore: 1,
     make: { slug: 'audi', name: 'Audi' }, model: { slug: 'q3', name: 'Q3' },

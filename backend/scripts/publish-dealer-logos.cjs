@@ -30,7 +30,7 @@ async function auth() {
     return token;
 }
 async function publish(row) {
-    const body = fs.readFileSync(path.join(root, 'public', row.local));
+    const body = fs.readFileSync(path.join(root, 'frontend/public', row.local));
     const name = `changecars/dealer-logos/${path.basename(row.local)}`;
     const md5 = crypto.createHash('md5').update(body).digest('base64');
     const metadataUrl = `${base}/${encodeURIComponent(name)}`;

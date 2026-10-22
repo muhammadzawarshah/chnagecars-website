@@ -16,12 +16,17 @@ import {
   Length,
   Matches,
   MaxLength,
+  Max,
   Min,
 } from 'class-validator';
-import { ArticleType, ContentStatus, MediaType } from '../../../generated/prisma/client';
+import { AdPlacement, ArticleType, ContentStatus, MediaType } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
+
+/** An https URL or a path on the website (e.g. /images/specials/truck.jpg), like article cover images. */
+const SITE_OR_HTTPS_URL = /^(https:\/\/|\/)[^\s<>"']*$/i;
+const IsSiteOrHttpsUrl = (field: string) => Matches(SITE_OR_HTTPS_URL, { message: `${field} must be an https URL or a path on the website` });
 
 /**
  * Rich content is stored as structured blocks, never raw HTML, so the frontend renders it
@@ -76,7 +81,7 @@ export class MediaItemDto {
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(2000) description?: string;
   @ApiProperty({ description: 'Canonical URL (YouTube, Spotify, ...)' }) @IsUrl({ require_protocol: true, protocols: ['https'] }) url: string;
   @ApiPropertyOptional() @IsOptional() @IsUrl({ require_protocol: true, protocols: ['https'] }) embedUrl?: string;
-  @ApiPropertyOptional() @IsOptional() @IsUrl({ require_protocol: true }) thumbnailUrl?: string;
+  @ApiPropertyOptional({ description: 'https URL or a path on the website' }) @IsOptional() @IsSiteOrHttpsUrl('thumbnailUrl') @MaxLength(2000) thumbnailUrl?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) durationSec?: number;
 }
 export class UpdateMediaItemDto extends PartialType(MediaItemDto) {}
@@ -104,7 +109,7 @@ export class UpdateStaticPageDto extends PartialType(StaticPageDto) {}
 export class PromotionDto {
   @ApiProperty() @Transform(trim) @IsString() @Length(3, 200) title: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(2000) description?: string;
-  @ApiPropertyOptional() @IsOptional() @IsUrl({ require_protocol: true }) bannerUrl?: string;
+  @ApiPropertyOptional({ description: 'https URL or a path on the website' }) @IsOptional() @IsSiteOrHttpsUrl('bannerUrl') @MaxLength(2000) bannerUrl?: string;
   @ApiPropertyOptional({ enum: ['PERCENT', 'AMOUNT', 'NONE'] }) @IsOptional() @IsIn(['PERCENT', 'AMOUNT', 'NONE']) discountType?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) discountValue?: number;
   @ApiPropertyOptional({ description: 'Dealer-specific promotion' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
@@ -117,3 +122,38 @@ export class UpdatePromotionDto extends PartialType(PromotionDto) {}
 export class PromotionVehiclesDto {
   @ApiProperty({ type: [String] }) @IsArray() @ArrayMaxSize(500) @IsMarketplaceId({ each: true }) vehicleIds: string[];
 }
+
+export class AdBannerDto {
+  @ApiProperty({ description: 'Internal name, e.g. "Standard Bank vehicle finance"' }) @Transform(trim) @IsString() @Length(2, 120) title: string;
+  @ApiProperty({ enum: AdPlacement }) @IsEnum(AdPlacement) placement: AdPlacement;
+  @ApiProperty({ description: 'https URL or a path on the website' }) @IsSiteOrHttpsUrl('imageUrl') @MaxLength(2000) imageUrl: string;
+  @ApiPropertyOptional({ description: 'Where a click goes' }) @IsOptional() @IsSiteOrHttpsUrl('linkUrl') @MaxLength(2000) linkUrl?: string;
+  @ApiPropertyOptional({ description: 'Image description for screen readers' }) @IsOptional() @IsString() @MaxLength(200) altText?: string;
+  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) sortOrder?: number;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
+  @ApiPropertyOptional({ description: 'Shown from (empty: straight away)' }) @IsOptional() @IsDateString() startsAt?: string;
+  @ApiPropertyOptional({ description: 'Shown until (empty: no end)' }) @IsOptional() @IsDateString() endsAt?: string;
+}
+export class UpdateAdBannerDto extends PartialType(AdBannerDto) {}
+
+export class TestimonialDto {
+  @ApiProperty() @Transform(trim) @IsString() @Length(2, 120) name: string;
+  @ApiProperty() @Transform(trim) @IsString() @Length(10, 10000) text: string;
+  @ApiPropertyOptional({ description: 'https URL or a path on the website' }) @IsOptional() @IsSiteOrHttpsUrl('photoUrl') @MaxLength(2000) photoUrl?: string;
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 }) @IsOptional() @IsInt() @Min(1) @Max(5) rating?: number;
+  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) sortOrder?: number;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
+}
+export class UpdateTestimonialDto extends PartialType(TestimonialDto) {}
+
+export class FeaturedDealerDto {
+  @ApiProperty() @Transform(trim) @IsString() @Length(2, 160) name: string;
+  @ApiPropertyOptional({ description: 'Page address /featured-dealer/<slug>; defaults to a slug of the name' }) @IsOptional() @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: 'slug may use lowercase letters, numbers and dashes' }) @MaxLength(160) slug?: string;
+  @ApiPropertyOptional({ description: 'https URL or a path on the website' }) @IsOptional() @IsSiteOrHttpsUrl('logoUrl') @MaxLength(2000) logoUrl?: string;
+  @ApiPropertyOptional({ description: 'Short text on the home page card' }) @IsOptional() @IsString() @MaxLength(500) description?: string;
+  @ApiPropertyOptional({ description: 'Page text; one paragraph per line' }) @IsOptional() @IsString() @MaxLength(20000) about?: string;
+  @ApiPropertyOptional({ description: 'Marketplace dealer whose stock the page shows' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) sortOrder?: number;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
+}
+export class UpdateFeaturedDealerDto extends PartialType(FeaturedDealerDto) {}

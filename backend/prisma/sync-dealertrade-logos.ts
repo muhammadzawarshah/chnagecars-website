@@ -9,7 +9,7 @@ import sharp from 'sharp';
 
 const root = resolve(__dirname, '../..');
 const state = resolve(root, 'backend/.local/dealertrade-reconcile');
-const media = resolve(root, 'public/media/dealertrade/logos');
+const media = resolve(root, 'frontend/public/media/dealertrade/logos');
 mkdirSync(media, { recursive: true });
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL!, max: 4 }) });
 const rows: { dealer_id: number; dealer_name: string; dealer_image: string }[] = JSON.parse(readFileSync(resolve(state, 'source/dealers.json'), 'utf8'));

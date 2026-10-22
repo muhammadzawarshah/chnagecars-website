@@ -155,7 +155,7 @@ export function publicVehicleFields(vehicle: unknown) {
       fuelTankLitres: positive(feed.fuel_tank_size) ?? positive(spec.fuelTankLitres),
       frontTyreSize: text(feed.front_tyre_size),
       rearTyreSize: text(feed.rear_tyre_size),
-      drivenWheels: text(feed.driven_wheels) ?? ({ FOUR_X_TWO: '4X2', FOUR_X_FOUR: '4X4', FWD: 'FWD', RWD: 'RWD', AWD: 'AWD' }[String(row.drivetrain)] ?? null),
+      drivenWheels: text(feed.driven_wheels) ?? ({ '4x2': '4X2', '4x4': '4X4', FWD: 'FWD', RWD: 'RWD', AWD: 'AWD' }[String(row.drivetrain)] ?? null),
     },
     gears: positive(feed.no_gears) ?? positive(spec.gears),
     turboSupercharged: turbo === 'T' ? 'TURBO' : turbo === 'S' ? 'SUPERCHARGED' :

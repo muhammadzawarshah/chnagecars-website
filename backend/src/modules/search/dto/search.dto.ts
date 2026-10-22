@@ -36,8 +36,8 @@ export class SearchCriteriaDto {
   @ApiPropertyOptional({ description: 'Category slugs (FR-25)', example: 'suvs,bakkies' }) @IsOptional() @IsString() @MaxLength(300) category?: string;
   @ApiPropertyOptional({ example: 'PETROL,DIESEL' }) @IsOptional() @IsString() @MaxLength(200) fuelType?: string;
   @ApiPropertyOptional({ example: 'AUTOMATIC' }) @IsOptional() @IsString() @MaxLength(50) transmission?: string;
-  @ApiPropertyOptional({ example: 'FOUR_X_FOUR' }) @IsOptional() @IsString() @MaxLength(100) drivetrain?: string;
-  @ApiPropertyOptional({ description: 'Provinces (FR-27)', example: 'GAUTENG,WESTERN_CAPE' }) @IsOptional() @IsString() @MaxLength(300) province?: string;
+  @ApiPropertyOptional({ example: '4x4' }) @IsOptional() @IsString() @MaxLength(100) drivetrain?: string;
+  @ApiPropertyOptional({ description: 'Provinces (FR-27)', example: 'Gauteng,Western Cape' }) @IsOptional() @IsString() @MaxLength(300) province?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(100) city?: string;
   @ApiPropertyOptional({ example: 'White,Black' }) @IsOptional() @IsString() @MaxLength(200) colour?: string;
   @ApiPropertyOptional({ description: 'Dealer slug' }) @IsOptional() @IsString() @MaxLength(120) dealer?: string;

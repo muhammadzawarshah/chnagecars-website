@@ -3,7 +3,8 @@ import bodyTypes from '../src/modules/web/body-types.json';
 /** Normalize verified API variants/specifications and exact source URL body categories. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Prisma, Drivetrain } from '../src/generated/prisma/client';
+import { PrismaClient, Prisma } from '../src/generated/prisma/client';
+import { Drivetrain } from '../src/common/utils/drivetrain';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -41,7 +42,7 @@ async function main(){
     const transmissions=[...new Set(rows.map(s=>s.transmission_type_id))];
     if(transmissions.length===1)spec.transmission=({1:'MANUAL',2:'AUTOMATIC'} as any)[transmissions[0]];
     const drives=[...new Set(rows.map(s=>s.driven_wheels))];
-    if(drives.length===1)spec.drivetrain=({'4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR','FWD':'FWD','RWD':'RWD','AWD':'AWD'} as Record<string,Drivetrain>)[drives[0]];
+    if(drives.length===1)spec.drivetrain=({'4X2':'4x2','4X4':'4x4','FWD':'FWD','RWD':'RWD','AWD':'AWD'} as Record<string,Drivetrain>)[drives[0]];
     const extra={source:'dealertrade',model_variant_id:r.model_variant_id,introduction_date:match,mmcode:r.mmcode,front_tyre_size:r.front_tyre_size,rear_tyre_size:r.rear_tyre_size,sourceVehicleIds:rows.map(s=>s.vehicle_id)};
     await db.variantSpecification.upsert({where:{variantId:id},create:{variantId:id,...spec,extra:extra as Prisma.InputJsonValue},update:{...spec,extra:extra as Prisma.InputJsonValue}});
     const ids=rows.map(s=>byExternal.get(String(s.vehicle_id))?.id).filter((v):v is string=>!!v);

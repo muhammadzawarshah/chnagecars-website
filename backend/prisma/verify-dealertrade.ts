@@ -46,7 +46,7 @@ async function main(){
       if(image.url?.startsWith('/media/dealertrade/')){
         const extension=new URL(source).pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase()??'.jpg';
         assert.equal(image.url,'/media/dealertrade/'+createHash('sha256').update(source).digest('hex')+extension);
-        const file=resolve(__dirname,'../../public',image.url.slice(1));assert.ok(existsSync(file));assert.equal(statSync(file).size,image.sizeBytes);local++;
+        const file=resolve(__dirname,'../../frontend/public',image.url.slice(1));assert.ok(existsSync(file));assert.equal(statSync(file).size,image.sizeBytes);local++;
       }else{assert.equal(image.url,source);remote++;}
       photos++;
     }

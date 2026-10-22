@@ -1,4 +1,4 @@
-import { Province } from '../../generated/prisma/client';
+import { Province } from '../../common/utils/province';
 import { cityFromAddress, provinceFromPlace } from './sa-places';
 import { parseWebCarSearch } from './web-cars.service';
 import { mileageFromRange } from './web-forms.service';

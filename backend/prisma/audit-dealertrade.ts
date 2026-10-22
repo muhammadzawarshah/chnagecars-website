@@ -107,7 +107,7 @@ async function main(){
     const transmission=({1:'MANUAL',2:'AUTOMATIC'} as Row)[r.transmission_type_id];if(transmission)compare('vehicle',id,'transmission',transmission,v.transmission);
     if(r.mileage!==null&&r.mileage!==''&&Number.isSafeInteger(Number(r.mileage))&&Number(r.mileage)>=0)compare('vehicle',id,'mileage',Number(r.mileage),v.mileage);
     for(const [from,to] of Object.entries({engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors'}))if(positive(r[from]))compare('vehicle',id,to,Number(r[from]),(v as Row)[to]);
-    const drive=({'4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR',AWD:'AWD',FWD:'FWD',RWD:'RWD'} as Row)[r.driven_wheels];if(drive)compare('vehicle',id,'drivetrain',drive,v.drivetrain);
+    const drive=({'4X2':'4x2','4X4':'4x4',AWD:'AWD',FWD:'FWD',RWD:'RWD'} as Row)[r.driven_wheels];if(drive)compare('vehicle',id,'drivetrain',drive,v.drivetrain);
     const urlParts=String(r.single_vehicle_url??'').replace(/^https?:\/\/[^/]+\//,'').split('/');
     const province=provinceFromName(urlParts[1]??'');if(province)compare('vehicle',id,'province',province,v.province);
     if(urlParts[2])compare('vehicle',id,'city',slugify(decodeURIComponent(urlParts[2])),slugify(v.city));
@@ -147,7 +147,7 @@ async function main(){
         const extension=new URL(url).pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase()??'.jpg';
         const expected='/media/dealertrade/'+createHash('sha256').update(url).digest('hex')+extension;
         compare('image',id,`url:${position}`,expected,i.url);
-        const path=resolve(__dirname,'../../public',i.url.slice(1));
+        const path=resolve(__dirname,'../../frontend/public',i.url.slice(1));
         if(!existsSync(path)||statSync(path).size!==i.sizeBytes)emit('local_file_mismatch','image',id,String(position),i.sizeBytes,existsSync(path)?statSync(path).size:null);
         coverage.localPhotos++;
       }else{compare('image',id,`url:${position}`,url,i.url);coverage.remotePhotos++;}
@@ -191,7 +191,7 @@ async function main(){
       compare('legacy_image',id,'position:'+position,position,image.position);compare('legacy_image',id,'primary:'+position,position===0,image.isPrimary);
       if(saved?.url)compare('legacy_image',id,'url:'+position,saved.url,image.url);
       else if(image.url?.startsWith('https://'))compare('legacy_image',id,'url:'+position,r.images[position],image.url);
-      if(image.url?.startsWith('/')){const file=resolve(__dirname,'../../public',image.url.slice(1));if(!existsSync(file)||statSync(file).size!==image.sizeBytes)emit('local_file_mismatch','legacy_image',id,String(position),image.sizeBytes,existsSync(file)?statSync(file).size:null);}
+      if(image.url?.startsWith('/')){const file=resolve(__dirname,'../../frontend/public',image.url.slice(1));if(!existsSync(file)||statSync(file).size!==image.sizeBytes)emit('local_file_mismatch','legacy_image',id,String(position),image.sizeBytes,existsSync(file)?statSync(file).size:null);}
       if(image.url==='/img/feed-image-unavailable.png')legacyPlaceholders++;
     }
     if(r.images.length)compare('legacy_vehicle',id,'primaryImageUrl',images[0]?.url??null,v.primaryImageUrl);

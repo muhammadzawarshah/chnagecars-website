@@ -11,11 +11,11 @@ async function main(){
   let remote=0,local=0;
   for(const v of vehicles)for(const i of v.images){
     if(!i.url)continue;
-    if(i.url.startsWith('/media/dealertrade/')){const p=resolve(__dirname,'../../public',i.url.slice(1));if(!existsSync(p)||statSync(p).size<16)throw Error(`Missing local file ${i.id}`);local++;continue;}
+    if(i.url.startsWith('/media/dealertrade/')){const p=resolve(__dirname,'../../frontend/public',i.url.slice(1));if(!existsSync(p)||statSync(p).size<16)throw Error(`Missing local file ${i.id}`);local++;continue;}
     if(!i.url.startsWith('https://www.changecars.co.za/'))throw Error(`Unexpected image source ${i.id}`);
     const extension=new URL(i.url).pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase()??'.jpg';
     const url='/media/dealertrade/'+createHash('sha256').update(i.url).digest('hex')+extension;
-    const p=resolve(__dirname,'../../public',url.slice(1));
+    const p=resolve(__dirname,'../../frontend/public',url.slice(1));
     if(existsSync(p)&&statSync(p).size>16)ready.push({id:i.id,vehicleId:v.id,url,size:statSync(p).size,position:i.position});else remote++;
   }
   for(let start=0;start<ready.length;start+=500){

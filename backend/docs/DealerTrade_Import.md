@@ -20,7 +20,7 @@ npm run dealertrade:sync-images
 npm run dealertrade:verify
 ```
 
-`backend/.local/` and `public/media/dealertrade/` are ignored by Git. Raw page
+`backend/.local/` and `frontend/public/media/dealertrade/` are ignored by Git. Raw page
 responses, merged snapshots, import/verification reports and the SQLite image
 manifest are under `.local/dealertrade/`. Back up the database before importing.
 The token is sent only to the production API, never to the image CDN.
@@ -169,13 +169,13 @@ database/export. The report explicitly records whether that verification occurre
 Run `node --import tsx prisma/sync-dealertrade-logos.ts` from `backend` after
 capturing the dealer feed in `.local/dealertrade-reconcile/source/dealers.json`.
 The script downloads `dealer_image` from the feed's CHANGECARS image host, validates
-each full image, and stores it under `public/media/dealertrade/logos/` using a hash
+each full image, and stores it under `frontend/public/media/dealertrade/logos/` using a hash
 of the exact source URL. Matching dealers receive a local `/media/` logo URL;
 missing or failed images never replace an existing database logo. Existing local
 files are validated and reused on subsequent runs. Before values and a per-dealer
 result manifest are saved in `.local/dealertrade-reconcile/`.
 
-These media files are gitignored: include `public/media/dealertrade/` when moving
+These media files are gitignored: include `frontend/public/media/dealertrade/` when moving
 the local site and database to another machine.
 
 ## Download remaining source photos from database URLs
@@ -194,7 +194,7 @@ Run from `backend`. Check `.local/dealertrade/bulk-download-job.json` and
 `.local/dealertrade/download-progress.json` before restarting: the downloader uses
 an exclusive lock and will reject a concurrent worker. Live logs are in
 `.local/dealertrade/bulk-download.log`; completed or failed downloads are recorded
-in `images.sqlite`. Downloaded files remain in `public/media/dealertrade/` at the
+in `images.sqlite`. Downloaded files remain in `frontend/public/media/dealertrade/` at the
 repository root. The worker validates image files, retries normal transfer
 failures and leaves a free-space reserve. It does not update PostgreSQL URLs,
 upload to Firebase, or publish assets to GitHub/Vercel.

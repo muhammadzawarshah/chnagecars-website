@@ -5,6 +5,7 @@ import { IsIn } from 'class-validator';
 import { CurrentUser, OptionalAuth, Public } from '../../common/decorators/auth.decorators';
 import { Errors } from '../../common/errors/app-error';
 import { PublicCache } from '../../common/interceptors/cache-headers.interceptor';
+import { ParseMarketplaceIdPipe } from '../../common/pipes/marketplace-id.pipe';
 import type { AuthUser } from '../../common/types/auth-user';
 import { AuthModule } from '../auth/auth.module';
 import { DealersModule } from '../dealers/dealers.module';
@@ -66,6 +67,14 @@ export class WebContentController {
     return this.cars.count(parseWebCarSearch(body));
   }
 
+  // Not under /dealers/: DealerTrade ID rewriting (dealertrade-identity.service.ts) would swap the ID for a slug there.
+  @Get('dealer-stock/:id')
+  @PublicCache(60)
+  @ApiOperation({ summary: "One dealer's listed cars, newest first (capped at 1000)" })
+  dealerStock(@Param('id', ParseMarketplaceIdPipe) id: string) {
+    return this.cars.dealerStock(id);
+  }
+
   @Get('cars/all')
   @PublicCache(60)
   @ApiOperation({ summary: 'Every listed car, newest first (capped at 1000)' })
@@ -86,7 +95,7 @@ export class WebContentController {
   }
 
   @Get('cars/recent')
-  @PublicCache(60)
+  @ApiOperation({ summary: 'Newest cars with a year, shuffled on every call (not cached)' })
   recent(@Query('limit') limit?: string) {
     return this.cars.recent(limitOf(limit));
   }

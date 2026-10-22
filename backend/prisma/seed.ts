@@ -14,16 +14,16 @@ import { randomBytes } from 'node:crypto';
 import {
   DealerMemberRole,
   DealerStatus,
-  Drivetrain,
   FeatureAvailability,
   FuelType,
   PrismaClient,
-  Province,
   Transmission,
   UserRole,
   VehicleCondition,
   VehicleStatus,
 } from '../src/generated/prisma/client';
+import { Province } from '../src/common/utils/province';
+import { Drivetrain } from '../src/common/utils/drivetrain';
 import { loadWebsiteFixture, seedWebsiteArticleCategories, seedWebsiteDemo } from './seed-website-demo';
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL!, options: '-c TimeZone=UTC' }) });
@@ -136,14 +136,14 @@ const CATALOGUE: { make: string; country: string; models: { name: string; genera
             yearFrom: 2021,
             body: 'Double Cabs',
             basePrice: 899_700,
-            spec: { engine: '2.8L 4-cylinder turbo diesel', engineCapacityCc: 2755, cylinders: 4, powerKw: 150, torqueNm: 500, transmission: 'AUTOMATIC', gears: 6, drivetrain: 'FOUR_X_FOUR', fuelType: 'DIESEL', fuelConsumptionL100: 8.2, co2GKm: 216, seats: 5, doors: 4, lengthMm: 5325, widthMm: 1900, heightMm: 1815, zeroTo100Sec: 10.7, warranty: '3 years / 100 000 km', servicePlan: '9 services / 90 000 km', safetyRating: '5-star ANCAP' },
+            spec: { engine: '2.8L 4-cylinder turbo diesel', engineCapacityCc: 2755, cylinders: 4, powerKw: 150, torqueNm: 500, transmission: 'AUTOMATIC', gears: 6, drivetrain: '4x4', fuelType: 'DIESEL', fuelConsumptionL100: 8.2, co2GKm: 216, seats: 5, doors: 4, lengthMm: 5325, widthMm: 1900, heightMm: 1815, zeroTo100Sec: 10.7, warranty: '3 years / 100 000 km', servicePlan: '9 services / 90 000 km', safetyRating: '5-star ANCAP' },
           },
           {
             name: '2.4 GD-6 Raider Xtra Cab',
             yearFrom: 2021,
             body: 'King Cabs',
             basePrice: 591_000,
-            spec: { engine: '2.4L 4-cylinder turbo diesel', engineCapacityCc: 2393, cylinders: 4, powerKw: 110, torqueNm: 400, transmission: 'MANUAL', gears: 6, drivetrain: 'FOUR_X_TWO', fuelType: 'DIESEL', fuelConsumptionL100: 7.1, seats: 4, doors: 2, lengthMm: 5325, widthMm: 1855, heightMm: 1800, warranty: '3 years / 100 000 km', servicePlan: '6 services / 90 000 km' },
+            spec: { engine: '2.4L 4-cylinder turbo diesel', engineCapacityCc: 2393, cylinders: 4, powerKw: 110, torqueNm: 400, transmission: 'MANUAL', gears: 6, drivetrain: '4x2', fuelType: 'DIESEL', fuelConsumptionL100: 7.1, seats: 4, doors: 2, lengthMm: 5325, widthMm: 1855, heightMm: 1800, warranty: '3 years / 100 000 km', servicePlan: '6 services / 90 000 km' },
           },
         ],
       },
@@ -194,7 +194,7 @@ const CATALOGUE: { make: string; country: string; models: { name: string; genera
             yearFrom: 2023,
             body: 'Double Cabs',
             basePrice: 949_900,
-            spec: { engine: '2.0L 4-cylinder bi-turbo diesel', engineCapacityCc: 1996, cylinders: 4, powerKw: 154, torqueNm: 500, transmission: 'AUTOMATIC', gears: 10, drivetrain: 'FOUR_X_FOUR', fuelType: 'DIESEL', fuelConsumptionL100: 7.6, seats: 5, doors: 4, lengthMm: 5370, widthMm: 1918, heightMm: 1884, warranty: '4 years / 120 000 km', servicePlan: '4 years / 60 000 km', safetyRating: '5-star ANCAP' },
+            spec: { engine: '2.0L 4-cylinder bi-turbo diesel', engineCapacityCc: 1996, cylinders: 4, powerKw: 154, torqueNm: 500, transmission: 'AUTOMATIC', gears: 10, drivetrain: '4x4', fuelType: 'DIESEL', fuelConsumptionL100: 7.6, seats: 5, doors: 4, lengthMm: 5370, widthMm: 1918, heightMm: 1884, warranty: '4 years / 120 000 km', servicePlan: '4 years / 60 000 km', safetyRating: '5-star ANCAP' },
           },
         ],
       },

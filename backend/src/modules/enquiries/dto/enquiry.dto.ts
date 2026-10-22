@@ -22,9 +22,10 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ConditionGrade, EnquiryStatus, EnquiryType, Province } from '../../../generated/prisma/client';
+import { ConditionGrade, EnquiryStatus, EnquiryType } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 import { PHONE_RULE } from '../../auth/dto/auth.dto';
+import { Province, provinceInput } from '../../../common/utils/province';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 const lower = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value);
@@ -58,7 +59,7 @@ export class QuoteRequestDto extends ContactDto {
   @ApiProperty() @IsUUID() modelId: string;
   @ApiPropertyOptional() @IsOptional() @IsUUID() variantId?: string;
   @ApiPropertyOptional({ description: 'Send to a specific dealer; otherwise the platform team handles it' }) @IsOptional() @IsMarketplaceId() dealerId?: string;
-  @ApiProperty({ enum: Province }) @IsEnum(Province) province: Province;
+  @ApiProperty({ enum: Province }) @Transform(provinceInput) @IsEnum(Province) province: Province;
   @ApiPropertyOptional({ description: 'Colour, extras, timing, finance needs...' }) @IsOptional() @IsString() @MaxLength(4000) requirements?: string;
 }
 
@@ -71,7 +72,7 @@ export class BeatMyQuoteDto extends ContactDto {
   @ApiProperty({ description: 'Quoted price in rand' }) @IsInt() @Min(1000) @Max(100_000_000) quotedPrice: number;
   @ApiProperty({ description: 'Dealer that issued the existing quote' }) @Transform(trim) @IsString() @Length(2, 200) quotingDealer: string;
   @ApiPropertyOptional({ description: 'Quote details / reference / included extras' }) @IsOptional() @IsString() @MaxLength(4000) quoteDetails?: string;
-  @ApiProperty({ enum: Province }) @IsEnum(Province) province: Province;
+  @ApiProperty({ enum: Province }) @Transform(provinceInput) @IsEnum(Province) province: Province;
 }
 
 export class TradeInVehicleDto {
@@ -114,7 +115,7 @@ export class ConciergeDto extends ContactDto {
   @IsIn(CONCIERGE_SERVICES, { each: true })
   services: string[];
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) budget?: number;
-  @ApiPropertyOptional() @IsOptional() @IsEnum(Province) province?: Province;
+  @ApiPropertyOptional() @IsOptional() @Transform(provinceInput) @IsEnum(Province) province?: Province;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(4000) notes?: string;
 }
 
@@ -127,7 +128,7 @@ export class HelpMeFindDto extends ContactDto {
   @ApiProperty() @IsInt() @Min(1000) budgetMax: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(1950) minYear?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) maxMileage?: number;
-  @ApiPropertyOptional() @IsOptional() @IsEnum(Province) province?: Province;
+  @ApiPropertyOptional() @IsOptional() @Transform(provinceInput) @IsEnum(Province) province?: Province;
   @ApiPropertyOptional({ description: 'Colour, transmission, fuel, must-have features...' }) @IsOptional() @IsString() @MaxLength(4000) preferences?: string;
 }
 
@@ -153,7 +154,7 @@ export class InsuranceEnquiryDto extends ContactDto {
   @IsOptional()
   @IsIn(['COMPREHENSIVE', 'THIRD_PARTY_FIRE_THEFT', 'THIRD_PARTY', 'NOT_SURE'])
   coverType?: string;
-  @ApiPropertyOptional() @IsOptional() @IsEnum(Province) province?: Province;
+  @ApiPropertyOptional() @IsOptional() @Transform(provinceInput) @IsEnum(Province) province?: Province;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(2000) message?: string;
 }
 

@@ -10,21 +10,27 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { PUBLIC_SEARCH_STATUSES } from '../vehicles/vehicle-lifecycle';
 import { publicVehicleSelect, withAvailability } from '../vehicles/vehicle.presenter';
 import {
+  AdBannerDto,
   AdminArticleQueryDto,
   ArticleDto,
   ArticleQueryDto,
   ContentBlock,
   FaqDto,
+  FeaturedDealerDto,
   MediaItemDto,
   MediaQueryDto,
   PromotionDto,
   PublishDto,
   StaticPageDto,
+  TestimonialDto,
+  UpdateAdBannerDto,
   UpdateArticleDto,
   UpdateFaqDto,
+  UpdateFeaturedDealerDto,
   UpdateMediaItemDto,
   UpdatePromotionDto,
   UpdateStaticPageDto,
+  UpdateTestimonialDto,
 } from './dto/content.dto';
 
 const CONTENT_TTL = 300;
@@ -409,5 +415,123 @@ export class ContentService {
     ]);
     await this.changed('content.promotion_delete', 'promotion', id, null, null);
     await this.cache.bump(CacheNs.vehicles);
+  }
+
+  // ───────────── website home page: advert banners, testimonials, featured dealers ─────────────
+
+  /** Optional date from a form: undefined leaves it, null or "" clears it. */
+  private optionalDate(value: string | null | undefined) {
+    return value === undefined ? undefined : value ? new Date(value) : null;
+  }
+
+  async adBanners() {
+    const key = await this.cache.versionedKey(CacheNs.content, 'ad-banners');
+    return this.cache.wrap(key, 120, () => {
+      const now = new Date();
+      return this.prisma.replica.adBanner.findMany({
+        where: { isActive: true, AND: [{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] }, { OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] },
+        orderBy: [{ placement: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
+      });
+    });
+  }
+
+  adminAdBanners() {
+    return this.prisma.adBanner.findMany({ orderBy: [{ placement: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] });
+  }
+
+  async createAdBanner(dto: AdBannerDto) {
+    const banner = await this.prisma.adBanner.create({ data: { ...dto, startsAt: this.optionalDate(dto.startsAt), endsAt: this.optionalDate(dto.endsAt) } });
+    await this.changed('content.ad_banner_create', 'ad_banner', banner.id, null, banner);
+    return banner;
+  }
+
+  async updateAdBanner(id: string, dto: UpdateAdBannerDto) {
+    const before = await this.prisma.adBanner.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Ad banner');
+    const after = await this.prisma.adBanner.update({ where: { id }, data: { ...dto, startsAt: this.optionalDate(dto.startsAt), endsAt: this.optionalDate(dto.endsAt) } });
+    await this.changed('content.ad_banner_update', 'ad_banner', id, before, after);
+    return after;
+  }
+
+  async deleteAdBanner(id: string) {
+    const before = await this.prisma.adBanner.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Ad banner');
+    await this.prisma.adBanner.delete({ where: { id } });
+    await this.changed('content.ad_banner_delete', 'ad_banner', id, before, null);
+  }
+
+  async testimonials() {
+    const key = await this.cache.versionedKey(CacheNs.content, 'testimonials');
+    return this.cache.wrap(key, CONTENT_TTL, () =>
+      this.prisma.replica.testimonial.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
+    );
+  }
+
+  adminTestimonials() {
+    return this.prisma.testimonial.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] });
+  }
+
+  async createTestimonial(dto: TestimonialDto) {
+    const testimonial = await this.prisma.testimonial.create({ data: dto });
+    await this.changed('content.testimonial_create', 'testimonial', testimonial.id, null, { name: testimonial.name });
+    return testimonial;
+  }
+
+  async updateTestimonial(id: string, dto: UpdateTestimonialDto) {
+    const before = await this.prisma.testimonial.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Testimonial');
+    const after = await this.prisma.testimonial.update({ where: { id }, data: dto });
+    await this.changed('content.testimonial_update', 'testimonial', id, { name: before.name, isActive: before.isActive }, { name: after.name, isActive: after.isActive });
+    return after;
+  }
+
+  async deleteTestimonial(id: string) {
+    const before = await this.prisma.testimonial.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Testimonial');
+    await this.prisma.testimonial.delete({ where: { id } });
+    await this.changed('content.testimonial_delete', 'testimonial', id, { name: before.name, text: before.text }, null);
+  }
+
+  async featuredDealers() {
+    const key = await this.cache.versionedKey(CacheNs.content, 'featured-dealers');
+    return this.cache.wrap(key, CONTENT_TTL, () =>
+      this.prisma.replica.featuredDealer.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
+    );
+  }
+
+  async featuredDealer(slug: string) {
+    const dealer = await this.prisma.replica.featuredDealer.findFirst({ where: { slug, isActive: true }, include: { dealer: { select: { id: true, name: true, slug: true } } } });
+    if (!dealer) throw Errors.notFound('Featured dealer');
+    return dealer;
+  }
+
+  adminFeaturedDealers() {
+    return this.prisma.featuredDealer.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }], include: { dealer: { select: { id: true, name: true } } } });
+  }
+
+  async createFeaturedDealer(dto: FeaturedDealerDto) {
+    const slug = dto.slug || slugify(dto.name);
+    if (await this.prisma.featuredDealer.findUnique({ where: { slug } })) throw Errors.conflict('FEATURED_DEALER_SLUG_TAKEN', `Another featured dealer already uses /featured-dealer/${slug}`);
+    const dealer = await this.prisma.featuredDealer.create({ data: { ...dto, slug } });
+    await this.changed('content.featured_dealer_create', 'featured_dealer', dealer.id, null, { name: dealer.name, slug });
+    return dealer;
+  }
+
+  async updateFeaturedDealer(id: string, dto: UpdateFeaturedDealerDto) {
+    const before = await this.prisma.featuredDealer.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Featured dealer');
+    if (dto.slug && dto.slug !== before.slug && (await this.prisma.featuredDealer.findUnique({ where: { slug: dto.slug } }))) {
+      throw Errors.conflict('FEATURED_DEALER_SLUG_TAKEN', `Another featured dealer already uses /featured-dealer/${dto.slug}`);
+    }
+    const after = await this.prisma.featuredDealer.update({ where: { id }, data: dto });
+    await this.changed('content.featured_dealer_update', 'featured_dealer', id, { name: before.name, slug: before.slug, isActive: before.isActive }, { name: after.name, slug: after.slug, isActive: after.isActive });
+    return after;
+  }
+
+  async deleteFeaturedDealer(id: string) {
+    const before = await this.prisma.featuredDealer.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Featured dealer');
+    await this.prisma.featuredDealer.delete({ where: { id } });
+    await this.changed('content.featured_dealer_delete', 'featured_dealer', id, { name: before.name, slug: before.slug }, null);
   }
 }

@@ -12,6 +12,7 @@ import { AppConfig } from '../../config/app-config.service';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
+import { slugify } from '../../common/utils/strings';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -38,7 +39,8 @@ export function snapshotPayload(rows: any[]) {
     dictionaries.model[model] = { name: row.model.name, make_id: row.make.slug };
     const variant = row.variant ? `${model}:${row.variant.slug}` : null;
     if (variant) dictionaries.variant[variant] = { name: row.variant.name, make_id: row.make.slug, model_id: model };
-    const province = row.province ? label(row.province) : null;
+    // Stable ids ("kwazulu-natal") from stored names ("KwaZulu-Natal"); the name goes in the dictionary.
+    const province = row.province ? slugify(row.province) : null;
     const city = row.city && province ? `${province}:${row.city.trim().toLowerCase()}` : null;
     if (city) dictionaries.city[city] = { name: row.city, province_id: province };
     const categories = row.categories.filter((item: any) => item.isActive).map((item: any) => scalar('body_type', item.slug, item.name));
@@ -49,7 +51,7 @@ export function snapshotPayload(rows: any[]) {
       color: scalar('color', row.colour?.trim().toLowerCase() || null),
       condition: scalar('condition', label(row.condition)),
       availability: scalar('availability', row.status === 'PUBLISHED' ? 'available' : 'reserved'),
-      province: scalar('province', province), city,
+      province: scalar('province', province, row.province ?? undefined), city,
       dealer: scalar('dealer', row.dealer.slug, row.dealer.name),
       price: row.price, sale_price: row.isSpecial && row.specialPrice ? row.specialPrice : row.price,
       year: row.year, mileage: row.mileage, seats: row.seats, cylinders: row.cylinders ?? null,

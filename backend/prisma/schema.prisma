@@ -27,18 +27,6 @@ enum UserStatus {
   DELETED
 }
 
-enum Province {
-  EASTERN_CAPE
-  FREE_STATE
-  GAUTENG
-  KWAZULU_NATAL
-  LIMPOPO
-  MPUMALANGA
-  NORTHERN_CAPE
-  NORTH_WEST
-  WESTERN_CAPE
-}
-
 enum DealerStatus {
   PENDING
   APPROVED
@@ -115,14 +103,6 @@ enum FuelType {
   ELECTRIC
   LPG
   OTHER
-}
-
-enum Drivetrain {
-  FWD
-  RWD
-  AWD
-  FOUR_X_TWO  @map("4x2")
-  FOUR_X_FOUR @map("4x4")
 }
 
 enum FeatureAvailability {
@@ -388,13 +368,17 @@ model Dealer {
   website             String?
   description         String?
   logoUrl             String?
-  province            Province
+  /// Eastern Cape | Free State | Gauteng | KwaZulu-Natal | Limpopo | Mpumalanga | Northern Cape | North West | Western Cape (CHECK constraint in migrations).
+  province            String  
   city                String
   address             String
   status              DealerStatus @default(PENDING)
   plan                DealerPlan   @default(BASIC)
   biddingEnabled      Boolean      @default(true)
   rating              Float?
+  /// Review pages from DealerTrade (google_review, peter_review); https links only.
+  googleReviewUrl     String?
+  hellopeterReviewUrl String?
   approvedAt          DateTime?
   approvedById        String?      @db.Uuid
   rejectionReason     String?
@@ -412,6 +396,7 @@ model Dealer {
   deals          Deal[]
   biddingInvites BiddingInvite[]
   promotions     Promotion[]
+  featuredOn     FeaturedDealer[]
 
   @@index([status])
   @@index([province])
@@ -442,7 +427,8 @@ model Branch {
   phone          String?
   address        String
   city           String
-  province       Province
+  /// Eastern Cape | Free State | Gauteng | KwaZulu-Natal | Limpopo | Mpumalanga | Northern Cape | North West | Western Cape (CHECK constraint in migrations).
+  province       String  
   latitude       Float?
   longitude      Float?
   /// [{ day: "Mon", open: "08:00", close: "17:00", closed: false }]
@@ -594,7 +580,8 @@ model VariantSpecification {
   torqueNm            Int?
   transmission        Transmission?
   gears               Int?
-  drivetrain          Drivetrain?
+  /// FWD | RWD | AWD | 4x2 | 4x4 (CHECK constraint in migrations).
+  drivetrain          String?
   fuelType            FuelType?
   fuelConsumptionL100 Float?
   co2GKm              Int?
@@ -726,7 +713,8 @@ model Vehicle {
   promotionId        String?          @db.Uuid
   transmission       Transmission
   fuelType           FuelType
-  drivetrain         Drivetrain?
+  /// FWD | RWD | AWD | 4x2 | 4x4 (CHECK constraint in migrations).
+  drivetrain         String?
   colour             String?
   engineCapacityCc   Int?
   powerKw            Int?
@@ -737,7 +725,8 @@ model Vehicle {
   vin                String?          @unique
   /// Private — never exposed publicly.
   registrationNumber String?
-  province           Province
+  /// Eastern Cape | Free State | Gauteng | KwaZulu-Natal | Limpopo | Mpumalanga | Northern Cape | North West | Western Cape (CHECK constraint in migrations).
+  province           String  
   city               String
   latitude           Float?
   longitude          Float?
@@ -866,6 +855,70 @@ model VehiclePriceHistory {
 
   @@index([vehicleId, createdAt])
   @@map("vehicle_price_history")
+}
+
+/// Where an advert shows on the website home page.
+enum AdPlacement {
+  HOME_HERO
+  HOME_DEALERS
+  HOME_BOTTOM
+}
+
+/// Advert banners on the website, managed in the super admin console.
+model AdBanner {
+  id        String      @id @default(uuid(7)) @db.Uuid
+  title     String
+  placement AdPlacement
+  imageUrl  String
+  linkUrl   String?
+  altText   String?
+  sortOrder Int         @default(0)
+  isActive  Boolean     @default(true)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([placement, isActive, sortOrder])
+  @@map("ad_banners")
+}
+
+/// Customer testimonials shown on the website home page.
+model Testimonial {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  text      String
+  photoUrl  String?
+  rating    Int      @default(5)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("testimonials")
+}
+
+/// A dealer highlighted on the website home page, with its own page at /featured-dealer/<slug>.
+model FeaturedDealer {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  description String?
+  /// Page text; one paragraph per line.
+  about       String?
+  /// The marketplace dealer whose stock the page shows.
+  dealerId    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dealer Dealer? @relation(fields: [dealerId], references: [id], onDelete: SetNull)
+
+  @@index([isActive, sortOrder])
+  @@map("featured_dealers")
 }
 
 model Promotion {
@@ -1066,7 +1119,8 @@ model SellRequest {
   name                  String
   email                 String
   phone                 String
-  province              Province
+  /// Eastern Cape | Free State | Gauteng | KwaZulu-Natal | Limpopo | Mpumalanga | Northern Cape | North West | Western Cape (CHECK constraint in migrations).
+  province              String  
   city                  String?
   makeId                String?           @db.Uuid
   modelId               String?           @db.Uuid
@@ -1154,7 +1208,7 @@ model BiddingSession {
   offerValidityHours   Int           @default(48)
   reservePrice         Int?
   /// Empty = all provinces.
-  eligibleProvinces    Province[]    @default([])
+  eligibleProvinces    String[]      @default([])
   /// Set inside the acceptance transaction; UNIQUE guarantees one accepted offer per session.
   acceptedOfferId      String?       @unique @db.Uuid
   createdById          String?       @db.Uuid

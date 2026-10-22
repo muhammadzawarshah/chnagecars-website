@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '../src/generated/prisma/client';
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
-const fixture = resolve(__dirname, 'fixtures/fbook'), web = resolve(__dirname, '../../public');
+const fixture = resolve(__dirname, 'fixtures/fbook'), web = resolve(__dirname, '../../frontend/public');
 const uuid = (key: string) => {
     const h = createHash('sha256').update(`changecars-fbook:${key}`).digest('hex');
     return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;

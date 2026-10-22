@@ -111,7 +111,7 @@ export class PublicVehiclesController {
   @ApiOperation({ summary: 'drives options and counts for active search filters' })
   async filterDrivetrain(@Query() query: SearchCriteriaDto) {
     const facets = await this.search.facets(query);
-    return { total: facets.total, options: ['FOUR_X_FOUR', 'FOUR_X_TWO', 'AWD', 'FWD', 'RWD'].map((value) => ({ value, count: facets.drivetrain.find((option) => option.value === value)?.count ?? 0 })) };
+    return { total: facets.total, options: ['4x4', '4x2', 'AWD', 'FWD', 'RWD'].map((value) => ({ value, count: facets.drivetrain.find((option) => option.value === value)?.count ?? 0 })) };
   }
 
   @Public()
