@@ -27,10 +27,10 @@ import {
   DealerPermission,
   DealerPlan,
   DealerStatus,
-  Province,
 } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 import { PHONE_RULE, RegisterDto } from '../../auth/dto/auth.dto';
+import { Province, provinceInput } from '../../../common/utils/province';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 const lower = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value);
@@ -88,7 +88,7 @@ export class BranchInputDto {
   city: string;
 
   @ApiProperty({ enum: Province })
-  @IsEnum(Province)
+  @Transform(provinceInput) @IsEnum(Province)
   province: Province;
 
   @ApiPropertyOptional()
@@ -173,7 +173,7 @@ export class DealershipInputDto {
   description?: string;
 
   @ApiProperty({ enum: Province })
-  @IsEnum(Province)
+  @Transform(provinceInput) @IsEnum(Province)
   province: Province;
 
   @ApiProperty()
@@ -309,7 +309,7 @@ export class PublicDealerQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({ enum: Province })
   @IsOptional()
-  @IsEnum(Province)
+  @Transform(provinceInput) @IsEnum(Province)
   province?: Province;
 }
 

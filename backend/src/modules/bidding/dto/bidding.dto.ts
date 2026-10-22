@@ -1,6 +1,6 @@
 import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
@@ -16,8 +16,9 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { BiddingStatus, OfferStatus, Province } from '../../../generated/prisma/client';
+import { BiddingStatus, OfferStatus } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
+import { Province, provinceInput } from '../../../common/utils/province';
 
 /** FR-52: every rule of a bidding process is explicit and stored on the session. */
 export class OpenBiddingDto {
@@ -31,7 +32,7 @@ export class OpenBiddingDto {
   @ApiPropertyOptional({ enum: Province, isArray: true, description: 'Only dealers in these provinces (BR-06). Empty = all.' })
   @IsOptional()
   @IsArray()
-  @IsEnum(Province, { each: true })
+  @Transform(provinceInput) @IsEnum(Province, { each: true })
   eligibleProvinces?: Province[];
   @ApiPropertyOptional({ type: [String], description: 'Invite-only: only these dealers may view and bid' })
   @IsOptional()

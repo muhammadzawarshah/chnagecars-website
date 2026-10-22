@@ -1,4 +1,4 @@
-import { BiddingStatus, DealerStatus, OfferStatus, Province } from '../../generated/prisma/client';
+import { BiddingStatus, DealerStatus, OfferStatus } from '../../generated/prisma/client';
 
 export const ACTIVE_OFFER_STATUSES: OfferStatus[] = [OfferStatus.SUBMITTED, OfferStatus.UPDATED, OfferStatus.PENDING];
 
@@ -7,7 +7,8 @@ export interface SessionRules {
   opensAt: Date;
   closesAt: Date;
   acceptedOfferId: string | null;
-  eligibleProvinces: Province[];
+  /** Province names, e.g. "Gauteng". */
+  eligibleProvinces: string[];
   inviteDealerIds: string[];
 }
 
@@ -15,7 +16,7 @@ export interface DealerProfile {
   id: string;
   status: DealerStatus;
   biddingEnabled: boolean;
-  province: Province;
+  province: string;
 }
 
 /** BR-02 + BR-06: which dealers may see and bid on a session. */

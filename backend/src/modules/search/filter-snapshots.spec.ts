@@ -2,7 +2,7 @@ import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { FilterSnapshotsService, snapshotPayload } from './filter-snapshots';
 
-const row = { id: 'uuid', make: { slug: 'ford', name: 'Ford' }, model: { slug: 'ranger', name: 'Ranger' }, variant: null, province: 'FREE_STATE', city: 'Bethlehem', categories: [{ slug: 'bakkies', name: 'Bakkies', isActive: true }], fuelType: null, transmission: 'UNKNOWN', drivetrain: null, colour: ' White ', condition: 'USED', status: 'PUBLISHED', dealer: { slug: 'dealer', name: 'Dealer' }, price: 100, specialPrice: null, isSpecial: false, isFeatured: false, year: 2020, mileage: null, seats: null, engineCapacityCc: null, powerKw: null };
+const row = { id: 'uuid', make: { slug: 'ford', name: 'Ford' }, model: { slug: 'ranger', name: 'Ranger' }, variant: null, province: 'Free State', city: 'Bethlehem', categories: [{ slug: 'bakkies', name: 'Bakkies', isActive: true }], fuelType: null, transmission: 'UNKNOWN', drivetrain: null, colour: ' White ', condition: 'USED', status: 'PUBLISHED', dealer: { slug: 'dealer', name: 'Dealer' }, price: 100, specialPrice: null, isSpecial: false, isFeatured: false, year: 2020, mileage: null, seats: null, engineCapacityCc: null, powerKw: null };
 describe('immutable filter snapshots', () => {
   it('includes cylinder values and counts without zero or missing options', () => {
     const result = snapshotPayload([12, 4, 4, 0, null].map((cylinders, index) => ({ ...row, id: String(index), cylinders })));

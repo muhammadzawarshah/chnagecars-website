@@ -1,7 +1,8 @@
 /** Repeatable import of every feed listing. Never deletes unrelated records. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Prisma, Province } from '../src/generated/prisma/client';
+import { PrismaClient, Prisma } from '../src/generated/prisma/client';
+import { Province } from '../src/common/utils/province';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -134,7 +135,7 @@ async function main() {
             const ext = source.split('.').pop()!.toLowerCase(), name = `${r.vehicle_id}-${i + 1}.${ext}`;
             const downloaded = media.get(`${r.vehicle_id}:${i}`);
             const asset = downloaded?.url ?? (downloaded?.error ? '/img/feed-image-unavailable.png' : `/media/fbook/${name}`);
-            const actualFile = resolve(root, 'public', asset.slice(1));
+            const actualFile = resolve(root, 'frontend/public', asset.slice(1));
             const local = existsSync(actualFile) && statSync(actualFile).size > 0;
             if (local)
                 localImages++;

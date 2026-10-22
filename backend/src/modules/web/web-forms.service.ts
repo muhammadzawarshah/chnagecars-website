@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { ConditionGrade, EnquiryType, FuelType, Prisma, Province, SellRequestType, Transmission } from '../../generated/prisma/client';
+import { ConditionGrade, EnquiryType, FuelType, Prisma, SellRequestType, Transmission } from '../../generated/prisma/client';
 import { AppError, Errors } from '../../common/errors/app-error';
 import type { AuthUser } from '../../common/types/auth-user';
 import { AuditService } from '../../infrastructure/audit/audit.service';
@@ -15,6 +15,7 @@ import { SellingService } from '../selling/selling.service';
 import { cityFromAddress, provinceFromPlace } from './sa-places';
 import { WebUploadsService } from './web-uploads.service';
 import { CONDITION_FROM_LABEL, fromWebId, fuelsFromLabel, provinceFromName, transmissionFromLabel } from './web-format';
+import { Province } from '../../common/utils/province';
 
 export const WEB_FORMS = [
   'newsletter',

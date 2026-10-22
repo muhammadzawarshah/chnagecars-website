@@ -1,5 +1,6 @@
-import { Province } from '../../generated/prisma/client';
+
 import { PROVINCE_NAMES, slugify } from './web-format';
+import { Province } from '../../common/utils/province';
 
 /**
  * The website's sell forms and dealer sign-up ask for a suburb or an address, not a province,
@@ -7,7 +8,7 @@ import { PROVINCE_NAMES, slugify } from './web-format';
  * towns and suburbs; anything unknown is reported back to the visitor so they can add the province.
  */
 const PLACES: Record<Province, string[]> = {
-  GAUTENG: [
+  [Province.GAUTENG]: [
     'johannesburg', 'joburg', 'jhb', 'sandton', 'rosebank', 'randburg', 'roodepoort', 'soweto', 'midrand', 'fourways', 'rivonia',
     'bryanston', 'sunninghill', 'centurion', 'pretoria', 'tshwane', 'menlyn', 'hatfield', 'brooklyn', 'faerie glen', 'garsfontein',
     'montana', 'mamelodi', 'soshanguve', 'akasia', 'irene', 'midstream', 'kempton park', 'edenvale', 'bedfordview', 'germiston',
@@ -17,7 +18,7 @@ const PLACES: Record<Province, string[]> = {
     'bronkhorstspruit', 'heidelberg', 'nigel', 'katlehong', 'vosloorus', 'lenasia', 'honeydew', 'ruimsig', 'muldersdrift', 'lanseria',
     'waterkloof', 'lynnwood', 'silverton', 'wonderboom', 'pretoria north', 'pretoria east', 'pretoria west', 'gp',
   ],
-  WESTERN_CAPE: [
+  [Province.WESTERN_CAPE]: [
     'cape town', 'kaapstad', 'bellville', 'durbanville', 'brackenfell', 'kuils river', 'parow', 'goodwood', 'milnerton',
     'table view', 'tableview', 'bloubergstrand', 'blouberg', 'parklands', 'sea point', 'green point', 'gardens', 'claremont',
     'rondebosch', 'newlands', 'constantia', 'tokai', 'bergvliet', 'muizenberg', 'fish hoek', 'simons town', 'hout bay',
@@ -26,35 +27,35 @@ const PLACES: Record<Province, string[]> = {
     'hermanus', 'caledon', 'swellendam', 'vredenburg', 'saldanha', 'langebaan', 'beaufort west', 'montague gardens', 'epping',
     'n1 city', 'tygervalley', 'wc',
   ],
-  KWAZULU_NATAL: [
+  [Province.KWAZULU_NATAL]: [
     'durban', 'ethekwini', 'umhlanga', 'ballito', 'westville', 'pinetown', 'hillcrest', 'kloof', 'gillitts', 'amanzimtoti',
     'umlazi', 'chatsworth', 'phoenix', 'verulam', 'tongaat', 'queensburgh', 'berea', 'morningside durban', 'glenwood',
     'pietermaritzburg', 'maritzburg', 'pmb', 'howick', 'hilton', 'richards bay', 'empangeni', 'newcastle', 'ladysmith', 'dundee',
     'vryheid', 'port shepstone', 'margate', 'scottburgh', 'kokstad', 'estcourt', 'eshowe', 'stanger', 'kwadukuza', 'kzn',
   ],
-  EASTERN_CAPE: [
+  [Province.EASTERN_CAPE]: [
     'gqeberha', 'port elizabeth', 'nelson mandela bay', 'east london', 'buffalo city', 'mthatha', 'umtata', 'uitenhage',
     'kariega', 'despatch', 'jeffreys bay', 'grahamstown', 'makhanda', 'queenstown', 'komani', 'king williams town',
     'qonce', 'butterworth', 'graaff-reinet', 'graaff reinet', 'port alfred', 'humansdorp', 'walmer', 'summerstrand', 'ec',
   ],
-  FREE_STATE: [
+  [Province.FREE_STATE]: [
     'bloemfontein', 'mangaung', 'welkom', 'kroonstad', 'bethlehem', 'sasolburg', 'parys', 'harrismith', 'phuthaditjhaba',
     'virginia', 'odendaalsrus', 'ficksburg', 'botshabelo', 'thaba nchu', 'fs',
   ],
-  LIMPOPO: [
+  [Province.LIMPOPO]: [
     'polokwane', 'pietersburg', 'tzaneen', 'mokopane', 'potgietersrus', 'thohoyandou', 'louis trichardt', 'makhado',
     'phalaborwa', 'lephalale', 'ellisras', 'bela-bela', 'bela bela', 'warmbaths', 'modimolle', 'musina', 'giyani', 'burgersfort',
     'thabazimbi', 'lp',
   ],
-  MPUMALANGA: [
+  [Province.MPUMALANGA]: [
     'mbombela', 'nelspruit', 'witbank', 'emalahleni', 'middelburg', 'secunda', 'ermelo', 'standerton', 'white river',
     'hazyview', 'barberton', 'lydenburg', 'mashishing', 'bethal', 'piet retief', 'mkhondo', 'komatipoort', 'delmas', 'malelane', 'mp',
   ],
-  NORTH_WEST: [
+  [Province.NORTH_WEST]: [
     'rustenburg', 'mahikeng', 'mafikeng', 'potchefstroom', 'klerksdorp', 'brits', 'hartbeespoort', 'harties', 'lichtenburg',
     'zeerust', 'vryburg', 'orkney', 'stilfontein', 'mogwase', 'sun city', 'nw',
   ],
-  NORTHERN_CAPE: [
+  [Province.NORTHERN_CAPE]: [
     'kimberley', 'upington', 'springbok', 'kuruman', 'de aar', 'kathu', 'postmasburg', 'colesberg', 'calvinia', 'nc',
   ],
 };

@@ -2,11 +2,14 @@ import { BODY_TYPE_CATEGORY_SLUGS, resolveBodyType } from '../src/modules/vehicl
 /** Idempotent DealerTrade import. Exact external IDs only; no guessed specifications. */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Prisma, Province, VehicleCondition, Drivetrain } from '../src/generated/prisma/client';
+import { PrismaClient, Prisma, VehicleCondition } from '../src/generated/prisma/client';
+import { Province } from '../src/common/utils/province';
+import { Drivetrain } from '../src/common/utils/drivetrain';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { provinceFromName, slugify } from '../src/modules/web/web-format';
+import { dealerSourceDetails } from '../src/modules/vehicles/dealer-source';
 
 type Row = Record<string, any>;
 const strictSource = process.env.DEALERTRADE_STRICT_SOURCE === '1';
@@ -26,7 +29,7 @@ const localImage = (url: string) => {
   if (u.protocol !== 'https:' || u.hostname !== 'www.changecars.co.za') throw Error('Unexpected image URL');
   const extension = u.pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase() ?? '.jpg';
   const relative = '/media/dealertrade/' + createHash('sha256').update(url).digest('hex') + extension;
-  const file = resolve(__dirname, '../../public', relative.slice(1));
+  const file = resolve(__dirname, '../../frontend/public', relative.slice(1));
   return existsSync(file) && statSync(file).size > 16 ? { url: relative, size: statSync(file).size } : { url, size: null };
 };
 const location = (r: Row) => {
@@ -86,7 +89,7 @@ async function main() {
     if (!province || typeof r.dealer_name !== 'string' || !r.dealer_name.trim()) {issues.push({dealerId:key,reason:!province ? 'Unknown province; raw record retained' : 'Missing dealer name; raw record retained'});continue;}
     const city=existing?.city || dealerCities.get(key) || '';
     if(!city) issues.push({dealerId:key,reason:'Dealer city not supplied; left empty'});
-    const data={logoUrl: strictSource && r.dealer_image ? new URL('images/200/' + String(r.dealer_image).replace(/^\//, ''), 'https://www.changecars.co.za/').href : undefined,name:r.dealer_name,phone:r.telephone || existing?.phone || '',email:strictSource ? (r.email ?? '') : r.email || existing?.email || `dealertrade-${key}@example.invalid`,address:r.address,province,city,description:r.description || existing?.description};
+    const data={logoUrl: strictSource && r.dealer_image ? new URL('images/200/' + String(r.dealer_image).replace(/^\//, ''), 'https://www.changecars.co.za/').href : undefined,name:r.dealer_name,phone:r.telephone || existing?.phone || '',email:strictSource ? (r.email ?? '') : r.email || existing?.email || `dealertrade-${key}@example.invalid`,address:r.address,province,city,description:r.description || existing?.description,...(({googleReviewUrl,hellopeterReviewUrl})=>({googleReviewUrl,hellopeterReviewUrl}))(dealerSourceDetails(r))};
     await db.dealer.upsert({where:{id},create:{id,...data,slug:preservedDealerSlugs.get(key) ?? `${slugify(r.dealer_name)}-${strictSource ? 'dealertrade' : 'fbook'}-${key}`,status:'APPROVED',approvedAt:new Date()},update:data});
     const branch={dealerId:id,name:r.dealer_name,phone:data.phone,email:r.email || null,address:r.address,province,city,isHeadOffice:true};
     await db.branch.upsert({where:{id:branchId},create:{id:branchId,...branch,slug:'feed-head-office'},update:branch});
@@ -128,7 +131,7 @@ async function main() {
         const colour=previous?.colour || source.exterior_color || null;
         const transmission=({1:'MANUAL',2:'AUTOMATIC'} as const)[r.transmission_type_id as 1|2] ?? previous?.transmission ?? 'UNKNOWN';
         const fuelType=strictSource ? ({1:'PETROL',2:'DIESEL',3:'ELECTRIC',4:'HYBRID'} as const)[r.fuel_type_id as 1|2|3|4] ?? 'OTHER' : previous?.fuelType ?? 'OTHER'; // Explicit source ID mapping; unknown IDs retain OTHER plus the untouched raw ID.
-        const drivetrain=({ '4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR','AWD':'AWD','FWD':'FWD','RWD':'RWD' } as Record<string,Drivetrain>)[r.driven_wheels] ?? previous?.drivetrain ?? null;
+        const drivetrain=({ '4X2':'4x2','4X4':'4x4','AWD':'AWD','FWD':'FWD','RWD':'RWD' } as Record<string,Drivetrain>)[r.driven_wheels] ?? previous?.drivetrain ?? null;
         const id=key;
         const images=(r.photos ?? []).map((p:string,position:number)=>{
           const sourceUrl=imageUrl(r,p), local=strictSource ? {url:sourceUrl,size:null} : localImage(sourceUrl);

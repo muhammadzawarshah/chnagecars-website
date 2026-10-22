@@ -11,7 +11,7 @@ const os = require('node:os');
 const path = require('node:path');
 const ts = require('typescript');
 
-// The website is the repository root (backend/ sits inside it); a side-by-side ../frontend folder also works.
+// The website is ../frontend next to backend/ (older layouts with the website at the repository root also work).
 const defaultFrontend = [path.join(__dirname, '..', '..'), path.join(__dirname, '..', '..', 'frontend')].find((dir) => fs.existsSync(path.join(dir, 'app', 'lib', 'cars', 'mockCars.ts')));
 const frontend = path.resolve(process.argv[2] ?? defaultFrontend ?? '.');
 const lib = path.join(frontend, 'app', 'lib');

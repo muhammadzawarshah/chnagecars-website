@@ -15,17 +15,18 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { ConditionGrade, FuelType, Province, SellRequestStatus, SellRequestType, Transmission } from '../../../generated/prisma/client';
+import { ConditionGrade, FuelType, SellRequestStatus, SellRequestType, Transmission } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 import { ALLOWED_IMAGE_TYPES } from '../../../infrastructure/storage/storage.service';
 import { ContactDto } from '../../enquiries/dto/enquiry.dto';
+import { Province, provinceInput } from '../../../common/utils/province';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 
 /** FR-08 sell-your-vehicle / FR-09 valuation request: personal info + vehicle info in one submission. */
 export class CreateSellRequestDto extends ContactDto {
   @ApiProperty({ enum: SellRequestType, description: 'SELL = wants offers, VALUATION = estimate only' }) @IsEnum(SellRequestType) type: SellRequestType;
-  @ApiProperty({ enum: Province }) @IsEnum(Province) province: Province;
+  @ApiProperty({ enum: Province }) @Transform(provinceInput) @IsEnum(Province) province: Province;
   @ApiPropertyOptional() @IsOptional() @Transform(trim) @IsString() @MaxLength(120) city?: string;
 
   @ApiPropertyOptional({ description: 'Catalogue ids give the most accurate valuation' }) @IsOptional() @IsUUID() makeId?: string;

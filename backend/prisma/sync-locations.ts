@@ -11,35 +11,24 @@ import 'dotenv/config';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Province } from '../src/generated/prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { Province } from '../src/common/utils/province';
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
 const CACHE_FILE = resolve(__dirname, 'fixtures/sa-locations.json');
 const ALL = process.argv.includes('--all');
 
-const PROVINCE_NAMES: Record<Province, string> = {
-  EASTERN_CAPE: 'Eastern Cape',
-  FREE_STATE: 'Free State',
-  GAUTENG: 'Gauteng',
-  KWAZULU_NATAL: 'KwaZulu-Natal',
-  LIMPOPO: 'Limpopo',
-  MPUMALANGA: 'Mpumalanga',
-  NORTHERN_CAPE: 'Northern Cape',
-  NORTH_WEST: 'North West',
-  WESTERN_CAPE: 'Western Cape',
-};
-
 /** Rough province centre and radius (km), to reject a same-named suburb in another province. */
 const PROVINCE_AREA: Record<Province, [number, number, number]> = {
-  EASTERN_CAPE: [-32.5, 26.5, 400],
-  FREE_STATE: [-28.5, 26.8, 350],
-  GAUTENG: [-26.1, 28.1, 120],
-  KWAZULU_NATAL: [-29.0, 30.9, 350],
-  LIMPOPO: [-23.8, 29.5, 350],
-  MPUMALANGA: [-25.8, 30.3, 250],
-  NORTHERN_CAPE: [-29.0, 21.8, 500],
-  NORTH_WEST: [-26.2, 25.8, 350],
-  WESTERN_CAPE: [-33.5, 20.0, 400],
+  [Province.EASTERN_CAPE]: [-32.5, 26.5, 400],
+  [Province.FREE_STATE]: [-28.5, 26.8, 350],
+  [Province.GAUTENG]: [-26.1, 28.1, 120],
+  [Province.KWAZULU_NATAL]: [-29.0, 30.9, 350],
+  [Province.LIMPOPO]: [-23.8, 29.5, 350],
+  [Province.MPUMALANGA]: [-25.8, 30.3, 250],
+  [Province.NORTHERN_CAPE]: [-29.0, 21.8, 500],
+  [Province.NORTH_WEST]: [-26.2, 25.8, 350],
+  [Province.WESTERN_CAPE]: [-33.5, 20.0, 400],
 };
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -48,8 +37,8 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const inProvince = ([lat, lng]: [number, number], province: Province) => {
-  const [centreLat, centreLng, radius] = PROVINCE_AREA[province];
+const inProvince = ([lat, lng]: [number, number], province: string) => {
+  const [centreLat, centreLng, radius] = PROVINCE_AREA[province as Province];
   return distanceKm(lat, lng, centreLat, centreLng) <= radius;
 };
 
@@ -87,9 +76,9 @@ function addressPlaces(address: string): string[] {
  * Most specific first: suburb + town from the address (suburb names repeat across the country,
  * so the town disambiguates), then the branch city, then the town alone.
  */
-function queries(branch: { address: string | null; city: string; province: Province }): string[] {
+function queries(branch: { address: string | null; city: string; province: string }): string[] {
   const places = addressPlaces(branch.address ?? '');
-  const province = PROVINCE_NAMES[branch.province];
+  const province = branch.province;
   const list: string[] = [];
   if (places.length >= 2) list.push(`${places.slice(-2).join(', ')}, South Africa`);
   if (branch.city) list.push(`${branch.city}, ${province}, South Africa`, `${branch.city}, South Africa`);

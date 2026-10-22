@@ -70,7 +70,7 @@ None
 | title          | string                            | No       |
 | make           | string                            | No       |
 | model          | string                            | No       |
-| year           | number                            | No       |
+| year           | number                            | Yes      |
 | price          | number                            | No       |
 | bodyType       | string                            | No       |
 | fuel           | string                            | No       |

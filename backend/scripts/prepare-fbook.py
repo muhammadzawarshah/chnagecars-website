@@ -26,7 +26,7 @@ if len(set(ids)) != len(ids): raise ValueError('Duplicate vehicle IDs in feed')
 (fixture/'listings.json').write_text(json.dumps(rows, ensure_ascii=False))
 print(f'Prepared {len(rows)} listings, {len(set(r["dealer_id"] for r in rows))} dealers', flush=True)
 if a.prepare_only: raise SystemExit()
-output = ROOT/'public/media/fbook'
+output = ROOT/'frontend/public/media/fbook'
 output.mkdir(parents=True, exist_ok=True)
 jobs = [(r['vehicle_id'], i, url) for r in rows for i, url in enumerate(r['images'])]
 def valid_image(path):

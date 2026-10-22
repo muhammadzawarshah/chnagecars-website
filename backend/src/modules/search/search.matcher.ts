@@ -1,7 +1,7 @@
 import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
 import { splitCsv } from '../../common/utils/strings';
 import { SearchCriteriaDto } from './dto/search.dto';
-import { COLLECTION_RULES, cylinderValues, enumValues, haversineKm, makeModelGroups, seatFilter } from './search.builder';
+import { COLLECTION_RULES, cylinderValues, drivetrainValues, enumValues, provinceValues, haversineKm, makeModelGroups, seatFilter } from './search.builder';
 
 /** Everything the matcher needs to know about one vehicle. */
 export interface VehicleSnapshot {
@@ -71,8 +71,8 @@ export function matchesCriteria(vehicle: VehicleSnapshot, criteria: SearchCriter
   if (!inEnum(enumValues('condition', criteria.condition), vehicle.condition)) return false;
   if (!inEnum(enumValues('fuelType', criteria.fuelType), vehicle.fuelType)) return false;
   if (!inEnum(enumValues('transmission', criteria.transmission), vehicle.transmission)) return false;
-  if (!inEnum(enumValues('drivetrain', criteria.drivetrain), vehicle.drivetrain)) return false;
-  if (!inEnum(enumValues('province', criteria.province), vehicle.province)) return false;
+  if (!inEnum(drivetrainValues(criteria.drivetrain), vehicle.drivetrain)) return false;
+  if (!inEnum(provinceValues(criteria.province), vehicle.province)) return false;
 
   const categories = expandBodyTypeSlugs(splitCsv(criteria.category).map((value) => value.toLowerCase()));
   if (categories.length && !categories.some((slug) => vehicle.categorySlugs.includes(slug))) return false;

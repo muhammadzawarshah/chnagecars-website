@@ -1,7 +1,9 @@
 # Local setup
 
-Dependencies are installed in the root and `backend/`. Local environment files
-are `.env.local` and `backend/.env`; keep these private.
+The repository has three separate apps: `backend/` (API), `frontend/` (customer
+website) and `superadmin/` (super admin console). Each has its own dependencies.
+Local environment files are `frontend/.env.local`, `superadmin/.env.local` and
+`backend/.env`; keep these private.
 
 PostgreSQL 17 uses the isolated, git-ignored directory `backend/.pgdata` and port
 55432. Existing PostgreSQL services are unaffected.
@@ -12,7 +14,7 @@ From the repository root, start the database if it is stopped:
 pg_ctl -D backend/.pgdata -l backend/.local/postgres.log -o '-h 127.0.0.1 -p 55432 -k /private/tmp' start
 ```
 
-Run the API and frontend in separate terminals:
+Run the API, website and super admin console in separate terminals:
 
 ```sh
 cd backend
@@ -20,10 +22,21 @@ npm run start:dev
 ```
 
 ```sh
+cd frontend
 NODE_USE_SYSTEM_CA=1 npm run dev -- --webpack --hostname 127.0.0.1
 ```
 
+```sh
+cd superadmin
+npm run dev -- --webpack --port 3001
+```
+
+For local use set `SUPERADMIN_URL=http://localhost:3001` in `frontend/.env.local`
+and `API_URL=http://localhost:4000/api/v1`, `SESSION_COOKIE_SECURE=false` in
+`superadmin/.env.local`.
+
 - Website: http://localhost:3000
+- Super admin: http://localhost:3001
 - API docs: http://localhost:4000/docs
 - Database: 127.0.0.1:55432, database/user/password `changecars` (local only).
 - Demo customer: `customer@example.com` / `Password123`
@@ -49,7 +62,7 @@ API cars endpoint and database health checks respond successfully.
 The full user-provided XML vehicle feed is now imported. See
 [the feed seed guide](backend/prisma/fixtures/fbook/README.md) for repeatable
 imports, image downloads, bulk media sync and source-field verification.
-Downloaded feed images are stored under `public/media/fbook/` and are excluded
+Downloaded feed images are stored under `frontend/public/media/fbook/` and are excluded
 from Git; copy this directory with the app when moving the setup.
 
 Final full-feed verification: 30,011 published feed vehicles, 744 feed dealers,

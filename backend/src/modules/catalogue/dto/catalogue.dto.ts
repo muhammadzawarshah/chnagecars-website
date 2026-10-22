@@ -17,7 +17,8 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Drivetrain, FeatureAvailability, FuelType, Transmission } from '../../../generated/prisma/client';
+import { FeatureAvailability, FuelType, Transmission } from '../../../generated/prisma/client';
+import { DRIVETRAINS, Drivetrain, toDrivetrain } from '../../../common/utils/drivetrain';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 const YEAR_MIN = 1900;
@@ -110,7 +111,7 @@ export class SpecificationDto {
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(3000) torqueNm?: number;
   @ApiPropertyOptional({ enum: Transmission }) @IsOptional() @IsEnum(Transmission) transmission?: Transmission;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(12) gears?: number;
-  @ApiPropertyOptional({ enum: Drivetrain }) @IsOptional() @IsEnum(Drivetrain) drivetrain?: Drivetrain;
+  @ApiPropertyOptional({ enum: DRIVETRAINS }) @IsOptional() @Transform(({ value }) => toDrivetrain(value) ?? value) @IsIn(DRIVETRAINS) drivetrain?: Drivetrain;
   @ApiPropertyOptional({ enum: FuelType }) @IsOptional() @IsEnum(FuelType) fuelType?: FuelType;
   @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) @Max(50) fuelConsumptionL100?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(1000) co2GKm?: number;

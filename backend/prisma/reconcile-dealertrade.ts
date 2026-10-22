@@ -27,7 +27,7 @@ function cachedImage(url:string){
   const u=new URL(url);if(u.protocol!=='https:'||u.hostname!=='www.changecars.co.za')throw Error('Untrusted source image host');
   const ext=u.pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase()??'.jpg';
   if(process.env.DEALERTRADE_REMOTE_IMAGES==='1')return {url,sizeBytes:null,contentType:ext==='.png'?'image/png':ext==='.webp'?'image/webp':'image/jpeg'};
-  const path='/media/dealertrade/'+createHash('sha256').update(url).digest('hex')+ext,file=resolve(root,'public',path.slice(1));
+  const path='/media/dealertrade/'+createHash('sha256').update(url).digest('hex')+ext,file=resolve(root,'frontend/public',path.slice(1));
   return {url:existsSync(file)&&statSync(file).size>16?path:url,sizeBytes:existsSync(file)&&statSync(file).size>16?statSync(file).size:null,contentType:ext==='.png'?'image/png':ext==='.webp'?'image/webp':'image/jpeg'};
 }
 async function state(){
@@ -72,7 +72,7 @@ async function plan(){
     if(!empty(r.featured)&&[0,1,false,true].includes(r.featured))patch.isFeatured=Boolean(r.featured);
     if(!empty(r.type)){const condition=({New:'NEW',Used:'USED',Demo:'DEMO'}as Row)[r.type];if(condition)patch.condition=condition;else issues.push({kind:'vehicle',externalId,field:'type',reason:'Unmapped condition; raw source retained'});}
     const transmission=({1:'MANUAL',2:'AUTOMATIC'}as Row)[r.transmission_type_id];if(transmission)patch.transmission=transmission;
-    const drive=({'4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR',AWD:'AWD',FWD:'FWD',RWD:'RWD'}as Row)[r.driven_wheels];if(!empty(r.driven_wheels)&&drive)patch.drivetrain=drive;
+    const drive=({'4X2':'4x2','4X4':'4x4',AWD:'AWD',FWD:'FWD',RWD:'RWD'}as Row)[r.driven_wheels];if(!empty(r.driven_wheels)&&drive)patch.drivetrain=drive;
     if(!empty(r.discount_price)){
       const value=integer(r.discount_price),price=patch.price??v?.price;
       if(value===0){patch.specialPrice=null;patch.isSpecial=false;}
@@ -135,7 +135,7 @@ async function plan(){
       if(values.length===1&&values[0]!==undefined)spec[to]=values[0];else if(values.length>1)issues.push({kind:'variant',externalId:String(r.model_variant_id),field:from,reason:'Conflicting shared specifications retained on individual vehicle rows/JSON; existing shared value preserved'});
     }
     const transmissions=[...new Set(group.map(x=>({1:'MANUAL',2:'AUTOMATIC'}as Row)[x.transmission_type_id]).filter(Boolean))];if(transmissions.length===1)spec.transmission=transmissions[0];
-    const drives=[...new Set(group.map(x=>({'4X2':'FOUR_X_TWO','4X4':'FOUR_X_FOUR',AWD:'AWD',FWD:'FWD',RWD:'RWD'}as Row)[x.driven_wheels]).filter(Boolean))];if(drives.length===1)spec.drivetrain=drives[0];
+    const drives=[...new Set(group.map(x=>({'4X2':'4x2','4X4':'4x4',AWD:'AWD',FWD:'FWD',RWD:'RWD'}as Row)[x.driven_wheels]).filter(Boolean))];if(drives.length===1)spec.drivetrain=drives[0];
     spec.extra=mergeProvided(specification?.extra,{source:'dealertrade',model_variant_id:r.model_variant_id,...(validDate?{introduction_date:date}:{})});
     variantPlans.push({id,before:existing?json(variantColumns):null,create,patch:existing?changedFields(json(variantColumns),data):{},specBefore:specification?json(specification):null,specPatch:specification?changedFields(json(specification),spec):spec});
     for(const sourceRow of group){const v=vehicleByExternal.get(String(sourceRow.vehicle_id))!;if(v.create)v.create.variantId=id;else if(v.before.variantId!==id)v.patch.variantId=id;}

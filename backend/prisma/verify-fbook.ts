@@ -26,11 +26,11 @@ async function verify() {
         assert.equal(v.images.length, row.images.length);
         for (const image of v.images) {
             if (image.url === '/img/feed-image-unavailable.png') {
-                assert.ok(existsSync(resolve(__dirname, '../../public', image.url.slice(1))));
+                assert.ok(existsSync(resolve(__dirname, '../../frontend/public', image.url.slice(1))));
                 placeholders++;
             }
             if (image.url?.startsWith('/media/fbook/')) {
-                assert.ok(existsSync(resolve(__dirname, '../../public', image.url.slice(1))), image.url);
+                assert.ok(existsSync(resolve(__dirname, '../../frontend/public', image.url.slice(1))), image.url);
                 local++;
             }
         }

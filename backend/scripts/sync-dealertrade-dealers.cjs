@@ -33,11 +33,11 @@ function page(number) {
   try {
     await db.query('BEGIN');
     const sources=(await db.query(`SELECT * FROM source_feed_records WHERE source='dealertrade' AND kind='dealer' FOR UPDATE`)).rows;
-    const dealers=(await db.query(`SELECT id,name,phone,email,address,description FROM dealers WHERE id=ANY($1::text[]) FOR UPDATE`,[ids])).rows;
+    const dealers=(await db.query(`SELECT id,name,phone,email,address,description,"googleReviewUrl","hellopeterReviewUrl" FROM dealers WHERE id=ANY($1::text[]) FOR UPDATE`,[ids])).rows;
     const vehicles=(await db.query(`SELECT id,"dealerId","sourceData" ? 'dealertradeDealer' AS "hadKey","sourceData"->'dealertradeDealer' AS "oldDealerPayload" FROM vehicles WHERE "dealerId"=ANY($1::text[]) FOR UPDATE`,[ids])).rows;
     fs.writeFileSync(path.join(directory,'before.json'),JSON.stringify({sources,dealers,vehicles},null,2));
     const fieldChanges={}; const byId=new Map(rows.map(r=>[String(r.dealer_id),r]));
-    const mapping={dealer_name:'name',telephone:'phone',email:'email',address:'address',description:'description'};
+    const mapping={dealer_name:'name',telephone:'phone',email:'email',address:'address',description:'description',google_review:'googleReviewUrl',peter_review:'hellopeterReviewUrl'};
     for(const d of dealers) for(const [source,dest] of Object.entries(mapping)) if(typeof byId.get(d.id)[source]==='string'&&byId.get(d.id)[source]!==d[dest])fieldChanges[dest]=(fieldChanges[dest]||0)+1;
     let sourceUpdates=0,vehicleUpdates=0;
     if(apply) {

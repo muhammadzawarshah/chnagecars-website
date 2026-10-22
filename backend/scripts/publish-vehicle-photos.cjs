@@ -43,7 +43,7 @@ const contentType = (file) => /\.png$/i.test(file) ? 'image/png' : /\.webp$/i.te
 const publicUrl = (name, downloadToken) => `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(bucket)}/o/${encodeURIComponent(name)}?alt=media&token=${encodeURIComponent(downloadToken)}`;
 
 async function publish(local) {
-    const body = fs.readFileSync(path.join(root, 'public', local));
+    const body = fs.readFileSync(path.join(root, 'frontend/public', local));
     const name = `changecars/vehicles/${local.replace(/^\/media\//, '')}`;
     const md5 = crypto.createHash('md5').update(body).digest('base64');
     const headers = { authorization: `Bearer ${await auth()}` };

@@ -11,7 +11,7 @@ const hilux: VehicleSnapshot = {
   fuelType: 'DIESEL',
   transmission: 'AUTOMATIC',
   drivetrain: 'FOUR_X_FOUR',
-  province: 'GAUTENG',
+  province: 'Gauteng',
   city: 'Sandton',
   colour: 'White',
   dealerSlug: 'sandton-auto',
@@ -53,7 +53,7 @@ describe('search criteria', () => {
     expect(matchesCriteria(hilux, { fuelType: 'PETROL' }, now)).toBe(false);
     expect(matchesCriteria(hilux, { maxPrice: 600_000 }, now)).toBe(false);
     expect(matchesCriteria(hilux, { minPrice: 700_000, maxPrice: 600_000 }, now)).toBe(true); // swapped bounds are normalised
-    expect(matchesCriteria(hilux, { category: 'double-cabs', province: 'GAUTENG' }, now)).toBe(true);
+    expect(matchesCriteria(hilux, { category: 'double-cabs', province: 'Gauteng' }, now)).toBe(true);
     expect(matchesCriteria(hilux, { q: 'hilux legend' }, now)).toBe(true);
     expect(matchesCriteria(hilux, { q: 'hilux raider' }, now)).toBe(false);
     expect(matchesCriteria(hilux, { seats: '7,8+' }, now)).toBe(false);

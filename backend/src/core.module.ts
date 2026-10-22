@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { WebAwareThrottlerGuard } from './common/guards/web-throttler.guard';
 import { CacheHeadersInterceptor } from './common/interceptors/cache-headers.interceptor';
+import { ProvinceLabelInterceptor } from './common/interceptors/province-label.interceptor';
 import { IdempotencyInterceptor } from './common/interceptors/idempotency.interceptor';
 import { AuditModule } from './infrastructure/audit/audit.service';
 import { CacheModule } from './infrastructure/cache/cache.service';
@@ -88,6 +89,8 @@ export const INFRASTRUCTURE_MODULES = [
     { provide: APP_GUARD, useClass: WebAwareThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    // Registered first so it is outermost and also covers replayed/idempotent responses.
+    { provide: APP_INTERCEPTOR, useClass: ProvinceLabelInterceptor },
     { provide: APP_INTERCEPTOR, useClass: DealerTradeIdentityInterceptor },
     { provide: APP_INTERCEPTOR, useClass: CacheHeadersInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },

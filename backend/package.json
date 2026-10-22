@@ -29,6 +29,8 @@
     "feed:verify": "tsx prisma/verify-fbook.ts",
     "feed:sync-images": "tsx prisma/sync-fbook-images.ts",
     "feed:locations": "tsx prisma/sync-locations.ts",
+    "blogs:import": "tsx prisma/import-website-blogs.ts",
+    "home-content:import": "tsx prisma/import-website-home-content.ts",
     "dealertrade:fetch": "python3 scripts/fetch-dealertrade.py",
     "dealertrade:images": "python3 scripts/download-dealertrade.py",
     "dealertrade:import": "tsx prisma/import-dealertrade.ts",

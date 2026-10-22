@@ -1,3 +1,4 @@
+import { DRIVETRAINS, Drivetrain, toDrivetrain } from '../../../common/utils/drivetrain';
 import { IsMarketplaceId, ParseMarketplaceIdPipe } from '../../../common/pipes/marketplace-id.pipe';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
@@ -21,15 +22,14 @@ import {
   Min,
 } from 'class-validator';
 import {
-  Drivetrain,
   FuelType,
-  Province,
   Transmission,
   VehicleCondition,
   VehicleStatus,
 } from '../../../generated/prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 import { ALLOWED_IMAGE_TYPES } from '../../../infrastructure/storage/storage.service';
+import { Province, provinceInput } from '../../../common/utils/province';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 const YEAR_MAX = new Date().getFullYear() + 1;
@@ -53,7 +53,7 @@ export class CreateVehicleDto {
 
   @ApiPropertyOptional({ enum: Transmission }) @IsOptional() @IsEnum(Transmission) transmission?: Transmission;
   @ApiPropertyOptional({ enum: FuelType }) @IsOptional() @IsEnum(FuelType) fuelType?: FuelType;
-  @ApiPropertyOptional({ enum: Drivetrain }) @IsOptional() @IsEnum(Drivetrain) drivetrain?: Drivetrain;
+  @ApiPropertyOptional({ enum: DRIVETRAINS }) @IsOptional() @Transform(({ value }) => toDrivetrain(value) ?? value) @IsIn(DRIVETRAINS) drivetrain?: Drivetrain;
   @ApiPropertyOptional() @IsOptional() @Transform(trim) @IsString() @MaxLength(40) colour?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(20000) engineCapacityCc?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(2000) powerKw?: number;
@@ -65,7 +65,7 @@ export class CreateVehicleDto {
   @IsOptional() @Transform(({ value }) => (typeof value === 'string' ? value.trim().toUpperCase() : value)) @Matches(/^[A-HJ-NPR-Z0-9]{11,17}$/, { message: 'vin must be a valid VIN' }) vin?: string;
   @ApiPropertyOptional({ description: 'Private, never shown publicly' }) @IsOptional() @Transform(trim) @IsString() @MaxLength(20) registrationNumber?: string;
 
-  @ApiPropertyOptional({ enum: Province, description: 'Defaults to the branch/dealer province' }) @IsOptional() @IsEnum(Province) province?: Province;
+  @ApiPropertyOptional({ enum: Province, description: 'Defaults to the branch/dealer province' }) @IsOptional() @Transform(provinceInput) @IsEnum(Province) province?: Province;
   @ApiPropertyOptional() @IsOptional() @Transform(trim) @IsString() @MaxLength(120) city?: string;
   @ApiPropertyOptional() @IsOptional() @IsLatitude() latitude?: number;
   @ApiPropertyOptional() @IsOptional() @IsLongitude() longitude?: number;

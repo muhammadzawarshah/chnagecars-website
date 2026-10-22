@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,7 +15,9 @@
 
 # next.js
 /.next/
+/frontend/.next/
 /out/
+/frontend/out/
 
 # production
 /build
@@ -47,13 +49,19 @@ next-env.d.ts
 !.env.example
 
 # Downloaded feed media and generated import reports
-/public/media/fbook/
+/frontend/public/media/fbook/
 /backend/prisma/fixtures/fbook/listings.json
 /backend/prisma/fixtures/fbook/images.json
 /backend/prisma/fixtures/fbook/*-report.json
 /backend/prisma/fixtures/fbook/curl-downloads.conf
 /backend/.local/
-/public/media/dealertrade/
+/frontend/public/media/dealertrade/
 
 # Service account keys (never commit)
 /backend/.secrets/
+
+# Local database dumps, archives and client handover packages (never commit)
+*.dump
+*.zip
+/client-handover/
+/superadmin-client/

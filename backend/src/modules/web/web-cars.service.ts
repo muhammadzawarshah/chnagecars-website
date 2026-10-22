@@ -12,7 +12,6 @@ import {
   BAKKIE_SLUGS,
   COLLECTION_CATEGORIES,
   FUEL_LABELS,
-  PROVINCE_NAMES,
   TRANSMISSION_LABELS,
   bodyTypeLabel,
   bodyTypeSlugs,
@@ -40,6 +39,10 @@ const MAX_ALL_CARS = 1000;
 const MAX_LIMIT = 48;
 /** Featured cars the random pick is drawn from. */
 const MAX_FEATURED_POOL = 500;
+/** Recent and featured cars need a real model year: excludes null as well as 0 or junk values from feeds. */
+const WITH_YEAR = { year: { gte: 1900 } } satisfies Prisma.VehicleWhereInput;
+/** Recent cars are shuffled from this many newest listings. */
+const RECENT_POOL = 100;
 
 /** Fisher–Yates shuffle into a new array. */
 function shuffle<T>(items: T[]): T[] {
@@ -154,7 +157,7 @@ const carSelect = {
     take: 24,
     select: { url: true, largeUrl: true, mediumUrl: true },
   },
-  dealer: { select: { id: true, name: true, logoUrl: true, address: true, phone: true, email: true, rating: true } },
+  dealer: { select: { id: true, name: true, logoUrl: true, address: true, phone: true, email: true, rating: true, googleReviewUrl: true, hellopeterReviewUrl: true } },
   branch: { select: { address: true, operatingHours: true } },
 } satisfies Prisma.VehicleSelect;
 
@@ -169,7 +172,7 @@ export function toWebCar(row: CarRow) {
   if ((row.sourceData as { importPolicy?: string } | null)?.importPolicy !== 'dealertrade-only' && row.variant?.bodyCategory) slugs.push(row.variant.bodyCategory.slug);
   const gallery = row.images.map((image) => image.largeUrl ?? image.url ?? image.mediumUrl).filter((url): url is string => !!url);
   const image = row.primaryImageUrl ?? gallery[0] ?? NO_IMAGE;
-  const province = PROVINCE_NAMES[row.province];
+  const province = row.province;
   const effPrice = effectivePrice(row);
   const r = 0.125 / 12;
   const monthly = effPrice <= 0 ? 0 : Math.round((effPrice * r) / (1 - Math.pow(1 + r, -72)));
@@ -203,6 +206,9 @@ export function toWebCar(row: CarRow) {
       logo: row.dealer.logoUrl ?? undefined,
       address: row.branch?.address ?? row.dealer.address ?? undefined,
       ...sourceDealer,
+      // The vehicle's own source snapshot first, then the review links stored on the dealer.
+      googleReviewUrl: sourceDealer.googleReviewUrl ?? row.dealer.googleReviewUrl ?? null,
+      hellopeterReviewUrl: sourceDealer.hellopeterReviewUrl ?? row.dealer.hellopeterReviewUrl ?? null,
       hours: sourceDealer.hours ?? hoursRows(row.branch?.operatingHours),
     },
     location: `${row.city}, ${province}`,
@@ -288,18 +294,34 @@ export class WebCarsService {
     return rows.map(toWebCar);
   }
 
-  /** A fresh random pick and order on every call, so each hit shows the featured cars shuffled. */
+  /** One dealer's listed cars, newest first (same cap as all()); used by the featured dealer pages. */
+  async dealerStock(dealerId: string) {
+    const rows = await this.db.vehicle.findMany({ where: this.publicWhere({ dealerId }), select: carSelect, orderBy: ORDER.recent, take: MAX_ALL_CARS });
+    return rows.map(toWebCar);
+  }
+
+  /** A fresh random pick and order on every call, so each hit shows the featured cars shuffled. Listings without a year are left out. */
   async featured(limit?: number) {
-    const candidates = await this.db.vehicle.findMany({ where: this.publicWhere({ isFeatured: true }), select: { id: true }, take: MAX_FEATURED_POOL });
+    const candidates = await this.db.vehicle.findMany({ where: this.publicWhere({ isFeatured: true, ...WITH_YEAR }), select: { id: true }, take: MAX_FEATURED_POOL });
     const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, clampLimit(limit, 6));
     const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
     const byId = new Map(rows.map((row) => [row.id, row]));
     return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
+  /** A fresh random pick from the newest listings on every call; listings without a year are left out. */
   async recent(limit?: number) {
-    const rows = await this.db.vehicle.findMany({ where: this.publicWhere(), select: carSelect, orderBy: ORDER.recent, take: clampLimit(limit, 6) });
-    return rows.map(toWebCar);
+    const take = clampLimit(limit, 6);
+    const candidates = await this.db.vehicle.findMany({
+      where: this.publicWhere({ ...WITH_YEAR }),
+      select: { id: true },
+      orderBy: ORDER.recent,
+      take: Math.max(RECENT_POOL, take),
+    });
+    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, take);
+    const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
   /** Detail page: sold cars stay reachable (marked by the website as sold) and the view is counted. */

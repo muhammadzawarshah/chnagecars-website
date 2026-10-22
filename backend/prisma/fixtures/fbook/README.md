@@ -15,7 +15,7 @@ npm run db:seed:fbook
 npm run feed:verify
 ```
 
-Images download to the website's `public/media/fbook/`; copy this folder along
+Images download to the website's `frontend/public/media/fbook/`; copy this folder along
 with the website when moving environments. Downloads resume from valid existing
 files. `images.json` and `download-report.json` record the outcome of each source
 URL. Uppercase image extensions are retried as lowercase paths; the original URL

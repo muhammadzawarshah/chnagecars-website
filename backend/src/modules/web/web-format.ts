@@ -1,17 +1,17 @@
 import bodyTypes from './body-types.json';
+import { Drivetrain } from '../../common/utils/drivetrain';
 import {
   ConditionGrade,
   DealerPlan,
   DealerStatus,
-  Drivetrain,
   FuelType,
   LeadSource,
   LeadStage,
-  Province,
   Transmission,
   VehicleCondition,
   VehicleStatus,
 } from '../../generated/prisma/client';
+import { Province, toProvince } from '../../common/utils/province';
 
 /**
  * Vocabulary shared with the Next.js website (app/lib/*). The website's types use
@@ -59,25 +59,19 @@ export const ymdhm = (date: Date | null | undefined) => (date ? date.toISOString
 // ───────────── provinces ─────────────
 
 export const PROVINCE_NAMES: Record<Province, string> = {
-  EASTERN_CAPE: 'Eastern Cape',
-  FREE_STATE: 'Free State',
-  GAUTENG: 'Gauteng',
-  KWAZULU_NATAL: 'KwaZulu-Natal',
-  LIMPOPO: 'Limpopo',
-  MPUMALANGA: 'Mpumalanga',
-  NORTHERN_CAPE: 'Northern Cape',
-  NORTH_WEST: 'North West',
-  WESTERN_CAPE: 'Western Cape',
+  [Province.EASTERN_CAPE]: 'Eastern Cape',
+  [Province.FREE_STATE]: 'Free State',
+  [Province.GAUTENG]: 'Gauteng',
+  [Province.KWAZULU_NATAL]: 'KwaZulu-Natal',
+  [Province.LIMPOPO]: 'Limpopo',
+  [Province.MPUMALANGA]: 'Mpumalanga',
+  [Province.NORTHERN_CAPE]: 'Northern Cape',
+  [Province.NORTH_WEST]: 'North West',
+  [Province.WESTERN_CAPE]: 'Western Cape',
 };
 
-const PROVINCE_BY_SLUG = new Map<string, Province>(
-  (Object.entries(PROVINCE_NAMES) as [Province, string][]).flatMap(([value, name]) => [
-    [slugify(name), value],
-    [slugify(value), value],
-  ]),
-);
-
-export const provinceFromName = (name: string): Province | undefined => PROVINCE_BY_SLUG.get(slugify(name));
+/** Accepts names, slugs and legacy enum keys. */
+export const provinceFromName = (name: string): Province | undefined => toProvince(name);
 
 // ───────────── vehicle attributes ─────────────
 
@@ -103,10 +97,10 @@ export function transmissionFromLabel(label: string): Transmission | undefined {
   return (Object.keys(TRANSMISSION_LABELS) as Transmission[]).find((value) => slugify(value) === slug);
 }
 
-const FOUR_BY_FOUR: Drivetrain[] = [Drivetrain.FOUR_X_FOUR, Drivetrain.AWD];
-const FOUR_BY_TWO: Drivetrain[] = [Drivetrain.FWD, Drivetrain.RWD, Drivetrain.FOUR_X_TWO];
+const FOUR_BY_FOUR: Drivetrain[] = ['4x4', 'AWD'];
+const FOUR_BY_TWO: Drivetrain[] = ['FWD', 'RWD', '4x2'];
 
-export const driveLabel = (drivetrain: Drivetrain | null): '4X2' | '4X4' | 'Unknown' => (drivetrain === null ? 'Unknown' : FOUR_BY_FOUR.includes(drivetrain) ? '4X4' : '4X2');
+export const driveLabel = (drivetrain: string | null): '4X2' | '4X4' | 'Unknown' => (drivetrain === null ? 'Unknown' : FOUR_BY_FOUR.includes(drivetrain as Drivetrain) ? '4X4' : '4X2');
 
 export function drivetrainsFromLabel(label: string): Drivetrain[] {
   const value = label.trim().toUpperCase();
