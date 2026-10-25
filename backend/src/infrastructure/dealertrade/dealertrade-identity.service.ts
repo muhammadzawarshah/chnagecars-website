@@ -94,7 +94,7 @@ export class DealerTradeIdentityService {
     try {
       const url = new URL(req.url, 'http://local');
       // Leave account/auth/admin/dealer portal identities and their contracts alone.
-      if (!/\/(vehicles|dealers|customers|me|enquiries|promotions)(\/|$)|\/web\/(cars|forms)(\/|$)/.test(url.pathname) || /\/(admin|dealer|dashboard)\//.test(url.pathname)) return next();
+      if (!/\/(vehicles|dealers|customers|me|enquiries|promotions)(\/|$)|\/web\/(cars|forms)(\/|$)/.test(url.pathname) || /\/(admin|dealer|dealer-app|dashboard)\//.test(url.pathname)) return next();
       await this.refresh();
       const parts = url.pathname.split('/');
       for (let i = 1; i < parts.length; i++) {

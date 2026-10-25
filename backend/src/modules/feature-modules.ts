@@ -18,6 +18,7 @@ import { DealersModule } from './dealers/dealers.module';
 import { HealthModule } from './health/health.controller';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WebModule } from './web/web.module';
+import { DealerAppModule } from './dealer-app/dealer-app.module';
 
 /**
  * Domain modules (brief section 2). Each owns its tables, services and outbox handlers;
@@ -46,4 +47,5 @@ export const FEATURE_MODULES = [
   ConsoleModule,
   SeoModule,
   WebModule,
+  DealerAppModule,
 ];

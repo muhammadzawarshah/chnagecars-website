@@ -397,10 +397,30 @@ model Dealer {
   biddingInvites BiddingInvite[]
   promotions     Promotion[]
   featuredOn     FeaturedDealer[]
+  appTokens      DealerAppToken[]
 
   @@index([status])
   @@index([province])
   @@map("dealers")
+}
+
+/// One opaque credential per dealer/app. Only its SHA-256 hash is persisted.
+model DealerAppToken {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  dealerId    String
+  appName     String
+  tokenHash   String    @unique
+  tokenPrefix String
+  scopes      String[]
+  createdById String    @db.Uuid
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  dealer Dealer @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@index([dealerId, createdAt(sort: Desc)])
+  @@map("dealer_app_tokens")
 }
 
 model DealerDocument {

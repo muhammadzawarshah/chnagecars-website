@@ -7,6 +7,7 @@ export interface RequestContextStore {
   ip?: string;
   userAgent?: string;
   user?: AuthUser;
+  dealerAppTokenId?: string;
 }
 
 /** Read the current request context from anywhere (services, audit, logging). */
@@ -18,5 +19,6 @@ export function requestContext(): RequestContextStore {
     ip: cls.get('ip'),
     userAgent: cls.get('userAgent'),
     user: cls.get('user'),
+    dealerAppTokenId: cls.get('dealerAppTokenId'),
   };
 }

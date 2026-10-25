@@ -25,6 +25,8 @@ describe('original DealerTrade IDs at the HTTP boundary', () => {
     ['/api/v1/dealers/3975', '/api/v1/dealers/dealer-name-fbook-3975'],
     ['/api/v1/vehicles/9999999', '/api/v1/vehicles/9999999'],
     ['/api/v1/admin/vehicles/1556378', '/api/v1/admin/vehicles/1556378'],
+    ['/api/v1/dealer-app/vehicles/1556378', '/api/v1/dealer-app/vehicles/1556378'],
+    ['/api/v1/dealer/vehicles/1556378', '/api/v1/dealer/vehicles/1556378'],
   ])('resolves request %s', async (url, expected) => {
     const identities = service(); const req = { url } as any; const next = jest.fn();
     await identities.request(req, {} as any, next);

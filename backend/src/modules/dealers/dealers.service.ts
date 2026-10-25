@@ -169,7 +169,7 @@ export class DealersService {
     });
   }
 
-  async updateProfile(ctx: DealerContext, dto: UpdateDealerProfileDto) {
+  async updateProfile(ctx: Pick<DealerContext, 'dealerId'>, dto: UpdateDealerProfileDto) {
     const before = await this.prisma.dealer.findUniqueOrThrow({ where: { id: ctx.dealerId } });
     const result = await this.prisma.$transaction(async (tx) => {
       const after = await tx.dealer.update({ where: { id: ctx.dealerId }, data: dto });

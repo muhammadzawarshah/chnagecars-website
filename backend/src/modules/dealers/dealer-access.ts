@@ -46,6 +46,11 @@ export interface DealerAccessOptions {
   allowInactive?: boolean;
 }
 
+/** Shared inventory scope for a human member or a dealer-bound app credential. */
+export type DealerInventoryContext = Pick<DealerContext, 'dealerId' | 'dealerStatus' | 'branchId' | 'wideScope'> & {
+  userId: string | null;
+};
+
 export const DEALER_ACCESS_KEY = 'dealer:access';
 
 /** Protects dealer-portal routes. Tenant isolation is always derived from the member record, never from client input. */
@@ -81,7 +86,7 @@ export class DealerAccessService {
   }
 
   /** Prisma `where` fragment restricting branch-scoped members to their branch. */
-  static branchScope(ctx: DealerContext): { branchId?: string } {
+  static branchScope(ctx: Pick<DealerContext, 'wideScope' | 'branchId'>): { branchId?: string } {
     return ctx.wideScope || !ctx.branchId ? {} : { branchId: ctx.branchId };
   }
 

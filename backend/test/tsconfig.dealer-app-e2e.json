@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.build.json",
+  "compilerOptions": { "rootDir": "..", "incremental": false },
+  "include": ["../src/**/*", "dealer-app.e2e.ts"],
+  "exclude": ["../node_modules", "../dist", "../src/**/*.spec.ts"]
+}

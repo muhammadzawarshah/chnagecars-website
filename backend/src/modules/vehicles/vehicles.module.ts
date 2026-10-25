@@ -11,6 +11,6 @@ import { VehiclesService } from './vehicles.service';
   imports: [CatalogueModule, SearchModule],
   controllers: [PublicVehiclesController, DealerVehiclesController, AdminVehiclesController],
   providers: [VehiclesService, VehicleImagesService, PublicVehiclesService, VehicleEventHandlers, VehicleJobs],
-  exports: [VehiclesService, PublicVehiclesService],
+  exports: [VehiclesService, VehicleImagesService, PublicVehiclesService],
 })
 export class VehiclesModule {}
