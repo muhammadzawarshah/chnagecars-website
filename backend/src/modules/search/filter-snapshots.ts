@@ -13,6 +13,7 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
 import { slugify } from '../../common/utils/strings';
+import { dealerTradeColourId } from '../vehicles/detail-colour';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -26,7 +27,7 @@ export function snapshotPayload(rows: any[]) {
     }
   }
   const dictionaries: Record<string, Record<string, unknown>> = Object.fromEntries(
-    ['make', 'model', 'variant', 'body_type', 'fuel_type', 'transmission', 'drivetrain', 'color', 'condition', 'availability', 'province', 'city', 'dealer'].map(key => [key, {}]),
+    ['make', 'model', 'variant', 'body_type', 'fuel_type', 'transmission', 'drivetrain', 'color', 'color_ids', 'condition', 'availability', 'province', 'city', 'dealer'].map(key => [key, {}]),
   );
   const scalar = (group: string, code: string | null, name?: string) => {
     if (!code) return null;
@@ -49,6 +50,7 @@ export function snapshotPayload(rows: any[]) {
       body_type: categories, fuel_type: scalar('fuel_type', row.fuelType),
       transmission: scalar('transmission', row.transmission), drivetrain: scalar('drivetrain', row.drivetrain),
       color: scalar('color', row.colour?.trim().toLowerCase() || null),
+      color_id: dealerTradeColourId(row),
       condition: scalar('condition', label(row.condition)),
       availability: scalar('availability', row.status === 'PUBLISHED' ? 'available' : 'reserved'),
       province: scalar('province', province, row.province ?? undefined), city,
@@ -59,6 +61,13 @@ export function snapshotPayload(rows: any[]) {
       is_special: row.isSpecial, is_featured: row.isFeatured,
     };
   });
+  // One existing filter colour may have several supplier IDs; keep the relation lossless.
+  for (const vehicle of vehicles) {
+    if (!vehicle.color || vehicle.color_id === null) continue;
+    const ids = (dictionaries.color_ids[vehicle.color] ??= []) as number[];
+    if (!ids.includes(vehicle.color_id)) ids.push(vehicle.color_id);
+  }
+  for (const ids of Object.values(dictionaries.color_ids)) (ids as number[]).sort((a, b) => a - b);
   const cylinders = [...cylinderCounts].sort(([a], [b]) => a - b).map(([value, count]) => ({ value, count }));
   return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders }, vehicles };
 }
@@ -69,7 +78,7 @@ export class FilterSnapshotsService {
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService, private readonly config: AppConfig) {}
 
   async manifest() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v2');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v3');
     const cached = await this.cache.get<any>(key);
     if (cached) return cached;
     if (this.generating) return this.generating;
@@ -78,7 +87,7 @@ export class FilterSnapshotsService {
   }
 
   private async generate(key: string) {
-    const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere({}), select: { ...filterVehicleSelect, specialPrice: true }, orderBy: { id: 'asc' } });
+    const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere({}), select: { ...filterVehicleSelect, specialPrice: true, sourceData: true }, orderBy: { id: 'asc' } });
     // Stable row/category order produces a content-addressed immutable revision.
     for (const row of rows) row.categories.sort((a, b) => a.slug.localeCompare(b.slug));
     const payload = snapshotPayload(rows);

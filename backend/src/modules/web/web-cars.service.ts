@@ -341,6 +341,8 @@ export class WebCarsService {
     });
     return {
       ...toWebCar(row),
+      colour: detail.colour ?? '',
+      colour_id: detail.colour_id,
       technicalSpecifications: detail.technicalSpecifications,
       insights: detail.insights,
       description: detail.description,

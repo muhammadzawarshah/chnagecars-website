@@ -13,6 +13,22 @@ function setup() {
 }
 
 describe('vehicle detail recommendations', () => {
+  it('uses supplier colour in detail and specifications while preserving recommendation colours', async () => {
+    const { service, vehicle } = setup();
+    vehicle.findFirst.mockResolvedValue({ ...card('base'), colour: 'White',
+      sourceData: { importPolicy: 'dealertrade-only', dealertrade: { colour: 'PURE WHITE' } },
+      city: 'Pretoria', province: 'Gauteng', dealer: { address: '' }, branch: null });
+    jest.spyOn(service, 'fromSameDealer').mockResolvedValue([{ ...card('related'), colour: 'White' }] as any);
+    jest.spyOn(service, 'similar').mockResolvedValue([]);
+    jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
+    jest.spyOn(service as any, 'recordView').mockResolvedValue(undefined);
+    const result = await service.detail('base');
+    expect(result.colour).toBe('PURE WHITE');
+    expect(result.technicalSpecifications.colour).toBe('PURE WHITE');
+    expect(result.moreFromThisDealer[0]).toMatchObject({ colour: 'White' });
+    expect(result).not.toHaveProperty('sourceData');
+  });
+
   it('overlays favourites per user without modifying shared cards', async () => {
     const findMany = jest.fn().mockResolvedValueOnce([{ vehicleId: 'base' }]).mockResolvedValueOnce([]);
     const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null);

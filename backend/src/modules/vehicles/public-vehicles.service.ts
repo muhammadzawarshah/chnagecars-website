@@ -10,6 +10,7 @@ import { CatalogueService } from '../catalogue/catalogue.service';
 import { financeExample } from '../finance/finance.calculator';
 import { PUBLIC_DETAIL_STATUSES, PUBLIC_SEARCH_STATUSES } from './vehicle-lifecycle';
 import { effectivePrice, publicVehicleDetailSelect, publicVehicleSelect, withAvailability } from './vehicle.presenter';
+import { detailColour, dealerTradeColourId } from './detail-colour';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VIEWS_KEY = 'cc:views:pending';
@@ -58,7 +59,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
 
   /** FR-04 vehicle detail page. Accepts the SEO slug or the id. */
   async detail(slugOrId: string, viewerId?: string) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:${slugOrId}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:source-colour:v2:${slugOrId}`);
     const vehicle = await this.cache.wrap(key, 300, async () => {
       const row = await this.prisma.replica.vehicle.findFirst({
         where: {
@@ -96,7 +97,8 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
           : location.address || `${location.city}, South Africa`,
       );
       return {
-        ...withAvailability(rest),
+        ...withAvailability({ ...rest, colour: detailColour(rest) }),
+        colour_id: dealerTradeColourId(rest),
         features,
         location,
         mapDetails: {

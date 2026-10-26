@@ -9,6 +9,17 @@ describe('immutable filter snapshots', () => {
     expect(result.options.cylinders).toEqual([{ value: 4, count: 2 }, { value: 12, count: 1 }]);
     expect(result.vehicles[4].cylinders).toBeNull();
   });
+  it('adds supplier IDs while preserving existing colour dictionary keys and labels', () => {
+    const result = snapshotPayload([
+      { ...row, sourceData: { dealertrade: { colour_id: 15, colour: 'FROZEN WHITE' } } },
+      { ...row, id: 'second', sourceData: { dealertrade: { colour_id: 14, colour: 'Pearl White' } } },
+      { ...row, id: 'missing' },
+    ]);
+    expect(result.dictionaries.color).toEqual({ white: 'white' });
+    expect(result.dictionaries.color_ids).toEqual({ white: [14, 15] });
+    expect(result.vehicles.every(v => !('sourceData' in v))).toBe(true);
+    expect(result.vehicles.map(v => [v.color, v.color_id])).toEqual([['white', 15], ['white', 14], ['white', null]]);
+  });
   it('preserves nulls and scopes relationships to dictionary entries', () => {
     const result = snapshotPayload([row]);
     expect(result.vehicles[0]).toMatchObject({ id: 'uuid', model: 'ford:ranger', city: 'free-state:bethlehem', fuel_type: null, mileage: null });
