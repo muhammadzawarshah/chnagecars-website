@@ -1,3 +1,5 @@
+import { titleCase } from '../../common/utils/display-text';
+import { standardColourId } from './standard-colours';
 import { resolveBodyType } from './body-type-mapping';
 import { ImageStatus, Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { availabilityOf } from './vehicle-lifecycle';
@@ -90,6 +92,10 @@ export function withAvailability<T extends { status: VehicleStatus; price: numbe
     ...safeVehicle,
     ...((object(sourceData).importPolicy === 'dealertrade-only' && 'variant' in safeVehicle && safeVehicle.variant) ? { variant: { ...object(safeVehicle.variant), specification: null } } : {}),
     ...fields,
+    colourId: standardColourId((vehicle as T & { colour?: string }).colour),
+    conditionLabel: titleCase(String((vehicle as T & { condition?: string }).condition ?? '').replace(/_/g, ' ')),
+    fuelTypeLabel: titleCase(String((vehicle as T & { fuelType?: string }).fuelType ?? '').replace(/_/g, ' ')),
+    transmissionLabel: titleCase(String((vehicle as T & { transmission?: string }).transmission ?? '')),
     ...('dealer' in safeVehicle && safeVehicle.dealer && typeof safeVehicle.dealer === 'object' ? {
       dealer: { ...safeVehicle.dealer, whatsappNumber: dealerWhatsappNumber(object(sourceData).dealertradeDealer) },
     } : {}),
@@ -134,6 +140,18 @@ export function vehicleSourceLinks(source: unknown) {
   } catch { return { singleVehicleUrl: null, sourceUrl: null }; }
 }
 
+function publicVideoUrl(value: unknown): string | null {
+  try {
+    const url = new URL(text(value) ?? '');
+    return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
+  } catch { return null; }
+}
+function sourceFlag(value: unknown): boolean | null {
+  if (value === 1 || value === '1' || value === true) return true;
+  if (value === 0 || value === '0' || value === false) return false;
+  return null;
+}
+
 export function publicVehicleFields(vehicle: unknown) {
   const row = object(vehicle), source = object(row.sourceData);
   const feed = object(source.dealertrade);
@@ -142,6 +160,12 @@ export function publicVehicleFields(vehicle: unknown) {
   const bodyType = resolveBodyType(feed)?.label ?? null;
   return {
     ...vehicleSourceLinks(row.sourceData),
+    videoUrl: publicVideoUrl(feed.video_url),
+    priceOnApplication: sourceFlag(feed.poa),
+    extras: text(feed.extras) ? titleCase(text(feed.extras)!) : null,
+    comment: text(feed.comment) ? titleCase(text(feed.comment)!) : null,
+    sourceCreatedAt: text(feed.created_at),
+    sourceUpdatedAt: text(feed.updated_at),
     technicalSpecifications: {
       doors: positive(feed.no_doors) ?? positive(row.doors),
       seats: positive(feed.no_seats) ?? positive(row.seats),
@@ -162,6 +186,7 @@ export function publicVehicleFields(vehicle: unknown) {
       turbo === 'N' || turbo === 'NO' ? 'NONE' : turbo === 'YES' ? 'FORCED_INDUCTION' : null,
     bodyTypeId: text(feed.body_type_id),
     bodyTypeRaw: text(feed.body_type),
+    bodyTypeLabel: bodyType ? titleCase(bodyType) : null,
     bodyType,
     frontTyreSize: text(feed.front_tyre_size) ?? text(extra.front_tyre_size),
     rearTyreSize: text(feed.rear_tyre_size) ?? text(extra.rear_tyre_size),
@@ -169,7 +194,7 @@ export function publicVehicleFields(vehicle: unknown) {
     drivetrainSourceId: text(feed.driven_wheels_id),
     mmcode: text(feed.mmcode) ?? text(extra.mmcode),
     stockNumber: text(row.stockNumber) ?? text(feed.stockno),
-    additionalInformation: text(feed.additional_information) ?? text(row.description),
+    additionalInformation: (text(feed.additional_information) ?? text(row.description)) ? titleCase((text(feed.additional_information) ?? text(row.description))!) : null,
     sourceVehicleId: text(feed.vehicle_id) ?? text(source.vehicle_id),
   };
 }

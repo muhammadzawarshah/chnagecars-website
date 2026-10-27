@@ -1,3 +1,4 @@
+import { colourStockOptions } from '../vehicles/standard-colours';
 import { Injectable, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { VehicleStatus } from '../../generated/prisma/client';
 import { toPage } from '../../common/dto/pagination.dto';
@@ -150,7 +151,7 @@ export class SearchService {
       // Read matching public filter fields once; repeated groupBy/count scans each decompress source JSON.
       const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere(criteria), select: filterVehicleSelect });
       const data = buildFilterData(rows);
-      const colour = data.options.colour.map(option => ({ ...option, name: String(option.value).replace(/\b\w/g, letter => letter.toUpperCase()) }));
+      const colour = colourStockOptions(rows);
       return {
         total: data.total,
         ...data.options,

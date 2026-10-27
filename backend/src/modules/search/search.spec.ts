@@ -119,3 +119,20 @@ describe('search criteria', () => {
     expect(criteriaKey({ make: 'BMW', q: '', page: 1 })).toBe(criteriaKey({ page: 1, make: 'bmw' }));
   });
 });
+
+describe('standard colour ID filtering', () => {
+  it('matches white by ID through all aliases and rejects other colours', () => {
+    for (const criteria of [{colourId:'15'}, {colour_id:'15'}, {color_id:'15'}]) {
+      expect(matchesCriteria(hilux, criteria, now)).toBe(true);
+      expect(matchesCriteria({...hilux,colour:'Black'}, criteria, now)).toBe(false);
+      expect(JSON.stringify(buildWhere(criteria))).toContain('White');
+    }
+  });
+  it('supports multiple IDs, Any and Unknown consistently', () => {
+    expect(matchesCriteria(hilux,{colourId:'3,15'},now)).toBe(true);
+    expect(matchesCriteria(hilux,{colourId:'1'},now)).toBe(true);
+    expect(matchesCriteria(hilux,{colourId:'14'},now)).toBe(false);
+    expect(matchesCriteria({...hilux,colour:'Unknown'},{colourId:'14'},now)).toBe(true);
+    expect(JSON.stringify(buildWhere({colourId:'1'}))).not.toContain('colour');
+  });
+});

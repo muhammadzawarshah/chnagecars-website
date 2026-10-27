@@ -12,13 +12,13 @@ describe('immutable filter snapshots', () => {
   it('adds supplier IDs while preserving existing colour dictionary keys and labels', () => {
     const result = snapshotPayload([
       { ...row, sourceData: { dealertrade: { colour_id: 15, colour: 'FROZEN WHITE' } } },
-      { ...row, id: 'second', sourceData: { dealertrade: { colour_id: 14, colour: 'Pearl White' } } },
+      { ...row, id: 'second', colour: 'Unknown', sourceData: { dealertrade: { colour_id: 14, colour: 'Pearl White' } } },
       { ...row, id: 'missing' },
     ]);
-    expect(result.dictionaries.color).toEqual({ white: 'white' });
-    expect(result.dictionaries.color_ids).toEqual({ white: [14, 15] });
+    expect(result.dictionaries.color).toEqual({ white: 'white', unknown: 'unknown' });
+    expect(result.dictionaries.color_ids).toEqual({ white: [15], unknown: [14] });
     expect(result.vehicles.every(v => !('sourceData' in v))).toBe(true);
-    expect(result.vehicles.map(v => [v.color, v.color_id])).toEqual([['white', 15], ['white', 14], ['white', null]]);
+    expect(result.vehicles.map(v => [v.color, v.color_id])).toEqual([['white', 15], ['unknown', 14], ['white', 15]]);
   });
   it('preserves nulls and scopes relationships to dictionary entries', () => {
     const result = snapshotPayload([row]);

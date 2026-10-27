@@ -16,15 +16,17 @@ RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma genera
 FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends tini python3 curl && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-# Generated Prisma client: the seed (`npx prisma db seed`) runs from source with tsx.
-COPY --from=build /app/src/generated ./src/generated
+# Reconciliation imports source mapping helpers and the generated Prisma client via tsx.
+COPY --from=build /app/src ./src
 COPY tsconfig.json ./
 COPY --from=build /app/package.json ./package.json
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY scripts/fetch-dealertrade-reconcile.py ./scripts/fetch-dealertrade-reconcile.py
+COPY scripts/check-dealertrade-sync.cjs ./scripts/check-dealertrade-sync.cjs
 USER node
 EXPOSE 4000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=20s CMD node -e "fetch('http://127.0.0.1:4000/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"

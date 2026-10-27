@@ -40,8 +40,15 @@ export class PublicVehiclesController {
   @Get()
   @ApiOperation({ summary: 'Search, filter and sort listed vehicles (FR-02, FR-03, FR-05, FR-06, FR-07, FR-27)' })
   async searchVehicles(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
-    const result = await this.search.search(query);
-    return { ...result, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
+    const [result, source] = await Promise.all([this.search.search(query), this.vehicles.sourceSummary()]);
+    return { ...result, meta: { ...result.meta, stockCount: result.meta.total, source }, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
+  }
+
+  @Public()
+  @Get('source-summary')
+  @ApiOperation({ summary: 'Latest DealerTrade stock count and source update timestamp (independent of local search counts)' })
+  sourceSummary() {
+    return this.vehicles.sourceSummary();
   }
 
   @Public()
@@ -63,7 +70,7 @@ export class PublicVehiclesController {
   @ApiOperation({ summary: 'colours options and counts for active search filters' })
   async filterColour(@Query() query: SearchCriteriaDto) {
     const facets = await this.search.facets(query);
-    return { total: facets.total, options: facets.colour };
+    return { total: facets.total, stockCount: facets.total, options: facets.colour };
   }
 
   @Public()

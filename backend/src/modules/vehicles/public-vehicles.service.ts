@@ -1,3 +1,4 @@
+import { standardColourId } from './standard-colours';
 import { dealerTradeVehicleWhere } from './dealertrade-visibility';
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
@@ -29,6 +30,22 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     private readonly catalogue: CatalogueService,
     @Inject(REDIS) private readonly redis: RedisClient,
   ) {}
+
+  async sourceSummary() {
+    const record = await this.prisma.replica.sourceFeedRecord.findUnique({
+      where: { source_kind_externalId: { source: 'dealertrade', kind: 'metadata', externalId: 'stock' } },
+      select: { payload: true, fetchedAt: true },
+    });
+    const payload = record?.payload as { meta?: { total_stock_count?: unknown; last_updated?: unknown }; total?: unknown } | undefined;
+    const count = (value: unknown) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
+    return {
+      source: 'dealertrade',
+      total_stock_count: count(payload?.meta?.total_stock_count),
+      last_updated: typeof payload?.meta?.last_updated === 'string' ? payload.meta.last_updated : null,
+      total: count(payload?.total),
+      fetchedAt: record?.fetchedAt ?? null,
+    };
+  }
 
   /**
    * Without Redis, views are counted in this process's memory, which a separate worker process
@@ -99,6 +116,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       return {
         ...withAvailability({ ...rest, colour: detailColour(rest) }),
         colour_id: dealerTradeColourId(rest),
+        colourId: standardColourId(row.colour),
         features,
         location,
         mapDetails: {

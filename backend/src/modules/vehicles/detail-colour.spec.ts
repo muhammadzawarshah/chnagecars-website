@@ -7,8 +7,8 @@ describe('detail-only DealerTrade colours', () => {
     const row = { status: 'PUBLISHED' as const, price: 100000, specialPrice: null, isSpecial: false,
       colour: 'White', sourceData: { dealertrade: { colour: ' FROZEN WHITE ' } } };
     const detail = withAvailability({ ...row, colour: detailColour(row) });
-    expect(detail.colour).toBe('FROZEN WHITE');
-    expect(detail.technicalSpecifications.colour).toBe('FROZEN WHITE');
+    expect(detail.colour).toBe('Frozen White');
+    expect(detail.technicalSpecifications.colour).toBe('Frozen White');
     expect(withAvailability(row).colour).toBe('White');
     expect(row.colour).toBe('White');
     expect(detail).not.toHaveProperty('sourceData');

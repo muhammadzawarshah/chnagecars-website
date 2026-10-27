@@ -1,3 +1,4 @@
+import { standardColourId, colourStockOptions } from '../vehicles/standard-colours';
 import { Prisma } from '../../generated/prisma/client';
 import { COLLECTION_RULES } from './search.builder';
 
@@ -23,6 +24,7 @@ export function buildFilterData(rows: FilterRow[]) {
   const vehicles = rows.map(({ popularityScore, categories, ...row }) => ({
     ...row,
     colour: row.colour?.trim().toLowerCase() || null,
+    colourId: standardColourId(row.colour),
     model: { ...row.model, value: `${row.make.slug}:${row.model.slug}` },
     isHotSeller: popularityScore > 0,
     categories: categories.map(({ isActive, ...category }) => category),
@@ -61,6 +63,7 @@ export function buildFilterData(rows: FilterRow[]) {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     total: vehicles.length,
+    stockCount: vehicles.length,
     collectionRules: COLLECTION_RULES,
     options: {
       makes: options(vehicles.map((row) => row.make), (item) => item.slug),
@@ -69,7 +72,7 @@ export function buildFilterData(rows: FilterRow[]) {
       dealerships: options(vehicles.map((row) => row.dealer), (item) => item.slug),
       branches: options(vehicles.flatMap((row) => row.branchId ? [{ value: row.branchId, dealer: row.dealer.slug }] : []), (item) => item.value),
       categories: options(rows.flatMap((row) => row.categories.filter((item) => item.isActive).map(({ isActive, ...item }) => item)), (item) => item.slug),
-      colour: scalar('colour'), city: scalar('city'), province: scalar('province'),
+      colour: colourStockOptions(rows), city: scalar('city'), province: scalar('province'),
       condition: scalar('condition'), fuelType: scalar('fuelType'), transmission: scalar('transmission'),
       drivetrain: scalar('drivetrain'), seats: scalar('seats'), engineCapacityCc: scalar('engineCapacityCc'), powerKw: scalar('powerKw'),
       cylinders: options(vehicles.flatMap((row) => row.cylinders != null && row.cylinders > 0 ? [{ value: row.cylinders }] : []), (item) => String(item.value)).sort((a, b) => a.value - b.value),

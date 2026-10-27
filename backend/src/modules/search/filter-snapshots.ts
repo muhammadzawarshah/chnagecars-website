@@ -1,3 +1,4 @@
+import { standardColourId, colourStockOptions } from '../vehicles/standard-colours';
 import { createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
@@ -13,7 +14,6 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
 import { slugify } from '../../common/utils/strings';
-import { dealerTradeColourId } from '../vehicles/detail-colour';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -50,7 +50,7 @@ export function snapshotPayload(rows: any[]) {
       body_type: categories, fuel_type: scalar('fuel_type', row.fuelType),
       transmission: scalar('transmission', row.transmission), drivetrain: scalar('drivetrain', row.drivetrain),
       color: scalar('color', row.colour?.trim().toLowerCase() || null),
-      color_id: dealerTradeColourId(row),
+      color_id: standardColourId(row.colour),
       condition: scalar('condition', label(row.condition)),
       availability: scalar('availability', row.status === 'PUBLISHED' ? 'available' : 'reserved'),
       province: scalar('province', province, row.province ?? undefined), city,
@@ -61,7 +61,7 @@ export function snapshotPayload(rows: any[]) {
       is_special: row.isSpecial, is_featured: row.isFeatured,
     };
   });
-  // One existing filter colour may have several supplier IDs; keep the relation lossless.
+  // Expose canonical list_colours IDs alongside the existing filter colour keys.
   for (const vehicle of vehicles) {
     if (!vehicle.color || vehicle.color_id === null) continue;
     const ids = (dictionaries.color_ids[vehicle.color] ??= []) as number[];
@@ -69,7 +69,7 @@ export function snapshotPayload(rows: any[]) {
   }
   for (const ids of Object.values(dictionaries.color_ids)) (ids as number[]).sort((a, b) => a - b);
   const cylinders = [...cylinderCounts].sort(([a], [b]) => a - b).map(([value, count]) => ({ value, count }));
-  return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders }, vehicles };
+  return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders, colour: colourStockOptions(rows) }, vehicles };
 }
 
 @Injectable()

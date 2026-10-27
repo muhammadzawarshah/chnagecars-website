@@ -32,6 +32,7 @@
     "feed:locations": "tsx prisma/sync-locations.ts",
     "blogs:import": "tsx prisma/import-website-blogs.ts",
     "home-content:import": "tsx prisma/import-website-home-content.ts",
+    "dealertrade:sync:status": "node scripts/check-dealertrade-sync.cjs",
     "dealertrade:fetch": "python3 scripts/fetch-dealertrade.py",
     "dealertrade:images": "python3 scripts/download-dealertrade.py",
     "dealertrade:import": "tsx prisma/import-dealertrade.ts",

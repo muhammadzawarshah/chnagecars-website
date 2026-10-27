@@ -23,8 +23,8 @@ describe('vehicle detail recommendations', () => {
     jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
     jest.spyOn(service as any, 'recordView').mockResolvedValue(undefined);
     const result = await service.detail('base');
-    expect(result.colour).toBe('PURE WHITE');
-    expect(result.technicalSpecifications.colour).toBe('PURE WHITE');
+    expect(result.colour).toBe('Pure White');
+    expect(result.technicalSpecifications.colour).toBe('Pure White');
     expect(result.moreFromThisDealer[0]).toMatchObject({ colour: 'White' });
     expect(result).not.toHaveProperty('sourceData');
   });
@@ -50,7 +50,7 @@ describe('vehicle detail recommendations', () => {
     jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
     const result = await service.detail('base-slug');
     expect(result.location).toEqual({ city: 'Bethlehem', province: 'Free State', address: 'Branch address', latitude: -28, longitude: 28, country: 'South Africa' });
-    expect(result.additionalInformation).toBe('Full dealer information');
+    expect(result.additionalInformation).toBe('Full Dealer Information');
     expect(result.mapDetails.googleMapsUrl).toContain('query=-28%2C28');
     expect(result.mapDetails.embedUrl).toContain('q=-28%2C28&output=embed');
     expect(result.moreFromThisDealer[0].id).toBe('dealer-car');
@@ -85,5 +85,21 @@ describe('vehicle detail recommendations', () => {
     vehicle.findMany.mockResolvedValue([]);
     expect(await service.fromSameDealer('base')).toEqual([]);
     expect(vehicle.findMany.mock.calls[0][0]).toMatchObject({ take: 6, where: { dealerId: 'dealer', id: { not: 'base' }, status: { in: ['PUBLISHED', 'RESERVED'] }, dealer: { status: 'APPROVED' } } });
+  });
+});
+
+describe('DealerTrade stock summary', () => {
+  it('preserves separate upstream stock and pagination counts without exposing arbitrary metadata', async () => {
+    const fetchedAt = new Date('2026-10-27T08:15:00Z');
+    const findUnique = jest.fn().mockResolvedValue({ payload: { meta: { total_stock_count: 38696, last_updated: '2026-10-27 09:14:20', private: 'hidden' }, total: 39020 }, fetchedAt });
+    const service = new PublicVehiclesService({ replica: { sourceFeedRecord: { findUnique } } } as any, {} as any, {} as any, null);
+    expect(await service.sourceSummary()).toEqual({ source: 'dealertrade', total_stock_count: 38696, last_updated: '2026-10-27 09:14:20', total: 39020, fetchedAt });
+    expect(findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { source_kind_externalId: { source: 'dealertrade', kind: 'metadata', externalId: 'stock' } } }));
+  });
+  it('returns unknown counts as null and preserves a real zero count', async () => {
+    const findUnique = jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce({ payload: { meta: { total_stock_count: 0, last_updated: null }, total: -1 }, fetchedAt: null });
+    const service = new PublicVehiclesService({ replica: { sourceFeedRecord: { findUnique } } } as any, {} as any, {} as any, null);
+    expect(await service.sourceSummary()).toMatchObject({ total_stock_count: null, total: null, last_updated: null });
+    expect(await service.sourceSummary()).toMatchObject({ total_stock_count: 0, total: null });
   });
 });

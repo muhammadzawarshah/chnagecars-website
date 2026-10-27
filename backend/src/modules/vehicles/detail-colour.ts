@@ -1,3 +1,4 @@
+import { titleCase } from '../../common/utils/display-text';
 /** Detail pages may show the supplier's specific paint name; filters keep Vehicle.colour. */
 export function detailColour(vehicle: { colour?: string | null; sourceData?: unknown }): string | null {
   const source = vehicle.sourceData;
@@ -7,7 +8,7 @@ export function detailColour(vehicle: { colour?: string | null; sourceData?: unk
     ? (feed as Record<string, unknown>).colour : undefined;
   if (typeof raw === 'string') {
     const colour = raw.trim();
-    if (colour && !/^(n\/?a|null|none|unknown)$/i.test(colour)) return colour;
+    if (colour && !/^(n\/?a|null|none|unknown)$/i.test(colour)) return titleCase(colour);
   }
   return vehicle.colour ?? null;
 }

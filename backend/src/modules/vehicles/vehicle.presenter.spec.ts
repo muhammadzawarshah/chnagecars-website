@@ -7,7 +7,7 @@ describe('public vehicle fields', () => {
         vehicle_id: 456, no_gears: 7, turbo_supercharged: 'T', body_type_id: 29, driven_wheels_id: 4,
         front_tyre_size: '195/60 R16', rear_tyre_size: '195/60 R16', fuel_tank_size: '37.0', mmcode: '04035331', additional_information: 'Dealer notes',
       } }, variant: { specification: { gears: 6, extra: { sourceVehicleIds: [999] } } } });
-    expect(result).toMatchObject({ sourceVehicleId: '456', stockNumber: 'ST-1', gears: 7, turboSupercharged: 'TURBO', bodyTypeId: '29', drivetrainSourceId: '4', fuelTankLitres: 37, mmcode: '04035331', additionalInformation: 'Dealer notes' });
+    expect(result).toMatchObject({ sourceVehicleId: '456', stockNumber: 'ST-1', gears: 7, turboSupercharged: 'TURBO', bodyTypeId: '29', drivetrainSourceId: '4', fuelTankLitres: 37, mmcode: '04035331', additionalInformation: 'Dealer Notes' });
     expect(result).not.toHaveProperty('sourceData');
     expect(JSON.stringify(result)).not.toContain('PRIVATE');
   });
@@ -53,4 +53,16 @@ it('keeps a source-verified variant identity without returning its old catalogue
   expect(output.variant).toEqual({ id: 'stable-variant-id', name: 'Source variant', specification: null });
   expect(output.technicalSpecifications.fuelTankLitres).toBeNull();
   expect(output.mmcode).toBeNull();
+});
+
+it('exposes safe source extras while keeping missing values and zero flags distinct', () => {
+  const result = publicVehicleFields({ sourceData: { dealertrade: {
+    video_url: 'https://video.example.test/watch/123', poa: 0, extras: 'Sunroof', comment: 'One owner',
+    created_at: '2026-10-01 08:00:00', updated_at: '2026-10-27 09:14:17', lead_email_1: 'private@example.test',
+  } } });
+  expect(result).toMatchObject({ videoUrl: 'https://video.example.test/watch/123', priceOnApplication: false,
+    extras: 'Sunroof', comment: 'One Owner', sourceCreatedAt: '2026-10-01 08:00:00', sourceUpdatedAt: '2026-10-27 09:14:17' });
+  expect(JSON.stringify(result)).not.toContain('private@example.test');
+  expect(publicVehicleFields({ sourceData: { dealertrade: { video_url: 'javascript:alert(1)', poa: '1' } } })).toMatchObject({ videoUrl: null, priceOnApplication: true });
+  expect(publicVehicleFields({})).toMatchObject({ videoUrl: null, priceOnApplication: null, extras: null, comment: null, sourceUpdatedAt: null });
 });

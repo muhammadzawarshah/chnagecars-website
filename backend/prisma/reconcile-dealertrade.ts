@@ -1,3 +1,5 @@
+import { titleCase } from '../src/common/utils/display-text';
+import { standardColourName } from '../src/modules/vehicles/standard-colours';
 import { BODY_TYPE_CATEGORY_SLUGS, resolveBodyType } from '../src/modules/vehicles/body-type-mapping';
 /** API-authoritative row updates with explicit blank preservation and optimistic writes. */
 import 'dotenv/config';
@@ -8,17 +10,18 @@ import { isDeepStrictEqual } from 'node:util';
 import { existsSync,readFileSync,writeFileSync,mkdirSync,statSync,openSync,writeSync,closeSync,createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { resolve } from 'node:path';
-import { empty,mergeProvided,changedFields,integer,FeedRow as Row } from './dealertrade-reconcile-policy';
+import { empty,mergeProvided,changedFields,integer,sourceVehicleAttributes,stockMetadata,FeedRow as Row } from './dealertrade-reconcile-policy';
 import { provinceFromName,slugify } from '../src/modules/web/web-format';
 
 const root=resolve(__dirname,'../..'),dir=resolve(process.env.DEALERTRADE_RECONCILE_DIR || resolve(__dirname,'../.local/dealertrade-reconcile'));mkdirSync(dir,{recursive:true});
 const source=resolve(dir,'source'),planFile=resolve(dir,'plan.json');
-const db=new PrismaClient({adapter:new PrismaPg({connectionString:process.env.DATABASE_URL!,max:10})});
+const db=new PrismaClient({adapter:new PrismaPg({connectionString:process.env.DATABASE_URL!,max:10,options:'-c TimeZone=UTC'})});
 const mode=process.argv[2]??'--plan';
 const read=(p:string)=>JSON.parse(readFileSync(p,'utf8'));
 const json=(value:any)=>JSON.parse(JSON.stringify(value));
 const uuid=(key:string,namespace='dealertrade')=>{const h=createHash('sha256').update(`changecars-${namespace}:${key}`).digest('hex');return `${h.slice(0,8)}-${h.slice(8,12)}-5${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;};
 const write=(name:string,data:any)=>writeFileSync(resolve(dir,name),JSON.stringify(data,null,2));
+function displayFields(data:Row){for(const key of ['name','title','description','address','city'])if(typeof data[key]==='string')data[key]=titleCase(data[key]);return data;}
 const protectedImage=(i:Row)=>createHash('sha256').update(JSON.stringify(Object.fromEntries(Object.entries(json(i)).filter(([k])=>!['url','sizeBytes','contentType','position','isPrimary','updatedAt'].includes(k)).sort(([a],[b])=>a.localeCompare(b))))).digest('hex');
 async function loadPlan(){const p=read(planFile);p.vehiclePlans=[];for await(const line of createInterface({input:createReadStream(resolve(dir,p.vehiclePlansFile)),crlfDelay:Infinity}))if(line)p.vehiclePlans.push(JSON.parse(line));return p;}
 const bodyMap:Row={suv:'suvs',sedan:'sedans',hatchback:'hatchbacks',coupe:'coupes',convertible:'convertibles',mpv:'mpvs','panel-van':'panel-vans','double-cab-bakkie':'double-cabs','single-cab-bakkie':'single-cabs','extended-cab':'king-cabs',minibus:'minibuses',motorbike:'motorbikes','station-wagon':'station-wagons'};
@@ -39,7 +42,7 @@ async function state(){
 function scalarVehicle(v:Row){const {images,categories,...columns}=v;return json(columns);}
 async function plan(){
   const rows:Row[]=read(resolve(source,'vehicles.json')),dealerRows:Row[]=read(resolve(source,'dealers.json'));
-  const capture=read(resolve(source,'fetch-report.json'));
+  const capture=read(resolve(source,'fetch-report.json')),metadataPayload=stockMetadata(capture);
   if(new Set(rows.map(r=>String(r.vehicle_id))).size!==rows.length)throw Error('Duplicate API identities');
   const s=await state(),rawMap=new Map(s.raw.map(r=>[r.kind+':'+r.externalId,r.payload]));
   const byExternal=new Map<string,typeof s.vehicles[number]>();
@@ -53,8 +56,10 @@ async function plan(){
     const externalId=String(r.dealer_id),id=externalId,existing=dealers.get(id);
     const data:Row={};for(const [from,to]of Object.entries({dealer_name:'name',telephone:'phone',email:'email',address:'address',description:'description'}))if(!empty(r[from]))data[to]=r[from];
     if(!empty(r.province)){const province=provinceFromName(r.province);if(province)data.province=province;else issues.push({kind:'dealer',externalId,field:'province',reason:'Unrecognized API province retained in raw record'});}
+    displayFields(data);
     const create=existing?undefined:{id,slug:`${slugify(r.dealer_name)}-fbook-${externalId}`,name:r.dealer_name,email:r.email||`dealertrade-${externalId}@example.invalid`,phone:r.telephone||'',address:r.address||'',province:data.province,city:dealerCities.get(externalId)||'',status:'APPROVED',approvedAt:new Date().toISOString(),...data};
     if(!existing&&(!create?.name||!create?.province)){issues.push({kind:'dealer',externalId,reason:'Required dealer identity/location missing'});continue;}
+    if(create)displayFields(create);
     const before=rawMap.get('dealer:'+externalId),payload=mergeProvided(before,r),branchId=uuid('branch:'+externalId,'fbook');
     const branch=existing?.branches.find(b=>b.id===branchId),branchData:Row={};
     for(const key of ['name','phone','email','address','province'])if(data[key]!==undefined)branchData[key]=data[key];
@@ -65,10 +70,11 @@ async function plan(){
     const externalId=String(r.vehicle_id),v=byExternal.get(externalId),dealerId=String(r.dealer_id),dealer=dealers.get(dealerId);
     const rawBefore=rawMap.get('vehicle:'+externalId),payload=mergeProvided(rawBefore,r);
     const oldSource=(v?.sourceData as Row|null)??{},sourceData={...oldSource,vehicle_id:externalId,dealertrade:mergeProvided(oldSource.dealertrade,r)};
-    const before=v?scalarVehicle(v):null,patch:Row={};
+    const before=v?scalarVehicle(v):null,patch:Row=sourceVehicleAttributes(r);
     const numeric:Row={price:'price',mileage:'mileage',engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',image_count:'imageCount'};
     for(const [from,to]of Object.entries(numeric))if(!empty(r[from])){const value=integer(r[from],from==='price'?1:0);if(value!==undefined)patch[to as string]=value;else issues.push({kind:'vehicle',externalId,field:from,value:r[from],reason:'Cannot represent source value in constrained integer column; raw value retained'});}
-    for(const [from,to]of Object.entries({title:'title',year:'year',colour:'colour',color:'colour',vin:'vin',registration_number:'registrationNumber'}))if(!empty(r[from]))patch[to]=r[from];
+    for(const [from,to]of Object.entries({title:'title',vin:'vin',registration_number:'registrationNumber'}))if(!empty(r[from]))patch[to]=r[from];
+    patch.colour=standardColourName(r,v?.colour);
     if(!empty(r.featured)&&[0,1,false,true].includes(r.featured))patch.isFeatured=Boolean(r.featured);
     if(!empty(r.type)){const condition=({New:'NEW',Used:'USED',Demo:'DEMO'}as Row)[r.type];if(condition)patch.condition=condition;else issues.push({kind:'vehicle',externalId,field:'type',reason:'Unmapped condition; raw source retained'});}
     const transmission=({1:'MANUAL',2:'AUTOMATIC'}as Row)[r.transmission_type_id];if(transmission)patch.transmission=transmission;
@@ -86,9 +92,9 @@ async function plan(){
     if(['comment','additional_information','extras'].some(k=>!empty(r[k]))){const merged=sourceData.dealertrade;patch.description=['comment','additional_information','extras'].map(k=>merged[k]).filter(x=>typeof x==='string'&&x.trim()).join('\n\n');}
     if(!empty(r.make_name)&&!empty(r.model_name)){
       const makeSlug=slugify(r.make_name);let make=makes.get(makeSlug);
-      if(!make){make={id:uuid('make:'+makeSlug),slug:makeSlug,name:r.make_name}as any;makes.set(makeSlug,make!);catalogue.push({kind:'make',id:make!.id,before:null,data:{id:make!.id,name:r.make_name,slug:makeSlug}});}
+      if(!make){make={id:uuid('make:'+makeSlug),slug:makeSlug,name:r.make_name}as any;makes.set(makeSlug,make!);catalogue.push({kind:'make',id:make!.id,before:null,data:{id:make!.id,name:titleCase(r.make_name),slug:makeSlug}});}
       const modelSlug=slugify(r.model_name),key=make!.id+':'+modelSlug;let model=models.get(key);
-      if(!model){model={id:uuid('model:'+key),makeId:make!.id,slug:modelSlug,name:r.model_name}as any;models.set(key,model!);catalogue.push({kind:'model',id:model!.id,before:null,data:{id:model!.id,makeId:make!.id,name:r.model_name,slug:modelSlug}});}
+      if(!model){model={id:uuid('model:'+key),makeId:make!.id,slug:modelSlug,name:r.model_name}as any;models.set(key,model!);catalogue.push({kind:'model',id:model!.id,before:null,data:{id:model!.id,makeId:make!.id,name:titleCase(r.model_name),slug:modelSlug}});}
       patch.makeId=make!.id;patch.modelId=model!.id;
     }
     if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');}
@@ -99,8 +105,10 @@ async function plan(){
     if(!v){
       if(!dealer||!patch.makeId||!patch.modelId||!patch.condition||!patch.price){rawOnly.push({externalId,payload,rawBefore:rawBefore??null,reason:!dealer?'Dealer absent from source catalogue':'Required inventory values missing'});continue;}
       const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-fbook-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date().toISOString():null,...patch,sourceData};
+      displayFields(create);
       vehiclePlans.push({externalId,id,before:null,create,patch:{},payload,rawBefore:rawBefore??null,gallery,categories,beforeImages:[],beforeProtectedImages:[],beforeCategories:[]});
     }else{
+      displayFields(patch);
       patch.sourceData=sourceData;
       // A relation cannot retain a variant belonging to the previous model.
       if(patch.modelId!==undefined&&patch.modelId!==v.modelId&&v.variantId){patch.variantId=null;issues.push({kind:'vehicle',externalId,field:'variantId',reason:'Previous variant belongs to a different source model; association cleared for valid catalogue linkage'});}
@@ -114,7 +122,7 @@ async function plan(){
   for(const kind of ['make','model']){
     const names=new Map<string,Set<string>>();
     for(const r of rows){if(empty(r.make_name)||empty(r.model_name))continue;const make=makes.get(slugify(r.make_name))!,entity=kind==='make'?make:models.get(make.id+':'+slugify(r.model_name))!;const set=names.get(entity.id)??new Set();set.add(kind==='make'?r.make_name:r.model_name);names.set(entity.id,set);}
-    for(const [id,values]of names){const existing=(kind==='make'?s.makes:s.models).find(x=>x.id===id);if(!existing)continue;if(values.size===1){const name=[...values][0];if(existing.name!==name)catalogue.push({kind,id,before:json(existing),data:{name}});}else issues.push({kind,externalId:id,field:'name',reason:'Source aliases conflict for one shared catalogue identity; each exact name retained per vehicle JSON'});}
+    for(const [id,values]of names){const existing=(kind==='make'?s.makes:s.models).find(x=>x.id===id);if(!existing)continue;if(values.size===1){const name=titleCase([...values][0]);if(existing.name!==name)catalogue.push({kind,id,before:json(existing),data:{name}});}else issues.push({kind,externalId:id,field:'name',reason:'Source aliases conflict for one shared catalogue identity; each exact name retained per vehicle JSON'});}
   }
   const vehicleByExternal=new Map(vehiclePlans.map(v=>[v.externalId,v])),variantGroups=new Map<string,Row[]>();
   for(const r of rows){const v=vehicleByExternal.get(String(r.vehicle_id));if(!v||empty(r.model_variant_id))continue;const modelId=v.create?.modelId??v.patch.modelId??v.before.modelId,key=modelId+':'+r.model_variant_id;const group=variantGroups.get(key)??[];group.push(r);variantGroups.set(key,group);}
@@ -126,8 +134,8 @@ async function plan(){
     const date=dates.length===1&&/^(19|20)\d{2}-\d{2}-\d{2}$/.test(dates[0])?dates[0]:null;
     const parsed=date?new Date(date+'T00:00:00Z'):null,validDate=parsed&&!Number.isNaN(parsed.getTime())&&parsed.toISOString().slice(0,10)===date;
     if(!existing&&(!validDate||names.length!==1)){issues.push({kind:'variant',externalId:String(r.model_variant_id),field:'variantId',reason:'Cannot create a variant without a valid source introduction year and consistent name; complete per-car API values retained in JSON'});continue;}
-    const id=existing?.id??uuid('variant:'+key),data:Row={};if(names.length===1)data.name=names[0];if(validDate)data.yearFrom=Number(date!.slice(0,4));
-    const create=existing?null:{id,modelId,name:names[0],slug:`${slugify(names[0])}-dealertrade-${r.model_variant_id}`,yearFrom:data.yearFrom};
+    const id=existing?.id??uuid('variant:'+key),data:Row={};if(names.length===1)data.name=titleCase(names[0]);if(validDate)data.yearFrom=Number(date!.slice(0,4));
+    const create=existing?null:{id,modelId,name:titleCase(names[0]),slug:`${slugify(names[0])}-dealertrade-${r.model_variant_id}`,yearFrom:data.yearFrom};
     const {specification,...variantColumns}=existing??{};
     const spec:Row={};
     for(const [from,to]of Object.entries({engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',no_gears:'gears',fuel_tank_size:'fuelTankLitres'})){
@@ -142,7 +150,7 @@ async function plan(){
   }
   const plannedIds=new Set(vehiclePlans.map(v=>v.id));
   const rawKeys=new Set([...rows.map(r=>'vehicle:'+r.vehicle_id),...dealerRows.map(r=>'dealer:'+r.dealer_id)]),dealerIds=new Set(dealerPlans.map(d=>d.id));
-  const result={createdAt:new Date().toISOString(),policy:'API nonempty values win; null/blank/empty collections preserve existing data; zero and false are nonempty. Missing source rows are untouched.',capture,catalogue,dealerPlans,vehiclePlans,variantPlans,rawOnly,issues,untouchedRaw:json(s.raw.filter(r=>!rawKeys.has(r.kind+':'+r.externalId))),untouchedDealers:json(s.dealers.filter(d=>!dealerIds.has(d.id))),untouched:s.vehicles.filter(v=>!plannedIds.has(v.id)).map(v=>({id:v.id,before:scalarVehicle(v),images:json(v.images),categories:v.categories.map(c=>c.id)}))};
+  const result={metadataPayload,createdAt:new Date().toISOString(),policy:'API nonempty values win; null/blank/empty collections preserve existing data; zero and false are nonempty. Missing source rows are untouched.',capture,catalogue,dealerPlans,vehiclePlans,variantPlans,rawOnly,issues,untouchedRaw:json(s.raw.filter(r=>!rawKeys.has(r.kind+':'+r.externalId)&&!(metadataPayload&&r.kind==='metadata'&&r.externalId==='stock'))),untouchedDealers:json(s.dealers.filter(d=>!dealerIds.has(d.id))),untouched:s.vehicles.filter(v=>!plannedIds.has(v.id)).map(v=>({id:v.id,before:scalarVehicle(v),images:json(v.images),categories:v.categories.map(c=>c.id)}))};
   const fd=openSync(resolve(dir,'vehicle-plans.ndjson'),'w');for(const v of vehiclePlans)writeSync(fd,JSON.stringify(v)+'\n');closeSync(fd);
   writeFileSync(planFile,JSON.stringify({...result,vehiclePlans:undefined,vehiclePlansFile:'vehicle-plans.ndjson'}));
   const changeRows:Row[]=[];
@@ -190,6 +198,7 @@ async function apply(){
   }}));
   for(const r of p.rawOnly)await rawUpsert(db,'vehicle',r);
   const report={at:new Date().toISOString(),updated,created,processed:p.vehiclePlans.length,rawOnly:p.rawOnly.length,failures};write('apply-report.json',report);console.log({...report,failures:failures.length});if(failures.length)throw Error('Some rows failed; see apply-report.json');
+  if(p.metadataPayload)await rawUpsert(db,'metadata',{externalId:'stock',payload:p.metadataPayload});
 }
 async function verify(){
   const p=await loadPlan(),s=await state(),vehicles=new Map(s.vehicles.map(v=>[v.id,v])),raw=new Map(s.raw.map(r=>[r.kind+':'+r.externalId,r.payload])),dealers=new Map(s.dealers.map(d=>[d.id,d]));
@@ -226,6 +235,7 @@ async function verify(){
   for(const d of p.dealerPlans){const actual=dealers.get(d.id);if(!actual){mismatches.push({id:d.id,field:'dealer',reason:'missing'});continue;}const expected=d.before?{...d.before,...d.patch}:d.create;for(const [field,value]of Object.entries(expected))if(!['updatedAt'].includes(field)){check('dealer',d.externalId,field,value,(actual as Row)[field]);columns++;}const branch=actual.branches.find(b=>b.id===d.branch.id),expectedBranch=d.branch.before?{...d.branch.before,...d.branch.patch}:d.branch.create;for(const [field,value]of Object.entries(expectedBranch))if(field!=='updatedAt'){check('branch',d.externalId,field,value,(branch as Row|undefined)?.[field]);columns++;}check('raw_dealer',d.externalId,'payload',d.payload,raw.get('dealer:'+d.externalId));}
   for(const c of p.catalogue){const entity=(c.kind==='make'?s.makes:s.models).find(x=>x.id===c.id),expected={...(c.before??{}),...c.data};for(const [field,value]of Object.entries(expected))if(field!=='updatedAt')check('catalogue',c.id,field,value,(entity as Row|undefined)?.[field]);}
   for(const item of p.variantPlans){const v=s.variants.find(x=>x.id===item.id),expected=item.before?{...item.before,...item.patch}:item.create;for(const [field,value]of Object.entries(expected))if(field!=='updatedAt')check('variant',item.id,field,value,(v as Row|undefined)?.[field]);const spec=item.specBefore?{...item.specBefore,...item.specPatch}:item.specPatch;for(const [field,value]of Object.entries(spec))if(field!=='updatedAt')check('variant_specification',item.id,field,value,(v?.specification as Row|undefined)?.[field]);}
+  if(p.metadataPayload)check('metadata','stock','payload',p.metadataPayload,raw.get('metadata:stock'));
   for(const r of p.rawOnly)check('raw_vehicle',r.externalId,'payload',r.payload,raw.get('vehicle:'+r.externalId));
   const fullRaw=new Map(s.raw.map(r=>[r.kind+':'+r.externalId,json(r)]));for(const r of p.untouchedRaw)check('unobserved_raw',r.externalId,'allColumns',r,fullRaw.get(r.kind+':'+r.externalId));
   for(const d of p.untouchedDealers){const actual=dealers.get(d.id);check('unobserved_dealer',d.id,'allColumnsAndBranches',d,actual?json(actual):null);}

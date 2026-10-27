@@ -102,7 +102,7 @@ describe('dealer app HTTP boundary and existing app compatibility', () => {
         { provide: DealersService, useValue: { getOwnProfile: jest.fn(async () => ({ id: '3095', name: 'Existing portal dealer' })), updateProfile: jest.fn() } },
         { provide: VehiclesService, useValue: vehicles }, { provide: VehicleImagesService, useValue: {} },
         { provide: SearchService, useValue: { search: jest.fn(async () => legacyResult) } },
-        { provide: PublicVehiclesService, useValue: { withFavouriteFlags: jest.fn(async data => data) } },
+        { provide: PublicVehiclesService, useValue: { withFavouriteFlags: jest.fn(async data => data), sourceSummary: jest.fn(async () => ({ source: 'dealertrade', total_stock_count: 100 })) } },
       ],
     }).compile();
     server = module.createNestApplication({ logger: false });
@@ -139,7 +139,7 @@ describe('dealer app HTTP boundary and existing app compatibility', () => {
 
   it('keeps the existing anonymous search response and caching unchanged', async () => {
     const result = await request('vehicles');
-    expect(result.status).toBe(200); expect(result.body).toEqual(legacyResult);
+    expect(result.status).toBe(200); expect(result.body).toMatchObject(legacyResult); expect(result.body.meta.source).toEqual({ source: 'dealertrade', total_stock_count: 100 });
     expect(result.cache).toContain('public,');
   });
 

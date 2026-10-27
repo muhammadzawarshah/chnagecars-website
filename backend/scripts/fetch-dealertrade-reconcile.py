@@ -19,7 +19,7 @@ def request(endpoint,body,page=1,label=''):
             if delay:time.sleep(delay)
             next_request=time.monotonic()+1.4
         config='header = '+json.dumps('Authorization: Bearer '+TOKEN)+'\n'
-        p=subprocess.run(['curl','--config','-','--http1.1','--fail','--silent','--show-error','--max-time','120','--header','Content-Type: application/json','--header','Accept: application/json','--dump-header',str(headers),'--data',json.dumps(body),f'https://dealertrade.co.za/api/apk/{endpoint}?page={page}&per_page=1000'],input=config.encode(),capture_output=True)
+        p=subprocess.run(['curl','--config','-','--http1.1','--tls-max','1.2','--fail','--silent','--show-error','--max-time','120','--header','Content-Type: application/json','--header','Accept: application/json','--dump-header',str(headers),'--data',json.dumps(body),f'https://dealertrade.co.za/api/apk/{endpoint}?page={page}&per_page=1000'],input=config.encode(),capture_output=True)
         if not p.returncode:
             value=json.loads(p.stdout)
             if value.get('current_page')==page and isinstance(value.get('data'),list):return value
@@ -95,5 +95,5 @@ rows={str(r['vehicle_id']):r for result in results for r in result['rows']}
 last=request('stock/by-dealers',{},label='final-head');save(OUT/'final-head.json',last)
 for row in last['data']:rows[str(row['vehicle_id'])]=row
 save(OUT/'vehicles.json',list(rows.values()))
-report={'startedAtEpoch':started,'completedAtEpoch':time.time(),'dealerRows':len(dealers),'dealerIdentitiesQueried':len(ordered),'partitionsCompleted':len(results),'uniqueVehicleRows':len(rows),'initialGlobalTotal':head['total'],'finalGlobalTotal':last['total'],'atomicSnapshot':False,'strategy':'All known dealer identities queried in validated, unique, count-stable partitions; final global head refreshed. No absence-based deletion allowed.','vehiclesSha256':hashlib.sha256((OUT/'vehicles.json').read_bytes()).hexdigest()}
+report={'startedAtEpoch':started,'completedAtEpoch':time.time(),'dealerRows':len(dealers),'dealerIdentitiesQueried':len(ordered),'partitionsCompleted':len(results),'uniqueVehicleRows':len(rows),'initialGlobalTotal':head['total'],'finalGlobalTotal':last['total'],'stockMeta':last.get('meta',{}),'initialStockMeta':head.get('meta',{}),'atomicSnapshot':False,'strategy':'All known dealer identities queried in validated, unique, count-stable partitions; final global head refreshed. No absence-based deletion allowed.','vehiclesSha256':hashlib.sha256((OUT/'vehicles.json').read_bytes()).hexdigest()}
 save(OUT/'fetch-report.json',report);print(json.dumps(report),flush=True)

@@ -1,3 +1,4 @@
+import { selectedColourIds, STANDARD_COLOURS } from '../vehicles/standard-colours';
 import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
 import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
@@ -130,6 +131,8 @@ export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prism
   if (categories.length) and.push({ categories: { some: { slug: { in: categories } } } });
 
   if (criteria.city) and.push({ city: { equals: criteria.city, mode: 'insensitive' } });
+  const colourIds = selectedColourIds(criteria);
+  if (colourIds.length && !colourIds.includes(1)) and.push({ colour: { in: STANDARD_COLOURS.filter(c => colourIds.includes(c.id)).map(c => c.name) } });
   const colours = splitCsv(criteria.colour);
   if (colours.length) and.push({ OR: colours.map((colour) => ({ colour: { equals: colour, mode: 'insensitive' as const } })) });
   if (criteria.dealer) and.push({ dealer: { slug: criteria.dealer.toLowerCase() } });

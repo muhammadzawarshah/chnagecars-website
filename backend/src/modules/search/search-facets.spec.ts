@@ -18,7 +18,9 @@ describe('dependent filter counts', () => {
     expect(result.powerKw).toEqual([]);
     expect(result.dealerships).toEqual([{ slug: 'dealer-one', name: 'Dealer One', count: 3 }]);
     expect(result.models).toEqual([{ slug: 'q3', name: 'Q3', make: 'audi', value: 'audi:q3', count: 3 }]);
-    expect(result.colour).toEqual([{ value: 'black', name: 'Black', count: 3 }]);
+    expect(result.colour).toHaveLength(16);
+    expect(result.colour.find(c => c.id === 3)).toMatchObject({ value: 'black', name: 'Black', count: 3, stockCount: 3 });
+    expect(result.colour.find(c => c.id === 15)).toMatchObject({ count: 0 });
     expect(result.variants).toEqual([]);
     expect(result.drivetrain).toEqual([]);
     expect(result.categories).toEqual([{ slug: 'suvs', name: 'SUV', count: 3 }]);
