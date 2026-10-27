@@ -1,6 +1,6 @@
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
-import { FilterSnapshotsService, snapshotPayload } from './filter-snapshots';
+import { FilterSnapshotsController, FilterSnapshotsService, snapshotPayload } from './filter-snapshots';
 
 const row = { id: 'uuid', make: { slug: 'ford', name: 'Ford' }, model: { slug: 'ranger', name: 'Ranger' }, variant: null, province: 'Free State', city: 'Bethlehem', categories: [{ slug: 'bakkies', name: 'Bakkies', isActive: true }], fuelType: null, transmission: 'UNKNOWN', drivetrain: null, colour: ' White ', condition: 'USED', status: 'PUBLISHED', dealer: { slug: 'dealer', name: 'Dealer' }, price: 100, specialPrice: null, isSpecial: false, isFeatured: false, year: 2020, mileage: null, seats: null, engineCapacityCc: null, powerKw: null };
 describe('immutable filter snapshots', () => {
@@ -43,5 +43,12 @@ describe('immutable filter snapshots', () => {
     expect((await restarted.manifest()).revision).toBe(manifest.revision);
     expect(table.upsert).toHaveBeenCalledTimes(1);
     await expect(restarted.download('inv-unknown.json.gz')).rejects.toThrow('Snapshot not found');
+  });
+  it('adds live DealerTrade counts to the manifest response without touching the cached manifest', async () => {
+    const cached = { schema_version: 1, revision: 'inv-abc', total: 44500 };
+    const source = { source: 'dealertrade', total_stock_count: 38654, last_updated: '2026-10-27 17:05:51', total: 38990, fetchedAt: new Date() };
+    const controller = new FilterSnapshotsController({ manifest: jest.fn(async () => cached) } as any, { summary: jest.fn(async () => source) } as any);
+    expect(await controller.manifest()).toEqual({ ...cached, source });
+    expect(cached).not.toHaveProperty('source');
   });
 });

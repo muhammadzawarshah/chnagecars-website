@@ -8,6 +8,7 @@ function setup() {
     { versionedKey: jest.fn().mockResolvedValue('detail'), wrap: jest.fn((_key, _ttl, load) => load()) } as any,
     { resolveFeatures: jest.fn().mockResolvedValue([]) } as any,
     null,
+    {} as any,
   );
   return { service, vehicle };
 }
@@ -31,7 +32,7 @@ describe('vehicle detail recommendations', () => {
 
   it('overlays favourites per user without modifying shared cards', async () => {
     const findMany = jest.fn().mockResolvedValueOnce([{ vehicleId: 'base' }]).mockResolvedValueOnce([]);
-    const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null);
+    const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null, {} as any);
     const shared = [card('base'), card('other')];
     expect((await service.withFavouriteFlags(shared, 'user-a')).map(row => row.isFavourite)).toEqual([true, false]);
     expect((await service.withFavouriteFlags(shared, 'user-b')).map(row => row.isFavourite)).toEqual([false, false]);
@@ -89,35 +90,10 @@ describe('vehicle detail recommendations', () => {
 });
 
 describe('DealerTrade stock summary', () => {
-  const live = (body: unknown, ok = true) => jest.spyOn(global, 'fetch').mockResolvedValue({ ok, status: ok ? 200 : 503, json: async () => body } as any);
-  const service = () => new PublicVehiclesService({} as any, {} as any, {} as any, null);
-  beforeEach(() => { process.env.DEALERTRADE_TOKEN = 'test-token'; });
-  afterEach(() => { jest.restoreAllMocks(); delete process.env.DEALERTRADE_TOKEN; });
-
-  it('reads separate stock and pagination counts live from the DealerTrade API without exposing arbitrary metadata', async () => {
-    const fetchMock = live({ meta: { total_stock_count: 38654, last_updated: '2026-10-27 17:05:51', private: 'hidden' }, total: 38990, data: [{}] });
-    const summary = await service().sourceSummary();
-    expect(summary).toEqual({ source: 'dealertrade', total_stock_count: 38654, last_updated: '2026-10-27 17:05:51', total: 38990, fetchedAt: expect.any(Date) });
-    expect(fetchMock.mock.calls[0][0]).toBe('https://dealertrade.co.za/api/apk/stock/by-dealers?page=1&per_page=1');
-    expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'POST', headers: expect.objectContaining({ authorization: 'Bearer test-token' }) });
-  });
-  it('returns unknown counts as null and preserves a real zero count', async () => {
-    live({ meta: { total_stock_count: 0, last_updated: null }, total: -1 });
-    expect(await service().sourceSummary()).toMatchObject({ total_stock_count: 0, total: null, last_updated: null });
-  });
-  it('shares one live call for a minute and keeps the last live result when the API fails', async () => {
-    const fetchMock = live({ meta: { total_stock_count: 38654 }, total: 38990 });
-    const instance = service();
-    await Promise.all([instance.sourceSummary(), instance.sourceSummary()]);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 61_000);
-    fetchMock.mockResolvedValue({ ok: false, status: 429, json: async () => ({}) } as any);
-    expect(await instance.sourceSummary()).toMatchObject({ total_stock_count: 38654 });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-  });
-  it('returns nulls when the API has never answered', async () => {
-    live({}, false);
-    expect(await service().sourceSummary()).toMatchObject({ total_stock_count: null, total: null, fetchedAt: null });
+  it('delegates to the live DealerTrade stock service', async () => {
+    const summary = { source: 'dealertrade', total_stock_count: 38654 };
+    const service = new PublicVehiclesService({} as any, {} as any, {} as any, null, { summary: jest.fn(async () => summary) } as any);
+    expect(await service.sourceSummary()).toBe(summary);
   });
 });
 

@@ -4,7 +4,7 @@ function setup(year: number | null = 2024) {
   const vehicle = { findUnique: jest.fn().mockResolvedValue({ modelId: 'model', variantId: 'variant', year, price: 120000, mileage: 0, publishedAt: new Date(Date.now() - 10 * 86400000) }), aggregate: jest.fn().mockResolvedValue({ _avg: { price: 100000, mileage: 15000 }, _count: { price: 3, mileage: 3 } }) };
   const daily = { aggregate: jest.fn().mockResolvedValue({ _sum: { views: 12 } }) };
   const enquiry = { count: jest.fn().mockResolvedValue(2) };
-  const service = new PublicVehiclesService({ replica: { vehicle, vehicleViewDaily: daily, enquiry } } as any, {} as any, {} as any, null);
+  const service = new PublicVehiclesService({ replica: { vehicle, vehicleViewDaily: daily, enquiry } } as any, {} as any, {} as any, null, {} as any);
   return { service, vehicle, daily, enquiry };
 }
 it('compares real comparable stock, preserves zero mileage and counts only recent local activity', async () => {

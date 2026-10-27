@@ -14,69 +14,30 @@ import { financeExample } from '../finance/finance.calculator';
 import { PUBLIC_DETAIL_STATUSES, PUBLIC_SEARCH_STATUSES } from './vehicle-lifecycle';
 import { effectivePrice, publicVehicleDetailSelect, publicVehicleSelect, withAvailability } from './vehicle.presenter';
 import { detailColour, dealerTradeColourId } from './detail-colour';
-import { dealerTradeToken } from '../../infrastructure/dealertrade/dealertrade-token';
+import { DealerTradeStockService } from '../../infrastructure/dealertrade/dealertrade-stock.service';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VIEWS_KEY = 'cc:views:pending';
 const RECENTLY_VIEWED_LIMIT = 50;
 export const POPULARITY = { enquiry: 20, favourite: 10 } as const;
-const DEALERTRADE_STOCK_URL = 'https://dealertrade.co.za/api/apk/stock/by-dealers';
-const SOURCE_TTL_MS = 60_000;
-
-type SourceSummary = { source: 'dealertrade'; total_stock_count: number | null; last_updated: string | null; total: number | null; fetchedAt: Date | null };
 
 @Injectable()
 export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PublicVehiclesService.name);
   private readonly memoryViews = new Map<string, number>();
   private memoryFlushTimer: NodeJS.Timeout | undefined;
-  private liveSource?: { value: SourceSummary; at: number };
-  private liveSourceRequest?: Promise<SourceSummary>;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
     private readonly catalogue: CatalogueService,
     @Inject(REDIS) private readonly redis: RedisClient,
+    private readonly stock: DealerTradeStockService,
   ) {}
 
-  /**
-   * Stock counts read live from the DealerTrade API (not the synced DB copy). Each call takes ~3s and the API
-   * rate-limits, so one result is shared for a minute; on failure the last live result (or nulls) is returned.
-   */
-  sourceSummary(): Promise<SourceSummary> {
-    if (this.liveSource && Date.now() - this.liveSource.at < SOURCE_TTL_MS) return Promise.resolve(this.liveSource.value);
-    if (this.liveSourceRequest) return this.liveSourceRequest;
-    const request = this.fetchSourceSummary()
-      .then((value) => { this.liveSource = { value, at: Date.now() }; return value; })
-      .catch((error): SourceSummary => {
-        this.logger.warn(`DealerTrade stock count unavailable: ${(error as Error).message}`);
-        return this.liveSource?.value ?? { source: 'dealertrade', total_stock_count: null, last_updated: null, total: null, fetchedAt: null };
-      })
-      .finally(() => { this.liveSourceRequest = undefined; });
-    this.liveSourceRequest = request;
-    return request;
-  }
-
-  private async fetchSourceSummary(): Promise<SourceSummary> {
-    const token = dealerTradeToken();
-    if (!token) throw new Error('DEALERTRADE_TOKEN is not set');
-    const response = await fetch(`${DEALERTRADE_STOCK_URL}?page=1&per_page=1`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', accept: 'application/json' },
-      body: '{}',
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json() as { meta?: { total_stock_count?: unknown; last_updated?: unknown }; total?: unknown };
-    const count = (value: unknown) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
-    return {
-      source: 'dealertrade',
-      total_stock_count: count(payload?.meta?.total_stock_count),
-      last_updated: typeof payload?.meta?.last_updated === 'string' ? payload.meta.last_updated : null,
-      total: count(payload?.total),
-      fetchedAt: new Date(),
-    };
+  /** Live DealerTrade stock counts (see DealerTradeStockService). */
+  sourceSummary() {
+    return this.stock.summary();
   }
 
   /** Supplier total for the combined button; filtered counts remain local matches. */

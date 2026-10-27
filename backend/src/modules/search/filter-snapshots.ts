@@ -14,6 +14,7 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
 import { slugify } from '../../common/utils/strings';
+import { DealerTradeStockService } from '../../infrastructure/dealertrade/dealertrade-stock.service';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -119,10 +120,14 @@ export class FilterSnapshotsService {
 @ApiTags('Vehicle filter snapshots')
 @Controller('vehicle-filters')
 export class FilterSnapshotsController {
-  constructor(private readonly snapshots: FilterSnapshotsService) {}
+  constructor(private readonly snapshots: FilterSnapshotsService, private readonly stock: DealerTradeStockService) {}
   @Get('manifest') @PublicCache(30)
-  @ApiOperation({ summary: 'Current immutable filter snapshot revision, URL and compressed checksum' })
-  manifest() { return this.snapshots.manifest(); }
+  @ApiOperation({ summary: 'Current immutable filter snapshot revision, URL and compressed checksum, plus live DealerTrade stock counts' })
+  async manifest() {
+    // Live counts sit beside the snapshot, so they never change its revision or checksum.
+    const [manifest, source] = await Promise.all([this.snapshots.manifest(), this.stock.summary()]);
+    return { ...manifest, source };
+  }
   @Get('snapshots/:file')
   @ApiOperation({ summary: 'Download immutable application/gzip snapshot; SHA256 covers compressed bytes' })
   async download(@Param('file') file: string, @Res() response: Response) {
