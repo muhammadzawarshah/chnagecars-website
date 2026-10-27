@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Client } from 'pg';
 import { CacheService, CacheNs } from '../cache/cache.service';
+import { dealerTradeToken } from './dealertrade-token';
 
 /** Reuses the audited API capture/reconcile pipeline; never deletes absent stock. */
 @Injectable()
@@ -20,9 +21,7 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
   constructor(private readonly cache: CacheService) {}
 
   private token(): string {
-    if (process.env.DEALERTRADE_TOKEN?.trim()) return process.env.DEALERTRADE_TOKEN.trim();
-    try { return readFileSync(join(process.cwd(), '.local/dealertrade/token'), 'utf8').trim(); }
-    catch { return ''; }
+    return dealerTradeToken();
   }
 
   onApplicationBootstrap(): void {
