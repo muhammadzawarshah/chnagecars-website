@@ -87,3 +87,10 @@ For example, display `fuelTypeLabel: "Petrol"` instead of the filter code `fuelT
 3. Use returned `colourId` for selected state and local filtering, rather than matching the detail paint name.
 4. Use local `meta.total` for pagination and local counts; label upstream counts separately.
 5. Display returned text and `*Label` fields directly; handle null values as unavailable.
+
+
+## Search button combined stock count
+
+Use `GET /api/v1/vehicles/count` (or POST with filter JSON). `total`, `count`, and `searchCount` use the latest synced DealerTrade `meta.total_stock_count` when no effective filters are selected. This value is dynamic; do not hard-code the screenshot value 38904. With filters, these fields return the matching local vehicle count. `localTotal` always reports local matches; `source.total_stock_count` retains the upstream total. If upstream metadata is unavailable, the button falls back to local matches.
+
+`GET /api/v1/vehicles/facets` also exposes `searchCount` for the search button. Its existing `total` and facet option counts continue to describe local matches. Vehicle list pagination totals remain local so pagination stays accurate. The website desktop and mobile search buttons now use `searchCount`.

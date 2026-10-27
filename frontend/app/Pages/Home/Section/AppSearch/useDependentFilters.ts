@@ -7,7 +7,7 @@ import { buildSearchUrl, SearchValues } from '../../Data/searchUrl'
 import { CarSearch } from '@/app/lib/cars/search'
 
 type Option = { value?: string | number; name?: string; slug?: string; count: number; make?: string; model?: string }
-type Facets = { total: number; ranges: Record<string, {min: number | null; max: number | null}> } & Record<string, unknown>
+type Facets = { total: number; searchCount?: number; ranges: Record<string, {min: number | null; max: number | null}> } & Record<string, unknown>
 const labels: Record<string,string> = { AUTOMATIC:'Automatic', MANUAL:'Manual', UNKNOWN:'Unknown', PETROL:'Petrol', DIESEL:'Diesel', OTHER:'Other', HYBRID:'Hybrid', ELECTRIC:'Electric', PLUGIN_HYBRID:'Plug-in Hybrid', LPG:'LPG', GAUTENG:'Gauteng', FREE_STATE:'Free State', MPUMALANGA:'Mpumalanga', LIMPOPO:'Limpopo', NORTH_WEST:'North West', NORTHERN_CAPE:'Northern Cape', EASTERN_CAPE:'Eastern Cape', WESTERN_CAPE:'Western Cape', KWAZULU_NATAL:'KwaZulu-Natal', '4x2':'4X2', '4x4':'4X4', FOUR_X_TWO:'4X2', FOUR_X_FOUR:'4X4', AWD:'AWD', FWD:'FWD', RWD:'RWD', NEW:'New', USED:'Used', DEMO:'Demo' }
 const enumValue = (value: string) => Object.entries(labels).find(([,label])=>label.toLowerCase()===value.toLowerCase())?.[0] ?? value.toUpperCase().replace(/[ -]/g,'_')
 export function dependentQuery(values: SearchValues, extras: Record<string,string[]>, preset: CarSearch = {}) {
@@ -57,5 +57,5 @@ export default function useDependentFilters(values: SearchValues, extras: Record
         if(!range || range.min===null || range.max===null) return [];
         return items.filter(o=>key.startsWith('min')?o.value<=range.max!:o.value>=range.min!);
     };
-    return {query,makeOptions,bodyOptions,choices,rangeOptions,retry:()=>{setState(null);setAttempt(n=>n+1);},total:data?.total,loading:!data&&!error,error};
+    return {query,makeOptions,bodyOptions,choices,rangeOptions,retry:()=>{setState(null);setAttempt(n=>n+1);},total:data?.searchCount ?? data?.total,loading:!data&&!error,error};
 }

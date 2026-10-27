@@ -1,4 +1,6 @@
 import { standardColourId } from './standard-colours';
+import { buildWhere } from '../search/search.builder';
+import { SearchCriteriaDto } from '../search/dto/search.dto';
 import { dealerTradeVehicleWhere } from './dealertrade-visibility';
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
@@ -45,6 +47,16 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       total: count(payload?.total),
       fetchedAt: record?.fetchedAt ?? null,
     };
+  }
+
+  /** Supplier total for the combined button; filtered counts remain local matches. */
+  async searchButtonCount(criteria: SearchCriteriaDto, localTotal: number) {
+    const source = await this.sourceSummary();
+    const now = new Date();
+    const unfiltered = JSON.stringify(buildWhere(criteria, now)) === JSON.stringify(buildWhere({}, now));
+    const total = unfiltered ? source.total_stock_count ?? localTotal : localTotal;
+    return { total, count: total, searchCount: total, localTotal,
+      formatted: total.toLocaleString('en-US').replace(/,/g, ' '), source };
   }
 
   /**

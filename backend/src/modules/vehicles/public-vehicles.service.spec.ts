@@ -103,3 +103,19 @@ describe('DealerTrade stock summary', () => {
     expect(await service.sourceSummary()).toMatchObject({ total_stock_count: 0, total: null });
   });
 });
+
+
+describe('combined search button count', () => {
+  it('uses the supplier count only for an unrestricted search, preserving zero and fallback', async () => {
+    const { service } = setup();
+    const source = jest.spyOn(service, 'sourceSummary');
+    source.mockResolvedValue({ total_stock_count: 38904 } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 38904, localTotal: 44500, formatted: '38 904' });
+    expect(await service.searchButtonCount({ make: 'toyota' }, 120)).toMatchObject({ total: 120 });
+    expect(await service.searchButtonCount({ colourId: '1' }, 44500)).toMatchObject({ total: 38904 });
+    source.mockResolvedValue({ total_stock_count: 0 } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 0 });
+    source.mockResolvedValue({ total_stock_count: null } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 44500 });
+  });
+});
