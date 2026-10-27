@@ -1,3 +1,4 @@
+import { missingVehicleCoordinates } from '../src/modules/vehicles/dealer-coordinates';
 import { titleCase } from '../src/common/utils/display-text';
 import { standardColourName } from '../src/modules/vehicles/standard-colours';
 import { BODY_TYPE_CATEGORY_SLUGS, resolveBodyType } from '../src/modules/vehicles/body-type-mapping';
@@ -97,7 +98,7 @@ async function plan(){
       if(!model){model={id:uuid('model:'+key),makeId:make!.id,slug:modelSlug,name:r.model_name}as any;models.set(key,model!);catalogue.push({kind:'model',id:model!.id,before:null,data:{id:model!.id,makeId:make!.id,name:titleCase(r.model_name),slug:modelSlug}});}
       patch.makeId=make!.id;patch.modelId=model!.id;
     }
-    if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');}
+    if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');Object.assign(patch,missingVehicleCoordinates(v,dealer.branches.find(b=>b.id===patch.branchId)));}
     const id=externalId;
     const gallery=!empty(r.photos)?r.photos.map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
     if(gallery?.length)patch.primaryImageUrl=gallery[0].url;

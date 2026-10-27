@@ -31,3 +31,5 @@ Stock-response `meta` is preserved in `source_feed_records` under `source=dealer
 Public vehicle search/detail responses now also expose `videoUrl` (HTTPS only), `priceOnApplication` (boolean or null), `extras`, `comment`, `sourceCreatedAt`, and `sourceUpdatedAt`. Website vehicle detail responses carry the same fields. Missing fields remain null, and raw feeds and private routing fields remain excluded.
 
 Standard colour IDs, hex codes, per-colour stock counts, ID-based filtering and title-case inventory normalization are documented in [app-colour-filtering.md](app-colour-filtering.md). The sync keeps raw source snapshots and applies these display rules to database columns on each run.
+
+New vehicles, and existing vehicles missing a coordinate component, inherit the confirmed South African latitude/longitude of their own branch. Complete vehicle locations are preserved. Missing or invalid branch coordinates are never guessed.
