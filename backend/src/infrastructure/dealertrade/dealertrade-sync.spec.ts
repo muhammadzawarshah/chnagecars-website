@@ -16,6 +16,7 @@ describe('DealerTrade automatic sync scheduling', () => {
     process.env.DEALERTRADE_SYNC_ENABLED = 'true';
     process.env.DEALERTRADE_TOKEN = 'test-token';
     delete process.env.DEALERTRADE_SYNC_INTERVAL_MINUTES;
+    process.env.DEALERTRADE_QUICK_SYNC_MINUTES = '0';
     service = new DealerTradeSyncService({} as CacheService);
     sync = jest.spyOn(service as any, 'sync').mockResolvedValue(undefined);
   });
@@ -71,6 +72,41 @@ describe('DealerTrade automatic sync scheduling', () => {
     expect(sync).toHaveBeenCalledTimes(2);
     finish();
     await second;
+  });
+
+  it('runs the quick sync every two minutes by default without overlapping itself', async () => {
+    delete process.env.DEALERTRADE_QUICK_SYNC_MINUTES;
+    let finish!: () => void;
+    const quick = jest.spyOn(service as any, 'quickSync').mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
+    const now = Date.now();
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(now);
+    const running = service.quickTick();
+    clock.mockReturnValue(now + 5 * 60_000);
+    await service.quickTick();
+    expect(quick).toHaveBeenCalledTimes(1);
+    finish();
+    await running;
+    clock.mockReturnValue(now + 6 * 60_000 + 1);
+    const second = service.quickTick();
+    expect(quick).toHaveBeenCalledTimes(2);
+    finish();
+    await second;
+    clock.mockReturnValue(now + 7 * 60_000);
+    await service.quickTick();
+    expect(quick).toHaveBeenCalledTimes(2);
+  });
+
+  it('can disable the quick sync and stops it with the full sync', async () => {
+    const quick = jest.spyOn(service as any, 'quickSync').mockResolvedValue(undefined);
+    await service.quickTick();
+    process.env.DEALERTRADE_QUICK_SYNC_MINUTES = '2';
+    process.env.DEALERTRADE_SYNC_ENABLED = 'false';
+    await service.quickTick();
+    expect(quick).not.toHaveBeenCalled();
+    process.env.DEALERTRADE_SYNC_ENABLED = 'true';
+    await service.onModuleDestroy();
+    await service.quickTick();
+    expect(quick).not.toHaveBeenCalled();
   });
 
   it('retries failed syncs on the next interval and stops on shutdown', async () => {
