@@ -10,7 +10,7 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { OutboxEvents } from '../../infrastructure/outbox/outbox.events';
 import { OutboxService } from '../../infrastructure/outbox/outbox.service';
 import { ALLOWED_IMAGE_TYPES, StorageService } from '../../infrastructure/storage/storage.service';
-import { DealerAccessService, DealerContext } from '../dealers/dealer-access';
+import { DealerAccessService, DealerInventoryContext } from '../dealers/dealer-access';
 import { ImageUploadRequestDto, UpdateImageDto } from './dto/vehicle.dto';
 import { VehiclesService } from './vehicles.service';
 
@@ -41,14 +41,14 @@ export class VehicleImagesService {
     private readonly vehicles: VehiclesService,
   ) {}
 
-  private async ownVehicle(ctx: DealerContext, vehicleId: string) {
+  private async ownVehicle(ctx: DealerInventoryContext, vehicleId: string) {
     const vehicle = await this.prisma.vehicle.findFirst({ where: { id: vehicleId, dealerId: ctx.dealerId, ...DealerAccessService.branchScope(ctx) } });
     if (!vehicle) throw Errors.notFound('Vehicle');
     if (LOCKED.includes(vehicle.status)) throw Errors.conflict('VEHICLE_LOCKED', `Photos cannot be changed while the vehicle is ${vehicle.status}`);
     return vehicle;
   }
 
-  async requestUpload(ctx: DealerContext, vehicleId: string, dto: ImageUploadRequestDto) {
+  async requestUpload(ctx: DealerInventoryContext, vehicleId: string, dto: ImageUploadRequestDto) {
     await this.ownVehicle(ctx, vehicleId);
     if (dto.sizeBytes > this.config.get('MEDIA_MAX_IMAGE_BYTES')) {
       throw Errors.badRequest('FILE_TOO_LARGE', `Images may be at most ${Math.round(this.config.get('MEDIA_MAX_IMAGE_BYTES') / 1048576)} MB`);
@@ -70,7 +70,7 @@ export class VehicleImagesService {
     };
   }
 
-  async completeUpload(ctx: DealerContext, vehicleId: string, imageId: string) {
+  async completeUpload(ctx: DealerInventoryContext, vehicleId: string, imageId: string) {
     await this.ownVehicle(ctx, vehicleId);
     const image = await this.prisma.vehicleImage.findFirst({ where: { id: imageId, vehicleId } });
     if (!image) throw Errors.notFound('Image');
@@ -95,7 +95,7 @@ export class VehicleImagesService {
     });
   }
 
-  async update(ctx: DealerContext, vehicleId: string, imageId: string, dto: UpdateImageDto) {
+  async update(ctx: DealerInventoryContext, vehicleId: string, imageId: string, dto: UpdateImageDto) {
     await this.ownVehicle(ctx, vehicleId);
     const image = await this.prisma.vehicleImage.findFirst({ where: { id: imageId, vehicleId } });
     if (!image) throw Errors.notFound('Image');
@@ -108,7 +108,7 @@ export class VehicleImagesService {
     return this.list(vehicleId);
   }
 
-  async reorder(ctx: DealerContext, vehicleId: string, imageIds: string[]) {
+  async reorder(ctx: DealerInventoryContext, vehicleId: string, imageIds: string[]) {
     await this.ownVehicle(ctx, vehicleId);
     const images = await this.prisma.vehicleImage.findMany({ where: { vehicleId }, select: { id: true } });
     const known = new Set(images.map((image) => image.id));
@@ -123,7 +123,7 @@ export class VehicleImagesService {
     return this.list(vehicleId);
   }
 
-  async remove(ctx: DealerContext, vehicleId: string, imageId: string) {
+  async remove(ctx: DealerInventoryContext, vehicleId: string, imageId: string) {
     await this.ownVehicle(ctx, vehicleId);
     const image = await this.prisma.vehicleImage.findFirst({ where: { id: imageId, vehicleId } });
     if (!image) throw Errors.notFound('Image');

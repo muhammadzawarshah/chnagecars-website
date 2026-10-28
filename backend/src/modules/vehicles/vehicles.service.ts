@@ -18,7 +18,7 @@ import type { Db } from '../../infrastructure/database';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { OutboxEvents } from '../../infrastructure/outbox/outbox.events';
 import { OutboxService } from '../../infrastructure/outbox/outbox.service';
-import { DealerAccessService, DealerContext } from '../dealers/dealer-access';
+import { DealerAccessService, DealerInventoryContext } from '../dealers/dealer-access';
 import {
   AdminVehicleQueryDto,
   CreateVehicleDto,
@@ -39,7 +39,7 @@ import {
 export interface Actor {
   type: LifecycleActor;
   userId: string | null;
-  dealer?: DealerContext;
+  dealer?: DealerInventoryContext;
 }
 
 const FUEL_CATEGORY: Partial<Record<FuelType, string>> = {
@@ -68,7 +68,7 @@ export class VehiclesService {
 
   // ───────────── dealer inventory ─────────────
 
-  async listForDealer(ctx: DealerContext, query: DealerVehicleQueryDto) {
+  async listForDealer(ctx: DealerInventoryContext, query: DealerVehicleQueryDto) {
     return this.list({ dealerId: ctx.dealerId, ...DealerAccessService.branchScope(ctx) }, query);
   }
 
@@ -116,7 +116,7 @@ export class VehiclesService {
     );
   }
 
-  async getForDealer(ctx: DealerContext, id: string) {
+  async getForDealer(ctx: DealerInventoryContext, id: string) {
     const vehicle = await this.prisma.vehicle.findFirst({
       where: { id, dealerId: ctx.dealerId, ...DealerAccessService.branchScope(ctx) },
       include: this.fullInclude(),
@@ -149,7 +149,7 @@ export class VehiclesService {
     } satisfies Prisma.VehicleInclude;
   }
 
-  async create(ctx: DealerContext, dto: CreateVehicleDto) {
+  async create(ctx: DealerInventoryContext, dto: CreateVehicleDto) {
     const catalogue = await this.resolveCatalogue(dto);
     const branch = dto.branchId ? await this.ownBranch(ctx, dto.branchId) : null;
     if (!ctx.wideScope && ctx.branchId && dto.branchId && dto.branchId !== ctx.branchId) {
@@ -215,7 +215,7 @@ export class VehiclesService {
     return this.getForDealer(ctx, vehicle.id);
   }
 
-  async update(ctx: DealerContext, id: string, dto: UpdateVehicleDto) {
+  async update(ctx: DealerInventoryContext, id: string, dto: UpdateVehicleDto) {
     const current = await this.prisma.vehicle.findFirst({ where: { id, dealerId: ctx.dealerId, ...DealerAccessService.branchScope(ctx) } });
     if (!current) throw Errors.notFound('Vehicle');
     await this.applyUpdate(current, dto, { type: 'dealer', userId: ctx.userId, dealer: ctx });
@@ -421,7 +421,7 @@ export class VehiclesService {
     }
   }
 
-  reserve(ctx: DealerContext, id: string, dto: ReserveDto) {
+  reserve(ctx: DealerInventoryContext, id: string, dto: ReserveDto) {
     return this.transition(id, VehicleStatus.RESERVED, { type: 'dealer', userId: ctx.userId, dealer: ctx }, {
       action: 'reserve',
       reason: dto.reason,
@@ -463,7 +463,7 @@ export class VehiclesService {
     if (statuses.some((status) => publicStates.includes(status))) await this.cache.bump(CacheNs.vehicles);
   }
 
-  private async ownBranch(ctx: DealerContext, branchId: string) {
+  private async ownBranch(ctx: DealerInventoryContext, branchId: string) {
     const branch = await this.prisma.branch.findFirst({ where: { id: branchId, dealerId: ctx.dealerId, isActive: true } });
     if (!branch) throw Errors.badRequest('INVALID_BRANCH', 'Branch does not belong to your dealership');
     return branch;

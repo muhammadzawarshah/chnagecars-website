@@ -1,7 +1,8 @@
+import { standardColourId, colourStockOptions } from '../vehicles/standard-colours';
 import { createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
-import { Controller, Get, Injectable, Param, Res } from '@nestjs/common';
+import { Controller, Get, Injectable, Logger, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/auth.decorators';
@@ -13,6 +14,7 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
 import { slugify } from '../../common/utils/strings';
+import { DealerTradeStockService } from '../../infrastructure/dealertrade/dealertrade-stock.service';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -26,7 +28,7 @@ export function snapshotPayload(rows: any[]) {
     }
   }
   const dictionaries: Record<string, Record<string, unknown>> = Object.fromEntries(
-    ['make', 'model', 'variant', 'body_type', 'fuel_type', 'transmission', 'drivetrain', 'color', 'condition', 'availability', 'province', 'city', 'dealer'].map(key => [key, {}]),
+    ['make', 'model', 'variant', 'body_type', 'fuel_type', 'transmission', 'drivetrain', 'color', 'color_ids', 'condition', 'availability', 'province', 'city', 'dealer'].map(key => [key, {}]),
   );
   const scalar = (group: string, code: string | null, name?: string) => {
     if (!code) return null;
@@ -49,6 +51,7 @@ export function snapshotPayload(rows: any[]) {
       body_type: categories, fuel_type: scalar('fuel_type', row.fuelType),
       transmission: scalar('transmission', row.transmission), drivetrain: scalar('drivetrain', row.drivetrain),
       color: scalar('color', row.colour?.trim().toLowerCase() || null),
+      color_id: standardColourId(row.colour),
       condition: scalar('condition', label(row.condition)),
       availability: scalar('availability', row.status === 'PUBLISHED' ? 'available' : 'reserved'),
       province: scalar('province', province, row.province ?? undefined), city,
@@ -59,22 +62,66 @@ export function snapshotPayload(rows: any[]) {
       is_special: row.isSpecial, is_featured: row.isFeatured,
     };
   });
+  // Expose canonical list_colours IDs alongside the existing filter colour keys.
+  for (const vehicle of vehicles) {
+    if (!vehicle.color || vehicle.color_id === null) continue;
+    const ids = (dictionaries.color_ids[vehicle.color] ??= []) as number[];
+    if (!ids.includes(vehicle.color_id)) ids.push(vehicle.color_id);
+  }
+  for (const ids of Object.values(dictionaries.color_ids)) (ids as number[]).sort((a, b) => a - b);
   const cylinders = [...cylinderCounts].sort(([a], [b]) => a - b).map(([value, count]) => ({ value, count }));
-  return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders }, vehicles };
+  return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders, colour: colourStockOptions(rows) }, vehicles };
 }
+
+const MANIFEST_KEY = 'snapshot:manifest:v3';
+const storedSummary = { revision: true, total: true, sha256: true, compressedBytes: true, generatedAt: true } as const;
+type StoredSummary = { revision: string; total: number; sha256: string; compressedBytes: number; generatedAt: Date };
 
 @Injectable()
 export class FilterSnapshotsService {
+  private readonly logger = new Logger(FilterSnapshotsService.name);
   private generating?: Promise<any>;
+  /** Last manifest this process returned; served while a newer snapshot is built. */
+  private latest?: any;
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService, private readonly config: AppConfig) {}
 
+  /**
+   * Never makes a caller wait for a rebuild (~2.5s for 45k vehicles) once any snapshot exists: when inventory
+   * changed or the cache expired, the previous snapshot is returned and the new one is built in the background.
+   */
   async manifest() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v2');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, MANIFEST_KEY);
     const cached = await this.cache.get<any>(key);
-    if (cached) return cached;
-    if (this.generating) return this.generating;
-    this.generating = this.generate(key);
-    try { return await this.generating; } finally { this.generating = undefined; }
+    if (cached) return (this.latest = cached);
+    const rebuild = this.rebuild(key);
+    const previous = this.latest ?? await this.latestStored();
+    if (!previous) return rebuild;
+    rebuild.catch((error) => this.logger.warn(`filter snapshot rebuild failed: ${(error as Error).message}`));
+    return previous;
+  }
+
+  /** Builds the current snapshot and waits for it (admin "refresh snapshot"). */
+  async regenerate() {
+    return this.rebuild(await this.cache.versionedKey(CacheNs.vehicles, MANIFEST_KEY));
+  }
+
+  private rebuild(key: string): Promise<any> {
+    this.generating ??= this.generate(key)
+      .then((manifest) => (this.latest = manifest))
+      .finally(() => { this.generating = undefined; });
+    return this.generating;
+  }
+
+  private async latestStored() {
+    const stored = await this.prisma.replica.vehicleFilterSnapshot.findFirst({ select: storedSummary, orderBy: { generatedAt: 'desc' } });
+    return stored ? this.toManifest(stored) : undefined;
+  }
+
+  private toManifest(stored: StoredSummary) {
+    return { schema_version: 1, revision: stored.revision, total: stored.total,
+      snapshot_url: `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}/vehicle-filters/snapshots/${stored.revision}.json.gz`,
+      sha256: stored.sha256, compressed_bytes: stored.compressedBytes, generated_at: stored.generatedAt.toISOString(),
+    };
   }
 
   private async generate(key: string) {
@@ -83,17 +130,14 @@ export class FilterSnapshotsService {
     for (const row of rows) row.categories.sort((a, b) => a.slug.localeCompare(b.slug));
     const payload = snapshotPayload(rows);
     const revision = `inv-${hash(JSON.stringify(payload))}`;
-    let stored = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision } });
+    let stored: StoredSummary | null = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision }, select: storedSummary });
     if (!stored) {
       const bytes = await zip(Buffer.from(JSON.stringify({ ...payload, revision })), { level: 9 });
-      stored = await this.prisma.vehicleFilterSnapshot.upsert({ where: { revision }, update: {}, create: {
+      stored = await this.prisma.vehicleFilterSnapshot.upsert({ where: { revision }, update: {}, select: storedSummary, create: {
         revision, total: payload.total, sha256: hash(bytes), compressedBytes: bytes.length, content: bytes,
       } });
     }
-    const manifest = { schema_version: 1, revision, total: stored.total,
-      snapshot_url: `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}/vehicle-filters/snapshots/${revision}.json.gz`,
-      sha256: stored.sha256, compressed_bytes: stored.compressedBytes, generated_at: stored.generatedAt.toISOString(),
-    };
+    const manifest = this.toManifest(stored);
     await this.cache.set(key, manifest, 120);
     return manifest;
   }
@@ -110,10 +154,14 @@ export class FilterSnapshotsService {
 @ApiTags('Vehicle filter snapshots')
 @Controller('vehicle-filters')
 export class FilterSnapshotsController {
-  constructor(private readonly snapshots: FilterSnapshotsService) {}
+  constructor(private readonly snapshots: FilterSnapshotsService, private readonly stock: DealerTradeStockService) {}
   @Get('manifest') @PublicCache(30)
-  @ApiOperation({ summary: 'Current immutable filter snapshot revision, URL and compressed checksum' })
-  manifest() { return this.snapshots.manifest(); }
+  @ApiOperation({ summary: 'Current immutable filter snapshot revision, URL and compressed checksum, plus live DealerTrade stock counts' })
+  async manifest() {
+    // Live counts sit beside the snapshot, so they never change its revision or checksum.
+    const [manifest, source] = await Promise.all([this.snapshots.manifest(), this.stock.summary()]);
+    return { ...manifest, source };
+  }
   @Get('snapshots/:file')
   @ApiOperation({ summary: 'Download immutable application/gzip snapshot; SHA256 covers compressed bytes' })
   async download(@Param('file') file: string, @Res() response: Response) {

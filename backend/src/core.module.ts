@@ -1,3 +1,4 @@
+import { DealerTradeSyncModule } from './infrastructure/dealertrade/dealertrade-sync.module';
 import { DealerTradeIdentityModule } from './infrastructure/dealertrade/dealertrade-identity.service';
 import { DealerTradeIdentityInterceptor } from './common/interceptors/dealertrade-identity.interceptor';
 import { Module } from '@nestjs/common';
@@ -66,6 +67,7 @@ export const INFRASTRUCTURE_MODULES = [
   RedisModule,
   WebSyncModule,
   CacheModule,
+  DealerTradeSyncModule,
   StorageModule,
   MessagingModule,
   OutboxModule,

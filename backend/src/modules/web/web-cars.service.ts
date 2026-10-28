@@ -1,7 +1,6 @@
 import { dealerSourceDetails } from '../vehicles/dealer-source';
 import { dealerWhatsappNumber, vehicleSourceLinks } from '../vehicles/vehicle.presenter';
 import { resolveBodyType } from '../vehicles/body-type-mapping';
-import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Injectable } from '@nestjs/common';
 import { DealerStatus, ImageStatus, Prisma, VehicleCondition } from '../../generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
@@ -30,6 +29,7 @@ import {
   vehicleGroup,
   ymd,
 } from './web-format';
+import { listingSlugFilter } from '../../common/utils/strings';
 
 /** Same page size as the website (app/lib/cars/search.ts PAGE_SIZE). */
 export const WEB_PAGE_SIZE = 20;
@@ -41,8 +41,6 @@ const MAX_LIMIT = 48;
 const MAX_FEATURED_POOL = 500;
 /** Recent and featured cars need a real model year: excludes null as well as 0 or junk values from feeds. */
 const WITH_YEAR = { year: { gte: 1900 } } satisfies Prisma.VehicleWhereInput;
-/** Recent cars are shuffled from this many newest listings. */
-const RECENT_POOL = 100;
 
 /** Fisher–Yates shuffle into a new array. */
 function shuffle<T>(items: T[]): T[] {
@@ -261,7 +259,7 @@ export class WebCarsService {
 
   /** Listings the public may browse: published or reserved, from an approved dealer. */
   private publicWhere(extra: Prisma.VehicleWhereInput = {}): Prisma.VehicleWhereInput {
-    return { ...extra, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: DealerStatus.APPROVED }, ...dealerTradeVehicleWhere() };
+    return { ...extra, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: DealerStatus.APPROVED } };
   }
 
   async search(search: WebCarSearch) {
@@ -309,19 +307,15 @@ export class WebCarsService {
     return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
-  /** A fresh random pick from the newest listings on every call; listings without a year are left out. */
+  /** The newest listings, newest first (DealerTrade's listing time); listings without a year are left out. */
   async recent(limit?: number) {
-    const take = clampLimit(limit, 6);
-    const candidates = await this.db.vehicle.findMany({
+    const rows = await this.db.vehicle.findMany({
       where: this.publicWhere({ ...WITH_YEAR }),
-      select: { id: true },
+      select: carSelect,
       orderBy: ORDER.recent,
-      take: Math.max(RECENT_POOL, take),
+      take: clampLimit(limit, 6),
     });
-    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, take);
-    const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
+    return rows.map(toWebCar);
   }
 
   /** Detail page: sold cars stay reachable (marked by the website as sold) and the view is counted. */
@@ -341,10 +335,19 @@ export class WebCarsService {
     });
     return {
       ...toWebCar(row),
+      colour: detail.colour ?? '',
+      colour_id: detail.colour_id,
+      colourId: detail.colourId,
       technicalSpecifications: detail.technicalSpecifications,
       insights: detail.insights,
       description: detail.description,
       additionalInformation: detail.additionalInformation,
+      videoUrl: detail.videoUrl,
+      priceOnApplication: detail.priceOnApplication,
+      extras: detail.extras,
+      comment: detail.comment,
+      sourceCreatedAt: detail.sourceCreatedAt,
+      sourceUpdatedAt: detail.sourceUpdatedAt,
       mapDetails: detail.mapDetails,
       moreFromThisDealer: section(detail.moreFromThisDealer),
       youMightLike: section(detail.youMightLike),
@@ -428,7 +431,7 @@ export class WebCarsService {
     const id = fromWebId(webId);
     if (!id) return null;
     const row = await this.db.vehicle.findFirst({
-      where: { id, status: { in: statuses }, dealer: { status: DealerStatus.APPROVED }, ...dealerTradeVehicleWhere() },
+      where: { id, status: { in: statuses }, dealer: { status: DealerStatus.APPROVED } },
       select: { ...carSelect, ...(extra ?? {}), makeId: true, modelId: true },
     });
     return row;
@@ -535,7 +538,7 @@ export class WebCarsService {
       anyOf(filterValues(search.cylinders).flatMap((value) => (CYLINDER_RANGES[value] ? [{ cylinders: { gte: CYLINDER_RANGES[value][0], lte: CYLINDER_RANGES[value][1] } }] : [])));
     }
     if (search.dealership) {
-      anyOf(filterValues(search.dealership).map((name) => ({ dealer: { OR: [{ slug: slugify(name) }, { name: { equals: name, mode: 'insensitive' as const } }] } })));
+      anyOf(filterValues(search.dealership).map((name) => ({ dealer: { OR: [{ slug: listingSlugFilter(slugify(name)) }, { name: { equals: name, mode: 'insensitive' as const } }] } })));
     }
     if (search.minPrice) and.push({ price: { gte: search.minPrice } });
     if (search.maxPrice) and.push({ price: { lte: search.maxPrice } });

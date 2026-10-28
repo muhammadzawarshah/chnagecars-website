@@ -40,6 +40,9 @@ export class SearchCriteriaDto {
   @ApiPropertyOptional({ description: 'Provinces (FR-27)', example: 'Gauteng,Western Cape' }) @IsOptional() @IsString() @MaxLength(300) province?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(100) city?: string;
   @ApiPropertyOptional({ example: 'White,Black' }) @IsOptional() @IsString() @MaxLength(200) colour?: string;
+  @ApiPropertyOptional({ description: 'DealerTrade colour IDs 1–16, comma-separated; 1 means Any', example: '15,3' }) @IsOptional() @IsString() @Matches(/^(?:[1-9]|1[0-6])(?:,(?:[1-9]|1[0-6]))*$/) colourId?: string;
+  @ApiPropertyOptional({ description: 'DealerTrade colour IDs 1–16, comma-separated; 1 means Any', example: '15,3' }) @IsOptional() @IsString() @Matches(/^(?:[1-9]|1[0-6])(?:,(?:[1-9]|1[0-6]))*$/) colour_id?: string;
+  @ApiPropertyOptional({ description: 'DealerTrade colour IDs 1–16, comma-separated; 1 means Any', example: '15,3' }) @IsOptional() @IsString() @Matches(/^(?:[1-9]|1[0-6])(?:,(?:[1-9]|1[0-6]))*$/) color_id?: string;
   @ApiPropertyOptional({ description: 'Dealer slug' }) @IsOptional() @IsString() @MaxLength(120) dealer?: string;
   @ApiPropertyOptional() @IsOptional() @IsUUID() branchId?: string;
 
@@ -75,7 +78,7 @@ export class SearchVehiclesQueryDto extends SearchCriteriaDto {
 
 /** Fields that define a search (no paging/sorting) — what a saved search persists. */
 export const CRITERIA_KEYS = [
-  'q', 'make', 'model', 'variant', 'condition', 'category', 'fuelType', 'transmission', 'drivetrain', 'province', 'city', 'colour',
+  'q', 'make', 'model', 'variant', 'condition', 'category', 'fuelType', 'transmission', 'drivetrain', 'province', 'city', 'colour', 'colourId', 'colour_id', 'color_id',
   'dealer', 'branchId', 'minPrice', 'maxPrice', 'minYear', 'maxYear', 'minMileage', 'maxMileage', 'minEngineCc', 'maxEngineCc',
   'minPowerKw', 'maxPowerKw', 'seats', 'cylinders', 'onSpecial', 'featured', 'availableOnly', 'collection', 'lat', 'lng', 'radiusKm',
 ] as const satisfies readonly (keyof SearchCriteriaDto)[];

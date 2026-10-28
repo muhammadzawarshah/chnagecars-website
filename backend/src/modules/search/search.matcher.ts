@@ -1,3 +1,4 @@
+import { selectedColourIds, standardColourId } from '../vehicles/standard-colours';
 import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
 import { splitCsv } from '../../common/utils/strings';
 import { SearchCriteriaDto } from './dto/search.dto';
@@ -78,6 +79,8 @@ export function matchesCriteria(vehicle: VehicleSnapshot, criteria: SearchCriter
   if (categories.length && !categories.some((slug) => vehicle.categorySlugs.includes(slug))) return false;
 
   if (criteria.city && criteria.city.toLowerCase() !== vehicle.city.toLowerCase()) return false;
+  const colourIds = selectedColourIds(criteria);
+  if (colourIds.length && !colourIds.includes(1) && !colourIds.includes(standardColourId(vehicle.colour))) return false;
   const colours = splitCsv(criteria.colour).map((value) => value.toLowerCase());
   if (colours.length && (!vehicle.colour || !colours.includes(vehicle.colour.toLowerCase()))) return false;
   if (criteria.dealer && criteria.dealer.toLowerCase() !== vehicle.dealerSlug) return false;

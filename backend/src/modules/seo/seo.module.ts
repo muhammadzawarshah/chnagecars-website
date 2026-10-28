@@ -8,6 +8,7 @@ import { Public } from '../../common/decorators/auth.decorators';
 import { Errors } from '../../common/errors/app-error';
 import { CacheNs, CacheService } from '../../infrastructure/cache/cache.service';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { listingSlugFilter } from '../../common/utils/strings';
 import { PUBLIC_SEARCH_STATUSES } from '../vehicles/vehicle-lifecycle';
 import { effectivePrice } from '../vehicles/vehicle.presenter';
 
@@ -95,7 +96,7 @@ export class SeoService {
   /** schema.org JSON-LD for a vehicle page ("Car" + "Offer"). */
   async vehicleStructuredData(slug: string) {
     const vehicle = await this.prisma.replica.vehicle.findFirst({
-      where: { slug, status: { in: PUBLIC_SEARCH_STATUSES } },
+      where: { slug: listingSlugFilter(slug), status: { in: PUBLIC_SEARCH_STATUSES } },
       include: { make: true, model: true, dealer: { select: { name: true } } },
     });
     if (!vehicle) throw Errors.notFound('Vehicle');

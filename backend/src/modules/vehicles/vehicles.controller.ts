@@ -40,15 +40,24 @@ export class PublicVehiclesController {
   @Get()
   @ApiOperation({ summary: 'Search, filter and sort listed vehicles (FR-02, FR-03, FR-05, FR-06, FR-07, FR-27)' })
   async searchVehicles(@Query() query: SearchVehiclesQueryDto, @CurrentUser() user?: AuthUser) {
-    const result = await this.search.search(query);
-    return { ...result, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
+    const [result, source] = await Promise.all([this.search.search(query), this.vehicles.sourceSummary()]);
+    return { ...result, meta: { ...result.meta, stockCount: result.meta.total, source }, data: await this.vehicles.withFavouriteFlags(result.data, user?.id) };
+  }
+
+  @Public()
+  @Get('source-summary')
+  @ApiOperation({ summary: 'Latest DealerTrade stock count and source update timestamp (independent of local search counts)' })
+  sourceSummary() {
+    return this.vehicles.sourceSummary();
   }
 
   @Public()
   @Get('facets')
   @ApiOperation({ summary: 'Counts per make, fuel, transmission, province, condition and category for a search' })
-  facets(@Query() query: SearchCriteriaDto) {
-    return this.search.facets(query);
+  async facets(@Query() query: SearchCriteriaDto) {
+    const result = await this.search.facets(query);
+    const count = await this.vehicles.searchButtonCount(query, result.total);
+    return { ...result, searchCount: count.total, source: count.source };
   }
 
   @Public()
@@ -63,7 +72,7 @@ export class PublicVehiclesController {
   @ApiOperation({ summary: 'colours options and counts for active search filters' })
   async filterColour(@Query() query: SearchCriteriaDto) {
     const facets = await this.search.facets(query);
-    return { total: facets.total, options: facets.colour };
+    return { total: facets.total, stockCount: facets.total, options: facets.colour };
   }
 
   @Public()
@@ -117,8 +126,9 @@ export class PublicVehiclesController {
   @Public()
   @Get('count')
   @ApiOperation({ summary: 'Count listed vehicles matching filter criteria (GET query params)' })
-  count(@Query() query: SearchCriteriaDto) {
-    return this.search.count(query);
+  async count(@Query() query: SearchCriteriaDto) {
+    const result = await this.search.count(query);
+    return this.vehicles.searchButtonCount(query, result.total);
   }
 
   @Public()
@@ -126,7 +136,7 @@ export class PublicVehiclesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Count listed vehicles matching filter criteria (POST JSON body)' })
   countPost(@Body() body: SearchCriteriaDto) {
-    return this.search.count(body);
+    return this.count(body);
   }
 
   @OptionalAuth()

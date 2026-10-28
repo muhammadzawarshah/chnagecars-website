@@ -23,7 +23,8 @@ describe('complete local filter snapshot', () => {
     expect(result.total).toBe(2);
     expect(result.options.models.map((item) => item.value)).toEqual(['audi:q3', 'other:q3']);
     expect(result.options.variants).toHaveLength(2);
-    expect(result.options.colour).toEqual([{ value: 'black', count: 2 }]);
+    expect(result.options.colour).toHaveLength(16);
+    expect(result.options.colour.find(c => c.id === 3)).toMatchObject({ value: 'black', count: 2, stockCount: 2 });
     expect(result.options.powerKw).toEqual([]);
     expect(result.ranges.price).toEqual({ min: 200000, max: 300000 });
     expect(result.ranges.powerKw).toEqual({ min: null, max: null });
@@ -39,7 +40,10 @@ describe('complete local filter snapshot', () => {
     const result = buildFilterData([]);
     expect(result.total).toBe(0);
     expect(result.vehicles).toEqual([]);
-    for (const options of Object.values(result.options)) expect(options).toEqual([]);
+    for (const [key, options] of Object.entries(result.options)) {
+      if (key === 'colour') expect(options).toHaveLength(16);
+      else expect(options).toEqual([]);
+    }
     for (const range of Object.values(result.ranges)) expect(range).toEqual({ min: null, max: null });
   });
 

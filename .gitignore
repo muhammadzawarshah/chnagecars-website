@@ -65,3 +65,6 @@ next-env.d.ts
 *.zip
 /client-handover/
 /superadmin-client/
+
+# Separate customer-view frontend repository
+/change-cars-frontend/

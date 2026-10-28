@@ -8,14 +8,31 @@ function setup() {
     { versionedKey: jest.fn().mockResolvedValue('detail'), wrap: jest.fn((_key, _ttl, load) => load()) } as any,
     { resolveFeatures: jest.fn().mockResolvedValue([]) } as any,
     null,
+    {} as any,
   );
   return { service, vehicle };
 }
 
 describe('vehicle detail recommendations', () => {
+  it('uses supplier colour in detail and specifications while preserving recommendation colours', async () => {
+    const { service, vehicle } = setup();
+    vehicle.findFirst.mockResolvedValue({ ...card('base'), colour: 'White',
+      sourceData: { importPolicy: 'dealertrade-only', dealertrade: { colour: 'PURE WHITE' } },
+      city: 'Pretoria', province: 'Gauteng', dealer: { address: '' }, branch: null });
+    jest.spyOn(service, 'fromSameDealer').mockResolvedValue([{ ...card('related'), colour: 'White' }] as any);
+    jest.spyOn(service, 'similar').mockResolvedValue([]);
+    jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
+    jest.spyOn(service as any, 'recordView').mockResolvedValue(undefined);
+    const result = await service.detail('base');
+    expect(result.colour).toBe('Pure White');
+    expect(result.technicalSpecifications.colour).toBe('Pure White');
+    expect(result.moreFromThisDealer[0]).toMatchObject({ colour: 'White' });
+    expect(result).not.toHaveProperty('sourceData');
+  });
+
   it('overlays favourites per user without modifying shared cards', async () => {
     const findMany = jest.fn().mockResolvedValueOnce([{ vehicleId: 'base' }]).mockResolvedValueOnce([]);
-    const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null);
+    const service = new PublicVehiclesService({ favourite: { findMany } } as any, {} as any, {} as any, null, {} as any);
     const shared = [card('base'), card('other')];
     expect((await service.withFavouriteFlags(shared, 'user-a')).map(row => row.isFavourite)).toEqual([true, false]);
     expect((await service.withFavouriteFlags(shared, 'user-b')).map(row => row.isFavourite)).toEqual([false, false]);
@@ -34,7 +51,7 @@ describe('vehicle detail recommendations', () => {
     jest.spyOn(service, 'listingInsights').mockResolvedValue({ source: 'this-site' } as any);
     const result = await service.detail('base-slug');
     expect(result.location).toEqual({ city: 'Bethlehem', province: 'Free State', address: 'Branch address', latitude: -28, longitude: 28, country: 'South Africa' });
-    expect(result.additionalInformation).toBe('Full dealer information');
+    expect(result.additionalInformation).toBe('Full Dealer Information');
     expect(result.mapDetails.googleMapsUrl).toContain('query=-28%2C28');
     expect(result.mapDetails.embedUrl).toContain('q=-28%2C28&output=embed');
     expect(result.moreFromThisDealer[0].id).toBe('dealer-car');
@@ -69,5 +86,29 @@ describe('vehicle detail recommendations', () => {
     vehicle.findMany.mockResolvedValue([]);
     expect(await service.fromSameDealer('base')).toEqual([]);
     expect(vehicle.findMany.mock.calls[0][0]).toMatchObject({ take: 6, where: { dealerId: 'dealer', id: { not: 'base' }, status: { in: ['PUBLISHED', 'RESERVED'] }, dealer: { status: 'APPROVED' } } });
+  });
+});
+
+describe('DealerTrade stock summary', () => {
+  it('delegates to the live DealerTrade stock service', async () => {
+    const summary = { source: 'dealertrade', total_stock_count: 38654 };
+    const service = new PublicVehiclesService({} as any, {} as any, {} as any, null, { summary: jest.fn(async () => summary) } as any);
+    expect(await service.sourceSummary()).toBe(summary);
+  });
+});
+
+
+describe('combined search button count', () => {
+  it('uses the supplier count only for an unrestricted search, preserving zero and fallback', async () => {
+    const { service } = setup();
+    const source = jest.spyOn(service, 'sourceSummary');
+    source.mockResolvedValue({ total_stock_count: 38904 } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 38904, localTotal: 44500, formatted: '38 904' });
+    expect(await service.searchButtonCount({ make: 'toyota' }, 120)).toMatchObject({ total: 120 });
+    expect(await service.searchButtonCount({ colourId: '1' }, 44500)).toMatchObject({ total: 38904 });
+    source.mockResolvedValue({ total_stock_count: 0 } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 0 });
+    source.mockResolvedValue({ total_stock_count: null } as any);
+    expect(await service.searchButtonCount({}, 44500)).toMatchObject({ total: 44500 });
   });
 });

@@ -20,3 +20,7 @@ Both frontends talk only to the backend API (`API_URL`, including `/api/v1`); ne
 Downloaded vehicle photos and dealer logos live in `frontend/public/media/` (not in Git). The backend import/sync scripts read and write that folder.
 
 Local development: see [LOCAL_SETUP.md](LOCAL_SETUP.md). Super admin deployment: see [superadmin/README.md](superadmin/README.md).
+
+## Dealer app integrations
+
+Additional dealer apps use dealer-bound credentials on the central backend. See the [dealer app API guide](backend/docs/dealer-app-api.md) for token issuance, JSON examples, inventory/profile operations, photos and release instructions, and the [API test report](backend/docs/dealer-app-testing.md) for coverage and reproducible checks.

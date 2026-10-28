@@ -1,9 +1,9 @@
+import { selectedColourIds, STANDARD_COLOURS } from '../vehicles/standard-colours';
 import { expandBodyTypeSlugs } from '../vehicles/body-type-mapping';
-import { dealerTradeVehicleWhere } from '../vehicles/dealertrade-visibility';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { Drivetrain, toDrivetrain } from '../../common/utils/drivetrain';
 import { Province, toProvince } from '../../common/utils/province';
-import { splitCsv } from '../../common/utils/strings';
+import { listingSlugFilter, splitCsv } from '../../common/utils/strings';
 import { Collection, SearchCriteriaDto, SortKey } from './dto/search.dto';
 
 const ENUMS = {
@@ -89,7 +89,7 @@ export function boundingBox(lat: number, lng: number, radiusKm: number) {
 
 /** Criteria → Prisma `where`. Public visibility rules (BR-01, BR-04, BR-05) are always applied. */
 export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prisma.VehicleWhereInput {
-  const and: Prisma.VehicleWhereInput[] = [dealerTradeVehicleWhere()];
+  const and: Prisma.VehicleWhereInput[] = [];
 
   and.push({ status: criteria.availableOnly ? VehicleStatus.PUBLISHED : { in: [VehicleStatus.PUBLISHED, VehicleStatus.RESERVED] } });
   and.push({ dealer: { status: 'APPROVED' } });
@@ -130,9 +130,11 @@ export function buildWhere(criteria: SearchCriteriaDto, now = new Date()): Prism
   if (categories.length) and.push({ categories: { some: { slug: { in: categories } } } });
 
   if (criteria.city) and.push({ city: { equals: criteria.city, mode: 'insensitive' } });
+  const colourIds = selectedColourIds(criteria);
+  if (colourIds.length && !colourIds.includes(1)) and.push({ colour: { in: STANDARD_COLOURS.filter(c => colourIds.includes(c.id)).map(c => c.name) } });
   const colours = splitCsv(criteria.colour);
   if (colours.length) and.push({ OR: colours.map((colour) => ({ colour: { equals: colour, mode: 'insensitive' as const } })) });
-  if (criteria.dealer) and.push({ dealer: { slug: criteria.dealer.toLowerCase() } });
+  if (criteria.dealer) and.push({ dealer: { slug: listingSlugFilter(criteria.dealer.toLowerCase()) } });
   if (criteria.branchId) and.push({ branchId: criteria.branchId });
 
   const range = (field: 'price' | 'year' | 'mileage' | 'engineCapacityCc' | 'powerKw', min?: number, max?: number) => {

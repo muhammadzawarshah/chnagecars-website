@@ -1,8 +1,10 @@
-import { dealerTradeVehicleWhere } from './dealertrade-visibility';
+import { standardColourId } from './standard-colours';
+import { buildWhere } from '../search/search.builder';
+import { SearchCriteriaDto } from '../search/dto/search.dto';
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { Errors } from '../../common/errors/app-error';
-import { splitCsv } from '../../common/utils/strings';
+import { listingSlugFilter, splitCsv } from '../../common/utils/strings';
 import { CacheNs, CacheService } from '../../infrastructure/cache/cache.service';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { REDIS, RedisClient } from '../../infrastructure/redis/redis.module';
@@ -10,6 +12,8 @@ import { CatalogueService } from '../catalogue/catalogue.service';
 import { financeExample } from '../finance/finance.calculator';
 import { PUBLIC_DETAIL_STATUSES, PUBLIC_SEARCH_STATUSES } from './vehicle-lifecycle';
 import { effectivePrice, publicVehicleDetailSelect, publicVehicleSelect, withAvailability } from './vehicle.presenter';
+import { detailColour, dealerTradeColourId } from './detail-colour';
+import { DealerTradeStockService } from '../../infrastructure/dealertrade/dealertrade-stock.service';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VIEWS_KEY = 'cc:views:pending';
@@ -27,7 +31,23 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     private readonly cache: CacheService,
     private readonly catalogue: CatalogueService,
     @Inject(REDIS) private readonly redis: RedisClient,
+    private readonly stock: DealerTradeStockService,
   ) {}
+
+  /** Live DealerTrade stock counts (see DealerTradeStockService). */
+  sourceSummary() {
+    return this.stock.summary();
+  }
+
+  /** Supplier total for the combined button; filtered counts remain local matches. */
+  async searchButtonCount(criteria: SearchCriteriaDto, localTotal: number) {
+    const source = await this.sourceSummary();
+    const now = new Date();
+    const unfiltered = JSON.stringify(buildWhere(criteria, now)) === JSON.stringify(buildWhere({}, now));
+    const total = unfiltered ? source.total_stock_count ?? localTotal : localTotal;
+    return { total, count: total, searchCount: total, localTotal,
+      formatted: total.toLocaleString('en-US').replace(/,/g, ' '), source };
+  }
 
   /**
    * Without Redis, views are counted in this process's memory, which a separate worker process
@@ -58,14 +78,13 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
 
   /** FR-04 vehicle detail page. Accepts the SEO slug or the id. */
   async detail(slugOrId: string, viewerId?: string) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:${slugOrId}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:source-colour:v2:${slugOrId}`);
     const vehicle = await this.cache.wrap(key, 300, async () => {
       const row = await this.prisma.replica.vehicle.findFirst({
         where: {
-          ...((UUID.test(slugOrId) || /^\d+$/.test(slugOrId)) ? { id: slugOrId } : { slug: slugOrId }),
+          ...((UUID.test(slugOrId) || /^\d+$/.test(slugOrId)) ? { id: slugOrId } : { slug: listingSlugFilter(slugOrId) }),
           status: { in: PUBLIC_DETAIL_STATUSES },
           dealer: { status: 'APPROVED' },
-          ...dealerTradeVehicleWhere(),
         },
         select: publicVehicleDetailSelect,
       });
@@ -96,7 +115,9 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
           : location.address || `${location.city}, South Africa`,
       );
       return {
-        ...withAvailability(rest),
+        ...withAvailability({ ...rest, colour: detailColour(rest) }),
+        colour_id: dealerTradeColourId(rest),
+        colourId: standardColourId(row.colour),
         features,
         location,
         mapDetails: {
@@ -130,7 +151,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       throw Errors.badRequest('COMPARE_COUNT', 'Compare between 2 and 4 vehicles by id');
     }
     const rows = await this.prisma.replica.vehicle.findMany({
-      where: { id: { in: ids }, status: { in: PUBLIC_DETAIL_STATUSES }, ...dealerTradeVehicleWhere() },
+      where: { id: { in: ids }, status: { in: PUBLIC_DETAIL_STATUSES } },
       select: { ...publicVehicleSelect, makeId: true, modelId: true, generationId: true, variantId: true, variant: { select: { id: true, name: true, slug: true, specification: true } } },
     });
     const items = await Promise.all(
@@ -153,7 +174,6 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
       id: { not: id },
       status: { in: PUBLIC_SEARCH_STATUSES },
       dealer: { status: 'APPROVED' },
-      ...dealerTradeVehicleWhere(),
     };
     const sameModel = await this.prisma.replica.vehicle.findMany({
       where: { ...visible, modelId: base.modelId },
@@ -179,7 +199,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { dealerId: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const rows = await this.prisma.replica.vehicle.findMany({
-      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' }, ...dealerTradeVehicleWhere() },
+      where: { dealerId: base.dealerId, id: { not: id }, status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' } },
       select: publicVehicleSelect,
       orderBy: { publishedAt: 'desc' },
       take: limit,
@@ -198,7 +218,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const [peers, views, enquiries] = await Promise.all([
       base.year === null ? Promise.resolve(null) : this.prisma.replica.vehicle.aggregate({
         where: { id: { not: id }, modelId: base.modelId, year: { gte: base.year - 1, lte: base.year + 1 },
-          ...(base.variantId ? { variantId: base.variantId } : {}), status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' }, ...dealerTradeVehicleWhere() },
+          ...(base.variantId ? { variantId: base.variantId } : {}), status: { in: PUBLIC_SEARCH_STATUSES }, dealer: { status: 'APPROVED' } },
         _avg: { price: true, mileage: true }, _count: { price: true, mileage: true },
       }),
       this.prisma.replica.vehicleViewDaily.aggregate({ where: { vehicleId: id, day: { gte: dayStart, lte: now } }, _sum: { views: true } }),
@@ -217,7 +237,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
     const base = await this.prisma.replica.vehicle.findUnique({ where: { id }, select: { modelId: true, year: true, price: true } });
     if (!base) throw Errors.notFound('Vehicle');
     const stats = await this.prisma.replica.vehicle.aggregate({
-      where: { id: { not: id }, modelId: base.modelId, year: base.year === null ? undefined : { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES }, ...dealerTradeVehicleWhere() },
+      where: { id: { not: id }, modelId: base.modelId, year: base.year === null ? undefined : { gte: base.year - 1, lte: base.year + 1 }, status: { in: PUBLIC_SEARCH_STATUSES } },
       _avg: { price: true },
       _min: { price: true },
       _max: { price: true },

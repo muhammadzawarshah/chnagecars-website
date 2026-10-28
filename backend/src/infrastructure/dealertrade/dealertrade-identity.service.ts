@@ -88,13 +88,11 @@ export class DealerTradeIdentityService {
 
   whatsappNumber(id: string) { return this.whatsapp.get(this.external.get(id) ?? id) ?? null; }
 
-  dealerIds() { return [...new Set([...this.dealers.values()].map(row => row.id))]; }
-
   async request(req: Request, _res: Response, next: NextFunction) {
     try {
       const url = new URL(req.url, 'http://local');
       // Leave account/auth/admin/dealer portal identities and their contracts alone.
-      if (!/\/(vehicles|dealers|customers|me|enquiries|promotions)(\/|$)|\/web\/(cars|forms)(\/|$)/.test(url.pathname) || /\/(admin|dealer|dashboard)\//.test(url.pathname)) return next();
+      if (!/\/(vehicles|dealers|customers|me|enquiries|promotions)(\/|$)|\/web\/(cars|forms)(\/|$)/.test(url.pathname) || /\/(admin|dealer|dealer-app|dashboard)\//.test(url.pathname)) return next();
       await this.refresh();
       const parts = url.pathname.split('/');
       for (let i = 1; i < parts.length; i++) {
