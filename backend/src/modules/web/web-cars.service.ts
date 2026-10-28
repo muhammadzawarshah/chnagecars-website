@@ -41,8 +41,6 @@ const MAX_LIMIT = 48;
 const MAX_FEATURED_POOL = 500;
 /** Recent and featured cars need a real model year: excludes null as well as 0 or junk values from feeds. */
 const WITH_YEAR = { year: { gte: 1900 } } satisfies Prisma.VehicleWhereInput;
-/** Recent cars are shuffled from this many newest listings. */
-const RECENT_POOL = 100;
 
 /** Fisher–Yates shuffle into a new array. */
 function shuffle<T>(items: T[]): T[] {
@@ -309,19 +307,15 @@ export class WebCarsService {
     return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
-  /** A fresh random pick from the newest listings on every call; listings without a year are left out. */
+  /** The newest listings, newest first (DealerTrade's listing time); listings without a year are left out. */
   async recent(limit?: number) {
-    const take = clampLimit(limit, 6);
-    const candidates = await this.db.vehicle.findMany({
+    const rows = await this.db.vehicle.findMany({
       where: this.publicWhere({ ...WITH_YEAR }),
-      select: { id: true },
+      select: carSelect,
       orderBy: ORDER.recent,
-      take: Math.max(RECENT_POOL, take),
+      take: clampLimit(limit, 6),
     });
-    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, take);
-    const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
+    return rows.map(toWebCar);
   }
 
   /** Detail page: sold cars stay reachable (marked by the website as sold) and the view is counted. */
