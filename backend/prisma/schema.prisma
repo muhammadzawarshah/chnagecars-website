@@ -787,6 +787,7 @@ model Vehicle {
   enquiries          Enquiry[]
   leads              Lead[]
   viewDays           VehicleViewDaily[]
+  priceAlerts        PriceAlert[]
 
   /// Upstream dealers can reuse a stock code for distinct source vehicle IDs.
   @@index([dealerId, stockNumber])
@@ -977,6 +978,28 @@ model Favourite {
   @@id([userId, vehicleId])
   @@index([vehicleId])
   @@map("favourites")
+}
+
+/// "Track this vehicle's price": a person asks to be told when this vehicle's price drops. No login needed.
+/// One alert per vehicle and email; signing up again updates the name and WhatsApp number.
+model PriceAlert {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  vehicleId      String
+  name           String
+  email          String
+  whatsappNumber String?
+  /// Vehicle price shown when the person signed up, to compare against later.
+  priceAtSignup  Int
+  /// Set when the person was signed in.
+  userId         String?  @db.Uuid
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([vehicleId, email])
+  @@index([email])
+  @@map("price_alerts")
 }
 
 model SavedSearch {
