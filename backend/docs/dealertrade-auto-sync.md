@@ -16,9 +16,14 @@ Optional environment settings:
 DEALERTRADE_SYNC_ENABLED=true
 DEALERTRADE_TOKEN=<DealerTrade bearer token>
 DEALERTRADE_SYNC_INTERVAL_MINUTES=10
+DEALERTRADE_QUICK_SYNC_MINUTES=2
 ```
 
-Set `DEALERTRADE_SYNC_ENABLED=false` to disable it. The interval must be at least five minutes; invalid values fall back to 10 minutes. A run that takes longer than the interval is never overlapped; the next run starts after it finishes. Restart the backend after changing configuration. The standalone worker also loads the job; the database lock prevents overlapping imports.
+A full capture takes about 20 minutes, so a **quick sync** also runs every `DEALERTRADE_QUICK_SYNC_MINUTES` (default 2; `0` disables it). It reads DealerTrade's first stock page, which holds the newest 100 listings (`created_at` descending; the API ignores `per_page`), and runs the same plan → apply → verify pipeline on those rows only (`DEALERTRADE_RECONCILE_SCOPE=source`). New listings therefore appear within a few minutes, with the same photo, catalogue and verification rules. The quick sync does not rename shared makes, models or variants; the full sync does. It logs only when something was created or updated, and on HTTP 429 it waits for `Retry-After` (at least one minute) without an error.
+
+The full and quick sync never write at the same time: both take a second advisory lock while planning, applying and verifying, and the quick sync skips a run while the full sync holds it. A full capture can be older than rows the quick sync stored meanwhile; such rows (stored `updated_at` newer than the captured one) are skipped by the full run instead of being overwritten with older data.
+
+Set `DEALERTRADE_SYNC_ENABLED=false` to disable both. The interval must be at least five minutes; invalid values fall back to 10 minutes. A run that takes longer than the interval is never overlapped; the next run starts after it finishes. Restart the backend after changing configuration. The standalone worker also loads the job; the database lock prevents overlapping imports.
 
 The backend Docker image includes Python, curl and the capture script. For non-Docker hosting, install Python 3 and curl, retain `scripts/`, `prisma/`, `src/` (the reconciler imports source helpers) and production dependencies, and start from the backend directory. Each step has a 45-minute timeout. The fetcher retries transient API failures and respects rate limits.
 

@@ -19,6 +19,8 @@ const root=resolve(__dirname,'../..'),dir=resolve(process.env.DEALERTRADE_RECONC
 const source=resolve(dir,'source'),planFile=resolve(dir,'plan.json');
 const db=new PrismaClient({adapter:new PrismaPg({connectionString:process.env.DATABASE_URL!,max:10,options:'-c TimeZone=UTC'})});
 const mode=process.argv[2]??'--plan';
+// The quick sync passes only DealerTrade's newest rows: state and catalogue changes are limited to those rows.
+const scoped=process.env.DEALERTRADE_RECONCILE_SCOPE==='source';
 const read=(p:string)=>JSON.parse(readFileSync(p,'utf8'));
 const json=(value:any)=>JSON.parse(JSON.stringify(value));
 const uuid=(key:string,namespace='dealertrade')=>{const h=createHash('sha256').update(`changecars-${namespace}:${key}`).digest('hex');return `${h.slice(0,8)}-${h.slice(8,12)}-5${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;};
@@ -43,9 +45,11 @@ function cachedImage(url:string){
   return {url:existsSync(file)&&statSync(file).size>16?path:url,sizeBytes:existsSync(file)&&statSync(file).size>16?statSync(file).size:null,contentType:ext==='.png'?'image/png':ext==='.webp'?'image/webp':'image/jpeg'};
 }
 async function state(){
-  const vehicles=await db.vehicle.findMany({include:{categories:{select:{id:true,slug:true}},images:true}});
-  const dealers=await db.dealer.findMany({include:{branches:true}});
-  const raw=await db.sourceFeedRecord.findMany({where:{source:'dealertrade'}});
+  const sourceRows:Row[]=scoped?read(resolve(source,'vehicles.json')):[],sourceDealers:Row[]=scoped?read(resolve(source,'dealers.json')):[];
+  const ids=sourceRows.map(r=>String(r.vehicle_id)),dealerIds=[...new Set([...sourceRows,...sourceDealers].map(r=>String(r.dealer_id)))];
+  const vehicles=await db.vehicle.findMany({where:scoped?{id:{in:ids}}:undefined,include:{categories:{select:{id:true,slug:true}},images:true}});
+  const dealers=await db.dealer.findMany({where:scoped?{id:{in:dealerIds}}:undefined,include:{branches:true}});
+  const raw=await db.sourceFeedRecord.findMany({where:{source:'dealertrade',...(scoped?{OR:[{kind:'vehicle',externalId:{in:ids}},{kind:'dealer',externalId:{in:dealerIds}}]}:{})}});
   return {vehicles,dealers,raw,makes:await db.make.findMany(),models:await db.model.findMany(),variants:await db.variant.findMany({include:{specification:true}}),categories:await db.category.findMany()};
 }
 function scalarVehicle(v:Row){const {images,categories,...columns}=v;return json(columns);}
@@ -58,6 +62,7 @@ async function plan(){
   for(const v of s.vehicles){const id=(v.sourceData as Row|null)?.vehicle_id;if(id){if(byExternal.has(String(id)))throw Error('Duplicate database identity '+id);byExternal.set(String(id),v);}}
   const dealers=new Map(s.dealers.map(d=>[d.id,d]));
   const makes=new Map(s.makes.map(m=>[m.slug,m])),models=new Map(s.models.map(m=>[m.makeId+':'+m.slug,m]));
+  const stale:string[]=[];
   const catalogue:{kind:string;id:string;before:Row|null;data:Row}[]=[],dealerPlans:Row[]=[],vehiclePlans:Row[]=[],rawOnly:Row[]=[],issues:Row[]=[];
   const dealerCities=new Map<string,string>();
   for(const r of rows){const p=String(r.single_vehicle_url??'').split('/');if(p[2])dealerCities.set(String(r.dealer_id),decodeURIComponent(p[2]).replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));}
@@ -77,7 +82,10 @@ async function plan(){
   }
   for(const r of rows){
     const externalId=String(r.vehicle_id),v=byExternal.get(externalId),dealerId=String(r.dealer_id),dealer=dealers.get(dealerId);
-    const rawBefore=rawMap.get('vehicle:'+externalId),merged=mergeProvided(rawBefore,r),rawUnchanged=rawBefore!==undefined&&sameSource(rawBefore,merged),payload=rawUnchanged?rawBefore:merged;
+    const rawBefore=rawMap.get('vehicle:'+externalId);
+    // A newer copy was already stored by the quick sync while this capture was running.
+    if(rawBefore&&String((rawBefore as Row).updated_at??'')>String(r.updated_at??'')){stale.push(externalId);continue;}
+    const merged=mergeProvided(rawBefore,r),rawUnchanged=rawBefore!==undefined&&sameSource(rawBefore,merged),payload=rawUnchanged?rawBefore:merged;
     const oldSource=(v?.sourceData as Row|null)??{},sourceData:Row={...oldSource,vehicle_id:externalId,dealertrade:mergeProvided(oldSource.dealertrade,r)};
     const before=v?scalarVehicle(v):null,patch:Row=sourceVehicleAttributes(r);
     const numeric:Row={price:'price',mileage:'mileage',engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',image_count:'imageCount'};
@@ -138,7 +146,7 @@ async function plan(){
     if(vehiclePlans.length%5000===0)console.log(`Planned ${vehiclePlans.length}/${rows.length} source rows`);
   }
   // Shared catalogue names can only be overwritten when the source agrees.
-  for(const kind of ['make','model']){
+  for(const kind of scoped?[]:['make','model']){
     const names=new Map<string,Set<string>>();
     for(const r of rows){if(empty(r.make_name)||empty(r.model_name))continue;const make=makes.get(slugify(r.make_name))!,entity=kind==='make'?make:models.get(make.id+':'+slugify(r.model_name))!;const set=names.get(entity.id)??new Set();set.add(kind==='make'?r.make_name:r.model_name);names.set(entity.id,set);}
     for(const [id,values]of names){const existing=(kind==='make'?s.makes:s.models).find(x=>x.id===id);if(!existing)continue;if(values.size===1){const name=titleCase([...values][0]);if(existing.name!==name)catalogue.push({kind,id,before:json(existing),data:{name}});}else issues.push({kind,externalId:id,field:'name',reason:'Source aliases conflict for one shared catalogue identity; each exact name retained per vehicle JSON'});}
@@ -152,6 +160,8 @@ async function plan(){
     const names=[...new Set(group.map(x=>x.variant_name).filter(x=>!empty(x)))],dates=[...new Set(group.map(x=>x.introduction_date).filter(x=>!empty(x)))];
     const date=dates.length===1&&/^(19|20)\d{2}-\d{2}-\d{2}$/.test(dates[0])?dates[0]:null;
     const parsed=date?new Date(date+'T00:00:00Z'):null,validDate=parsed&&!Number.isNaN(parsed.getTime())&&parsed.toISOString().slice(0,10)===date;
+    // The quick sync sees only a few cars of a variant, so it links existing variants without changing them.
+    if(scoped&&existing){for(const sourceRow of group){const v=vehicleByExternal.get(String(sourceRow.vehicle_id))!;if(v.create)v.create.variantId=existing.id;else if(v.before.variantId!==existing.id)v.patch.variantId=existing.id;}continue;}
     if(!existing&&(!validDate||names.length!==1)){issues.push({kind:'variant',externalId:String(r.model_variant_id),field:'variantId',reason:'Cannot create a variant without a valid source introduction year and consistent name; complete per-car API values retained in JSON'});continue;}
     const id=existing?.id??uuid('variant:'+key),data:Row={};if(names.length===1)data.name=titleCase(names[0]);if(validDate)data.yearFrom=Number(date!.slice(0,4));
     const create=existing?null:{id,modelId,name:titleCase(names[0]),slug:`${slugify(names[0])}-dealertrade-${r.model_variant_id}`,yearFrom:data.yearFrom};
@@ -169,7 +179,7 @@ async function plan(){
   }
   const plannedIds=new Set(vehiclePlans.map(v=>v.id));
   const rawKeys=new Set([...rows.map(r=>'vehicle:'+r.vehicle_id),...dealerRows.map(r=>'dealer:'+r.dealer_id)]),dealerIds=new Set(dealerPlans.map(d=>d.id));
-  const result={metadataPayload,createdAt:new Date().toISOString(),policy:'API nonempty values win; null/blank/empty collections preserve existing data; zero and false are nonempty. Missing source rows are untouched.',capture,catalogue,dealerPlans,vehiclePlans,variantPlans,rawOnly,issues,untouchedRaw:json(s.raw.filter(r=>!rawKeys.has(r.kind+':'+r.externalId)&&!(metadataPayload&&r.kind==='metadata'&&r.externalId==='stock'))),untouchedDealers:json(s.dealers.filter(d=>!dealerIds.has(d.id))),untouched:s.vehicles.filter(v=>!plannedIds.has(v.id)).map(v=>({id:v.id,before:scalarVehicle(v),images:json(v.images),categories:v.categories.map(c=>c.id)}))};
+  const result={stale,metadataPayload,createdAt:new Date().toISOString(),policy:'API nonempty values win; null/blank/empty collections preserve existing data; zero and false are nonempty. Missing source rows are untouched.',capture,catalogue,dealerPlans,vehiclePlans,variantPlans,rawOnly,issues,untouchedRaw:json(s.raw.filter(r=>!rawKeys.has(r.kind+':'+r.externalId)&&!(metadataPayload&&r.kind==='metadata'&&r.externalId==='stock'))),untouchedDealers:json(s.dealers.filter(d=>!dealerIds.has(d.id))),untouched:s.vehicles.filter(v=>!plannedIds.has(v.id)).map(v=>({id:v.id,before:scalarVehicle(v),images:json(v.images),categories:v.categories.map(c=>c.id)}))};
   const fd=openSync(resolve(dir,'vehicle-plans.ndjson'),'w');for(const v of vehiclePlans)writeSync(fd,JSON.stringify(v)+'\n');closeSync(fd);
   writeFileSync(planFile,JSON.stringify({...result,vehiclePlans:undefined,vehiclePlansFile:'vehicle-plans.ndjson'}));
   const changeRows:Row[]=[];
@@ -178,7 +188,7 @@ async function plan(){
   writeFileSync(resolve(dir,'changes.csv'),'kind,external_id,field,before,after\n'+changeRows.map(r=>[r.kind,r.externalId,r.field,JSON.stringify(r.before),JSON.stringify(r.after)].map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n')+'\n');
   const changes=vehiclePlans.filter(p=>!p.before||Object.keys(p.patch).length);
   const columns:Row={};for(const p of vehiclePlans)for(const key of Object.keys(p.patch))columns[key]=(columns[key]??0)+1;
-  const summary={at:result.createdAt,apiRows:rows.length,apiDealers:dealerRows.length,matched:vehiclePlans.filter(p=>p.before).length,newVehicles:vehiclePlans.filter(p=>!p.before).length,vehicleRowsWithChanges:changes.length,changedColumns:columns,variants:variantPlans.length,rawOnly:rawOnly.length,untouchedVehicles:result.untouched.length,issues:issues.length,issuesByField:issues.reduce((a:Row,r:Row)=>{const k=r.field??'row';a[k]=(a[k]??0)+1;return a;},{})};
+  const summary={at:result.createdAt,scoped,staleRowsSkipped:stale.length,apiRows:rows.length,apiDealers:dealerRows.length,matched:vehiclePlans.filter(p=>p.before).length,newVehicles:vehiclePlans.filter(p=>!p.before).length,vehicleRowsWithChanges:changes.length,changedColumns:columns,variants:variantPlans.length,rawOnly:rawOnly.length,untouchedVehicles:result.untouched.length,issues:issues.length,issuesByField:issues.reduce((a:Row,r:Row)=>{const k=r.field??'row';a[k]=(a[k]??0)+1;return a;},{})};
   write('plan-summary.json',summary);console.log(summary);
 }
 
@@ -224,7 +234,7 @@ async function apply(){
   if(p.metadataPayload)await rawUpsert(db,'metadata',{externalId:'stock',payload:p.metadataPayload});
 }
 async function verify(){
-  const p=await loadPlan(),s=await state(),vehicles=new Map(s.vehicles.map(v=>[v.id,v])),raw=new Map(s.raw.map(r=>[r.kind+':'+r.externalId,r.payload])),dealers=new Map(s.dealers.map(d=>[d.id,d]));
+  const p=await loadPlan(),stale=new Set<string>(p.stale??[]),s=await state(),vehicles=new Map(s.vehicles.map(v=>[v.id,v])),raw=new Map(s.raw.map(r=>[r.kind+':'+r.externalId,r.payload])),dealers=new Map(s.dealers.map(d=>[d.id,d]));
   const mismatches:Row[]=[],check=(kind:string,id:string,field:string,expected:any,actual:any)=>{if(!isDeepStrictEqual(json(expected??null),json(actual??null)))mismatches.push({kind,id,field,expected,actual});};
   let columns=0,preserved=0,photos=0,apiValues=0,emptyApiPreserved=0;
   const sourceValues=(kind:string,id:string,before:any,incoming:any,actual:any,path='')=>{
@@ -235,7 +245,7 @@ async function verify(){
   const inputRows:Row[]=read(resolve(source,'vehicles.json')),inputDealers:Row[]=read(resolve(source,'dealers.json'));
   const plannedRaw=new Map([...p.vehiclePlans,...p.rawOnly].map((r:Row)=>[r.externalId,r]));
   for(const input of inputRows){
-    const id=String(input.vehicle_id),planned=plannedRaw.get(id)as Row;sourceValues('api_value',id,planned.rawBefore,planned.rawUnchanged?withoutVolatile(input):input,raw.get('vehicle:'+id));
+    const id=String(input.vehicle_id),planned=plannedRaw.get(id)as Row;if(!planned&&stale.has(id))continue;sourceValues('api_value',id,planned.rawBefore,planned.rawUnchanged?withoutVolatile(input):input,raw.get('vehicle:'+id));
     const v=vehicles.get(planned.id);if(!v)continue;
     for(const [from,to]of Object.entries({price:'price',mileage:'mileage',engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',image_count:'imageCount'})){if(empty(input[from]))continue;const n=integer(input[from],from==='price'?1:0);if(n!==undefined)check('direct_api_column',id,to,n,(v as Row)[to]);}
     if(!empty(input.stockno))check('direct_api_column',id,'stockNumber',String(input.stockno),v.stockNumber);

@@ -1,6 +1,6 @@
 # Dealer Details App API
 
-Integration guide for the separate dealer app. The app shows one dealership's business details, branches, documents and complete vehicle inventory.
+Integration guide for the separate dealer app. The app shows one dealership, or a group of dealerships, with business details, branches, documents, complete vehicle inventory, and a vehicle detail screen with "You might like" suggestions from the same dealership or group.
 
 The API is read-only. It needs no login, token, API key or `Authorization` header. The app cannot add, edit or delete anything through it.
 
@@ -10,11 +10,21 @@ The API is read-only. It needs no login, token, API key or `Authorization` heade
 |---|---|
 | API base URL | `https://changecarapi.wowcar.co.th/api/v1` |
 | Dealer ID | Provided by the ChangeCars team per dealership, e.g. `3974`. Always keep IDs as strings. |
+| Dealer group (optional) | Several dealer IDs joined with commas, e.g. Group1: `3490,3491,3493,3496`. See [Dealer groups](#dealer-groups). |
 
-## Endpoint
+## Endpoints
+
+| Endpoint | Use it for |
+|---|---|
+| `GET /dealer-app/dealers/{dealerIds}` | Dealer profile(s) and paginated inventory |
+| `GET /dealer-app/dealers/{dealerIds}/vehicles/{vehicleId}` | One vehicle with "You might like" from the same dealer(s) ([details](#vehicle-detail-with-you-might-like)) |
+
+`{dealerIds}` is one dealer ID (`3974`) or a comma-separated group (`3490,3491,3493,3496`).
+
+### Dealer and inventory
 
 ```http
-GET https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/{dealerId}?page=1&pageSize=50
+GET https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/{dealerIds}?page=1&pageSize=50
 ```
 
 ```sh
@@ -24,22 +34,22 @@ curl "https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/3974?page=1&pa
 | Query parameter | Default | Rules |
 |---|---|---|
 | `page` | `1` | Integer, 1 or more. |
-| `pageSize` | `20` | Integer, 1–100. |
+| `pageSize` | `20` | Integer, 1–100. Use 20–50 in the app: each vehicle carries its full gallery and history, so 20 vehicles are about 280 KB and 100 vehicles about 1.3 MB. |
 
-No other query parameters are accepted. Any other parameter (for example `status` or `dealerId`) returns `400`.
+No other query parameters are accepted. Any other parameter (for example `status` or `dealerId`) returns `400`. A `page` after the last page returns `200` with an empty `vehicles.data`; `vehicles.meta` still shows the real `total` and `pageCount`.
 
 Responses are sent with `Cache-Control: private, no-store`. Do not cache them on a shared server, and fetch again when you need fresh data.
 
 ## Response
 
-The response has two top-level objects: `dealer` and `vehicles`. Example from the live API (shortened):
+The response has `dealer` (the dealer object), `dealers` (an array with the same dealer) and `vehicles`. For a [dealer group](#dealer-groups), `dealer` is not present and `dealers` lists every dealer. Example from the live API (shortened):
 
 ```json
 {
   "dealer": {
     "id": "3974",
     "name": "Gys Pitzer Motors Lindo Park",
-    "slug": "gys-pitzer-motors-lindo-park-fbook-3974",
+    "slug": "gys-pitzer-motors-lindo-park-3974",
     "legalName": null,
     "registrationNumber": null,
     "vatNumber": null,
@@ -166,11 +176,106 @@ Any stored value can be `null`, and any array can be empty. Build every screen t
 
 - **All statuses are included.** Unlike the public website, this endpoint returns every vehicle of the dealer: `DRAFT`, `PENDING_REVIEW`, `PUBLISHED`, `RESERVED`, `SOLD`, `ARCHIVED` and others. Group or filter by `status` in the app if needed.
 - **Order.** Vehicles come newest first (by `createdAt`).
+- **Availability.** `availability` is derived from `status`. Use it for the badge on cards:
+
+  | `status` | `availability` |
+  |---|---|
+  | `PUBLISHED` | `AVAILABLE` |
+  | `RESERVED` | `RESERVED` |
+  | `SOLD` | `SOLD` |
+  | `SUSPENDED` | `TEMPORARILY_UNAVAILABLE` |
+  | `ARCHIVED` | `ARCHIVED` |
+  | Any other (`DRAFT`, `PENDING_REVIEW`, `APPROVED`, `REJECTED`) | `NOT_LISTED` |
+
+- **Images.** Use `images[].url`. `thumbnailUrl`, `mediumUrl`, `largeUrl`, `width` and `height` are currently `null`. `primaryImageUrl` is the first photo. If `images` is empty, show a placeholder image.
+- **Dates.** `createdAt`, `updatedAt`, `publishedAt`, `soldAt` and the history dates are ISO 8601 in UTC (ending in `Z`). `publishedAt` is when the vehicle was listed by the dealer. `sourceCreatedAt` and `sourceUpdatedAt` are the stock supplier's own times, given as `YYYY-MM-DD HH:mm:ss` in South African time (UTC+2) without a zone.
+- **Vehicles can disappear.** A vehicle can be removed from the inventory, for example when its stock listing is withdrawn. A saved vehicle ID can then return `404` (`VEHICLE_NOT_FOUND`); remove it from the app and reload the list.
+- **Dealer status.** `dealer.status` is normally `APPROVED`. A dealer can also be `SUSPENDED`; the API still returns it, so decide in the app whether to show a notice.
 - **Prices** are whole Rand. Show `effectivePrice`, which is the special price when the vehicle is on special. `formattedMonthlyPrice` is a ready-to-display finance estimate.
 - **Colour.** `colour` is one of 16 standard colours used for filtering. `colourId` is that colour's ID (1–16). For many vehicles the supplier does not give a standard colour, so `colour` is `"Unknown"` (`colourId: 14`).
 - **VIN and registration** are often `null`, because the stock supplier does not send them for most vehicles. Show a "Not provided" label.
 - **Business details** (`legalName`, `vatNumber` and similar) are `null` until the dealer's details are captured.
 - **Documents** are empty until the dealer uploads them.
+
+## Dealer groups
+
+Put several dealer IDs in the path, separated by commas, to show a dealer group as one app. Both endpoints accept this.
+
+```sh
+curl "https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/3490,3491,3493,3496?page=1&pageSize=50"
+curl "https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/3490,3491,3493,3496/vehicles/1043137"
+```
+
+| | One dealer ID | Group of IDs |
+|---|---|---|
+| `dealer` | The dealer object | Not present |
+| `dealers` | Array with that one dealer | Every dealer, in the order of the IDs in the URL |
+| `vehicles` | That dealer's vehicles | One combined list of all the group's vehicles, newest first, paginated together. `meta.total` is the group total. |
+| `youMightLike` | From that dealer | From any dealer of the group |
+
+- Use `vehicle.dealerId` to show which dealership a vehicle belongs to. Match it to `dealers[].id` for the name, logo and branch.
+- Up to 20 IDs. Spaces are not allowed, and repeated IDs are ignored.
+- If any ID in the group does not exist, the response is `404` (`DEALER_NOT_FOUND`) and `details` lists the missing IDs, for example `["999"]`.
+- In the vehicle endpoint, the vehicle must belong to one of the group's dealers. Otherwise the response is `404` (`VEHICLE_NOT_FOUND`).
+- For a new app, read `dealers` in both cases. `dealer` is kept for one-ID requests so existing code keeps working.
+
+Example, Group1 (live counts change): 4 dealers, `meta.total` 260 (74 + 115 + 26 + 45).
+
+## Vehicle detail with "You might like"
+
+```http
+GET https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/{dealerIds}/vehicles/{vehicleId}?limit=6
+```
+
+```sh
+curl "https://changecarapi.wowcar.co.th/api/v1/dealer-app/dealers/3491/vehicles/1479730"
+```
+
+Use this for the vehicle detail screen. `vehicleId` is `vehicles.data[].id` from the dealer endpoint.
+
+| Query parameter | Default | Rules |
+|---|---|---|
+| `limit` | `6` | Number of suggestions, integer 1–24. |
+
+No other query parameters are accepted. The response is `Cache-Control: private, no-store`.
+
+### Response
+
+```json
+{
+  "dealer": { "id": "3491", "name": "Group1 Western Cape", "branches": [], "documents": [] },
+  "vehicle": { "id": "1479730", "title": "2024 Omoda C9 2.0T Inspire", "price": 610414, "status": "PUBLISHED" },
+  "youMightLike": [
+    { "id": "1051580", "title": "2026 Omoda C9 2.0T Explore Awd", "price": 839715, "status": "PUBLISHED" },
+    { "id": "991111", "title": "2024 Chery Tiggo 8 Pro Max 2.0 Tgdi Executive Dct", "price": 480414, "status": "PUBLISHED" }
+  ]
+}
+```
+
+(Shortened. Fields are shown in full in the [Response](#response) section above.)
+
+- `dealer` is the same object as in the dealer endpoint.
+- `vehicle` and every item in `youMightLike` have the same fields as `vehicles.data[]`: images, make, model, variant, features, VIN, histories and so on.
+
+### How suggestions are chosen
+
+All suggestions come from **the same dealer**, or from any dealer of the group when several IDs are given. Vehicles of other dealers are never included. They are filled in this order until `limit` is reached:
+
+1. **Same model** as this vehicle.
+2. **Same body type** (for example SUV or hatchback) priced within 25% of this vehicle's price.
+3. **Any other vehicle** of the dealer (or group), so the section is not empty when nothing similar exists.
+
+Inside each step, the newest vehicles come first. The open vehicle and duplicates are never included. Only vehicles a buyer can see (`PUBLISHED` or `RESERVED`) are suggested, while `vehicle` itself can have any status.
+
+`youMightLike` has fewer than `limit` items when the dealer has few listed vehicles. It is empty when the dealer has no other listed vehicle, so hide the section in that case.
+
+### Errors
+
+| Status | When |
+|---|---|
+| `400` | Dealer or vehicle ID is not a valid ID, `limit` is out of range, or an unsupported query parameter was sent |
+| `404` (`DEALER_NOT_FOUND`) | A dealer does not exist (`details` lists missing IDs of a group) |
+| `404` (`VEHICLE_NOT_FOUND`) | The vehicle does not exist, or belongs to a dealer not in the URL |
 
 ## Documents
 
@@ -199,27 +304,28 @@ Documents are sorted newest first. `type` is free text set when the document is 
 
 ## Loading every vehicle
 
-The `dealer` object is repeated on every page. Use `vehicles.meta.pageCount` to load all pages, or load the next page as the user scrolls.
+The `dealer` object (or `dealers` array for a group) is repeated on every page. Use `vehicles.meta.pageCount` to load all pages, or load the next page as the user scrolls.
 
 ```js
 const API = 'https://changecarapi.wowcar.co.th/api/v1';
 
-async function fetchDealerPage(dealerId, page = 1, pageSize = 50) {
-  const url = `${API}/dealer-app/dealers/${encodeURIComponent(dealerId)}?page=${page}&pageSize=${pageSize}`;
+// dealerIds: one ID ('3974') or a group ('3490,3491,3493,3496').
+async function fetchDealerPage(dealerIds, page = 1, pageSize = 50) {
+  const url = `${API}/dealer-app/dealers/${dealerIds}?page=${page}&pageSize=${pageSize}`;
   const response = await fetch(url, { cache: 'no-store' });
   const body = await response.json();
   if (!response.ok) throw new Error(`Dealer API ${response.status}: ${body.code ?? body.message}`);
   return body;
 }
 
-async function fetchDealerWithAllVehicles(dealerId) {
-  const first = await fetchDealerPage(dealerId);
+async function fetchDealerWithAllVehicles(dealerIds) {
+  const first = await fetchDealerPage(dealerIds);
   const vehicles = [...first.vehicles.data];
   for (let page = 2; page <= first.vehicles.meta.pageCount; page++) {
-    const next = await fetchDealerPage(dealerId, page);
+    const next = await fetchDealerPage(dealerIds, page);
     vehicles.push(...next.vehicles.data);
   }
-  return { dealer: first.dealer, vehicles, total: first.vehicles.meta.total };
+  return { dealers: first.dealers, vehicles, total: first.vehicles.meta.total };
 }
 ```
 
@@ -240,14 +346,17 @@ Errors use the standard shape:
 }
 ```
 
-A `400` adds a `details` array, e.g. `["property status should not exist"]`.
+A `400` for a wrong query parameter has `code: "VALIDATION_FAILED"` and a `details` array, e.g. `["property status should not exist"]`. A `400` for a malformed dealer or vehicle ID in the path has `code: "BAD_REQUEST"` and no `details`.
+
+Requests are limited to 300 per minute per IP address. Above that the API returns `429`.
 
 | Status | When | What the app should do |
 |---|---|---|
-| `200` with empty `vehicles.data` | The dealer has no vehicles | Show the dealer with an empty inventory state |
-| `400` | Dealer ID is not a valid ID, `page`/`pageSize` is out of range, or an unsupported query parameter was sent | Fix the request |
-| `404` (`DEALER_NOT_FOUND`) | The dealer does not exist | Show "Dealer not found" |
-| `429` | Too many requests | Wait and retry |
+| `200` with empty `vehicles.data` | The dealer has no vehicles, or `page` is after the last page | Show the dealer with an empty inventory state, or stop loading more pages |
+| `400` | Dealer ID is not a valid ID, a group has more than 20 IDs or a bad comma, `page`/`pageSize` is out of range, or an unsupported query parameter was sent | Fix the request |
+| `404` (`DEALER_NOT_FOUND`) | The dealer, or one dealer of a group, does not exist. For a group, `details` lists the missing IDs. | Show "Dealer not found" and report the IDs to the ChangeCars team |
+| `404` (`VEHICLE_NOT_FOUND`) | Vehicle endpoint only: the vehicle was removed, or belongs to a dealer not in the URL | Remove the vehicle from the app and reload the list |
+| `429` | More than 300 requests in a minute from one IP | Wait a few seconds and retry; do not retry in a tight loop |
 | `5xx` | Server problem | Show a retry option and send `requestId` to the ChangeCars team |
 
 Only `GET` is supported. `POST`, `PUT`, `PATCH` and `DELETE` return `404`.
@@ -264,8 +373,12 @@ An earlier token-based version was removed. Do not call these; they return `404`
 ## Checklist
 
 - [ ] Base URL and dealer ID configured; IDs kept as strings.
-- [ ] Page 1 renders `dealer` and `vehicles.data`.
+- [ ] Page 1 renders `dealers[0]` (or every entry of `dealers` for a group) and `vehicles.data`.
 - [ ] All pages load (or infinite scroll works) using `vehicles.meta.pageCount`.
 - [ ] Missing values (`null`, empty arrays) show a sensible empty state.
 - [ ] Documents open through `downloadUrl` and refresh after expiry.
+- [ ] For a dealer group, the app reads `dealers[]` and shows each vehicle's dealership from `vehicle.dealerId`.
+- [ ] Vehicle detail loads from `/dealers/{dealerIds}/vehicles/{vehicleId}`, and the "You might like" section hides when `youMightLike` is empty.
+- [ ] Cards show the `availability` badge, and a `404` for a saved vehicle removes it from the app.
+- [ ] `pageSize` is 20–50, and `429` is retried after a short wait.
 - [ ] No add, edit or delete controls in the app.
