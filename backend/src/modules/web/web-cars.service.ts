@@ -39,7 +39,7 @@ const MAX_ALL_CARS = 1000;
 const MAX_LIMIT = 48;
 /** Featured cars the random pick is drawn from. */
 const MAX_FEATURED_POOL = 500;
-/** Recent and featured cars need a real model year: excludes null as well as 0 or junk values from feeds. */
+/** Featured cars need a real model year: excludes null as well as 0 or junk values from feeds. */
 const WITH_YEAR = { year: { gte: 1900 } } satisfies Prisma.VehicleWhereInput;
 
 /** Fisher–Yates shuffle into a new array. */
@@ -307,10 +307,10 @@ export class WebCarsService {
     return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
   }
 
-  /** The newest listings, newest first (DealerTrade's listing time); listings without a year are left out. */
+  /** The newest listings, newest first (DealerTrade's listing time), the same as changecars.co.za: DealerTrade sends no year for many new cars, so they are not left out. */
   async recent(limit?: number) {
     const rows = await this.db.vehicle.findMany({
-      where: this.publicWhere({ ...WITH_YEAR }),
+      where: this.publicWhere(),
       select: carSelect,
       orderBy: ORDER.recent,
       take: clampLimit(limit, 6),
