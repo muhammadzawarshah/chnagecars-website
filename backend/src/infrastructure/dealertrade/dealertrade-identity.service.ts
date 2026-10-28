@@ -88,8 +88,6 @@ export class DealerTradeIdentityService {
 
   whatsappNumber(id: string) { return this.whatsapp.get(this.external.get(id) ?? id) ?? null; }
 
-  dealerIds() { return [...new Set([...this.dealers.values()].map(row => row.id))]; }
-
   async request(req: Request, _res: Response, next: NextFunction) {
     try {
       const url = new URL(req.url, 'http://local');

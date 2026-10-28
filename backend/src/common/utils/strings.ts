@@ -11,6 +11,19 @@ export function slugify(value: string): string {
     .slice(0, 120);
 }
 
+/**
+ * Vehicle and dealer slugs end with their ID ("toyota-hilux-1556378"). Older slugs also carried the
+ * import source ("-fbook-1556378", "-dealertrade-1556378"); this maps those old links to the current slug.
+ */
+export function currentListingSlug(slug: string): string {
+  return slug.replace(/-(?:fbook|dealertrade)-(\d+)$/, '-$1');
+}
+
+/** Prisma slug filter matching the given slug and its current form, before and after the slug migration. */
+export function listingSlugFilter(slug: string): { in: string[] } {
+  return { in: [...new Set([slug, currentListingSlug(slug)])] };
+}
+
 const REFERENCE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 /** Human-friendly reference such as "ENQ-7K3M9Q2X" (no ambiguous characters). */

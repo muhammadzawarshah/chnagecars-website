@@ -90,7 +90,7 @@ async function main() {
     const city=existing?.city || dealerCities.get(key) || '';
     if(!city) issues.push({dealerId:key,reason:'Dealer city not supplied; left empty'});
     const data={logoUrl: strictSource && r.dealer_image ? new URL('images/200/' + String(r.dealer_image).replace(/^\//, ''), 'https://www.changecars.co.za/').href : undefined,name:r.dealer_name,phone:r.telephone || existing?.phone || '',email:strictSource ? (r.email ?? '') : r.email || existing?.email || `dealertrade-${key}@example.invalid`,address:r.address,province,city,description:r.description || existing?.description,...(({googleReviewUrl,hellopeterReviewUrl})=>({googleReviewUrl,hellopeterReviewUrl}))(dealerSourceDetails(r))};
-    await db.dealer.upsert({where:{id},create:{id,...data,slug:preservedDealerSlugs.get(key) ?? `${slugify(r.dealer_name)}-${strictSource ? 'dealertrade' : 'fbook'}-${key}`,status:'APPROVED',approvedAt:new Date()},update:data});
+    await db.dealer.upsert({where:{id},create:{id,...data,slug:preservedDealerSlugs.get(key) ?? `${slugify(r.dealer_name)}-${key}`,status:'APPROVED',approvedAt:new Date()},update:data});
     const branch={dealerId:id,name:r.dealer_name,phone:data.phone,email:r.email || null,address:r.address,province,city,isHeadOffice:true};
     await db.branch.upsert({where:{id:branchId},create:{id:branchId,...branch,slug:'feed-head-office'},update:branch});
     dealerMap.set(key,{id,branchId,province,city,raw:r});
@@ -148,7 +148,7 @@ async function main() {
         const category=categories.get(resolveBodyType(r)?.slugs[0] ?? '');
         const bodyCategories=[...(category?[{id:category}]:[]),...(previous?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>({id:c.id}))??[])];
         await db.$transaction(async tx=>{
-          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:preservedSlugs.get(key) ?? `${slugify(title)}-${strictSource ? 'dealertrade' : 'fbook'}-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,categories:{connect:bodyCategories}},update:{...data,categories:{set:bodyCategories},...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
+          await tx.vehicle.upsert({where:{id},create:{id,...data,slug:preservedSlugs.get(key) ?? `${slugify(title)}-${key}`,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date():null,categories:{connect:bodyCategories}},update:{...data,categories:{set:bodyCategories},...((r.enabled!==1||r.removed!==0)&&previous?.status==='PUBLISHED'?{status:'ARCHIVED',archivedAt:new Date()}:{}),version:{increment:1}}});
           if(images.length){
             const json=JSON.stringify(images);
             await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"altText","updatedAt")

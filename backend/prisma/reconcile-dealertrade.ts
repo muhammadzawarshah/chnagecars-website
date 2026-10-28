@@ -58,7 +58,7 @@ async function plan(){
     const data:Row={};for(const [from,to]of Object.entries({dealer_name:'name',telephone:'phone',email:'email',address:'address',description:'description'}))if(!empty(r[from]))data[to]=r[from];
     if(!empty(r.province)){const province=provinceFromName(r.province);if(province)data.province=province;else issues.push({kind:'dealer',externalId,field:'province',reason:'Unrecognized API province retained in raw record'});}
     displayFields(data);
-    const create=existing?undefined:{id,slug:`${slugify(r.dealer_name)}-fbook-${externalId}`,name:r.dealer_name,email:r.email||`dealertrade-${externalId}@example.invalid`,phone:r.telephone||'',address:r.address||'',province:data.province,city:dealerCities.get(externalId)||'',status:'APPROVED',approvedAt:new Date().toISOString(),...data};
+    const create=existing?undefined:{id,slug:`${slugify(r.dealer_name)}-${externalId}`,name:r.dealer_name,email:r.email||`dealertrade-${externalId}@example.invalid`,phone:r.telephone||'',address:r.address||'',province:data.province,city:dealerCities.get(externalId)||'',status:'APPROVED',approvedAt:new Date().toISOString(),...data};
     if(!existing&&(!create?.name||!create?.province)){issues.push({kind:'dealer',externalId,reason:'Required dealer identity/location missing'});continue;}
     if(create)displayFields(create);
     const before=rawMap.get('dealer:'+externalId),payload=mergeProvided(before,r),branchId=uuid('branch:'+externalId,'fbook');
@@ -105,7 +105,7 @@ async function plan(){
     const category=s.categories.find(c=>c.slug===resolveBodyType(sourceData.dealertrade)?.slugs[0]),categories=[...(category?[category.id]:[]),...(v?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>c.id)??[])];
     if(!v){
       if(!dealer||!patch.makeId||!patch.modelId||!patch.condition||!patch.price){rawOnly.push({externalId,payload,rawBefore:rawBefore??null,reason:!dealer?'Dealer absent from source catalogue':'Required inventory values missing'});continue;}
-      const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-fbook-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date().toISOString():null,...patch,sourceData};
+      const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date().toISOString():null,...patch,sourceData};
       displayFields(create);
       vehiclePlans.push({externalId,id,before:null,create,patch:{},payload,rawBefore:rawBefore??null,gallery,categories,beforeImages:[],beforeProtectedImages:[],beforeCategories:[]});
     }else{

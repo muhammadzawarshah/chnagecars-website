@@ -10,7 +10,7 @@ import {
 } from '../../generated/prisma/client';
 import { pageArgs, toPage } from '../../common/dto/pagination.dto';
 import { Errors } from '../../common/errors/app-error';
-import { randomToken, sha256, shortId, slugify } from '../../common/utils/strings';
+import { listingSlugFilter, randomToken, sha256, shortId, slugify } from '../../common/utils/strings';
 import { AuditService } from '../../infrastructure/audit/audit.service';
 import type { Db } from '../../infrastructure/database';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
@@ -130,7 +130,6 @@ export class DealersService {
     await this.identities.refresh();
     const { page, pageSize, skip, take } = pageArgs(query);
     const where: Prisma.DealerWhereInput = {
-      id: { in: this.identities.dealerIds() },
       status: DealerStatus.APPROVED,
       ...(query.province ? { province: query.province } : {}),
       ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
@@ -145,7 +144,7 @@ export class DealersService {
   async getPublic(slug: string) {
     await this.identities.refresh();
     const dealer = await this.prisma.replica.dealer.findFirst({
-      where: { slug, status: DealerStatus.APPROVED, id: { in: this.identities.dealerIds() } },
+      where: { slug: listingSlugFilter(slug), status: DealerStatus.APPROVED },
       select: {
         ...publicDealerSelect,
         branches: {
