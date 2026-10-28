@@ -46,14 +46,14 @@ describe('DealerTrade automatic sync scheduling', () => {
     await service.onModuleDestroy();
   });
 
-  it('waits twelve hours between syncs by default', async () => {
+  it('waits ten minutes between syncs by default', async () => {
     const now = Date.now();
     const clock = jest.spyOn(Date, 'now').mockReturnValue(now);
     await service.tick();
-    clock.mockReturnValue(now + 11 * 60 * 60_000);
+    clock.mockReturnValue(now + 9 * 60_000);
     await service.tick();
     expect(sync).toHaveBeenCalledTimes(1);
-    clock.mockReturnValue(now + 12 * 60 * 60_000);
+    clock.mockReturnValue(now + 10 * 60_000);
     await service.tick();
     expect(sync).toHaveBeenCalledTimes(2);
   });

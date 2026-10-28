@@ -36,3 +36,18 @@ export function stockMetadata(capture: FeedRow): FeedRow | undefined {
   if (!capture.stockMeta || typeof capture.stockMeta !== 'object' || Array.isArray(capture.stockMeta)) return undefined;
   return { meta: capture.stockMeta, total: capture.finalGlobalTotal ?? null };
 }
+
+/** DealerTrade re-stamps updated_at on whole batches of unchanged stock, so it is not a change on its own. */
+export const VOLATILE_SOURCE_FIELDS = ['updated_at'];
+export function withoutVolatile(row: any): any {
+  return row && typeof row === 'object' && !Array.isArray(row) ? Object.fromEntries(Object.entries(row).filter(([key]) => !VOLATILE_SOURCE_FIELDS.includes(key))) : row;
+}
+/** Raw source rows equal apart from volatile fields. */
+export function sameSource(before: any, after: any): boolean {
+  return isDeepStrictEqual(withoutVolatile(before), withoutVolatile(after));
+}
+/** Vehicle sourceData equal apart from volatile fields of its DealerTrade payload. */
+export function sameSourceData(before: any, after: any): boolean {
+  const strip = (data: any) => data && typeof data === 'object' ? { ...data, dealertrade: withoutVolatile(data.dealertrade) } : data;
+  return isDeepStrictEqual(strip(before), strip(after));
+}

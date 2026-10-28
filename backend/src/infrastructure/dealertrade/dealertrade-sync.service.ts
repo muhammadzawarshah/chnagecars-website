@@ -38,8 +38,8 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
   async tick(): Promise<void> {
     if (this.stopping || this.running || Date.now() < this.nextRun ||
         process.env.DEALERTRADE_SYNC_ENABLED === 'false' || !this.token()) return;
-    const minutes = Number(process.env.DEALERTRADE_SYNC_INTERVAL_MINUTES ?? 720);
-    this.nextRun = Date.now() + (Number.isFinite(minutes) && minutes >= 5 ? minutes : 720) * 60_000;
+    const minutes = Number(process.env.DEALERTRADE_SYNC_INTERVAL_MINUTES ?? 10);
+    this.nextRun = Date.now() + (Number.isFinite(minutes) && minutes >= 5 ? minutes : 10) * 60_000;
     this.running = this.sync().catch((error: Error) => {
       // Child output and credentials are deliberately excluded from errors.
       this.logger.error(`DealerTrade sync failed: ${error.message}; the next scheduled run will retry`);

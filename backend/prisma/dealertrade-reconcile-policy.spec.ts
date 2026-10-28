@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { empty,mergeProvided,integer,sourceVehicleAttributes,stockMetadata } from './dealertrade-reconcile-policy';
+import { empty,mergeProvided,integer,sourceVehicleAttributes,stockMetadata,sameSource,sameSourceData,withoutVolatile } from './dealertrade-reconcile-policy';
 test('null, absent, whitespace and empty collections cannot wipe existing data',()=>{
   for(const value of [undefined,null,'','  ',[],{}])assert.deepEqual(mergeProvided({retained:'value'},value),{retained:'value'});
 });
@@ -35,4 +35,16 @@ test('source stock metadata preserves extra fields and distinct upstream counts'
   assert.deepEqual(stockMetadata({stockMeta:{total_stock_count:0,last_updated:'2026-10-27 09:14:20',new_field:42},finalGlobalTotal:10}),
     {meta:{total_stock_count:0,last_updated:'2026-10-27 09:14:20',new_field:42},total:10});
   assert.equal(stockMetadata({finalGlobalTotal:10}),undefined);
+});
+
+test('a DealerTrade updated_at re-stamp alone is not a change',()=>{
+  const row={vehicle_id:1,price:100,updated_at:'2026-10-27 08:01:12'};
+  assert.equal(sameSource(row,{...row,updated_at:'2026-10-28 14:17:11'}),true);
+  assert.equal(sameSource(row,{...row,price:90,updated_at:'2026-10-28 14:17:11'}),false);
+  assert.equal(sameSource(row,{...row,photos:['a.jpg']}),false);
+  assert.deepEqual(withoutVolatile(row),{vehicle_id:1,price:100});
+  const data={vehicle_id:'1',dealertrade:row};
+  assert.equal(sameSourceData(data,{...data,dealertrade:{...row,updated_at:'2026-10-28 14:17:11'}}),true);
+  assert.equal(sameSourceData(data,{...data,dealertrade:{...row,mileage:5289}}),false);
+  assert.equal(sameSourceData(data,{...data,vehicle_id:'2'}),false);
 });

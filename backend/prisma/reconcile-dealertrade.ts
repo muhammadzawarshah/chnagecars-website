@@ -1,3 +1,4 @@
+import { dealerTradeTime } from '../src/infrastructure/dealertrade/dealertrade-time';
 import { missingVehicleCoordinates } from '../src/modules/vehicles/dealer-coordinates';
 import { titleCase } from '../src/common/utils/display-text';
 import { standardColourName } from '../src/modules/vehicles/standard-colours';
@@ -11,7 +12,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { existsSync,readFileSync,writeFileSync,mkdirSync,statSync,openSync,writeSync,closeSync,createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { resolve } from 'node:path';
-import { empty,mergeProvided,changedFields,integer,sourceVehicleAttributes,stockMetadata,FeedRow as Row } from './dealertrade-reconcile-policy';
+import { empty,mergeProvided,changedFields,integer,sourceVehicleAttributes,stockMetadata,sameSource,sameSourceData,withoutVolatile,FeedRow as Row } from './dealertrade-reconcile-policy';
 import { provinceFromName,slugify } from '../src/modules/web/web-format';
 
 const root=resolve(__dirname,'../..'),dir=resolve(process.env.DEALERTRADE_RECONCILE_DIR || resolve(__dirname,'../.local/dealertrade-reconcile'));mkdirSync(dir,{recursive:true});
@@ -24,6 +25,13 @@ const uuid=(key:string,namespace='dealertrade')=>{const h=createHash('sha256').u
 const write=(name:string,data:any)=>writeFileSync(resolve(dir,name),JSON.stringify(data,null,2));
 function displayFields(data:Row){for(const key of ['name','title','description','address','city'])if(typeof data[key]==='string')data[key]=titleCase(data[key]);return data;}
 const protectedImage=(i:Row)=>createHash('sha256').update(JSON.stringify(Object.fromEntries(Object.entries(json(i)).filter(([k])=>!['url','sizeBytes','contentType','position','isPrimary','updatedAt'].includes(k)).sort(([a],[b])=>a.localeCompare(b))))).digest('hex');
+/** The stored DealerTrade gallery already matches the API: same images in the same order, no legacy Fbook copies. */
+const sameGallery=(images:Row[],gallery:Row[],externalId:string)=>{
+  if(images.some(i=>i.storageKey.startsWith('fbook/'+externalId+'-')))return false;
+  const stored=images.filter(i=>i.storageKey.startsWith('dealertrade/')).sort((a,b)=>a.position-b.position);
+  const fields=['storageKey','url','sizeBytes','contentType','position','isPrimary'];
+  return stored.length===gallery.length&&gallery.every((image,n)=>stored[n].status==='READY'&&fields.every(f=>(stored[n][f]??null)===(image[f]??null)));
+};
 async function loadPlan(){const p=read(planFile);p.vehiclePlans=[];for await(const line of createInterface({input:createReadStream(resolve(dir,p.vehiclePlansFile)),crlfDelay:Infinity}))if(line)p.vehiclePlans.push(JSON.parse(line));return p;}
 const bodyMap:Row={suv:'suvs',sedan:'sedans',hatchback:'hatchbacks',coupe:'coupes',convertible:'convertibles',mpv:'mpvs','panel-van':'panel-vans','double-cab-bakkie':'double-cabs','single-cab-bakkie':'single-cabs','extended-cab':'king-cabs',minibus:'minibuses',motorbike:'motorbikes','station-wagon':'station-wagons'};
 const sourceUrl=(r:Row,p:string)=>p.startsWith('https://')?p:r.cdn_url.replace(/\/$/,'')+'/'+p.replace(/^\//,'');
@@ -61,22 +69,22 @@ async function plan(){
     const create=existing?undefined:{id,slug:`${slugify(r.dealer_name)}-${externalId}`,name:r.dealer_name,email:r.email||`dealertrade-${externalId}@example.invalid`,phone:r.telephone||'',address:r.address||'',province:data.province,city:dealerCities.get(externalId)||'',status:'APPROVED',approvedAt:new Date().toISOString(),...data};
     if(!existing&&(!create?.name||!create?.province)){issues.push({kind:'dealer',externalId,reason:'Required dealer identity/location missing'});continue;}
     if(create)displayFields(create);
-    const before=rawMap.get('dealer:'+externalId),payload=mergeProvided(before,r),branchId=uuid('branch:'+externalId,'fbook');
+    const before=rawMap.get('dealer:'+externalId),merged=mergeProvided(before,r),rawUnchanged=before!==undefined&&sameSource(before,merged),payload=rawUnchanged?before:merged,branchId=uuid('branch:'+externalId,'fbook');
     const branch=existing?.branches.find(b=>b.id===branchId),branchData:Row={};
     for(const key of ['name','phone','email','address','province'])if(data[key]!==undefined)branchData[key]=data[key];
-    dealerPlans.push({externalId,id,before:existing?json({...existing,branches:undefined}):null,patch:existing?changedFields(json(existing),data):data,create,payload,rawBefore:before??null,branch:{id:branchId,before:branch?json(branch):null,patch:branch?changedFields(json(branch),branchData):branchData,create:branch?null:{id:branchId,dealerId:id,name:data.name,slug:'feed-head-office',address:data.address||'',city:existing?.city||create?.city||'',province:data.province,isHeadOffice:true,...branchData}}});
+    dealerPlans.push({externalId,id,before:existing?json({...existing,branches:undefined}):null,patch:existing?changedFields(json(existing),data):data,create,payload,rawUnchanged,rawBefore:before??null,branch:{id:branchId,before:branch?json(branch):null,patch:branch?changedFields(json(branch),branchData):branchData,create:branch?null:{id:branchId,dealerId:id,name:data.name,slug:'feed-head-office',address:data.address||'',city:existing?.city||create?.city||'',province:data.province,isHeadOffice:true,...branchData}}});
     if(!existing)dealers.set(id,{...create,...data,branches:[]}as any);
   }
   for(const r of rows){
     const externalId=String(r.vehicle_id),v=byExternal.get(externalId),dealerId=String(r.dealer_id),dealer=dealers.get(dealerId);
-    const rawBefore=rawMap.get('vehicle:'+externalId),payload=mergeProvided(rawBefore,r);
-    const oldSource=(v?.sourceData as Row|null)??{},sourceData={...oldSource,vehicle_id:externalId,dealertrade:mergeProvided(oldSource.dealertrade,r)};
+    const rawBefore=rawMap.get('vehicle:'+externalId),merged=mergeProvided(rawBefore,r),rawUnchanged=rawBefore!==undefined&&sameSource(rawBefore,merged),payload=rawUnchanged?rawBefore:merged;
+    const oldSource=(v?.sourceData as Row|null)??{},sourceData:Row={...oldSource,vehicle_id:externalId,dealertrade:mergeProvided(oldSource.dealertrade,r)};
     const before=v?scalarVehicle(v):null,patch:Row=sourceVehicleAttributes(r);
     const numeric:Row={price:'price',mileage:'mileage',engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',image_count:'imageCount'};
     for(const [from,to]of Object.entries(numeric))if(!empty(r[from])){const value=integer(r[from],from==='price'?1:0);if(value!==undefined)patch[to as string]=value;else issues.push({kind:'vehicle',externalId,field:from,value:r[from],reason:'Cannot represent source value in constrained integer column; raw value retained'});}
     for(const [from,to]of Object.entries({title:'title',vin:'vin',registration_number:'registrationNumber'}))if(!empty(r[from]))patch[to]=r[from];
     patch.colour=standardColourName(r,v?.colour);
-    if(!empty(r.featured)&&[0,1,false,true].includes(r.featured))patch.isFeatured=Boolean(r.featured);
+    // isFeatured is chosen by ChangeCars, never taken from the DealerTrade feed.
     if(!empty(r.type)){const condition=({New:'NEW',Used:'USED',Demo:'DEMO'}as Row)[r.type];if(condition)patch.condition=condition;else issues.push({kind:'vehicle',externalId,field:'type',reason:'Unmapped condition; raw source retained'});}
     const transmission=({1:'MANUAL',2:'AUTOMATIC'}as Row)[r.transmission_type_id];if(transmission)patch.transmission=transmission;
     const drive=({'4X2':'4x2','4X4':'4x4',AWD:'AWD',FWD:'FWD',RWD:'RWD'}as Row)[r.driven_wheels];if(!empty(r.driven_wheels)&&drive)patch.drivetrain=drive;
@@ -100,22 +108,32 @@ async function plan(){
     }
     if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');Object.assign(patch,missingVehicleCoordinates(v,dealer.branches.find(b=>b.id===patch.branchId)));}
     const id=externalId;
-    const gallery=!empty(r.photos)?r.photos.map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
-    if(gallery?.length)patch.primaryImageUrl=gallery[0].url;
+    const sourceGallery=!empty(r.photos)?r.photos.map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
+    if(sourceGallery?.length)patch.primaryImageUrl=sourceGallery[0].url;
+    // An unchanged gallery is left alone instead of being rewritten on every sync.
+    const gallery=v&&sourceGallery&&sameGallery(v.images,sourceGallery,externalId)?null:sourceGallery;
     const category=s.categories.find(c=>c.slug===resolveBodyType(sourceData.dealertrade)?.slugs[0]),categories=[...(category?[category.id]:[]),...(v?.categories.filter(c=>!BODY_TYPE_CATEGORY_SLUGS.includes(c.slug)).map(c=>c.id)??[])];
     if(!v){
-      if(!dealer||!patch.makeId||!patch.modelId||!patch.condition||!patch.price){rawOnly.push({externalId,payload,rawBefore:rawBefore??null,reason:!dealer?'Dealer absent from source catalogue':'Required inventory values missing'});continue;}
-      const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?new Date().toISOString():null,...patch,sourceData};
+      if(!dealer||!patch.makeId||!patch.modelId||!patch.condition||!patch.price){rawOnly.push({externalId,payload,rawUnchanged,rawBefore:rawBefore??null,reason:!dealer?'Dealer absent from source catalogue':'Required inventory values missing'});continue;}
+      if(!sourceGallery?.length){rawOnly.push({externalId,payload,rawUnchanged,rawBefore:rawBefore??null,reason:'No photos yet; the vehicle is created once DealerTrade sends photos'});continue;}
+      const create={id,slug:`${slugify([r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '))}-${externalId}`,stockNumber:externalId,title:[r.make_name,r.variant_name||r.model_name].filter(Boolean).join(' '),transmission:'UNKNOWN',fuelType:'OTHER',province:dealer.province,city:dealer.city,status:r.enabled===1&&r.removed===0?'PUBLISHED':'DRAFT',publishedAt:r.enabled===1&&r.removed===0?(dealerTradeTime(r.created_at)??new Date()).toISOString():null,...patch,sourceData};
       displayFields(create);
-      vehiclePlans.push({externalId,id,before:null,create,patch:{},payload,rawBefore:rawBefore??null,gallery,categories,beforeImages:[],beforeProtectedImages:[],beforeCategories:[]});
+      vehiclePlans.push({externalId,id,before:null,create,patch:{},payload,rawUnchanged,rawBefore:rawBefore??null,gallery,categories,beforeImages:[],beforeProtectedImages:[],beforeCategories:[]});
     }else{
       displayFields(patch);
+      // Listed vehicles without any photo are hidden, and listed again by the sync once photos arrive.
+      const hasPhotos=!!sourceGallery?.length||v.images.length>0;
+      if(!hasPhotos&&['PUBLISHED','RESERVED'].includes(v.status)){patch.status='DRAFT';sourceData.hiddenNoPhotos=true;}
+      else if(hasPhotos&&oldSource.hiddenNoPhotos){delete sourceData.hiddenNoPhotos;if(v.status==='DRAFT')patch.status='PUBLISHED';}
       patch.sourceData=sourceData;
       // A relation cannot retain a variant belonging to the previous model.
       if(patch.modelId!==undefined&&patch.modelId!==v.modelId&&v.variantId){patch.variantId=null;issues.push({kind:'vehicle',externalId,field:'variantId',reason:'Previous variant belongs to a different source model; association cleared for valid catalogue linkage'});}
       const beforeImages=gallery?v.images.filter(i=>!i.storageKey.startsWith('dealertrade/')&&!i.storageKey.startsWith('fbook/'+externalId+'-')):v.images;
       const beforeProtectedImages=gallery?v.images.filter(i=>i.storageKey.startsWith('dealertrade/')&&i.position<gallery.length).map(i=>({id:i.id,digest:protectedImage(i)})):[];
-      vehiclePlans.push({externalId,id,before,patch:changedFields(before!,json(patch)),payload,rawBefore:rawBefore??null,gallery,categories,beforeImages:json(beforeImages),beforeProtectedImages,beforeCategories:v.categories.map(c=>c.id)});
+      const changed=changedFields(before!,json(patch));
+      // A sourceData difference in updated_at alone is not a change; with a real change the new updated_at is stored too.
+      if(Object.keys(changed).length===1&&changed.sourceData&&sameSourceData(before!.sourceData,changed.sourceData))delete changed.sourceData;
+      vehiclePlans.push({externalId,id,before,patch:changed,payload,rawUnchanged,rawBefore:rawBefore??null,gallery,categories,beforeImages:json(beforeImages),beforeProtectedImages,beforeCategories:v.categories.map(c=>c.id)});
     }
     if(vehiclePlans.length%5000===0)console.log(`Planned ${vehiclePlans.length}/${rows.length} source rows`);
   }
@@ -175,30 +193,34 @@ async function apply(){
     if(!d.before)await tx.dealer.create({data:d.create});
     if(d.before&&Object.keys(d.patch).length){const result=await tx.dealer.updateMany({where:{id:d.id,updatedAt:new Date(d.before.updatedAt)},data:d.patch});if(result.count!==1)throw Error('Dealer changed after plan '+d.externalId);}
     const b=d.branch;if(!b.before)await tx.branch.create({data:b.create});else if(Object.keys(b.patch).length)await tx.branch.update({where:{id:b.id},data:b.patch});
-    await rawUpsert(tx,'dealer',d);
+    if(!d.rawUnchanged)await rawUpsert(tx,'dealer',d);
   });
   for(const v of p.variantPlans){
     if(v.create)await db.variant.upsert({where:{id:v.id},create:v.create,update:{}});else if(Object.keys(v.patch).length)await db.variant.update({where:{id:v.id},data:v.patch});
     if(v.specBefore){if(Object.keys(v.specPatch).length)await db.variantSpecification.update({where:{variantId:v.id},data:v.specPatch});}else await db.variantSpecification.create({data:{variantId:v.id,...v.specPatch}});
   }
   let cursor=0,done=0;
+  let skipped=0;
   await Promise.all(Array.from({length:6},async()=>{while(cursor<p.vehiclePlans.length){const v=p.vehiclePlans[cursor++];try{
+    const categoriesChanged=!!v.categories&&!isDeepStrictEqual([...v.categories].sort(),[...v.beforeCategories].sort());
+    // Nothing changed for this vehicle: no transaction, no writes.
+    if(v.before&&!Object.keys(v.patch).length&&!categoriesChanged&&!v.gallery&&v.rawUnchanged){skipped++;done++;continue;}
     await db.$transaction(async tx=>{
       if(!v.before)await tx.vehicle.create({data:v.create});
       else if(Object.keys(v.patch).length){const result=await tx.vehicle.updateMany({where:{id:v.id,version:v.before.version},data:{...v.patch,version:{increment:1}}});if(result.count!==1)throw Error('Vehicle changed after plan');}
-      if(v.categories&&!isDeepStrictEqual([...v.categories].sort(),[...v.beforeCategories].sort()))await tx.vehicle.update({where:{id:v.id},data:{categories:{set:v.categories.map((id:string)=>({id}))}}});
+      if(categoriesChanged)await tx.vehicle.update({where:{id:v.id},data:{categories:{set:v.categories.map((id:string)=>({id}))}}});
       if(v.gallery){
         const data=JSON.stringify(v.gallery);
         await tx.$executeRaw`INSERT INTO vehicle_images (id,"vehicleId","storageKey",url,"sizeBytes","contentType",position,"isPrimary",status,"updatedAt") SELECT i.id,i."vehicleId",i."storageKey",i.url,i."sizeBytes",i."contentType",i.position,i."isPrimary",'READY'::"ImageStatus",NOW() FROM jsonb_to_recordset(${data}::jsonb) AS i(id uuid,"vehicleId" text,"storageKey" text,url text,"sizeBytes" int,"contentType" text,position int,"isPrimary" boolean) ON CONFLICT ("storageKey") DO UPDATE SET url=EXCLUDED.url,"sizeBytes"=EXCLUDED."sizeBytes","contentType"=EXCLUDED."contentType",position=EXCLUDED.position,"isPrimary"=EXCLUDED."isPrimary","updatedAt"=NOW() WHERE (vehicle_images.url,vehicle_images."sizeBytes",vehicle_images."contentType",vehicle_images.position,vehicle_images."isPrimary") IS DISTINCT FROM (EXCLUDED.url,EXCLUDED."sizeBytes",EXCLUDED."contentType",EXCLUDED.position,EXCLUDED."isPrimary")`;
         await tx.vehicleImage.deleteMany({where:{vehicleId:v.id,OR:[{storageKey:{startsWith:`fbook/${v.externalId}-`}},{storageKey:{startsWith:`dealertrade/${v.externalId}/`},position:{gte:v.gallery.length}}]}});
       }
-      await rawUpsert(tx,'vehicle',v);
+      if(!v.rawUnchanged)await rawUpsert(tx,'vehicle',v);
     },{timeout:30000});if(!v.before)created++;else if(Object.keys(v.patch).length)updated++;
   }catch(e){failures.push({externalId:v.externalId,error:String(e)});if(failures.length===1)console.error(e);}
   done++;if(done%2000===0)console.log(`Reconciled ${done}/${p.vehiclePlans.length}; failures=${failures.length}`);
   }}));
-  for(const r of p.rawOnly)await rawUpsert(db,'vehicle',r);
-  const report={at:new Date().toISOString(),updated,created,processed:p.vehiclePlans.length,rawOnly:p.rawOnly.length,failures};write('apply-report.json',report);console.log({...report,failures:failures.length});if(failures.length)throw Error('Some rows failed; see apply-report.json');
+  for(const r of p.rawOnly)if(!r.rawUnchanged)await rawUpsert(db,'vehicle',r);
+  const report={at:new Date().toISOString(),updated,created,unchanged:skipped,processed:p.vehiclePlans.length,rawOnly:p.rawOnly.length,failures};write('apply-report.json',report);console.log({...report,failures:failures.length});if(failures.length)throw Error('Some rows failed; see apply-report.json');
   if(p.metadataPayload)await rawUpsert(db,'metadata',{externalId:'stock',payload:p.metadataPayload});
 }
 async function verify(){
@@ -213,16 +235,15 @@ async function verify(){
   const inputRows:Row[]=read(resolve(source,'vehicles.json')),inputDealers:Row[]=read(resolve(source,'dealers.json'));
   const plannedRaw=new Map([...p.vehiclePlans,...p.rawOnly].map((r:Row)=>[r.externalId,r]));
   for(const input of inputRows){
-    const id=String(input.vehicle_id),planned=plannedRaw.get(id)as Row;sourceValues('api_value',id,planned.rawBefore,input,raw.get('vehicle:'+id));
+    const id=String(input.vehicle_id),planned=plannedRaw.get(id)as Row;sourceValues('api_value',id,planned.rawBefore,planned.rawUnchanged?withoutVolatile(input):input,raw.get('vehicle:'+id));
     const v=vehicles.get(planned.id);if(!v)continue;
     for(const [from,to]of Object.entries({price:'price',mileage:'mileage',engine_capacity:'engineCapacityCc',kilowatts:'powerKw',cylinders:'cylinders',no_seats:'seats',no_doors:'doors',image_count:'imageCount'})){if(empty(input[from]))continue;const n=integer(input[from],from==='price'?1:0);if(n!==undefined)check('direct_api_column',id,to,n,(v as Row)[to]);}
     if(!empty(input.stockno))check('direct_api_column',id,'stockNumber',String(input.stockno),v.stockNumber);
-    if(!empty(input.featured)&&[0,1,false,true].includes(input.featured))check('direct_api_column',id,'isFeatured',Boolean(input.featured),v.isFeatured);
     const transmission=({1:'MANUAL',2:'AUTOMATIC'}as Row)[input.transmission_type_id];if(transmission)check('direct_api_column',id,'transmission',transmission,v.transmission);
     const condition=({New:'NEW',Used:'USED',Demo:'DEMO'}as Row)[input.type];if(condition)check('direct_api_column',id,'condition',condition,v.condition);
   }
   const plannedDealers=new Map(p.dealerPlans.map((r:Row)=>[r.externalId,r]));
-  for(const input of inputDealers){const id=String(input.dealer_id),planned=plannedDealers.get(id)as Row;if(planned)sourceValues('api_dealer_value',id,planned.rawBefore,input,raw.get('dealer:'+id));}
+  for(const input of inputDealers){const id=String(input.dealer_id),planned=plannedDealers.get(id)as Row;if(planned)sourceValues('api_dealer_value',id,planned.rawBefore,planned.rawUnchanged?withoutVolatile(input):input,raw.get('dealer:'+id));}
   for(const item of p.vehiclePlans){const v=vehicles.get(item.id);if(!v){mismatches.push({id:item.id,field:'vehicle',reason:'missing'});continue;}
     const actual=scalarVehicle(v),expected=item.before?{...item.before,...item.patch}:item.create;
     for(const [field,value]of Object.entries(expected)){if(['version','updatedAt'].includes(field))continue;check('vehicle',item.externalId,field,value,actual[field]);columns++;if(item.before&&!Object.hasOwn(item.patch,field))preserved++;}

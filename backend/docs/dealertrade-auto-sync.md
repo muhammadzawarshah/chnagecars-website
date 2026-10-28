@@ -1,6 +1,12 @@
 # DealerTrade automatic server sync
 
-The backend API server automatically captures fresh DealerTrade dealers and stock on startup and every 12 hours. It runs the existing capture → plan → apply → verify pipeline. Source images use their HTTPS upstream URLs. Existing IDs/slugs and blank-field preservation follow the reconciliation policy. Stock missing from a capture is not deleted or marked sold because the upstream traversal is not an atomic snapshot.
+The backend API server automatically captures fresh DealerTrade dealers and stock on startup and every 10 minutes. It runs the existing capture → plan → apply → verify pipeline. Source images use their HTTPS upstream URLs. Existing IDs/slugs and blank-field preservation follow the reconciliation policy. Stock missing from a capture is not deleted or marked sold because the upstream traversal is not an atomic snapshot.
+
+Only real changes are written. DealerTrade re-stamps `updated_at` on whole batches of unchanged stock, so a difference in `updated_at` alone does not update a vehicle, its raw record or its gallery; when another field changes, the new `updated_at` is stored with it. Vehicles with nothing to change are skipped without a database transaction (`unchanged` in the apply report).
+
+`isFeatured` is chosen by ChangeCars and is never taken from the DealerTrade `featured` flag.
+
+Vehicles need a photo to be listed. A new DealerTrade vehicle without photos is not created; it is created by the first run that receives its photos. A listed vehicle that has no photo at all is set to `DRAFT` and marked `sourceData.hiddenNoPhotos`; once photos arrive the run lists it again. Vehicles drafted by hand are never listed by the sync.
 
 No separate worker or hosting platform is required. Start the backend normally with `npm run start:prod` (or `npm run start:dev`). The job starts automatically when a DealerTrade token is available, using `DEALERTRADE_TOKEN` or the existing `.local/dealertrade/token` file. Tokens are never logged.
 
@@ -9,10 +15,10 @@ Optional environment settings:
 ```dotenv
 DEALERTRADE_SYNC_ENABLED=true
 DEALERTRADE_TOKEN=<DealerTrade bearer token>
-DEALERTRADE_SYNC_INTERVAL_MINUTES=720
+DEALERTRADE_SYNC_INTERVAL_MINUTES=10
 ```
 
-Set `DEALERTRADE_SYNC_ENABLED=false` to disable it. The interval must be at least five minutes; invalid values fall back to 12 hours. Restart the backend after changing configuration. The standalone worker also loads the job; the database lock prevents overlapping imports.
+Set `DEALERTRADE_SYNC_ENABLED=false` to disable it. The interval must be at least five minutes; invalid values fall back to 10 minutes. A run that takes longer than the interval is never overlapped; the next run starts after it finishes. Restart the backend after changing configuration. The standalone worker also loads the job; the database lock prevents overlapping imports.
 
 The backend Docker image includes Python, curl and the capture script. For non-Docker hosting, install Python 3 and curl, retain `scripts/`, `prisma/`, `src/` (the reconciler imports source helpers) and production dependencies, and start from the backend directory. Each step has a 45-minute timeout. The fetcher retries transient API failures and respects rate limits.
 
