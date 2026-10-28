@@ -31,7 +31,7 @@ describe('super admin console isolation', () => {
   it('refresh preserves the immutable snapshot contract and records the actual revision', async () => {
     const manifest = { schema_version: 1, revision: 'inv-current', total: 10, snapshot_url: '/api/v1/vehicle-filters/snapshots/inv-current.json.gz', sha256: 'hash' };
     const cache = { bump: jest.fn().mockResolvedValue(undefined) };
-    const snapshots = { manifest: jest.fn().mockResolvedValue(manifest) };
+    const snapshots = { regenerate: jest.fn().mockResolvedValue(manifest) };
     const audit = { record: jest.fn().mockResolvedValue(undefined) };
     const service = new ConsoleService({} as any, {} as any, snapshots as any, cache as any, audit as any, {} as any);
     expect(await service.refreshSnapshot()).toBe(manifest);

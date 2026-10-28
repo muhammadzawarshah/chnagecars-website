@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { dealerTradeToken } from './dealertrade-token';
 
 const DEALERTRADE_STOCK_URL = 'https://dealertrade.co.za/api/apk/stock/by-dealers';
@@ -8,16 +8,30 @@ export type SourceSummary = { source: 'dealertrade'; total_stock_count: number |
 
 /**
  * Stock counts read live from the DealerTrade API (not the synced DB copy). Each call takes ~3s and the API
- * rate-limits, so one result is shared for a minute; on failure the last live result (or nulls) is returned.
+ * rate-limits, so one result is shared for a minute. Requests never wait for a refresh once a live result exists:
+ * an older result is returned while the next one is fetched in the background. On failure the last live result
+ * (or nulls) is kept.
  */
 @Injectable()
-export class DealerTradeStockService {
+export class DealerTradeStockService implements OnApplicationBootstrap {
   private readonly logger = new Logger(DealerTradeStockService.name);
   private live?: { value: SourceSummary; at: number };
   private request?: Promise<SourceSummary>;
 
+  /** Fetch once at startup so the first request after a deploy or restart doesn't wait either. */
+  onApplicationBootstrap(): void {
+    if (process.env.NODE_ENV !== 'test' && dealerTradeToken()) void this.summary();
+  }
+
   summary(): Promise<SourceSummary> {
-    if (this.live && Date.now() - this.live.at < SOURCE_TTL_MS) return Promise.resolve(this.live.value);
+    if (this.live) {
+      if (Date.now() - this.live.at >= SOURCE_TTL_MS) void this.refresh();
+      return Promise.resolve(this.live.value);
+    }
+    return this.refresh();
+  }
+
+  private refresh(): Promise<SourceSummary> {
     if (this.request) return this.request;
     const request = this.fetchSummary()
       .then((value) => { this.live = { value, at: Date.now() }; return value; })

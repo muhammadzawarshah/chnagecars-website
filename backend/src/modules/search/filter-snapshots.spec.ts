@@ -29,7 +29,7 @@ describe('immutable filter snapshots', () => {
   it('persists exact gzip bytes, reuses revisions, and downloads after service restart', async () => {
     let stored: any;
     const table = { findUnique: jest.fn(async ({ where }) => stored?.revision === where.revision ? stored : null), upsert: jest.fn(async ({ create }) => stored = { ...create, generatedAt: new Date('2026-10-10T00:00:00Z') }) };
-    const prisma = { replica: { vehicle: { findMany: jest.fn(async () => [{ ...row }]) } }, vehicleFilterSnapshot: table };
+    const prisma = { replica: { vehicle: { findMany: jest.fn(async () => [{ ...row }]) }, vehicleFilterSnapshot: { findFirst: jest.fn(async () => stored ?? null) } }, vehicleFilterSnapshot: table };
     const cache = { versionedKey: jest.fn(async () => 'key'), get: jest.fn(async () => undefined), set: jest.fn() };
     const config = { get: () => 'api/v1' };
     const service = new FilterSnapshotsService(prisma as any, cache as any, config as any);
@@ -43,6 +43,22 @@ describe('immutable filter snapshots', () => {
     expect((await restarted.manifest()).revision).toBe(manifest.revision);
     expect(table.upsert).toHaveBeenCalledTimes(1);
     await expect(restarted.download('inv-unknown.json.gz')).rejects.toThrow('Snapshot not found');
+  });
+  it('serves the stored snapshot at once while a new one builds, and never loads raw source payloads', async () => {
+    const previous = { revision: 'inv-' + 'a'.repeat(64), total: 44500, sha256: 'b'.repeat(64), compressedBytes: 2335278, generatedAt: new Date('2026-10-27T15:00:00Z') };
+    let finishRows!: (rows: unknown[]) => void;
+    const findMany = jest.fn((_args: { select: object }) => new Promise(resolve => { finishRows = resolve; }));
+    const upsert = jest.fn(async ({ create }) => ({ ...create, generatedAt: new Date('2026-10-28T12:00:00Z') }));
+    const prisma = { replica: { vehicle: { findMany }, vehicleFilterSnapshot: { findFirst: jest.fn(async () => previous) } }, vehicleFilterSnapshot: { findUnique: jest.fn(async () => null), upsert } };
+    const cache = { versionedKey: jest.fn(async () => 'key'), get: jest.fn(async () => undefined), set: jest.fn() };
+    const service = new FilterSnapshotsService(prisma as any, cache as any, { get: () => 'api/v1' } as any);
+    expect(await service.manifest()).toMatchObject({ revision: previous.revision, total: 44500 });
+    expect(findMany.mock.calls[0][0].select).not.toHaveProperty('sourceData');
+    finishRows([{ ...row }]);
+    await new Promise(resolve => setImmediate(resolve));
+    const rebuilt = await service.regenerate();
+    expect(rebuilt.revision).not.toBe(previous.revision);
+    expect(await service.manifest()).toMatchObject({ revision: rebuilt.revision });
   });
   it('adds live DealerTrade counts to the manifest response without touching the cached manifest', async () => {
     const cached = { schema_version: 1, revision: 'inv-abc', total: 44500 };

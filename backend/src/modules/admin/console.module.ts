@@ -101,7 +101,7 @@ export class ConsoleService {
 
   async refreshSnapshot() {
     await this.cache.bump(CacheNs.vehicles);
-    const result = await this.snapshots.manifest();
+    const result = await this.snapshots.regenerate();
     await this.audit.record({ action: 'admin.snapshot_refresh', entityType: 'vehicle_filter_snapshot', entityId: result.revision });
     return result;
   }

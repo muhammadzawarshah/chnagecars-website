@@ -2,7 +2,7 @@ import { standardColourId, colourStockOptions } from '../vehicles/standard-colou
 import { createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
-import { Controller, Get, Injectable, Param, Res } from '@nestjs/common';
+import { Controller, Get, Injectable, Logger, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/auth.decorators';
@@ -73,37 +73,71 @@ export function snapshotPayload(rows: any[]) {
   return { schema_version: 1, total: vehicles.length, dictionaries, options: { cylinders, colour: colourStockOptions(rows) }, vehicles };
 }
 
+const MANIFEST_KEY = 'snapshot:manifest:v3';
+const storedSummary = { revision: true, total: true, sha256: true, compressedBytes: true, generatedAt: true } as const;
+type StoredSummary = { revision: string; total: number; sha256: string; compressedBytes: number; generatedAt: Date };
+
 @Injectable()
 export class FilterSnapshotsService {
+  private readonly logger = new Logger(FilterSnapshotsService.name);
   private generating?: Promise<any>;
+  /** Last manifest this process returned; served while a newer snapshot is built. */
+  private latest?: any;
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService, private readonly config: AppConfig) {}
 
+  /**
+   * Never makes a caller wait for a rebuild (~2.5s for 45k vehicles) once any snapshot exists: when inventory
+   * changed or the cache expired, the previous snapshot is returned and the new one is built in the background.
+   */
   async manifest() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'snapshot:manifest:v3');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, MANIFEST_KEY);
     const cached = await this.cache.get<any>(key);
-    if (cached) return cached;
-    if (this.generating) return this.generating;
-    this.generating = this.generate(key);
-    try { return await this.generating; } finally { this.generating = undefined; }
+    if (cached) return (this.latest = cached);
+    const rebuild = this.rebuild(key);
+    const previous = this.latest ?? await this.latestStored();
+    if (!previous) return rebuild;
+    rebuild.catch((error) => this.logger.warn(`filter snapshot rebuild failed: ${(error as Error).message}`));
+    return previous;
+  }
+
+  /** Builds the current snapshot and waits for it (admin "refresh snapshot"). */
+  async regenerate() {
+    return this.rebuild(await this.cache.versionedKey(CacheNs.vehicles, MANIFEST_KEY));
+  }
+
+  private rebuild(key: string): Promise<any> {
+    this.generating ??= this.generate(key)
+      .then((manifest) => (this.latest = manifest))
+      .finally(() => { this.generating = undefined; });
+    return this.generating;
+  }
+
+  private async latestStored() {
+    const stored = await this.prisma.replica.vehicleFilterSnapshot.findFirst({ select: storedSummary, orderBy: { generatedAt: 'desc' } });
+    return stored ? this.toManifest(stored) : undefined;
+  }
+
+  private toManifest(stored: StoredSummary) {
+    return { schema_version: 1, revision: stored.revision, total: stored.total,
+      snapshot_url: `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}/vehicle-filters/snapshots/${stored.revision}.json.gz`,
+      sha256: stored.sha256, compressed_bytes: stored.compressedBytes, generated_at: stored.generatedAt.toISOString(),
+    };
   }
 
   private async generate(key: string) {
-    const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere({}), select: { ...filterVehicleSelect, specialPrice: true, sourceData: true }, orderBy: { id: 'asc' } });
+    const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere({}), select: { ...filterVehicleSelect, specialPrice: true }, orderBy: { id: 'asc' } });
     // Stable row/category order produces a content-addressed immutable revision.
     for (const row of rows) row.categories.sort((a, b) => a.slug.localeCompare(b.slug));
     const payload = snapshotPayload(rows);
     const revision = `inv-${hash(JSON.stringify(payload))}`;
-    let stored = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision } });
+    let stored: StoredSummary | null = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision }, select: storedSummary });
     if (!stored) {
       const bytes = await zip(Buffer.from(JSON.stringify({ ...payload, revision })), { level: 9 });
-      stored = await this.prisma.vehicleFilterSnapshot.upsert({ where: { revision }, update: {}, create: {
+      stored = await this.prisma.vehicleFilterSnapshot.upsert({ where: { revision }, update: {}, select: storedSummary, create: {
         revision, total: payload.total, sha256: hash(bytes), compressedBytes: bytes.length, content: bytes,
       } });
     }
-    const manifest = { schema_version: 1, revision, total: stored.total,
-      snapshot_url: `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}/vehicle-filters/snapshots/${revision}.json.gz`,
-      sha256: stored.sha256, compressed_bytes: stored.compressedBytes, generated_at: stored.generatedAt.toISOString(),
-    };
+    const manifest = this.toManifest(stored);
     await this.cache.set(key, manifest, 120);
     return manifest;
   }

@@ -27,6 +27,19 @@ describe('DealerTradeStockService', () => {
     expect(await service.summary()).toMatchObject({ total_stock_count: 38654 });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+  it('answers from the previous result while a stale one refreshes in the background', async () => {
+    const fetchMock = live({ meta: { total_stock_count: 38654 }, total: 38990 });
+    const service = new DealerTradeStockService();
+    await service.summary();
+    jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 61_000);
+    let answer!: (value: unknown) => void;
+    fetchMock.mockReturnValue(new Promise(resolve => { answer = resolve; }) as any);
+    expect(await service.summary()).toMatchObject({ total_stock_count: 38654 });
+    answer({ ok: true, status: 200, json: async () => ({ meta: { total_stock_count: 38526 }, total: 39049 }) });
+    await new Promise(resolve => setImmediate(resolve));
+    expect(await service.summary()).toMatchObject({ total_stock_count: 38526 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
   it('returns nulls when the API has never answered', async () => {
     live({}, false);
     expect(await new DealerTradeStockService().summary()).toMatchObject({ total_stock_count: null, total: null, fetchedAt: null });
