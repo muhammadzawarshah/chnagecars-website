@@ -46,6 +46,20 @@ export class PublicDealersController {
   }
 
   @Public()
+  @Get('map')
+  @ApiOperation({ summary: 'Every matching directory dealer with a location (map view); same filters as GET /dealers, no paging' })
+  map(@Query() query: PublicDealerQueryDto) {
+    return this.dealers.mapPublic(query);
+  }
+
+  @Public()
+  @Get('makes')
+  @ApiOperation({ summary: 'Makes and models in stock with the number of directory dealers selling each' })
+  makes() {
+    return this.dealers.stockMakes();
+  }
+
+  @Public()
   @Get('groups')
   @ApiOperation({ summary: 'Dealer groups for the directory filter (from DealerTrade), with approved dealer counts' })
   groups() {

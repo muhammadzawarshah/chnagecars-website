@@ -70,10 +70,13 @@ const publicDealerSelect = {
     take: 1,
     select: { latitude: true, longitude: true },
   },
+  _count: { select: { vehicles: { where: { status: { in: PUBLIC_SEARCH_STATUSES } } } } },
 } satisfies Prisma.DealerSelect;
 
 const DEALERTRADE_IMAGES = 'https://www.changecars.co.za/images/200/';
 const LISTED = { status: { in: PUBLIC_SEARCH_STATUSES } } satisfies Prisma.VehicleWhereInput;
+/** Pseudo group for dealers that belong to no DealerTrade group. */
+const NON_FRANCHISED = { id: 'non-franchised', name: 'Non-Franchised Dealers', slug: 'non-franchised-dealers', logoUrl: null };
 const list = (value?: string) => [...new Set((value ?? '').split(',').map(item => item.trim().toLowerCase()).filter(Boolean))];
 
 export type DealerGroup = { id: string; name: string; slug: string; logoUrl: string | null };
@@ -149,7 +152,31 @@ export class DealersService {
     await this.identities.refresh();
     const feed = await this.dealerFeed();
     const { page, pageSize, skip, take } = pageArgs(query);
-    const and: Prisma.DealerWhereInput[] = [{ status: DealerStatus.APPROVED }];
+    const where = this.directoryWhere(query, feed);
+    const [data, total] = await Promise.all([
+      this.prisma.replica.dealer.findMany({ where, select: publicDealerSelect, orderBy: [{ plan: 'desc' }, { name: 'asc' }], skip, take }),
+      this.prisma.replica.dealer.count({ where }),
+    ]);
+    return toPage(data.map(dealer => this.presentDealer(dealer, feed)), total, page, pageSize);
+  }
+
+  /** Every matching dealer with a location, unpaginated, for the map view. */
+  async mapPublic(query: PublicDealerQueryDto) {
+    const feed = await this.dealerFeed();
+    const rows = await this.prisma.replica.dealer.findMany({
+      where: { AND: [this.directoryWhere(query, feed), { branches: { some: { isActive: true, latitude: { not: null }, longitude: { not: null } } } }] },
+      select: { id: true, name: true, slug: true, logoUrl: true, city: true, province: true, address: true, branches: publicDealerSelect.branches },
+      orderBy: { name: 'asc' },
+    });
+    return rows.map(({ branches, ...dealer }) => ({ ...dealer, latitude: branches[0].latitude!, longitude: branches[0].longitude! }));
+  }
+
+  /**
+   * The directory lists approved dealers with cars on sale, like changecars.co.za. Filters: name, province,
+   * DealerTrade group (or non-franchised), make/model in stock, first letter, motorbikes, concierge, on-road costs.
+   */
+  private directoryWhere(query: PublicDealerQueryDto, feed: DealerFeed): Prisma.DealerWhereInput {
+    const and: Prisma.DealerWhereInput[] = [{ status: DealerStatus.APPROVED }, { vehicles: { some: LISTED } }];
     if (query.province) and.push({ province: query.province });
     if (query.q) and.push({ name: { contains: query.q, mode: 'insensitive' } });
     if (query.letter) {
@@ -158,7 +185,11 @@ export class DealersService {
         : { name: { startsWith: query.letter, mode: 'insensitive' } });
     }
     const groups = list(query.group);
-    if (groups.length) and.push({ id: { in: [...feed.groups].filter(([, items]) => items.some(item => groups.includes(item.id) || groups.includes(item.slug))).map(([id]) => id) } });
+    if (groups.length) {
+      const members = [...feed.groups].filter(([, items]) => items.some(item => groups.includes(item.id) || groups.includes(item.slug))).map(([id]) => id);
+      const nonFranchised = groups.includes(NON_FRANCHISED.id) || groups.includes(NON_FRANCHISED.slug);
+      and.push({ OR: [{ id: { in: members } }, ...(nonFranchised ? [{ id: { notIn: [...feed.groups.keys()] } }] : [])] });
+    }
     const makes = list(query.make);
     if (makes.length) and.push({ vehicles: { some: { ...LISTED, make: { slug: { in: makes } } } } });
     const models = list(query.model).map(value => value.split(':')).filter(parts => parts.length === 2);
@@ -169,28 +200,58 @@ export class DealersService {
     }
     if (query.concierge) and.push({ id: { in: [...feed.concierge] } });
     if (query.onRoadCosts) and.push({ onRoadCostsIncluded: true });
-    const where: Prisma.DealerWhereInput = { AND: and };
-    const [data, total] = await Promise.all([
-      this.prisma.replica.dealer.findMany({ where, select: publicDealerSelect, orderBy: [{ plan: 'desc' }, { name: 'asc' }], skip, take }),
-      this.prisma.replica.dealer.count({ where }),
-    ]);
-    return toPage(data.map(dealer => this.presentDealer(dealer, feed)), total, page, pageSize);
+    return { AND: and };
   }
 
-  /** Dealer groups for the directory filter, with the number of approved dealers in each. */
+  /** Dealer Group dropdown: "All", "Non-Franchised Dealers", then each group, counting directory dealers. */
   async groups() {
     const feed = await this.dealerFeed();
-    const approved = new Set((await this.prisma.replica.dealer.findMany({ where: { status: DealerStatus.APPROVED }, select: { id: true } })).map(dealer => dealer.id));
+    const dealers = await this.prisma.replica.dealer.findMany({ where: { status: DealerStatus.APPROVED, vehicles: { some: LISTED } }, select: { id: true } });
     const counts = new Map<string, DealerGroup & { dealerCount: number }>();
-    for (const [dealerId, items] of feed.groups) {
-      if (!approved.has(dealerId)) continue;
-      for (const item of items) {
+    let nonFranchised = 0;
+    for (const { id } of dealers) {
+      const items = feed.groups.get(id);
+      if (!items) nonFranchised++;
+      for (const item of items ?? []) {
         const group = counts.get(item.id) ?? { ...item, dealerCount: 0 };
         group.dealerCount++;
         counts.set(item.id, group);
       }
     }
-    return [...counts.values()].sort((a, b) => a.name.localeCompare(b.name));
+    return {
+      total: dealers.length,
+      groups: [{ ...NON_FRANCHISED, dealerCount: nonFranchised }, ...[...counts.values()].sort((a, b) => a.name.localeCompare(b.name))],
+    };
+  }
+
+  /** Make/model picker: how many directory dealers have each make and model in stock. */
+  async stockMakes() {
+    const rows = await this.prisma.replica.vehicle.groupBy({
+      by: ['makeId', 'modelId', 'dealerId'],
+      where: { ...LISTED, dealer: { status: DealerStatus.APPROVED } },
+    });
+    const [makes, models] = await Promise.all([
+      this.prisma.replica.make.findMany({ where: { id: { in: [...new Set(rows.map(row => row.makeId))] } }, select: { id: true, slug: true, name: true } }),
+      this.prisma.replica.model.findMany({ where: { id: { in: [...new Set(rows.map(row => row.modelId))] } }, select: { id: true, slug: true, name: true } }),
+    ]);
+    const makeById = new Map(makes.map(make => [make.id, make]));
+    const modelById = new Map(models.map(model => [model.id, model]));
+    const result = new Map<string, { slug: string; name: string; dealers: Set<string>; models: Map<string, { slug: string; value: string; name: string; dealers: Set<string> }> }>();
+    for (const row of rows) {
+      const make = makeById.get(row.makeId), model = modelById.get(row.modelId);
+      if (!make || !model) continue;
+      const entry = result.get(make.slug) ?? { slug: make.slug, name: make.name, dealers: new Set<string>(), models: new Map() };
+      entry.dealers.add(row.dealerId);
+      const modelEntry = entry.models.get(model.slug) ?? { slug: model.slug, value: `${make.slug}:${model.slug}`, name: model.name, dealers: new Set<string>() };
+      modelEntry.dealers.add(row.dealerId);
+      entry.models.set(model.slug, modelEntry);
+      result.set(make.slug, entry);
+    }
+    const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
+    return [...result.values()].sort(byName).map(make => ({
+      slug: make.slug, name: make.name, dealerCount: make.dealers.size,
+      models: [...make.models.values()].sort(byName).map(({ dealers, ...model }) => ({ ...model, dealerCount: dealers.size })),
+    }));
   }
 
   async getPublic(slug: string) {
@@ -213,10 +274,11 @@ export class DealersService {
     return { ...this.presentDealer({ ...rest, branches: located.slice(0, 1) }, feed), branches, activeListings: _count.vehicles };
   }
 
-  private presentDealer<T extends { id: string; branches: { latitude: number | null; longitude: number | null }[] }>(dealer: T, feed: DealerFeed) {
-    const { branches, ...rest } = dealer;
+  private presentDealer<T extends { id: string; branches: { latitude: number | null; longitude: number | null }[]; _count?: { vehicles: number } }>(dealer: T, feed: DealerFeed) {
+    const { branches, _count, ...rest } = dealer;
     return {
       ...rest,
+      ...(_count ? { activeListings: _count.vehicles } : {}),
       whatsappNumber: this.identities.whatsappNumber(dealer.id),
       groups: feed.groups.get(dealer.id) ?? [],
       conciergePartner: feed.concierge.has(dealer.id),
