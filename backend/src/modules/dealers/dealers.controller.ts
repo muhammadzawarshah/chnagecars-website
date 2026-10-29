@@ -46,6 +46,13 @@ export class PublicDealersController {
   }
 
   @Public()
+  @Get('groups')
+  @ApiOperation({ summary: 'Dealer groups for the directory filter (from DealerTrade), with approved dealer counts' })
+  groups() {
+    return this.dealers.groups();
+  }
+
+  @Public()
   @Get(':slug')
   @ApiOperation({ summary: 'Public dealer page with branches and opening hours' })
   get(@Param('slug') slug: string) {

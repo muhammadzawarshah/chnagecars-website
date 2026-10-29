@@ -19,6 +19,7 @@ import { OutboxService } from '../../infrastructure/outbox/outbox.service';
 import { WebSyncService } from '../../infrastructure/web-sync/web-sync.service';
 import { StorageService } from '../../infrastructure/storage/storage.service';
 import { AuthService } from '../auth/auth.service';
+import { PUBLIC_SEARCH_STATUSES } from '../vehicles/vehicle-lifecycle';
 import { DealerContext } from './dealer-access';
 import { effectivePermissions } from './dealer-permissions';
 import {
@@ -60,11 +61,29 @@ const publicDealerSelect = {
   address: true,
   rating: true,
   plan: true,
+  onRoadCostsIncluded: true,
   createdAt: true,
+  // Map view: the head office first, then any branch with coordinates.
+  branches: {
+    where: { isActive: true, latitude: { not: null }, longitude: { not: null } },
+    orderBy: [{ isHeadOffice: 'desc' }, { createdAt: 'asc' }],
+    take: 1,
+    select: { latitude: true, longitude: true },
+  },
 } satisfies Prisma.DealerSelect;
+
+const DEALERTRADE_IMAGES = 'https://www.changecars.co.za/images/200/';
+const LISTED = { status: { in: PUBLIC_SEARCH_STATUSES } } satisfies Prisma.VehicleWhereInput;
+const list = (value?: string) => [...new Set((value ?? '').split(',').map(item => item.trim().toLowerCase()).filter(Boolean))];
+
+export type DealerGroup = { id: string; name: string; slug: string; logoUrl: string | null };
+/** DealerTrade's dealer groups and concierge flag, read from the stored dealer feed. */
+type DealerFeed = { groups: Map<string, DealerGroup[]>; concierge: Set<string>; expiresAt: number };
 
 @Injectable()
 export class DealersService {
+  private feed?: DealerFeed;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
@@ -128,21 +147,55 @@ export class DealersService {
 
   async listPublic(query: PublicDealerQueryDto) {
     await this.identities.refresh();
+    const feed = await this.dealerFeed();
     const { page, pageSize, skip, take } = pageArgs(query);
-    const where: Prisma.DealerWhereInput = {
-      status: DealerStatus.APPROVED,
-      ...(query.province ? { province: query.province } : {}),
-      ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
-    };
+    const and: Prisma.DealerWhereInput[] = [{ status: DealerStatus.APPROVED }];
+    if (query.province) and.push({ province: query.province });
+    if (query.q) and.push({ name: { contains: query.q, mode: 'insensitive' } });
+    if (query.letter) {
+      and.push(query.letter === '#'
+        ? { OR: '0123456789'.split('').map(digit => ({ name: { startsWith: digit } })) }
+        : { name: { startsWith: query.letter, mode: 'insensitive' } });
+    }
+    const groups = list(query.group);
+    if (groups.length) and.push({ id: { in: [...feed.groups].filter(([, items]) => items.some(item => groups.includes(item.id) || groups.includes(item.slug))).map(([id]) => id) } });
+    const makes = list(query.make);
+    if (makes.length) and.push({ vehicles: { some: { ...LISTED, make: { slug: { in: makes } } } } });
+    const models = list(query.model).map(value => value.split(':')).filter(parts => parts.length === 2);
+    if (models.length) and.push({ vehicles: { some: { ...LISTED, OR: models.map(([make, model]) => ({ make: { slug: make }, model: { slug: model } })) } } });
+    if (query.motorbike) {
+      const bikeGroups = [...feed.groups].filter(([, items]) => items.some(item => /bike/i.test(item.name))).map(([id]) => id);
+      and.push({ OR: [{ vehicles: { some: { ...LISTED, categories: { some: { slug: 'motorbikes' } } } } }, { id: { in: bikeGroups } }] });
+    }
+    if (query.concierge) and.push({ id: { in: [...feed.concierge] } });
+    if (query.onRoadCosts) and.push({ onRoadCostsIncluded: true });
+    const where: Prisma.DealerWhereInput = { AND: and };
     const [data, total] = await Promise.all([
       this.prisma.replica.dealer.findMany({ where, select: publicDealerSelect, orderBy: [{ plan: 'desc' }, { name: 'asc' }], skip, take }),
       this.prisma.replica.dealer.count({ where }),
     ]);
-    return toPage(data.map(dealer => ({ ...dealer, whatsappNumber: this.identities.whatsappNumber(dealer.id) })), total, page, pageSize);
+    return toPage(data.map(dealer => this.presentDealer(dealer, feed)), total, page, pageSize);
+  }
+
+  /** Dealer groups for the directory filter, with the number of approved dealers in each. */
+  async groups() {
+    const feed = await this.dealerFeed();
+    const approved = new Set((await this.prisma.replica.dealer.findMany({ where: { status: DealerStatus.APPROVED }, select: { id: true } })).map(dealer => dealer.id));
+    const counts = new Map<string, DealerGroup & { dealerCount: number }>();
+    for (const [dealerId, items] of feed.groups) {
+      if (!approved.has(dealerId)) continue;
+      for (const item of items) {
+        const group = counts.get(item.id) ?? { ...item, dealerCount: 0 };
+        group.dealerCount++;
+        counts.set(item.id, group);
+      }
+    }
+    return [...counts.values()].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async getPublic(slug: string) {
     await this.identities.refresh();
+    const feed = await this.dealerFeed();
     const dealer = await this.prisma.replica.dealer.findFirst({
       where: { slug: listingSlugFilter(slug), status: DealerStatus.APPROVED },
       select: {
@@ -155,8 +208,43 @@ export class DealersService {
       },
     });
     if (!dealer) throw Errors.notFound('Dealer');
-    const { _count, ...rest } = dealer;
-    return { ...rest, whatsappNumber: this.identities.whatsappNumber(rest.id), activeListings: _count.vehicles };
+    const { _count, branches, ...rest } = dealer;
+    const located = [...branches].sort((a, b) => Number(b.isHeadOffice) - Number(a.isHeadOffice)).filter(branch => branch.latitude !== null && branch.longitude !== null);
+    return { ...this.presentDealer({ ...rest, branches: located.slice(0, 1) }, feed), branches, activeListings: _count.vehicles };
+  }
+
+  private presentDealer<T extends { id: string; branches: { latitude: number | null; longitude: number | null }[] }>(dealer: T, feed: DealerFeed) {
+    const { branches, ...rest } = dealer;
+    return {
+      ...rest,
+      whatsappNumber: this.identities.whatsappNumber(dealer.id),
+      groups: feed.groups.get(dealer.id) ?? [],
+      conciergePartner: feed.concierge.has(dealer.id),
+      latitude: branches[0]?.latitude ?? null,
+      longitude: branches[0]?.longitude ?? null,
+    };
+  }
+
+  /** Cached for a minute; the DealerTrade sync updates the stored feed. */
+  private async dealerFeed(): Promise<DealerFeed> {
+    if (this.feed && Date.now() < this.feed.expiresAt) return this.feed;
+    const rows = await this.prisma.replica.$queryRaw<{ dealerId: string; groups: unknown; concierge: string | null }[]>`
+      SELECT "externalId" AS "dealerId", payload->'dealer_groups' AS groups, payload->>'concierge_partner' AS concierge
+      FROM source_feed_records WHERE source = 'dealertrade' AND kind = 'dealer'`;
+    const groups = new Map<string, DealerGroup[]>();
+    const concierge = new Set<string>();
+    for (const row of rows) {
+      if (row.concierge === '1' || row.concierge === 'true') concierge.add(row.dealerId);
+      const items = (Array.isArray(row.groups) ? row.groups : []).flatMap((item: { id?: unknown; name?: unknown; logo?: unknown }) => {
+        const name = typeof item?.name === 'string' ? item.name.trim() : '';
+        if (item?.id === undefined || item.id === null || !name) return [];
+        const logo = typeof item.logo === 'string' && item.logo.trim() ? new URL(item.logo.trim(), DEALERTRADE_IMAGES).toString() : null;
+        return [{ id: String(item.id), name, slug: slugify(name), logoUrl: logo }];
+      });
+      if (items.length) groups.set(row.dealerId, items);
+    }
+    this.feed = { groups, concierge, expiresAt: Date.now() + 60_000 };
+    return this.feed;
   }
 
   // ───────────── dealer portal: profile ─────────────
