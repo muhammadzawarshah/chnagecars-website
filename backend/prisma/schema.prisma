@@ -375,6 +375,8 @@ model Dealer {
   status              DealerStatus @default(PENDING)
   plan                DealerPlan   @default(BASIC)
   biddingEnabled      Boolean      @default(true)
+  /// Advertised prices include on-road costs (set by admins; DealerTrade does not send it).
+  onRoadCostsIncluded Boolean      @default(false)
   rating              Float?
   /// Review pages from DealerTrade (google_review, peter_review); https links only.
   googleReviewUrl     String?

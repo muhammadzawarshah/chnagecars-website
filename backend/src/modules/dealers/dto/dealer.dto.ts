@@ -300,6 +300,8 @@ export class UpdateStaffDto {
   status?: DealerMemberStatus;
 }
 
+const toBool = ({ value }: { value: unknown }) => (value === undefined ? undefined : value === true || value === 'true' || value === '1');
+
 export class PublicDealerQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
@@ -311,6 +313,44 @@ export class PublicDealerQueryDto extends PaginationQueryDto {
   @IsOptional()
   @Transform(provinceInput) @IsEnum(Province)
   province?: Province;
+
+  @ApiPropertyOptional({ description: 'Dealer group IDs or slugs from GET /dealers/groups, comma-separated', example: '134,cfao-mobility-group' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  group?: string;
+
+  @ApiPropertyOptional({ description: 'Dealers with listed cars of these make slugs, comma-separated', example: 'abarth,ford' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  make?: string;
+
+  @ApiPropertyOptional({ description: 'Dealers with listed cars of these models as make:model, comma-separated', example: 'abarth:124' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  model?: string;
+
+  @ApiPropertyOptional({ description: 'First letter of the dealer name (A-Z), or # for names starting with a number', example: 'A' })
+  @IsOptional()
+  @Matches(/^[A-Za-z#]$/)
+  letter?: string;
+
+  @ApiPropertyOptional({ description: 'Only dealers whose advertised prices include on-road costs' })
+  @IsOptional()
+  @Transform(toBool) @IsBoolean()
+  onRoadCosts?: boolean;
+
+  @ApiPropertyOptional({ description: 'Only motorbike dealers (motorbikes listed, or in a bike dealer group)' })
+  @IsOptional()
+  @Transform(toBool) @IsBoolean()
+  motorbike?: boolean;
+
+  @ApiPropertyOptional({ description: 'Only Vehicle Concierge Service partners' })
+  @IsOptional()
+  @Transform(toBool) @IsBoolean()
+  concierge?: boolean;
 }
 
 export class AdminDealerQueryDto extends PublicDealerQueryDto {
@@ -342,6 +382,11 @@ export class AdminUpdateDealerDto {
   @IsOptional()
   @IsBoolean()
   biddingEnabled?: boolean;
+
+  @ApiPropertyOptional({ description: 'Advertised prices include on-road costs' })
+  @IsOptional()
+  @IsBoolean()
+  onRoadCostsIncluded?: boolean;
 
   @ApiPropertyOptional({ minimum: 0, maximum: 5 })
   @IsOptional()
