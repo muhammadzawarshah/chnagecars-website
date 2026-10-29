@@ -37,7 +37,7 @@ export class SearchService {
   async search(query: SearchVehiclesQueryDto) {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `search:v2:${criteriaKey(query)}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `search:v3:${criteriaKey(query)}`);
     if (query.sort === 'nearest') {
       if (query.lat === undefined || query.lng === undefined) throw Errors.badRequest('VALIDATION_FAILED', 'Request validation failed', ['sort=nearest needs lat and lng']);
       return this.cache.wrap(key, SEARCH_TTL_SECONDS, () => this.searchNearest(query, query.lat!, query.lng!, page, pageSize));

@@ -1,4 +1,4 @@
-import { publicVehicleFields, withAvailability } from './vehicle.presenter';
+import { publicVehicleDetailSelect, publicVehicleFields, publicVehicleSelect, withAvailability } from './vehicle.presenter';
 
 describe('public vehicle fields', () => {
   it('uses this vehicle’s feed values and never exposes the raw feed', () => {
@@ -65,4 +65,15 @@ it('exposes safe source extras while keeping missing values and zero flags disti
   expect(JSON.stringify(result)).not.toContain('private@example.test');
   expect(publicVehicleFields({ sourceData: { dealertrade: { video_url: 'javascript:alert(1)', poa: '1' } } })).toMatchObject({ videoUrl: null, priceOnApplication: true });
   expect(publicVehicleFields({})).toMatchObject({ videoUrl: null, priceOnApplication: null, extras: null, comment: null, sourceUpdatedAt: null });
+});
+
+it('counts the photos the API returns instead of the stored feed count', () => {
+  const images = [{ url: 'https://img.example.test/1.jpg' }, { url: 'https://img.example.test/2.jpg' }];
+  const base = { status: 'PUBLISHED' as const, price: 100, specialPrice: null, isSpecial: false, imageCount: 37 };
+  expect(withAvailability({ ...base, images })).toMatchObject({ imageCount: 2, images });
+  expect(withAvailability(base).imageCount).toBe(37);
+});
+
+it('lists the same photo gallery as the detail page', () => {
+  expect(publicVehicleSelect.images).toEqual(publicVehicleDetailSelect.images);
 });

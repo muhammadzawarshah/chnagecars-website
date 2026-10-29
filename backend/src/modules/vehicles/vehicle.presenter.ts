@@ -44,6 +44,12 @@ export const publicVehicleSelect = {
   branch: { select: { id: true, name: true, city: true, province: true } },
   categories: { select: { id: true, slug: true, name: true } },
   promotion: { select: { id: true, title: true, slug: true, endsAt: true } },
+  // Same gallery as the detail page, so apps can show every photo from the list.
+  images: {
+    where: { status: ImageStatus.READY },
+    orderBy: [{ isPrimary: 'desc' }, { position: 'asc' }],
+    select: { id: true, url: true, thumbnailUrl: true, mediumUrl: true, largeUrl: true, width: true, height: true, altText: true, isPrimary: true },
+  },
 } satisfies Prisma.VehicleSelect;
 
 export const publicVehicleDetailSelect = {
@@ -63,11 +69,6 @@ export const publicVehicleDetailSelect = {
   },
   branch: {
     select: { id: true, name: true, address: true, city: true, province: true, phone: true, email: true, latitude: true, longitude: true, operatingHours: true },
-  },
-  images: {
-    where: { status: ImageStatus.READY },
-    orderBy: [{ isPrimary: 'desc' }, { position: 'asc' }],
-    select: { id: true, url: true, thumbnailUrl: true, mediumUrl: true, largeUrl: true, width: true, height: true, altText: true, isPrimary: true },
   },
 } satisfies Prisma.VehicleSelect;
 
@@ -93,6 +94,8 @@ export function withAvailability<T extends { status: VehicleStatus; price: numbe
     ...withVehicleLabels(safeVehicle),
     ...((object(sourceData).importPolicy === 'dealertrade-only' && 'variant' in safeVehicle && safeVehicle.variant) ? { variant: { ...object(safeVehicle.variant), specification: null } } : {}),
     ...fields,
+    // The stored count can come from the feed; the gallery is what the API actually returns.
+    ...(Array.isArray((vehicle as T & { images?: unknown }).images) ? { imageCount: (vehicle as T & { images: unknown[] }).images.length } : {}),
     colourId: standardColourId((vehicle as T & { colour?: string }).colour),
     conditionLabel: vehicleLabel('condition', (vehicle as T & { condition?: string }).condition) ?? '',
     fuelTypeLabel: vehicleLabel('fuelType', (vehicle as T & { fuelType?: string }).fuelType) ?? '',
