@@ -1,4 +1,6 @@
 import { DealerTradeIdentityService } from './infrastructure/dealertrade/dealertrade-identity.service';
+import { dealerScopeMiddleware, dealerScopeStorage } from './infrastructure/database/dealer-scope';
+import { DealerStatus, PrismaService } from './infrastructure/database';
 import 'reflect-metadata';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -34,6 +36,11 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.useBodyParser('json', { limit: '1mb' });
+  const database = app.get(PrismaService);
+  // Dealer apps: /api/v1/scope/{dealerIds}/... serves the same public API limited to those dealers.
+  app.use(dealerScopeMiddleware(prefix, async (ids) => (await dealerScopeStorage.exit(() => database.dealer.findMany({
+    where: { id: { in: ids }, status: DealerStatus.APPROVED }, select: { id: true },
+  }))).map((dealer) => dealer.id)));
   const identities = app.get(DealerTradeIdentityService);
   app.use((req: Request, res: Response, next: NextFunction) => identities.request(req, res, next));
   app.enableCors({

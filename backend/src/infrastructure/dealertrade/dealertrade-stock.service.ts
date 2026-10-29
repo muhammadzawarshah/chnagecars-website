@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { dealerTradeToken } from './dealertrade-token';
+import { currentDealerScope } from '../database/dealer-scope';
 
 const DEALERTRADE_STOCK_URL = 'https://dealertrade.co.za/api/apk/stock/by-dealers';
 const SOURCE_TTL_MS = 60_000;
@@ -24,6 +25,8 @@ export class DealerTradeStockService implements OnApplicationBootstrap {
   }
 
   summary(): Promise<SourceSummary> {
+    // DealerTrade's totals cover every dealer; a dealer app counts only its own listed cars.
+    if (currentDealerScope()) return Promise.resolve({ source: 'dealertrade', total_stock_count: null, last_updated: this.live?.value.last_updated ?? null, total: null, fetchedAt: this.live?.value.fetchedAt ?? null });
     if (this.live) {
       if (Date.now() - this.live.at >= SOURCE_TTL_MS) void this.refresh();
       return Promise.resolve(this.live.value);

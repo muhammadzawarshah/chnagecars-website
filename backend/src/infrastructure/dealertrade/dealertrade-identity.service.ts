@@ -2,6 +2,7 @@ import { Global, Injectable, Module } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import { PrismaService } from '../database/prisma.service';
+import { dealerScopeStorage } from '../database/dealer-scope';
 
 type VehicleIdentity = { id: string; sourceId: string; dealerId: string; sourceDealerId: string };
 type DealerIdentity = { id: string; slug: string };
@@ -27,7 +28,8 @@ export class DealerTradeIdentityService {
 
   async refresh() {
     if (Date.now() < this.expiresAt) return;
-    if (!this.loading) this.loading = this.load().finally(() => { this.loading = undefined; });
+    // Shared by every request, so it is loaded outside any dealer-app scope.
+    if (!this.loading) this.loading = dealerScopeStorage.exit(() => this.load()).finally(() => { this.loading = undefined; });
     await this.loading;
   }
 

@@ -15,6 +15,7 @@ import { buildWhere } from './search.builder';
 import { filterVehicleSelect } from './filter-data';
 import { slugify } from '../../common/utils/strings';
 import { DealerTradeStockService } from '../../infrastructure/dealertrade/dealertrade-stock.service';
+import { currentDealerScope } from '../../infrastructure/database/dealer-scope';
 
 const zip = promisify(gzip);
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -74,15 +75,17 @@ export function snapshotPayload(rows: any[]) {
 }
 
 const MANIFEST_KEY = 'snapshot:manifest:v3';
+const scopeKey = () => currentDealerScope()?.dealerIds.join(',') ?? '';
 const storedSummary = { revision: true, total: true, sha256: true, compressedBytes: true, generatedAt: true } as const;
 type StoredSummary = { revision: string; total: number; sha256: string; compressedBytes: number; generatedAt: Date };
 
 @Injectable()
 export class FilterSnapshotsService {
   private readonly logger = new Logger(FilterSnapshotsService.name);
-  private generating?: Promise<any>;
-  /** Last manifest this process returned; served while a newer snapshot is built. */
-  private latest?: any;
+  /** Per dealer scope ('' = full marketplace, see dealer-scope.ts). */
+  private generating = new Map<string, Promise<any>>();
+  /** Last manifest this process returned per scope; served while a newer snapshot is built. */
+  private latest = new Map<string, any>();
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService, private readonly config: AppConfig) {}
 
   /**
@@ -92,9 +95,9 @@ export class FilterSnapshotsService {
   async manifest() {
     const key = await this.cache.versionedKey(CacheNs.vehicles, MANIFEST_KEY);
     const cached = await this.cache.get<any>(key);
-    if (cached) return (this.latest = cached);
+    if (cached) { this.latest.set(scopeKey(), cached); return cached; }
     const rebuild = this.rebuild(key);
-    const previous = this.latest ?? await this.latestStored();
+    const previous = this.latest.get(scopeKey()) ?? await this.latestStored();
     if (!previous) return rebuild;
     rebuild.catch((error) => this.logger.warn(`filter snapshot rebuild failed: ${(error as Error).message}`));
     return previous;
@@ -106,20 +109,25 @@ export class FilterSnapshotsService {
   }
 
   private rebuild(key: string): Promise<any> {
-    this.generating ??= this.generate(key)
-      .then((manifest) => (this.latest = manifest))
-      .finally(() => { this.generating = undefined; });
-    return this.generating;
+    const scope = scopeKey();
+    let running = this.generating.get(scope);
+    if (!running) {
+      running = this.generate(key)
+        .then((manifest) => { this.latest.set(scope, manifest); return manifest; })
+        .finally(() => this.generating.delete(scope));
+      this.generating.set(scope, running);
+    }
+    return running;
   }
 
   private async latestStored() {
-    const stored = await this.prisma.replica.vehicleFilterSnapshot.findFirst({ select: storedSummary, orderBy: { generatedAt: 'desc' } });
+    const stored = await this.prisma.replica.vehicleFilterSnapshot.findFirst({ where: { dealerScope: scopeKey() || null }, select: storedSummary, orderBy: { generatedAt: 'desc' } });
     return stored ? this.toManifest(stored) : undefined;
   }
 
   private toManifest(stored: StoredSummary) {
     return { schema_version: 1, revision: stored.revision, total: stored.total,
-      snapshot_url: `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}/vehicle-filters/snapshots/${stored.revision}.json.gz`,
+      snapshot_url: `${currentDealerScope()?.path ?? `/${this.config.get('API_PREFIX').replace(/^\/+|\/+$/g, '')}`}/vehicle-filters/snapshots/${stored.revision}.json.gz`,
       sha256: stored.sha256, compressed_bytes: stored.compressedBytes, generated_at: stored.generatedAt.toISOString(),
     };
   }
@@ -129,12 +137,13 @@ export class FilterSnapshotsService {
     // Stable row/category order produces a content-addressed immutable revision.
     for (const row of rows) row.categories.sort((a, b) => a.slug.localeCompare(b.slug));
     const payload = snapshotPayload(rows);
-    const revision = `inv-${hash(JSON.stringify(payload))}`;
+    // The scope is part of the revision, so two dealer apps never share (or overwrite) a snapshot row.
+    const revision = `inv-${hash(JSON.stringify(payload) + scopeKey())}`;
     let stored: StoredSummary | null = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision }, select: storedSummary });
     if (!stored) {
       const bytes = await zip(Buffer.from(JSON.stringify({ ...payload, revision })), { level: 9 });
       stored = await this.prisma.vehicleFilterSnapshot.upsert({ where: { revision }, update: {}, select: storedSummary, create: {
-        revision, total: payload.total, sha256: hash(bytes), compressedBytes: bytes.length, content: bytes,
+        revision, total: payload.total, sha256: hash(bytes), compressedBytes: bytes.length, content: bytes, dealerScope: scopeKey() || null,
       } });
     }
     const manifest = this.toManifest(stored);
@@ -145,7 +154,8 @@ export class FilterSnapshotsService {
   async download(file: string) {
     if (!/^inv-[a-f0-9]{64}\.json\.gz$/.test(file)) throw Errors.notFound('Snapshot');
     const row = await this.prisma.vehicleFilterSnapshot.findUnique({ where: { revision: file.slice(0, -8) } });
-    if (!row) throw Errors.notFound('Snapshot');
+    // A dealer app only downloads its own snapshots, and the marketplace app only marketplace ones.
+    if (!row || (row.dealerScope ?? '') !== scopeKey()) throw Errors.notFound('Snapshot');
     return row;
   }
 }

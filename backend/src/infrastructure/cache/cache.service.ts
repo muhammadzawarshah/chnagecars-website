@@ -1,6 +1,7 @@
 import { Global, Inject, Injectable, Logger, Module } from '@nestjs/common';
 import { REDIS, RedisClient } from '../redis/redis.module';
 import { WebSyncArea, WebSyncService } from '../web-sync/web-sync.service';
+import { currentDealerScope } from '../database/dealer-scope';
 
 /**
  * Cache-aside helper. Cache is never the source of truth: on authoritative updates
@@ -18,7 +19,14 @@ export class CacheService {
     private readonly webSync: WebSyncService,
   ) {}
 
+  /** Dealer-app requests (see dealer-scope.ts) get their own entries, so scoped and full results never mix. */
+  private scoped(key: string): string {
+    const scope = currentDealerScope();
+    return scope ? `scope:${scope.dealerIds.join(',')}:${key}` : key;
+  }
+
   async get<T>(key: string): Promise<T | undefined> {
+    key = this.scoped(key);
     try {
       const raw = this.redis ? await this.redis.get(this.prefix + key) : this.memoryGet(key);
       return raw == null ? undefined : (JSON.parse(raw) as T);
@@ -29,6 +37,7 @@ export class CacheService {
   }
 
   async set(key: string, value: unknown, ttlSeconds: number): Promise<void> {
+    key = this.scoped(key);
     const raw = JSON.stringify(value);
     try {
       if (this.redis) await this.redis.set(this.prefix + key, raw, 'EX', ttlSeconds);
