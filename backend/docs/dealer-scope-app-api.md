@@ -51,7 +51,7 @@ ChangeCars app.
 | Item | In the dealer app |
 |---|---|
 | `source.total_stock_count`, `source.total` (on `/vehicles`, `/vehicles/count`, the manifest) | `null`. These are DealerTrade's totals for **all** dealers, so they are hidden. Use `meta.total` / `total` / `localTotal`, which count only the dealers' cars |
-| "Featured" cars (`/web/cars/featured`) | Only cars ChangeCars has featured **from these dealers**. Can be empty: then hide the section or show `/web/cars/recent` |
+| "Featured" cars (`/web/cars/featured`) | Cars ChangeCars featured from these dealers first; when there are fewer than `limit`, the rest are random cars of these dealers with a photo. So the section is never empty while the dealers have cars |
 | "Premium" cars | Can be empty when the dealers have no car above the premium price |
 | Staff and dealer-portal APIs (`/admin/...`, `/dealer/...`, `/web/dashboard/...`, `/dealer-app/...`) | Not available under a scope (`404`) |
 

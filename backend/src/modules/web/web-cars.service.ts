@@ -1,3 +1,4 @@
+import { currentDealerScope } from '../../infrastructure/database/dealer-scope';
 import { dealerSourceDetails } from '../vehicles/dealer-source';
 import { dealerWhatsappNumber, vehicleSourceLinks } from '../vehicles/vehicle.presenter';
 import { resolveBodyType } from '../vehicles/body-type-mapping';
@@ -300,8 +301,16 @@ export class WebCarsService {
 
   /** A fresh random pick and order on every call, so each hit shows the featured cars shuffled. Listings without a year are left out. */
   async featured(limit?: number) {
+    const wanted = clampLimit(limit, 6);
     const candidates = await this.db.vehicle.findMany({ where: this.publicWhere({ isFeatured: true, ...WITH_YEAR }), select: { id: true }, take: MAX_FEATURED_POOL });
-    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, clampLimit(limit, 6));
+    const ids = shuffle(candidates.map((candidate) => candidate.id)).slice(0, wanted);
+    // A dealer app rarely has cars featured by ChangeCars, so its own cars with a photo fill the section.
+    if (currentDealerScope() && ids.length < wanted) {
+      const others = await this.db.vehicle.findMany({
+        where: this.publicWhere({ isFeatured: false, primaryImageUrl: { not: null }, ...WITH_YEAR }), select: { id: true }, take: MAX_FEATURED_POOL,
+      });
+      ids.push(...shuffle(others.map((other) => other.id)).slice(0, wanted - ids.length));
+    }
     const rows = await this.db.vehicle.findMany({ where: { id: { in: ids } }, select: carSelect });
     const byId = new Map(rows.map((row) => [row.id, row]));
     return ids.flatMap((id) => (byId.has(id) ? [toWebCar(byId.get(id)!)] : []));
