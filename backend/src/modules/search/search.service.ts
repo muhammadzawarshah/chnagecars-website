@@ -37,7 +37,7 @@ export class SearchService {
   async search(query: SearchVehiclesQueryDto) {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `search:${criteriaKey(query)}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `search:v2:${criteriaKey(query)}`);
     if (query.sort === 'nearest') {
       if (query.lat === undefined || query.lng === undefined) throw Errors.badRequest('VALIDATION_FAILED', 'Request validation failed', ['sort=nearest needs lat and lng']);
       return this.cache.wrap(key, SEARCH_TTL_SECONDS, () => this.searchNearest(query, query.lat!, query.lng!, page, pageSize));
@@ -109,7 +109,7 @@ export class SearchService {
 
   /** Complete unpaginated public snapshot for app-side dependent filtering. */
   async allFilterData() {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, 'filters:all:v2');
+    const key = await this.cache.versionedKey(CacheNs.vehicles, 'filters:all:v3');
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       const rows = await this.prisma.replica.vehicle.findMany({
         where: buildWhere({}),
@@ -122,7 +122,7 @@ export class SearchService {
 
   /** Filter counts for the current search (FR-05 "filter based on available criteria"). */
   async facets(criteria: SearchCriteriaDto) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:v3:${criteriaKey(criteria)}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `facets:v4:${criteriaKey(criteria)}`);
     return this.cache.wrap(key, FACETS_TTL_SECONDS, async () => {
       // Read matching public filter fields once; repeated groupBy/count scans each decompress source JSON.
       const rows = await this.prisma.replica.vehicle.findMany({ where: buildWhere(criteria), select: filterVehicleSelect });

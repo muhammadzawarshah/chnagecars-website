@@ -12,12 +12,14 @@ const ENUMS = {
   transmission: ['UNKNOWN', 'MANUAL', 'AUTOMATIC'],
 } as const;
 
-/** Upper-cases and keeps only known enum values, so bad input narrows nothing instead of erroring. */
+/**
+ * Accepts codes ("PLUGIN_HYBRID") and display names ("Plug-in Hybrid") in any case and keeps only known
+ * enum values, so bad input narrows nothing instead of erroring.
+ */
 export function enumValues<K extends keyof typeof ENUMS>(kind: K, raw?: string): (typeof ENUMS)[K][number][] {
-  const allowed = ENUMS[kind] as readonly string[];
-  return splitCsv(raw)
-    .map((value) => value.toUpperCase().replace(/[\s-]+/g, '_'))
-    .filter((value) => allowed.includes(value)) as (typeof ENUMS)[K][number][];
+  const key = (value: string) => value.toUpperCase().replace(/[\s_-]+/g, '');
+  const allowed = new Map((ENUMS[kind] as readonly string[]).map((value) => [key(value), value]));
+  return splitCsv(raw).flatMap((value) => allowed.get(key(value)) ?? []) as (typeof ENUMS)[K][number][];
 }
 
 /** Accepts "4x2", "4X2" and legacy "FOUR_X_TWO"; unknown values are dropped. */
