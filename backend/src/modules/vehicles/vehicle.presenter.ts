@@ -3,6 +3,7 @@ import { standardColourId } from './standard-colours';
 import { resolveBodyType } from './body-type-mapping';
 import { ImageStatus, Prisma, VehicleStatus } from '../../generated/prisma/client';
 import { availabilityOf } from './vehicle-lifecycle';
+import { vehicleLabel, withVehicleLabels } from './vehicle-labels';
 
 /** Columns safe to expose publicly. VIN, registration, review notes and internal ids are excluded (NFR-17). */
 export const publicVehicleSelect = {
@@ -89,13 +90,13 @@ export function withAvailability<T extends { status: VehicleStatus; price: numbe
   const effPrice = effectivePrice(vehicle);
   const monthly = monthlyPayment(effPrice);
   return {
-    ...safeVehicle,
+    ...withVehicleLabels(safeVehicle),
     ...((object(sourceData).importPolicy === 'dealertrade-only' && 'variant' in safeVehicle && safeVehicle.variant) ? { variant: { ...object(safeVehicle.variant), specification: null } } : {}),
     ...fields,
     colourId: standardColourId((vehicle as T & { colour?: string }).colour),
-    conditionLabel: titleCase(String((vehicle as T & { condition?: string }).condition ?? '').replace(/_/g, ' ')),
-    fuelTypeLabel: titleCase(String((vehicle as T & { fuelType?: string }).fuelType ?? '').replace(/_/g, ' ')),
-    transmissionLabel: titleCase(String((vehicle as T & { transmission?: string }).transmission ?? '')),
+    conditionLabel: vehicleLabel('condition', (vehicle as T & { condition?: string }).condition) ?? '',
+    fuelTypeLabel: vehicleLabel('fuelType', (vehicle as T & { fuelType?: string }).fuelType) ?? '',
+    transmissionLabel: vehicleLabel('transmission', (vehicle as T & { transmission?: string }).transmission) ?? '',
     ...('dealer' in safeVehicle && safeVehicle.dealer && typeof safeVehicle.dealer === 'object' ? {
       dealer: { ...safeVehicle.dealer, whatsappNumber: dealerWhatsappNumber(object(sourceData).dealertradeDealer) },
     } : {}),

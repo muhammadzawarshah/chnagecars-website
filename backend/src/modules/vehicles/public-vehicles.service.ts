@@ -78,7 +78,7 @@ export class PublicVehiclesService implements OnModuleInit, OnModuleDestroy {
 
   /** FR-04 vehicle detail page. Accepts the SEO slug or the id. */
   async detail(slugOrId: string, viewerId?: string) {
-    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:source-colour:v2:${slugOrId}`);
+    const key = await this.cache.versionedKey(CacheNs.vehicles, `detail:source-colour:v3:${slugOrId}`);
     const vehicle = await this.cache.wrap(key, 300, async () => {
       const row = await this.prisma.replica.vehicle.findFirst({
         where: {

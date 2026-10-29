@@ -1,6 +1,7 @@
 import { standardColourId, colourStockOptions } from '../vehicles/standard-colours';
 import { Prisma } from '../../generated/prisma/client';
 import { COLLECTION_RULES } from './search.builder';
+import { withVehicleLabels } from '../vehicles/vehicle-labels';
 
 const labelSelect = { slug: true, name: true } as const;
 
@@ -22,7 +23,7 @@ type FilterRow = Prisma.VehicleGetPayload<{ select: typeof filterVehicleSelect }
 
 export function buildFilterData(rows: FilterRow[]) {
   const vehicles = rows.map(({ popularityScore, categories, ...row }) => ({
-    ...row,
+    ...withVehicleLabels(row),
     colour: row.colour?.trim().toLowerCase() || null,
     colourId: standardColourId(row.colour),
     model: { ...row.model, value: `${row.make.slug}:${row.model.slug}` },

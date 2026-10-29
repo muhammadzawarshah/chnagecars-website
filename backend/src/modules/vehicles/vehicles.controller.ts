@@ -26,6 +26,7 @@ import {
 import { PublicVehiclesService } from './public-vehicles.service';
 import { VehicleImagesService } from './vehicle-images.service';
 import { VehiclesService } from './vehicles.service';
+import { VEHICLE_LABELS } from './vehicle-labels';
 
 @ApiTags('Vehicles (public)')
 @Controller('vehicles')
@@ -104,7 +105,7 @@ export class PublicVehiclesController {
   @ApiOperation({ summary: 'transmissions options and counts for active search filters' })
   async filterTransmission(@Query() query: SearchCriteriaDto) {
     const facets = await this.search.facets(query);
-    return { total: facets.total, options: ['AUTOMATIC', 'MANUAL', 'UNKNOWN'].map((value) => ({ value, count: facets.transmission.find((option) => option.value === value)?.count ?? 0 })) };
+    return { total: facets.total, options: (['AUTOMATIC', 'MANUAL', 'UNKNOWN'] as const).map((code) => VEHICLE_LABELS.transmission[code]).map((value) => ({ value, count: facets.transmission.find((option) => option.value === value)?.count ?? 0 })) };
   }
 
   @Public()
@@ -112,7 +113,7 @@ export class PublicVehiclesController {
   @ApiOperation({ summary: 'fuel-types options and counts for active search filters' })
   async filterFueltype(@Query() query: SearchCriteriaDto) {
     const facets = await this.search.facets(query);
-    return { total: facets.total, options: ['PETROL', 'DIESEL', 'HYBRID', 'PLUGIN_HYBRID', 'ELECTRIC', 'LPG', 'OTHER'].map((value) => ({ value, count: facets.fuelType.find((option) => option.value === value)?.count ?? 0 })) };
+    return { total: facets.total, options: Object.values(VEHICLE_LABELS.fuelType).map((value) => ({ value, count: facets.fuelType.find((option) => option.value === value)?.count ?? 0 })) };
   }
 
   @Public()
