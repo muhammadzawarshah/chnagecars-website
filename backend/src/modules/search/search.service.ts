@@ -15,7 +15,6 @@ import { buildOrderBy, buildWhere, criteriaKey, haversineKm } from './search.bui
 import { matchesCriteria, VehicleSnapshot } from './search.matcher';
 import { buildFilterData, filterVehicleSelect } from './filter-data';
 import { FilterSnapshotsController, FilterSnapshotsService } from './filter-snapshots';
-import { interleaveDealers } from './dealer-order';
 
 const SEARCH_TTL_SECONDS = 30;
 const FACETS_TTL_SECONDS = 120;
@@ -43,9 +42,6 @@ export class SearchService {
       if (query.lat === undefined || query.lng === undefined) throw Errors.badRequest('VALIDATION_FAILED', 'Request validation failed', ['sort=nearest needs lat and lng']);
       return this.cache.wrap(key, SEARCH_TTL_SECONDS, () => this.searchNearest(query, query.lat!, query.lng!, page, pageSize));
     }
-    if (!query.dealer && !query.branchId && (query.sort === 'recent' || (!query.sort && query.collection !== 'hot-sellers'))) {
-      return this.cache.wrap(key, SEARCH_TTL_SECONDS, () => this.searchMixedDealers(query));
-    }
     return this.cache.wrap(key, SEARCH_TTL_SECONDS, async () => {
       const where = buildWhere(query);
       const [rows, total] = await Promise.all([
@@ -60,26 +56,6 @@ export class SearchService {
       ]);
       return toPage(rows.map(withAvailability), total, page, pageSize);
     });
-  }
-
-  /** Interleave dealer stock before pagination so repeated pages keep a stable mix. */
-  private async searchMixedDealers(query: SearchVehiclesQueryDto) {
-    const page = query.page ?? 1;
-    const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
-    const where = buildWhere(query);
-    const points = await this.prisma.replica.vehicle.findMany({
-      where, select: { id: true, dealerId: true }, orderBy: buildOrderBy('recent'),
-    });
-    const ordered = interleaveDealers(points);
-    const pageIds = ordered.slice((page - 1) * pageSize, page * pageSize);
-    const rows = pageIds.length ? await this.prisma.replica.vehicle.findMany({
-      where: { AND: [where, { id: { in: pageIds } }] }, select: publicVehicleSelect,
-    }) : [];
-    const byId = new Map(rows.map(row => [row.id, row]));
-    return toPage(pageIds.flatMap(id => {
-      const row = byId.get(id);
-      return row ? [withAvailability(row)] : [];
-    }), ordered.length, page, pageSize);
   }
 
   /**
