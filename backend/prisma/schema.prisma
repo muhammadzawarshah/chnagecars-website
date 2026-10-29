@@ -1601,7 +1601,10 @@ model VehicleFilterSnapshot {
   compressedBytes Int
   content         Bytes
   generatedAt     DateTime @default(now())
+  /// Comma-separated dealer IDs for a dealer-app snapshot; null for the full marketplace.
+  dealerScope     String?
 
+  @@index([dealerScope, generatedAt])
   @@map("vehicle_filter_snapshots")
 }
 

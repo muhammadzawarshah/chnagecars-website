@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../generated/prisma/client';
 import { AppConfig } from '../../config/app-config.service';
+import { dealerScopeExtension } from './dealer-scope';
 
 /**
  * Primary PostgreSQL client (source of truth for all writes and consistent reads).
@@ -22,10 +23,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       adapter: new PrismaPg({ connectionString: config.get('DATABASE_URL'), max, options }),
       log: [{ emit: 'event', level: 'warn' }, { emit: 'event', level: 'error' }],
     });
+    // Both clients apply the dealer-app scope (see dealer-scope.ts); outside a scope they behave as plain clients.
+    const scoped = this.$extends(dealerScopeExtension) as unknown as PrismaService;
     const readUrl = config.get('DATABASE_READ_URL');
     this.replica = readUrl
-      ? new PrismaClient({ adapter: new PrismaPg({ connectionString: readUrl, max, options }) })
-      : this;
+      ? new PrismaClient({ adapter: new PrismaPg({ connectionString: readUrl, max, options }) }).$extends(dealerScopeExtension) as unknown as PrismaClient
+      : scoped;
+    return scoped;
   }
 
   async onModuleInit(): Promise<void> {
