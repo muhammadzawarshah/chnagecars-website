@@ -66,7 +66,7 @@ curl "https://changecarapi.wowcar.co.th/api/v1/dealers?province=Gauteng&concierg
       "name": "Group1 Cars Midrand",
       "slug": "group1-cars-midrand-3490",
       "description": "Our Used Cars Showroom In Midrand Is Not A Single Entity But Part Of One Of The Biggest Groups ...",
-      "logoUrl": "https://www.changecars.co.za/images/200/dealers/250711/3490.jpg",
+      "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/d5bc4c1d11d75f738f3915f1b29d5e848758473b5d1acf7098b90d7df2c3ba2a.jpg",
       "website": null,
       "phone": "087 057 9788",
       "email": "1487@autoslm.co.za",
@@ -78,8 +78,8 @@ curl "https://changecarapi.wowcar.co.th/api/v1/dealers?province=Gauteng&concierg
       "plan": "BASIC",
       "activeListings": 74,
       "groups": [
-        { "id": "178", "name": "Changan Dealer", "slug": "changan-dealer", "logoUrl": "https://www.changecars.co.za/images/200/dealer_categories/260615/changan-logo.png" },
-        { "id": "134", "name": "Group 1", "slug": "group-1", "logoUrl": "https://www.changecars.co.za/images/200/dealer_categories/241219/gpi-lg.png" }
+        { "id": "178", "name": "Changan Dealer", "slug": "changan-dealer", "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/….png" },
+        { "id": "134", "name": "Group 1", "slug": "group-1", "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/….png" }
       ],
       "conciergePartner": true,
       "onRoadCostsIncluded": false,
@@ -125,8 +125,8 @@ last one returns `"data": []` with the same `meta`, so stop when `page >= pageCo
   "total": 791,
   "groups": [
     { "id": "non-franchised", "name": "Non-Franchised Dealers", "slug": "non-franchised-dealers", "logoUrl": null, "dealerCount": 50 },
-    { "id": "94", "name": "4Wheels Motor Group", "slug": "4wheels-motor-group", "logoUrl": "https://www.changecars.co.za/images/200/dealer_categories/240722/4Wheels.jpg", "dealerCount": 1 },
-    { "id": "161", "name": "Abarth Dealer", "slug": "abarth-dealer", "logoUrl": "https://www.changecars.co.za/images/200/dealer_categories/260417/Abarth.jpg", "dealerCount": 2 }
+    { "id": "94", "name": "4Wheels Motor Group", "slug": "4wheels-motor-group", "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/….jpg", "dealerCount": 1 },
+    { "id": "161", "name": "Abarth Dealer", "slug": "abarth-dealer", "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/….jpg", "dealerCount": 2 }
   ]
 }
 ```
@@ -172,7 +172,7 @@ location, in one array.
     "id": "3496",
     "name": "Group1 Cars George",
     "slug": "group1-cars-george-3496",
-    "logoUrl": "https://www.changecars.co.za/images/200/dealers/250711/3496.jpg",
+    "logoUrl": "https://changecarapi.wowcar.co.th/media/dealertrade/….jpg",
     "city": "George",
     "province": "Western Cape",
     "address": "Cnr Jan Smuts Street And, York St, George South, George, 6529",
@@ -263,7 +263,7 @@ Filters with no matches are **not** errors: you get `"data": []` and `"total": 0
 - **On-road costs:** DealerTrade does not send this, so ChangeCars admins set it per dealer. Until they do,
   `onRoadCosts=true` returns no dealers. Keep the checkbox; it starts working as admins fill it in.
 - **Ratings:** not available yet (`rating` is `null`).
-- **Logos:** about 25 dealers and the "Non-Franchised Dealers" group have no logo (`null`). Use a placeholder.
+- **Logos:** dealer and group logos are served from our own server (`https://changecarapi.wowcar.co.th/media/dealertrade/...`), copied from DealerTrade; they never change at the same link, so they can be cached for good. About 25 dealers and the "Non-Franchised Dealers" group have no logo (`null`). Use a placeholder.
 - **Text case:** names, addresses and descriptions come from DealerTrade and may have unusual capitalisation
   ("16Th Rd"). Show them as they are.
 

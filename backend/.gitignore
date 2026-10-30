@@ -10,3 +10,5 @@ tsconfig.tsbuildinfo
 .pgdata/
 !.env.example
 __pycache__/
+# Copies of DealerTrade logos, downloaded by the API at runtime
+media/

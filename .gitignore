@@ -55,6 +55,8 @@ next-env.d.ts
 /backend/prisma/fixtures/fbook/*-report.json
 /backend/prisma/fixtures/fbook/curl-downloads.conf
 /backend/.local/
+# Copies of DealerTrade logos, downloaded by the API at runtime
+/backend/media/
 /frontend/public/media/dealertrade/
 
 # Service account keys (never commit)

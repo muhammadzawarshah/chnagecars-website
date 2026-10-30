@@ -16,7 +16,8 @@ function setup() {
   };
   const replica = { dealer, $queryRaw: jest.fn().mockResolvedValue(feed) };
   const identities = { refresh: jest.fn(), whatsappNumber: jest.fn().mockReturnValue(null) };
-  const service = new DealersService({ replica } as any, {} as any, {} as any, {} as any, {} as any, {} as any, identities as any);
+  const media = { url: (path: string) => `https://www.changecars.co.za/images/200/${path}` };
+  const service = new DealersService({ replica } as any, {} as any, {} as any, {} as any, {} as any, {} as any, identities as any, media as any);
   return { service, dealer, replica };
 }
 

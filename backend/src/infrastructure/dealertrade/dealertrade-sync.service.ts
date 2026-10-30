@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { Client } from 'pg';
 import { CacheService, CacheNs } from '../cache/cache.service';
 import { dealerTradeToken } from './dealertrade-token';
+import { afterDealerTradeSync } from './dealertrade-sync-hooks';
 
 /** Advisory lock held while the database is written (plan, apply, verify), shared by the full and quick sync. */
 const WRITE_LOCK = 'SELECT pg_advisory_lock(193589719, 41002)';
@@ -171,6 +172,8 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
       this.logger.log(`DealerTrade result: created=${result.created}, updated=${result.updated}, processed=${result.processed}, rawOnly=${result.rawOnly}, failures=${result.failures.length}`);
       completed = true;
       this.logger.log('DealerTrade sync completed and verified');
+      // e.g. copying new dealer logos to our server (DealerTradeMediaService).
+      for (const hook of afterDealerTradeSync) hook();
     } finally {
       // An apply can partially succeed before a later row fails.
       if (applying) await this.cache.bump(CacheNs.vehicles, CacheNs.catalogue);
