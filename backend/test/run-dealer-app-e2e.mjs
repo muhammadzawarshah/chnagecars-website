@@ -40,6 +40,28 @@ try {
   };
   process.stdout.write('Applying all migrations to a new disposable PostgreSQL database...\n');
   process.stdout.write(run('npm', ['run', 'prisma:deploy'], env));
+  // Exercise the GPS data migration on populated, isolated tables as well as the empty schema above.
+  const gpsDb = new Client({ connectionString: databaseUrl });
+  try {
+    await gpsDb.connect();
+    await gpsDb.query('BEGIN');
+    await gpsDb.query(`CREATE TEMP TABLE branches (id text, "dealerId" text, "isHeadOffice" boolean, latitude double precision, longitude double precision);
+      CREATE TEMP TABLE vehicles (id text, "branchId" text, "sourceData" jsonb, latitude double precision, longitude double precision);
+      INSERT INTO branches VALUES ('missing','2523',true,NULL,NULL), ('complete','2523',true,-30,25), ('unknown','unknown',true,NULL,NULL);
+      INSERT INTO vehicles VALUES ('missing','missing','{"vehicle_id":1}',NULL,NULL), ('complete','missing','{"vehicle_id":2}',-30,25), ('manual','missing','{}',NULL,NULL);`);
+    const migration = readFileSync(join(backend, 'prisma/migrations/20261031000100_confirmed_dealer_gps/migration.sql'), 'utf8');
+    await gpsDb.query(migration);
+    await gpsDb.query(migration); // Repeat without changing already complete coordinates.
+    const { rows } = await gpsDb.query(`SELECT
+      (SELECT latitude IS NOT NULL FROM branches WHERE id='missing') AS filled,
+      (SELECT latitude=-30 FROM branches WHERE id='complete') AS preserved,
+      (SELECT latitude IS NULL FROM branches WHERE id='unknown') AS unknown,
+      (SELECT latitude IS NOT NULL FROM vehicles WHERE id='missing') AS inherited,
+      (SELECT latitude=-30 FROM vehicles WHERE id='complete') AS vehicle_preserved,
+      (SELECT latitude IS NULL FROM vehicles WHERE id='manual') AS manual_preserved`);
+    if (!Object.values(rows[0]).every(value => value === true)) throw new Error('GPS migration checks failed');
+    console.log('PASS GPS migration: fills known coordinates, preserves complete/unknown/manual locations, repeat safe');
+  } finally { await gpsDb.query('ROLLBACK').catch(() => {}); await gpsDb.end(); }
   const compiled = join(directory, 'compiled');
   // tsc preserves Nest's decorator metadata; esbuild/tsx does not emit that metadata.
   process.stdout.write(run(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'test/tsconfig.dealer-app-e2e.json', '--outDir', compiled], env));

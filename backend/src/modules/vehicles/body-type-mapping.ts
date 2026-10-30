@@ -22,5 +22,9 @@ export const BODY_TYPE_CATEGORY_SLUGS = [...new Set(definitions.flatMap(type => 
 
 /** Accept historical category slugs while filtering by the same canonical body group. */
 export function expandBodyTypeSlugs(slugs: string[]) {
-  return [...new Set(slugs.flatMap(slug => definitions.find(type => type.slugs.includes(slug))?.slugs ?? [slug]))];
+  return [...new Set(slugs.flatMap(slug => {
+    const known = definitions.find(type => type.slugs.includes(slug))
+      ?? resolveBodyType({ body_type: slug.replace(/_/g, ' ') });
+    return known?.slugs ?? [slug];
+  }))];
 }

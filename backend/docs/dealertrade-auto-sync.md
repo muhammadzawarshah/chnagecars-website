@@ -1,10 +1,10 @@
 # DealerTrade automatic server sync
 
-The backend API server automatically captures fresh DealerTrade dealers and stock on startup and every 10 minutes. It runs the existing capture → plan → apply → verify pipeline. Source images use their HTTPS upstream URLs. Existing IDs/slugs and blank-field preservation follow the reconciliation policy. Stock missing from a capture is not deleted or marked sold because the upstream traversal is not an atomic snapshot.
+The backend API server automatically captures fresh DealerTrade dealers and stock on startup and every 10 minutes. It runs the existing capture → plan → apply → verify pipeline. Source images use their HTTPS upstream URLs. Existing IDs/slugs and blank-field preservation follow the reconciliation policy. Stock missing from a capture is preserved because traversal is not an atomic snapshot. After verification, cleanup deletes only explicitly disabled/removed DealerTrade vehicles and captured available vehicles with no image records; it requires at least 98% reported coverage. The full run then picks 12 eligible featured cars, excluding known coming-soon placeholders.
 
 Only real changes are written. DealerTrade re-stamps `updated_at` on whole batches of unchanged stock, so a difference in `updated_at` alone does not update a vehicle, its raw record or its gallery; when another field changes, the new `updated_at` is stored with it. Vehicles with nothing to change are skipped without a database transaction (`unchanged` in the apply report).
 
-`isFeatured` is chosen by ChangeCars and is never taken from the DealerTrade `featured` flag.
+`isFeatured` is chosen by ChangeCars after full sync and is never taken from the DealerTrade `featured` flag.
 
 Vehicles need a photo to be listed. A new DealerTrade vehicle without photos is not created; it is created by the first run that receives its photos. A listed vehicle that has no photo at all is set to `DRAFT` and marked `sourceData.hiddenNoPhotos`; once photos arrive the run lists it again. Vehicles drafted by hand are never listed by the sync.
 
@@ -17,6 +17,7 @@ DEALERTRADE_SYNC_ENABLED=true
 DEALERTRADE_TOKEN=<DealerTrade bearer token>
 DEALERTRADE_SYNC_INTERVAL_MINUTES=10
 DEALERTRADE_QUICK_SYNC_MINUTES=2
+DEALERTRADE_QUICK_CACHE_MINUTES=15
 ```
 
 A full capture takes about 20 minutes, so a **quick sync** also runs every `DEALERTRADE_QUICK_SYNC_MINUTES` (default 2; `0` disables it). It reads DealerTrade's first stock page, which holds the newest 100 listings (`created_at` descending; the API ignores `per_page`), and runs the same plan → apply → verify pipeline on those rows only (`DEALERTRADE_RECONCILE_SCOPE=source`). New listings therefore appear within a few minutes, with the same photo, catalogue and verification rules. The quick sync does not rename shared makes, models or variants; the full sync does. It logs only when something was created or updated, and on HTTP 429 it waits for `Retry-After` (at least one minute) without an error.
@@ -44,3 +45,7 @@ Public vehicle search/detail responses now also expose `videoUrl` (HTTPS only), 
 Standard colour IDs, hex codes, per-colour stock counts, ID-based filtering and title-case inventory normalization are documented in [app-colour-filtering.md](app-colour-filtering.md). The sync keeps raw source snapshots and applies these display rules to database columns on each run.
 
 New vehicles, and existing vehicles missing a coordinate component, inherit the confirmed South African latitude/longitude of their own branch. Complete vehicle locations are preserved. Missing or invalid branch coordinates are never guessed.
+
+Quick-sync cache invalidations are throttled to 15 minutes by default; set `DEALERTRADE_QUICK_CACHE_MINUTES=0` to publish every successful change immediately. Full sync always invalidates the vehicle/catalogue caches.
+
+Confirmed GPS for 947 local head-office branches is versioned in `src/infrastructure/dealertrade/dealer-gps.json`. Migration `20261031000100_confirmed_dealer_gps` fills missing existing branch/vehicle coordinates. Reconciliation uses the same map for subsequently created branches; vehicles inherit branch coordinates on the next run. Complete existing coordinates remain unchanged.

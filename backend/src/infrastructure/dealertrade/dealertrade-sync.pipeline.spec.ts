@@ -1,12 +1,14 @@
 jest.mock('node:fs', () => {
   const actual = jest.requireActual('node:fs');
   return { ...actual, readFileSync: jest.fn((path, ...args) => String(path).endsWith('apply-report.json')
-    ? JSON.stringify({ created: 1, updated: 2, processed: 3, rawOnly: 0, failures: [] }) : actual.readFileSync(path, ...args)) };
+    ? JSON.stringify({ created: 1, updated: 2, processed: 3, rawOnly: 0, failures: [] })
+    : String(path).endsWith('prune-report.json') ? JSON.stringify({ deleted: 2, notAvailable: 1, imageless: 1 }) : actual.readFileSync(path, ...args)) };
 });
 import { DealerTradeSyncService } from './dealertrade-sync.service';
 import { CacheService } from '../cache/cache.service';
 import { Client } from 'pg';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 
 jest.mock('pg', () => ({ Client: jest.fn() }));
 jest.mock('node:fs/promises', () => ({ mkdtemp: jest.fn(), rm: jest.fn(), mkdir: jest.fn(), writeFile: jest.fn() }));
@@ -37,9 +39,9 @@ describe('DealerTrade automatic pipeline', () => {
     jest.restoreAllMocks();
   });
 
-  it('fetches before planning, applying and verifying and refreshes public caches', async () => {
+  it('fetches before planning, applying and verifying, then prunes and picks featured cars and refreshes public caches', async () => {
     await (service as any).sync();
-    expect(command.mock.calls.map(call => call[0])).toEqual(['fetch', 'plan', 'apply', 'verify']);
+    expect(command.mock.calls.map(call => call[0])).toEqual(['fetch', 'plan', 'apply', 'verify', 'prune', 'featured']);
     expect(command.mock.calls[0][3]).toMatchObject({ DEALERTRADE_TOKEN: 'test-token', DEALERTRADE_REMOTE_IMAGES: '1' });
     expect(bump).toHaveBeenCalledWith('vehicles', 'catalogue');
     expect(client.end).toHaveBeenCalledTimes(1);
@@ -78,7 +80,7 @@ describe('DealerTrade automatic pipeline', () => {
     client.query.mockImplementation(async (sql: string) => { order.push(sql.includes('41002') ? 'write-lock' : 'sync-lock'); return { rows: [{ acquired: true }] }; });
     command.mockImplementation(async (stage: string) => { order.push(stage); });
     await (service as any).sync();
-    expect(order).toEqual(['sync-lock', 'fetch', 'write-lock', 'plan', 'apply', 'verify']);
+    expect(order).toEqual(['sync-lock', 'fetch', 'write-lock', 'plan', 'apply', 'verify', 'prune', 'featured']);
   });
 
   describe('quick sync', () => {
@@ -102,6 +104,24 @@ describe('DealerTrade automatic pipeline', () => {
       expect(bump).toHaveBeenCalledWith('vehicles', 'catalogue');
       expect(rm).toHaveBeenCalledWith('/tmp/test-quick', { recursive: true, force: true });
       expect(client.end).toHaveBeenCalled();
+    });
+
+    it('empties the cache at most every 15 minutes and publishes held changes once that time has passed', async () => {
+      const now = jest.spyOn(Date, 'now').mockReturnValue(1_000_000);
+      await (service as any).quickSync();
+      await (service as any).quickSync();
+      expect(bump).toHaveBeenCalledTimes(1);
+      now.mockReturnValue(1_000_000 + 15 * 60_000);
+      await (service as any).flushQuickChanges();
+      expect(bump).toHaveBeenCalledTimes(2);
+      await (service as any).flushQuickChanges();
+      expect(bump).toHaveBeenCalledTimes(2);
+    });
+
+    it('leaves the catalogue cache alone when no car was created', async () => {
+      (readFileSync as jest.Mock).mockReturnValueOnce(JSON.stringify({ created: 0, updated: 2 }));
+      await (service as any).quickSync();
+      expect(bump).toHaveBeenCalledWith('vehicles');
     });
 
     it('does nothing while a full sync is writing the database', async () => {

@@ -42,6 +42,15 @@ it('preserves legacy single-cab and crossover filter aliases', () => {
   expect(resolveBodyType({body_type:'Coupe'})?.label).toBe('Coupé');
 });
 
+it.each(['single-cab-bakkie', 'single-cab', 'single_cab_bakkie', 'Single Cab Bakkie', 'Single Cab Bakie', 'S/C'])('expands category alias %s to the existing Single Cab keys', alias => {
+  expect(expandBodyTypeSlugs([alias])).toEqual(['single-cabs', 'bakkies']);
+});
+
+it('deduplicates canonical/alternate categories while leaving unrelated slugs untouched', () => {
+  expect(expandBodyTypeSlugs(['single-cabs', 'single-cab-bakkie', 'classic-cars']))
+    .toEqual(['single-cabs', 'bakkies', 'classic-cars']);
+});
+
 it.each(['single cab', 'SINGLE CAB BAKKIE', 'single-cab-bakkie', 'Single Cabe Bakie', '  Single   Cab Bakkie  '])('normalizes %s to the exact Title Case name', value => {
   expect(resolveBodyType({ body_type: value })?.label).toBe('Single Cab Bakkie');
 });

@@ -15,9 +15,10 @@ const WRITE_LOCK = 'SELECT pg_advisory_lock(193589719, 41002)';
 const TRY_WRITE_LOCK = 'SELECT pg_try_advisory_lock(193589719, 41002) AS acquired';
 
 /**
- * Reuses the audited API capture/reconcile pipeline; never deletes absent stock. The full sync captures all stock;
- * the quick sync runs the same pipeline every few minutes on DealerTrade's newest 100 rows only, so new listings appear
- * within minutes instead of waiting for a full capture.
+ * Reuses the audited API capture/reconcile pipeline. The full sync captures all stock, then deletes DealerTrade cars
+ * explicitly marked unavailable or with no photo (only from a sufficiently complete capture) and picks new featured cars; the quick
+ * sync runs the same pipeline every few minutes on DealerTrade's newest 100 rows only and never deletes, so new
+ * listings appear within minutes instead of waiting for a full capture.
  */
 @Injectable()
 export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleDestroy {
@@ -30,6 +31,9 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
   private quickRunning?: Promise<void>;
   private quickController?: AbortController;
   private nextQuickRun = 0;
+  /** Quick sync changes not yet published by a cache bump; see flushQuickChanges. */
+  private quickPending?: { catalogue: boolean };
+  private nextQuickBump = 0;
 
   constructor(private readonly cache: CacheService) {}
 
@@ -63,6 +67,8 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
 
   /** DealerTrade's newest rows, every DEALERTRADE_QUICK_SYNC_MINUTES (default 2; 0 disables). */
   async quickTick(): Promise<void> {
+    // Held changes are published even while quick syncs are skipped (rate limits, a running full sync).
+    void this.flushQuickChanges().catch(error => this.logger.warn(`Quick cache refresh failed: ${error.message}`));
     const minutes = Number(process.env.DEALERTRADE_QUICK_SYNC_MINUTES ?? 2);
     if (this.stopping || this.quickRunning || Date.now() < this.nextQuickRun || !(Number.isFinite(minutes) && minutes >= 1) ||
         process.env.DEALERTRADE_SYNC_ENABLED === 'false' || !this.token()) return;
@@ -82,6 +88,7 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
     let applying = false;
     let completed = false;
     let changed = true;
+    let created = true;
     try {
       await client.connect();
       // A full sync writing the database is never interleaved with; the next quick run catches up.
@@ -102,16 +109,31 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
       await this.command('quick apply', process.execPath, ['--import', 'tsx', 'prisma/reconcile-dealertrade.ts', '--apply'], env, controller.signal, true);
       const result = JSON.parse(readFileSync(join(directory, 'apply-report.json'), 'utf8'));
       changed = result.created + result.updated > 0;
+      created = result.created > 0;
       await this.command('quick verify', process.execPath, ['--import', 'tsx', 'prisma/reconcile-dealertrade.ts', '--verify'], env, controller.signal, true);
       if (changed) this.logger.log(`DealerTrade quick sync: created=${result.created}, updated=${result.updated}, of ${rows.length} newest`);
       completed = true;
     } finally {
-      if (applying && changed) await this.cache.bump(CacheNs.vehicles, CacheNs.catalogue);
+      if (applying && changed) this.quickPending = { catalogue: !!this.quickPending?.catalogue || created };
+      await this.flushQuickChanges();
       await client.end().catch(() => undefined);
       if (directory && completed) await rm(directory, { recursive: true, force: true });
       else if (directory) this.logger.warn(`DealerTrade quick sync diagnostics retained at ${directory}`);
       this.quickController = undefined;
     }
+  }
+
+  /**
+   * A bump empties every cached search, count, facet and detail page, so quick sync changes are published at most
+   * every DEALERTRADE_QUICK_CACHE_MINUTES (default 15); the catalogue only when a car was created.
+   */
+  private async flushQuickChanges(): Promise<void> {
+    if (!this.quickPending || Date.now() < this.nextQuickBump) return;
+    const minutes = Number(process.env.DEALERTRADE_QUICK_CACHE_MINUTES ?? 15);
+    const { catalogue } = this.quickPending;
+    this.quickPending = undefined;
+    this.nextQuickBump = Date.now() + (Number.isFinite(minutes) && minutes >= 0 ? minutes : 15) * 60_000;
+    await this.cache.bump(...(catalogue ? [CacheNs.vehicles, CacheNs.catalogue] : [CacheNs.vehicles]));
   }
 
   /**
@@ -170,13 +192,17 @@ export class DealerTradeSyncService implements OnApplicationBootstrap, OnModuleD
       await this.command('verify', process.execPath, ['--import', 'tsx', 'prisma/reconcile-dealertrade.ts', '--verify'], env, controller.signal);
       const result = JSON.parse(readFileSync(join(directory, 'apply-report.json'), 'utf8'));
       this.logger.log(`DealerTrade result: created=${result.created}, updated=${result.updated}, processed=${result.processed}, rawOnly=${result.rawOnly}, failures=${result.failures.length}`);
+      await this.command('prune', process.execPath, ['--import', 'tsx', 'prisma/prune-dealertrade.ts'], env, controller.signal);
+      const pruned = JSON.parse(readFileSync(join(directory, 'prune-report.json'), 'utf8'));
+      this.logger.log(`DealerTrade prune: deleted=${pruned.deleted} (notAvailable=${pruned.notAvailable}, imageless=${pruned.imageless})`);
+      await this.command('featured', process.execPath, ['--import', 'tsx', 'prisma/pick-featured-cars.ts'], env, controller.signal);
       completed = true;
       this.logger.log('DealerTrade sync completed and verified');
       // e.g. copying new dealer logos to our server (DealerTradeMediaService).
       for (const hook of afterDealerTradeSync) hook();
     } finally {
-      // An apply can partially succeed before a later row fails.
-      if (applying) await this.cache.bump(CacheNs.vehicles, CacheNs.catalogue);
+      // An apply can partially succeed before a later row fails. The bump also publishes pending quick sync changes.
+      if (applying) { this.quickPending = undefined; await this.cache.bump(CacheNs.vehicles, CacheNs.catalogue); }
       await client.end().catch(() => undefined);
       if (directory && completed) await rm(directory, { recursive: true, force: true });
       else if (directory) this.logger.warn(`DealerTrade failure diagnostics retained at ${directory}`);

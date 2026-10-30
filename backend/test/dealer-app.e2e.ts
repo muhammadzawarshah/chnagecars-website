@@ -155,7 +155,7 @@ async function main() {
     check('publish approved vehicle', (await call('POST', `${vehiclePath}/publish`, token)).body.status === 'PUBLISHED');
     check('published price update', (await call('PATCH', vehiclePath, token, { price: 85000 })).status === 200);
     check('published material edit blocked', (await call('PATCH', vehiclePath, token, { year: 2023 })).status === 409);
-    check('existing customer feed-only visibility preserved for native inventory', !(await call('GET', '/vehicles')).body.data.some((item: any) => item.id === id));
+    check('approved published native inventory is visible to customers', (await call('GET', '/vehicles')).body.data.some((item: any) => item.id === id));
     const publicDetail = await call('GET', `/vehicles/${foreign.id}`);
     check('existing public detail works and hides private fields', publicDetail.status === 200 && !('vin' in publicDetail.body));
     check('return to draft for material edits', (await call('POST', `${vehiclePath}/edit`, token)).body.status === 'DRAFT');

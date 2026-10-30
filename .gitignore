@@ -70,3 +70,12 @@ next-env.d.ts
 
 # Separate customer-view frontend repository
 /change-cars-frontend/
+
+# Private local backup metadata and GPS audit artifacts
+/backend/*.dump.json
+/backend/*.dump.sha256
+/backend/dealer-coordinate*.csv
+/backend/dealer-coordinate-comparison.md
+/backend/dealer-gps-updated-*.xlsx
+/backend/deleted-coming-soon-vehicles.csv
+/backend/DB_BACKUP_RESTORE.md

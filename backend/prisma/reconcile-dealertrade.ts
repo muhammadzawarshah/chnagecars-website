@@ -1,3 +1,4 @@
+import confirmedDealerGps from '../src/infrastructure/dealertrade/dealer-gps.json';
 import { dealerTradeTime } from '../src/infrastructure/dealertrade/dealertrade-time';
 import { missingVehicleCoordinates } from '../src/modules/vehicles/dealer-coordinates';
 import { titleCase } from '../src/common/utils/display-text';
@@ -37,6 +38,8 @@ const sameGallery=(images:Row[],gallery:Row[],externalId:string)=>{
 async function loadPlan(){const p=read(planFile);p.vehiclePlans=[];for await(const line of createInterface({input:createReadStream(resolve(dir,p.vehiclePlansFile)),crlfDelay:Infinity}))if(line)p.vehiclePlans.push(JSON.parse(line));return p;}
 const bodyMap:Row={suv:'suvs',sedan:'sedans',hatchback:'hatchbacks',coupe:'coupes',convertible:'convertibles',mpv:'mpvs','panel-van':'panel-vans','double-cab-bakkie':'double-cabs','single-cab-bakkie':'single-cabs','extended-cab':'king-cabs',minibus:'minibuses',motorbike:'motorbikes','station-wagon':'station-wagons'};
 const sourceUrl=(r:Row,p:string)=>p.startsWith('https://')?p:r.cdn_url.replace(/\/$/,'')+'/'+p.replace(/^\//,'');
+/** DealerTrade sent photos as paths until late October 2026, now as {id,path,position,updated_at}. */
+const photoPaths=(photos:any[]):string[]=>photos.map(p=>typeof p==='string'?p:p?.path).filter((p):p is string=>typeof p==='string'&&p.trim()!=='');
 function cachedImage(url:string){
   const u=new URL(url);if(u.protocol!=='https:'||u.hostname!=='www.changecars.co.za')throw Error('Untrusted source image host');
   const ext=u.pathname.match(/\.(jpg|jpeg|png|webp)$/i)?.[0].toLowerCase()??'.jpg';
@@ -76,6 +79,7 @@ async function plan(){
     if(create)displayFields(create);
     const before=rawMap.get('dealer:'+externalId),merged=mergeProvided(before,r),rawUnchanged=before!==undefined&&sameSource(before,merged),payload=rawUnchanged?before:merged,branchId=uuid('branch:'+externalId,'fbook');
     const branch=existing?.branches.find(b=>b.id===branchId),branchData:Row={};
+    Object.assign(branchData,missingVehicleCoordinates(branch,(confirmedDealerGps as Record<string,{latitude:number;longitude:number}>)[externalId]));
     for(const key of ['name','phone','email','address','province'])if(data[key]!==undefined)branchData[key]=data[key];
     dealerPlans.push({externalId,id,before:existing?json({...existing,branches:undefined}):null,patch:existing?changedFields(json(existing),data):data,create,payload,rawUnchanged,rawBefore:before??null,branch:{id:branchId,before:branch?json(branch):null,patch:branch?changedFields(json(branch),branchData):branchData,create:branch?null:{id:branchId,dealerId:id,name:data.name,slug:'feed-head-office',address:data.address||'',city:existing?.city||create?.city||'',province:data.province,isHeadOffice:true,...branchData}}});
     if(!existing)dealers.set(id,{...create,...data,branches:[]}as any);
@@ -102,6 +106,10 @@ async function plan(){
       else if(value!==undefined&&price&&value<price){patch.specialPrice=value;patch.isSpecial=true;}
       else if(value!==undefined&&price&&value===price){patch.specialPrice=null;patch.isSpecial=false;}
       else issues.push({kind:'vehicle',externalId,field:'discount_price',reason:'Source discount violates the database promotional-price constraint; raw retained'});
+    }else{
+      // A price cut can reach the stored special price, which is then no longer a discount.
+      const price=patch.price??v?.price;
+      if(v?.specialPrice!=null&&price&&v.specialPrice>=price){patch.specialPrice=null;patch.isSpecial=false;}
     }
     if(!empty(r.stockno))patch.stockNumber=String(r.stockno);
     const p=String(r.single_vehicle_url??'').replace(/^https?:\/\/[^/]+\//,'').split('/');
@@ -116,7 +124,7 @@ async function plan(){
     }
     if(dealer){patch.dealerId=dealerId;patch.branchId=uuid('branch:'+r.dealer_id,'fbook');Object.assign(patch,missingVehicleCoordinates(v,dealer.branches.find(b=>b.id===patch.branchId)));}
     const id=externalId;
-    const sourceGallery=!empty(r.photos)?r.photos.map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
+    const sourceGallery=!empty(r.photos)?photoPaths(r.photos).map((photo:string,position:number)=>({id:uuid(`image:${externalId}:${position}`),vehicleId:id,storageKey:`dealertrade/${externalId}/${position}`,...cachedImage(sourceUrl(sourceData.dealertrade,photo)),position,isPrimary:position===0,status:'READY'})):null;
     if(sourceGallery?.length)patch.primaryImageUrl=sourceGallery[0].url;
     // An unchanged gallery is left alone instead of being rewritten on every sync.
     const gallery=v&&sourceGallery&&sameGallery(v.images,sourceGallery,externalId)?null:sourceGallery;
