@@ -1,4 +1,5 @@
 import { DealerTradeIdentityService } from './infrastructure/dealertrade/dealertrade-identity.service';
+import { mediaRoot } from './infrastructure/dealertrade/dealertrade-media.service';
 import { dealerScopeMiddleware, dealerScopeStorage } from './infrastructure/database/dealer-scope';
 import { DealerStatus, PrismaService } from './infrastructure/database';
 import 'reflect-metadata';
@@ -33,6 +34,11 @@ async function bootstrap() {
   app.set('trust proxy', config.get('TRUST_PROXY_HOPS'));
   app.disable('x-powered-by');
   app.use(requestId);
+  // Copies of DealerTrade dealer and group logos (DealerTradeMediaService); other sites and apps may load them.
+  app.useStaticAssets(mediaRoot(), {
+    prefix: '/media/', immutable: true, maxAge: '365d', index: false, dotfiles: 'ignore',
+    setHeaders: (res) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'),
+  });
   app.use(helmet());
   app.use(compression());
   app.useBodyParser('json', { limit: '1mb' });

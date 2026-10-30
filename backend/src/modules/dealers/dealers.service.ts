@@ -1,4 +1,5 @@
 import { DealerTradeIdentityService } from '../../infrastructure/dealertrade/dealertrade-identity.service';
+import { DealerTradeMediaService } from '../../infrastructure/dealertrade/dealertrade-media.service';
 import { Injectable } from '@nestjs/common';
 import {
   DealerMemberRole,
@@ -73,7 +74,6 @@ const publicDealerSelect = {
   _count: { select: { vehicles: { where: { status: { in: PUBLIC_SEARCH_STATUSES } } } } },
 } satisfies Prisma.DealerSelect;
 
-const DEALERTRADE_IMAGES = 'https://www.changecars.co.za/images/200/';
 const LISTED = { status: { in: PUBLIC_SEARCH_STATUSES } } satisfies Prisma.VehicleWhereInput;
 /** Pseudo group for dealers that belong to no DealerTrade group. */
 const NON_FRANCHISED = { id: 'non-franchised', name: 'Non-Franchised Dealers', slug: 'non-franchised-dealers', logoUrl: null };
@@ -95,6 +95,7 @@ export class DealersService {
     private readonly storage: StorageService,
     private readonly webSync: WebSyncService,
     private readonly identities: DealerTradeIdentityService,
+    private readonly media: DealerTradeMediaService,
   ) {}
 
   // ───────────── registration (FR-11) ─────────────
@@ -300,7 +301,7 @@ export class DealersService {
       const items = (Array.isArray(row.groups) ? row.groups : []).flatMap((item: { id?: unknown; name?: unknown; logo?: unknown }) => {
         const name = typeof item?.name === 'string' ? item.name.trim() : '';
         if (item?.id === undefined || item.id === null || !name) return [];
-        const logo = typeof item.logo === 'string' && item.logo.trim() ? new URL(item.logo.trim(), DEALERTRADE_IMAGES).toString() : null;
+        const logo = typeof item.logo === 'string' && item.logo.trim() ? this.media.url(item.logo.trim()) : null;
         return [{ id: String(item.id), name, slug: slugify(name), logoUrl: logo }];
       });
       if (items.length) groups.set(row.dealerId, items);
