@@ -34,3 +34,5 @@ Superadmin announcements, authenticated app WebSockets, Android/iOS push setup a
 Independent same-email customer accounts, app registration and mobile API configuration: [customer app account guide](backend/docs/customer-app-accounts.md).
 
 Release checklist and completed validation: [branded apps handover](backend/docs/branded-apps-handover.md).
+
+Current Group1-only registration setup and existing mobile URL compatibility: [Group1 guide](backend/docs/group1-registration.md).

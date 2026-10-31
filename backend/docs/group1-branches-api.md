@@ -1,5 +1,7 @@
 # Group1 App: Branches API
 
+Registration/login now use the same existing four-ID base with a separate Group1 account directory. See [Group1 registration](group1-registration.md).
+
 The Group1 app's **Branches** screen uses the **same endpoint and the same response** as the ChangeCars app's
 **Dealers** screen. The only difference is the base URL: the Group1 app puts `scope/{dealerIds}/` after
 `/api/v1/`, and every response then contains only Group1's branches.

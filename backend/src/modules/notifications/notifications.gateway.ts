@@ -1,3 +1,4 @@
+import { GROUP1_APP_ID } from '../customer-apps/group1';
 import { MAIN_APP } from '../customer-apps/app-context';
 import { Inject, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -41,6 +42,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
         const payload = await this.jwt.verifyAsync<AccessTokenPayload>(token);
         if (!payload.sub || !payload.sid) throw new Error('Token');
         const appId = payload.appId ?? MAIN_APP;
+        if (![MAIN_APP, GROUP1_APP_ID].includes(appId)) throw new Error('App unavailable');
         if (appId !== (client.handshake.auth?.appId ?? MAIN_APP)) throw new Error('App mismatch');
         const session = await this.db.session.findFirst({ where: { id: payload.sid, userId: payload.sub,
           revokedAt: null, expiresAt: { gt: new Date() }, user: { status: 'ACTIVE', appId, application: { enabled: true } } }, select: { id: true } });

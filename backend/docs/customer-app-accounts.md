@@ -1,5 +1,7 @@
 # Independent customer accounts for branded dealer apps
 
+> Current release is restricted to the auto-configured Group1 app. See [Group1 registration](group1-registration.md) for the active URLs and fixed branch IDs. Generic app creation described below is reserved for future expansion and is currently rejected.
+
 The Change Cars website and its customer app use the existing `/api/v1` base URL.
 Each branded dealer app uses its registered `/api/v1/apps/{appId}` base URL for
 **all** customer API calls, including registration, login, refresh, password reset,

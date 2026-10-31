@@ -7,5 +7,5 @@ export default async function Page() {
         consoleGet<{ pushConfigured: boolean }>("/admin/notifications/status"),
         consoleGet<{ id: string; name: string; enabled: boolean }[]>("/admin/customer-apps"),
     ])
-    return <NotificationComposer pushConfigured={status.pushConfigured} apps={apps.filter(app => app.enabled)} />
+    return <NotificationComposer pushConfigured={status.pushConfigured} apps={apps.filter(app => app.enabled && ["changecars", "group1"].includes(app.id))} />
 }

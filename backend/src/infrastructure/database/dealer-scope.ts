@@ -55,7 +55,7 @@ function reject(res: Response, status: number, code: string, message: string, de
  * Rewrites /{prefix}/scope/{ids}/{path} to /{prefix}/{path} and runs the rest of the request inside the scope.
  * `knownDealers` returns which of the IDs are approved dealers.
  */
-export function dealerScopeMiddleware(prefix: string, knownDealers: (ids: string[]) => Promise<string[]>) {
+export function dealerScopeMiddleware(prefix: string, knownDealers: (ids: string[]) => Promise<string[]>, runInApp?: (ids: string[], next: NextFunction) => Promise<void>) {
   const base = `/${prefix.replace(/^\/+|\/+$/g, '')}/scope/`;
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.url.startsWith(base)) return next();
@@ -76,6 +76,9 @@ export function dealerScopeMiddleware(prefix: string, knownDealers: (ids: string
       return next(error);
     }
     req.url = `/${prefix.replace(/^\/+|\/+$/g, '')}/${rest}${search ? `?${search}` : ''}`;
-    dealerScopeStorage.run({ dealerIds: ids, path: `${base}${ids.join(',')}` }, () => next());
+    const proceed = () => dealerScopeStorage.run({ dealerIds: ids, path: `${base}${ids.join(',')}` }, () => next());
+    if (runInApp) {
+      try { await runInApp(ids, proceed); } catch (error) { next(error); }
+    } else proceed();
   };
 }

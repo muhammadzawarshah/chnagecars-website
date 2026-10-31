@@ -10,7 +10,7 @@ export async function manageCustomerApp(_previous: CustomerAppState, form: FormD
     await requireSuperAdmin()
     const value = (key: string) => String(form.get(key) ?? "").trim()
     const id = value("id")
-    if (!/^[a-z0-9][a-z0-9-]{2,63}$/.test(id) || id === "changecars") return { error: "Use a unique app ID with 3–64 lowercase letters, numbers or hyphens." }
+    if (id !== "group1") return { error: "Only the Group1 app is enabled." }
     try {
         if (value("action") === "status") {
             const enabled = value("enabled")
@@ -24,7 +24,7 @@ export async function manageCustomerApp(_previous: CustomerAppState, form: FormD
         } else return { error: "Unknown action." }
         revalidatePath("/dashboard/super-admin/customer-apps")
         revalidatePath("/dashboard/super-admin/notifications")
-        return { success: value("action") === "create" ? "App registered. Its customers can now sign up independently." : "App status updated." }
+        return { success: value("action") === "create" ? "Group1 settings saved. Registration uses its separate customer accounts." : "App status updated." }
     } catch (error) {
         unstable_rethrow(error)
         return { error: error instanceof BackendError ? error.message : "Could not confirm the update. Refresh the list before retrying." }

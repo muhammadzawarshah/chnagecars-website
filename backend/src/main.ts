@@ -1,4 +1,6 @@
-import { customerAppMiddleware } from './modules/customer-apps/app-context';
+import { GROUP1_APP_ID, isGroup1Scope } from './modules/customer-apps/group1';
+import { Errors } from './common/errors/app-error';
+import { customerAppStorage, customerAppMiddleware } from './modules/customer-apps/app-context';
 import { DealerTradeIdentityService } from './infrastructure/dealertrade/dealertrade-identity.service';
 import { mediaRoot } from './infrastructure/dealertrade/dealertrade-media.service';
 import { dealerScopeMiddleware, dealerScopeStorage } from './infrastructure/database/dealer-scope';
@@ -53,7 +55,12 @@ async function bootstrap() {
   }));
   app.use(dealerScopeMiddleware(prefix, async (ids) => (await dealerScopeStorage.exit(() => database.dealer.findMany({
     where: { id: { in: ids }, status: DealerStatus.APPROVED }, select: { id: true },
-  }))).map((dealer) => dealer.id)));
+  }))).map((dealer) => dealer.id), async (ids, next) => {
+    if (!isGroup1Scope(ids)) return next();
+    const app = await database.customerApp.findUnique({ where: { id: GROUP1_APP_ID } });
+    if (!app?.enabled) throw Errors.notFound('App');
+    customerAppStorage.run(app, () => next());
+  }));
   const identities = app.get(DealerTradeIdentityService);
   app.use((req: Request, res: Response, next: NextFunction) => identities.request(req, res, next));
   app.enableCors({

@@ -1,5 +1,7 @@
 # Branded customer apps and notifications handover
 
+Current mode: **Group1 only**, configured automatically at backend startup. See [Group1 registration and release notes](group1-registration.md). Other branded-app registration is disabled.
+
 ## Delivered behavior
 
 - Change Cars website/customer app retain their existing customer directory.
@@ -52,8 +54,7 @@ Run the backend API and existing outbox worker. For separate worker/API processe
 configure both with the same Redis via `REDIS_URL`. Local development can use the
 existing `RUN_WORKER_IN_API=true` configuration.
 
-Register each branded app in **Customer apps**, with its approved dealer IDs and an
-HTTPS password reset page/universal link. Configure the mobile app's API base and
+Group1 is created automatically with its four existing branch IDs. Set its real HTTPS password reset page/universal link in **Customer apps → Group1 settings** before using reset emails. Configure the mobile app's API base and
 Socket.IO `auth.appId` to match that registered app. The reset handler must submit
 password changes to the same branded API base.
 
