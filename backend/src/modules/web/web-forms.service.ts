@@ -1,3 +1,4 @@
+import { authAppId, MAIN_APP } from '../customer-apps/app-context';
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -601,6 +602,7 @@ export class WebFormsService {
    */
   async register(body: Body) {
     const form = new FormReader(body);
+    const appId = authAppId();
     const accountType = form.text('accountType', 'Account type', { max: 10 }) === 'dealer' ? 'dealer' : 'private';
     const email = form.email('email', 'Email');
     const password = typeof body.password === 'string' ? body.password : '';
@@ -615,8 +617,8 @@ export class WebFormsService {
     form.done();
     // Report every taken value at once rather than one per attempt.
     const [usernameTaken, emailTaken] = await Promise.all([
-      username ? this.prisma.user.findUnique({ where: { username }, select: { id: true } }) : null,
-      this.prisma.user.findUnique({ where: { email }, select: { id: true } }),
+      username ? this.prisma.user.findUnique({ where: { appId_username: { appId, username } }, select: { id: true } }) : null,
+      this.prisma.user.findUnique({ where: { appId_email: { appId, email } }, select: { id: true } }),
     ]);
     if (usernameTaken) form.fail('username', 'This username is already taken');
     if (emailTaken) form.fail('email', 'An account with this email already exists');
@@ -627,6 +629,7 @@ export class WebFormsService {
     for (const problem of problems) form.fail(problem.property, Object.values(problem.constraints ?? {})[0] ?? 'Invalid value');
     form.done();
 
+    if (appId !== MAIN_APP && accountType === 'dealer') throw Errors.badRequest('CUSTOMER_APP_ONLY', 'Dealer apps register customers, not dealer staff');
     const fullDealer = accountType === 'dealer' && dealerName && phone && address;
     try {
       if (fullDealer) {
@@ -670,7 +673,7 @@ export class WebFormsService {
   /** The username was checked before sign-up; if someone took it in the meantime the account simply has none. */
   private async saveUsername(email: string, username?: string) {
     if (!username) return;
-    await this.prisma.user.update({ where: { email }, data: { username } }).catch((error) => {
+    await this.prisma.user.update({ where: { appId_email: { appId: authAppId(), email } }, data: { username } }).catch((error) => {
       if (!(error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')) throw error;
     });
   }

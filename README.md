@@ -24,3 +24,13 @@ Local development: see [LOCAL_SETUP.md](LOCAL_SETUP.md). Super admin deployment:
 ## Dealer app integrations
 
 Additional dealer apps use dealer-bound credentials on the central backend. See the [dealer app API guide](backend/docs/dealer-app-api.md) for token issuance, JSON examples, inventory/profile operations, photos and release instructions, and the [API test report](backend/docs/dealer-app-testing.md) for coverage and reproducible checks.
+
+## Real-time notifications
+
+Superadmin announcements, authenticated app WebSockets, Android/iOS push setup and mobile integration: [notification guide](backend/docs/notifications-realtime.md).
+
+## Branded dealer app accounts
+
+Independent same-email customer accounts, app registration and mobile API configuration: [customer app account guide](backend/docs/customer-app-accounts.md).
+
+Release checklist and completed validation: [branded apps handover](backend/docs/branded-apps-handover.md).

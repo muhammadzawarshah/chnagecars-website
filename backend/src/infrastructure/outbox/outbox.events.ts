@@ -22,6 +22,8 @@ export const OutboxEvents = {
   CounterOfferResponded: 'offer.counter_responded',
   OfferAccepted: 'offer.accepted',
   OfferExpired: 'offer.expired',
+  NotificationBroadcast: 'notification.broadcast',
+  NotificationDeliver: 'notification.deliver',
   NewsletterSubscribed: 'newsletter.subscribed',
 } as const;
 

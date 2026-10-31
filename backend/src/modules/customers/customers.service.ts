@@ -204,7 +204,7 @@ export class CustomersService {
       this.prisma.favourite.findMany({ where: { userId } }),
       this.prisma.savedSearch.findMany({ where: { userId } }),
       this.prisma.notificationPreference.findMany({ where: { userId } }),
-      this.prisma.user.findUnique({ where: { id: userId }, select: { email: true } }).then((row) => (row ? this.prisma.newsletterSubscriber.findUnique({ where: { email: row.email } }) : null)),
+      this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, appId: true } }).then((row) => (row ? this.prisma.newsletterSubscriber.findUnique({ where: { appId_email: { appId: row.appId, email: row.email } } }) : null)),
     ]);
     await this.audit.record({ action: 'user.data_export', entityType: 'user', entityId: userId });
     return { exportedAt: new Date().toISOString(), user, enquiries, sellRequests, favourites, savedSearches, notificationPreferences: preferences, newsletter: subscriber };
@@ -247,7 +247,7 @@ export class CustomersService {
         where: { customerId: userId, deals: { none: {} } },
         data: { ...anonymous, registrationNumber: null, vin: null },
       });
-      await tx.newsletterSubscriber.updateMany({ where: { email: user.email }, data: { status: SubscriberStatus.UNSUBSCRIBED, unsubscribedAt: new Date() } });
+      await tx.newsletterSubscriber.updateMany({ where: { appId: user.appId, email: user.email }, data: { status: SubscriberStatus.UNSUBSCRIBED, unsubscribedAt: new Date() } });
       if (user.dealerMember) await tx.dealerMember.update({ where: { id: user.dealerMember.id }, data: { status: 'DISABLED' } });
       await this.audit.record({ action: 'user.delete_account', entityType: 'user', entityId: userId }, tx);
     });

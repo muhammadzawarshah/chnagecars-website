@@ -1,3 +1,4 @@
+import { authAppId, MAIN_APP } from '../customer-apps/app-context';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
@@ -17,6 +18,7 @@ import { ChangePasswordDto, RegisterDto, ResetPasswordDto } from './dto/auth.dto
 
 export interface PublicUser {
   id: string;
+  appId: string;
   username: string | null;
   accountType: string;
   email: string;
@@ -37,6 +39,7 @@ export interface AuthTokens {
 
 export const toPublicUser = (user: User): PublicUser => ({
   id: user.id,
+  appId: user.appId,
   username: user.username,
   accountType: user.accountType,
   email: user.email,
@@ -71,17 +74,20 @@ export class AuthService {
     db: Db,
     input: Pick<RegisterDto, 'email' | 'password' | 'firstName' | 'lastName'> & { username?: string; accountType?: 'PRIVATE_SELLER' | 'DEALER'; acceptTerms?: boolean; phone?: string; marketingConsent?: boolean; role?: UserRole },
   ): Promise<User> {
+    const appId = authAppId();
+    if (appId !== MAIN_APP && input.role && input.role !== UserRole.CUSTOMER) throw Errors.forbidden('CUSTOMER_APP_ONLY', 'Branded apps can register customers only');
     const email = normalizeEmail(input.email);
-    const existing = await db.user.findUnique({ where: { email }, select: { id: true } });
+    const existing = await db.user.findUnique({ where: { appId_email: { appId, email } }, select: { id: true } });
     if (existing) throw Errors.conflict('EMAIL_TAKEN', 'An account with this email already exists');
     if (input.username) {
-      const taken = await db.user.findUnique({ where: { username: input.username.trim().toLowerCase() }, select: { id: true } });
+      const taken = await db.user.findUnique({ where: { appId_username: { appId, username: input.username.trim().toLowerCase() } }, select: { id: true } });
       if (taken) throw Errors.conflict('USERNAME_TAKEN', 'This username is already taken');
     }
     let user: User;
     try {
       user = await db.user.create({
       data: {
+        appId,
         email,
         username: input.username?.trim().toLowerCase(),
         accountType: input.role === UserRole.DEALER ? 'DEALER' : input.accountType ?? 'PRIVATE_SELLER',
@@ -113,7 +119,7 @@ export class AuthService {
 
   async register(dto: import('./dto/auth.dto').CustomerRegisterDto): Promise<AuthTokens> {
     const user = await this.prisma.$transaction(async (tx) => {
-      const created = await this.createUser(tx, { ...dto, role: dto.accountType === 'DEALER' ? UserRole.DEALER : UserRole.CUSTOMER });
+      const created = await this.createUser(tx, { ...dto, role: authAppId() === MAIN_APP && dto.accountType === 'DEALER' ? UserRole.DEALER : UserRole.CUSTOMER, accountType: authAppId() === MAIN_APP ? dto.accountType : 'PRIVATE_SELLER' });
       await this.audit.record({ action: 'auth.register', entityType: 'user', entityId: created.id, actorId: created.id, actorRole: created.role }, tx);
       return created;
     });
@@ -122,7 +128,7 @@ export class AuthService {
 
   async login(emailInput: string, password: string): Promise<AuthTokens> {
     const email = normalizeEmail(emailInput);
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({ where: { appId_email: { appId: authAppId(), email } } });
     const valid = await bcrypt.compare(password, user?.passwordHash ?? this.dummyHash);
 
     if (!user || !valid) {
@@ -142,7 +148,7 @@ export class AuthService {
   /** Rotates the refresh token. Re-use of a rotated token revokes the whole session family. */
   async refresh(refreshToken: string): Promise<AuthTokens> {
     const session = await this.prisma.session.findUnique({ where: { tokenHash: sha256(refreshToken) }, include: { user: true } });
-    if (!session) throw Errors.unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token is invalid');
+    if (!session || session.user.appId !== authAppId()) throw Errors.unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token is invalid');
 
     if (session.revokedAt) {
       await this.prisma.session.updateMany({ where: { familyId: session.familyId, revokedAt: null }, data: { revokedAt: new Date() } });
@@ -176,7 +182,7 @@ export class AuthService {
 
   /** Always succeeds so the endpoint cannot be used to discover accounts. */
   async forgotPassword(emailInput: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { email: normalizeEmail(emailInput) } });
+    const user = await this.prisma.user.findUnique({ where: { appId_email: { appId: authAppId(), email: normalizeEmail(emailInput) } } });
     if (!user || user.status !== UserStatus.ACTIVE) return;
 
     const token = randomToken();
@@ -197,8 +203,8 @@ export class AuthService {
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<void> {
-    const record = await this.prisma.passwordResetToken.findUnique({ where: { tokenHash: sha256(dto.token) } });
-    if (!record || record.usedAt || record.expiresAt < new Date()) {
+    const record = await this.prisma.passwordResetToken.findUnique({ where: { tokenHash: sha256(dto.token) }, include: { user: { select: { appId: true } } } });
+    if (!record || record.user.appId !== authAppId() || record.usedAt || record.expiresAt < new Date()) {
       throw Errors.badRequest('INVALID_RESET_TOKEN', 'This reset link is invalid or has expired');
     }
     const passwordHash = await this.hashPassword(dto.password);
@@ -248,7 +254,7 @@ export class AuthService {
   }
 
   private async buildTokens(user: User, session: { sessionId: string; refreshToken: string; expiresAt: Date }): Promise<AuthTokens> {
-    const payload: AccessTokenPayload = { sub: user.id, email: user.email, role: user.role, sid: session.sessionId };
+    const payload: AccessTokenPayload = { sub: user.id, email: user.email, role: user.role, sid: session.sessionId, appId: user.appId };
     const expiresIn = this.config.get('JWT_ACCESS_TTL_SECONDS');
     return {
       tokenType: 'Bearer',

@@ -1,3 +1,4 @@
+import { currentAppId } from '../customer-apps/app-context';
 import { Body, Controller, Get, HttpCode, HttpStatus, Injectable, Module, OnModuleInit, Post, Query, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -48,13 +49,14 @@ export class NewsletterService {
   ) {}
 
   async subscribe(dto: SubscribeDto, userId?: string) {
+    const appId = currentAppId();
     const email = normalizeEmail(dto.email);
     return this.prisma.$transaction(async (tx) => {
-      const existing = await tx.newsletterSubscriber.findUnique({ where: { email } });
+      const existing = await tx.newsletterSubscriber.findUnique({ where: { appId_email: { appId, email } } });
       if (existing?.status === SubscriberStatus.SUBSCRIBED) return { status: existing.status };
       const subscriber = existing
-        ? await tx.newsletterSubscriber.update({ where: { email }, data: { status: SubscriberStatus.SUBSCRIBED, consentAt: new Date(), unsubscribedAt: null, source: dto.source, firstName: dto.firstName ?? existing.firstName, lastName: dto.lastName ?? existing.lastName } })
-        : await tx.newsletterSubscriber.create({ data: { email, source: dto.source, firstName: dto.firstName, lastName: dto.lastName, userId, unsubscribeToken: randomToken(24) } });
+        ? await tx.newsletterSubscriber.update({ where: { appId_email: { appId, email } }, data: { status: SubscriberStatus.SUBSCRIBED, consentAt: new Date(), unsubscribedAt: null, source: dto.source, firstName: dto.firstName ?? existing.firstName, lastName: dto.lastName ?? existing.lastName } })
+        : await tx.newsletterSubscriber.create({ data: { appId, email, source: dto.source, firstName: dto.firstName, lastName: dto.lastName, userId, unsubscribeToken: randomToken(24) } });
       await this.outbox.enqueue(tx, { type: OutboxEvents.NewsletterSubscribed, aggregateType: 'newsletter_subscriber', aggregateId: subscriber.id, payload: { subscriberId: subscriber.id } });
       return { status: subscriber.status };
     });

@@ -27,7 +27,7 @@ const consoleItems: NavDefinition[] = [
         ["catalogue", "Catalogue", "listings"], ["quality", "Data quality", "check"],
         ["imports", "Feed imports", "listings"], ["snapshots", "App snapshots", "listings"], ["system", "Background processing", "menu"],
         ["content", "Content", "website"], ["reports", "Reports", "compare"],
-        ["audit", "Audit trail", "eye"], ["settings", "Settings", "menu"],
+        ["customer-apps", "Customer apps", "website"], ["notifications", "Notifications", "menu"], ["audit", "Audit trail", "eye"], ["settings", "Settings", "menu"],
     ].map(([path, label, icon]) => ({ path: `/${path}`, label, icon: icon as IconName, permission: "console.manage" as Permission })),
 ];
 

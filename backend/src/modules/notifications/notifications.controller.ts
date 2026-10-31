@@ -1,15 +1,32 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/auth.decorators';
+import { CurrentUser, Roles } from '../../common/decorators/auth.decorators';
 import type { AuthUser } from '../../common/types/auth-user';
-import { NotificationListQueryDto, UpdateNotificationPreferencesDto } from './dto/notification.dto';
+import { BroadcastNotificationDto, PushDeviceDto, RemovePushDeviceDto, NotificationListQueryDto, UpdateNotificationPreferencesDto } from './dto/notification.dto';
+import { UserRole } from '../../generated/prisma/client';
+import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { BroadcastService } from './broadcast.service';
+import { PushService } from './push.service';
 import { NotificationsService } from './notifications.service';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
 @Controller('me/notifications')
 export class NotificationsController {
-  constructor(private readonly notifications: NotificationsService) {}
+  constructor(private readonly notifications: NotificationsService, private readonly db: PrismaService) {}
+
+  @Post('devices')
+  registerDevice(@CurrentUser() user: AuthUser, @Body() dto: PushDeviceDto) {
+    return this.db.pushDevice.upsert({ where: { token: dto.token },
+      create: { ...dto, userId: user.id }, update: { userId: user.id, platform: dto.platform },
+      select: { id: true, platform: true, updatedAt: true } });
+  }
+
+  @Delete('devices')
+  async removeDevice(@CurrentUser() user: AuthUser, @Body() dto: RemovePushDeviceDto) {
+    const result = await this.db.pushDevice.deleteMany({ where: { userId: user.id, token: dto.token } });
+    return { removed: result.count };
+  }
 
   @Get()
   @ApiOperation({ summary: 'My in-app notifications' })
@@ -42,5 +59,23 @@ export class NotificationsController {
   @Put('preferences')
   updatePreferences(@CurrentUser() user: AuthUser, @Body() dto: UpdateNotificationPreferencesDto) {
     return this.notifications.updatePreferences(user.id, dto.items);
+  }
+}
+
+@ApiTags('Admin notifications')
+@ApiBearerAuth()
+@Roles(UserRole.SUPER_ADMIN)
+@Controller('admin/notifications')
+export class AdminNotificationsController {
+  constructor(private readonly broadcasts: BroadcastService, private readonly push: PushService) {}
+
+  @Get('status')
+  status() { return { pushConfigured: this.push.configured }; }
+
+  @Post('broadcast')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Queue an in-app, real-time and mobile push announcement' })
+  broadcast(@CurrentUser() user: AuthUser, @Body() dto: BroadcastNotificationDto) {
+    return this.broadcasts.queue(user, dto);
   }
 }

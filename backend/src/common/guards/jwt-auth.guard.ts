@@ -1,3 +1,4 @@
+import { currentAppId, MAIN_APP } from '../../modules/customer-apps/app-context';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -33,15 +34,17 @@ export class JwtAuthGuard implements CanActivate {
       throw Errors.unauthorized();
     }
 
+    let payload: AccessTokenPayload;
     try {
-      const payload = await this.jwt.verifyAsync<AccessTokenPayload>(token);
-      const user: AuthUser = { id: payload.sub, email: payload.email, role: payload.role, sessionId: payload.sid };
-      request.user = user;
-      if (this.cls.isActive()) this.cls.set('user', user);
-      return true;
+      payload = await this.jwt.verifyAsync<AccessTokenPayload>(token);
     } catch {
       if (isPublic) return true;
       throw Errors.unauthorized('INVALID_TOKEN', 'Access token is invalid or expired');
     }
+    if ((payload.appId ?? MAIN_APP) !== currentAppId()) throw Errors.forbidden('APP_MISMATCH', 'This account belongs to another app');
+    const user: AuthUser = { id: payload.sub, email: payload.email, role: payload.role, sessionId: payload.sid, appId: payload.appId ?? MAIN_APP };
+    request.user = user;
+    if (this.cls.isActive()) this.cls.set('user', user);
+    return true;
   }
 }

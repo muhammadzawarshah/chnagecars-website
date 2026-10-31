@@ -1,3 +1,4 @@
+import { CustomerAppsModule } from './customer-apps/customer-apps.module';
 import { AdminModule } from './admin/admin.module';
 import { ConsoleModule } from './admin/console.module';
 import { AuthModule } from './auth/auth.module';
@@ -28,6 +29,7 @@ import { PriceAlertsModule } from './price-alerts/price-alerts.module';
  * extracted into their own deployables without changing the others.
  */
 export const FEATURE_MODULES = [
+  CustomerAppsModule,
   HealthModule,
   AuthModule,
   NotificationsModule,

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import { OutboxEvents } from '../../infrastructure/outbox/outbox.events';
 import { Injectable, Logger } from '@nestjs/common';
 import { DealerMemberStatus, DealerPermission, NotificationChannel, Prisma, UserRole, UserStatus } from '../../generated/prisma/client';
 import { pageArgs, toPage } from '../../common/dto/pagination.dto';
@@ -48,14 +50,16 @@ export class NotificationsService {
 
     const inApp = users.filter((user) => enabled(user.id, NotificationChannel.IN_APP));
     if (inApp.length) {
-      await this.prisma.notification.createMany({
-        data: inApp.map((user) => ({
-          userId: user.id,
-          type: input.type,
-          title: input.title,
-          body: input.body,
-          data: (input.data ?? {}) as Prisma.InputJsonValue,
-        })),
+      const notifications = inApp.map(user => ({
+        id: randomUUID(), userId: user.id, type: input.type, title: input.title, body: input.body,
+        data: (input.data ?? {}) as Prisma.InputJsonValue,
+      }));
+      await this.prisma.$transaction(async tx => {
+        await tx.notification.createMany({ data: notifications });
+        await tx.outboxEvent.createMany({ data: notifications.map(notification => ({
+          type: OutboxEvents.NotificationDeliver, aggregateType: 'Notification', aggregateId: notification.id,
+          payload: { notificationId: notification.id },
+        })) });
       });
     }
 

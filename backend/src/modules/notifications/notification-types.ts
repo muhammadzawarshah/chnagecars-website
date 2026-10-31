@@ -5,6 +5,7 @@ import { NotificationChannel } from '../../generated/prisma/client';
  * preferences per type and channel. Defaults: in-app + email on, SMS off.
  */
 export const NotificationTypes = {
+  Announcement: 'admin.announcement',
   EnquiryNew: 'enquiry.new',
   EnquiryResponse: 'enquiry.response',
   LeadAssigned: 'lead.assigned',

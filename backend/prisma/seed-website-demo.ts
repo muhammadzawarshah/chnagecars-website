@@ -152,7 +152,7 @@ export async function seedWebsiteDemo(prisma: PrismaClient, fixture: WebsiteFixt
     if (superAdmin) hasSuperAdmin = true;
     const { firstName, lastName } = splitName(person.name);
     await prisma.user.upsert({
-      where: { email: person.email },
+      where: { appId_email: { appId: 'changecars', email: person.email } },
       create: {
         email: person.email,
         passwordHash,
@@ -172,7 +172,7 @@ export async function seedWebsiteDemo(prisma: PrismaClient, fixture: WebsiteFixt
   for (const item of fixture.dealers) {
     const { firstName, lastName } = splitName(item.contactName);
     const owner = await prisma.user.upsert({
-      where: { email: item.email },
+      where: { appId_email: { appId: 'changecars', email: item.email } },
       create: { email: item.email, passwordHash, firstName, lastName, phone: item.phone, role: UserRole.DEALER, termsAcceptedAt: new Date() },
       update: {},
     });

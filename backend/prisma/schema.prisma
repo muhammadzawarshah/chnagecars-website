@@ -279,10 +279,12 @@ enum OutboxStatus {
 
 model User {
   id               String     @id @default(uuid(7)) @db.Uuid
-  email            String     @unique
+  appId            String     @default("changecars")
+  application      CustomerApp @relation(fields: [appId], references: [id])
+  email            String
   /// Optional public handle chosen on the website sign-up (stored lower case). Sign-in stays by email.
   accountType      String     @default("PRIVATE_SELLER")
-  username         String?    @unique
+  username         String?
   phone            String?
   passwordHash     String
   firstName        String
@@ -310,10 +312,13 @@ model User {
   recentlyViewed          RecentlyViewed[]
   enquiries               Enquiry[]                @relation("EnquiryCustomer")
   sellRequests            SellRequest[]
+  pushDevices             PushDevice[]
   notifications           Notification[]
   notificationPreferences NotificationPreference[]
   articles                Article[]
 
+  @@unique([appId, email])
+  @@unique([appId, username])
   @@index([role, status])
   @@map("users")
 }
@@ -1494,7 +1499,8 @@ model StaticPage {
 
 model NewsletterSubscriber {
   id               String           @id @default(uuid(7)) @db.Uuid
-  email            String           @unique
+  appId            String           @default("changecars")
+  email            String
   firstName        String?
   lastName         String?
   status           SubscriberStatus @default(SUBSCRIBED)
@@ -1506,6 +1512,7 @@ model NewsletterSubscriber {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
+  @@unique([appId, email])
   @@index([status])
   @@map("newsletter_subscribers")
 }
@@ -1615,4 +1622,30 @@ model DealerTradeIdAlias {
   sourceId String
   @@id([entity, legacyId])
   @@map("dealertrade_id_aliases")
+}
+
+model PushDevice {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  platform  String
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_devices")
+}
+
+/// Registered customer-facing app. Dealer staff credentials remain platform accounts.
+model CustomerApp {
+  id        String   @id
+  name      String
+  dealerIds String[] @default([])
+  resetUrl  String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+
+  @@map("customer_apps")
 }

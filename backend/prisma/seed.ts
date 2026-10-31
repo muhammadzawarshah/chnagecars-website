@@ -362,7 +362,7 @@ async function seedContent() {
 
 async function seedSuperAdmin() {
   const email = (process.env.SEED_ADMIN_EMAIL ?? 'admin@changecars.co.za').toLowerCase();
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { appId_email: { appId: 'changecars', email } } });
   if (existing) return;
   // The platform has exactly one super admin.
   const current = await prisma.user.findFirst({ where: { role: UserRole.SUPER_ADMIN, deletedAt: null }, select: { email: true } });
@@ -377,7 +377,7 @@ async function seedSuperAdmin() {
 async function seedDemo(variantIds: Record<string, string>) {
   const password = await bcrypt.hash('Password123', 10);
   const user = (email: string, firstName: string, lastName: string, role: UserRole) =>
-    prisma.user.upsert({ where: { email }, create: { email, passwordHash: password, firstName, lastName, role, termsAcceptedAt: new Date(), phone: '+27 82 000 0000' }, update: {} });
+    prisma.user.upsert({ where: { appId_email: { appId: 'changecars', email } }, create: { email, passwordHash: password, firstName, lastName, role, termsAcceptedAt: new Date(), phone: '+27 82 000 0000' }, update: {} });
 
   const owner = await user('owner@demo-dealer.co.za', 'Thabo', 'Nkosi', UserRole.DEALER);
   const sales = await user('sales@demo-dealer.co.za', 'Lerato', 'Mokoena', UserRole.DEALER);

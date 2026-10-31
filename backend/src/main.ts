@@ -1,3 +1,4 @@
+import { customerAppMiddleware } from './modules/customer-apps/app-context';
 import { DealerTradeIdentityService } from './infrastructure/dealertrade/dealertrade-identity.service';
 import { mediaRoot } from './infrastructure/dealertrade/dealertrade-media.service';
 import { dealerScopeMiddleware, dealerScopeStorage } from './infrastructure/database/dealer-scope';
@@ -44,6 +45,12 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '1mb' });
   const database = app.get(PrismaService);
   // Dealer apps: /api/v1/scope/{dealerIds}/... serves the same public API limited to those dealers.
+  app.use(customerAppMiddleware(prefix, async id => {
+    const registered = await database.customerApp.findUnique({ where: { id } });
+    if (!registered?.enabled) return null;
+    const approved = await database.dealer.count({ where: { id: { in: registered.dealerIds }, status: DealerStatus.APPROVED } });
+    return approved === registered.dealerIds.length ? registered : null;
+  }));
   app.use(dealerScopeMiddleware(prefix, async (ids) => (await dealerScopeStorage.exit(() => database.dealer.findMany({
     where: { id: { in: ids }, status: DealerStatus.APPROVED }, select: { id: true },
   }))).map((dealer) => dealer.id)));
